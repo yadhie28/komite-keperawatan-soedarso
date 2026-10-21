@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Terpadu Komite Keperawatan | RSUD dr. Soedarso Pontianak</title>
+  <meta name="description" content="Portal Resmi Komite Keperawatan RSUD dr. Soedarso Pontianak - Pelayanan E-Kredensialing, Rincian Kewenangan Klinis (RKK), Surat Penugasan Klinis (SPK), Audit Mutu Profesi, Penegakan Etika & Disiplin.">
+  <meta name="theme-color" content="#074744">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Komite Kep Soedarso">
+
+  <!-- Open Graph & Social Sharing (Permanently Locked to regal-smakager-133704.netlify.app) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Portal Terpadu Komite Keperawatan | RSUD dr. Soedarso Pontianak">
+  <meta property="og:description" content="Pelayanan E-Kredensialing, Rincian Kewenangan Klinis (RKK), Surat Penugasan Klinis (SPK), Audit Mutu Profesi, Penegakan Etika & Disiplin.">
+  <meta property="og:image" content="https://regal-smakager-133704.netlify.app/hero_banner.jpg">
+  <meta property="og:url" content="https://regal-smakager-133704.netlify.app/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Portal Terpadu Komite Keperawatan | RSUD dr. Soedarso Pontianak">
+  <meta name="twitter:description" content="Pelayanan E-Kredensialing, Rincian Kewenangan Klinis (RKK), Surat Penugasan Klinis (SPK), Audit Mutu Profesi, Penegakan Etika & Disiplin.">
+  <meta name="twitter:image" content="https://regal-smakager-133704.netlify.app/hero_banner.jpg">
+  <meta name="twitter:url" content="https://regal-smakager-133704.netlify.app/">
+  <link rel="canonical" href="https://regal-smakager-133704.netlify.app/">
+
+  <!-- Favicon & PWA Manifest -->
+  <link rel="icon" type="image/png" href="logo_komite_256.png">
+  <link rel="apple-touch-icon" href="logo_komite_256.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Mode Administrator Banner (Shown when admin is logged in) -->
+  <div id="adminModeBanner" class="admin-mode-banner" style="display: none;">
+    <div style="display: flex; align-items: center; gap: 0.6rem;">
+      <i class="fa-solid fa-user-shield" style="color: var(--gold-400); font-size: 1rem;"></i>
+      <span>Mode Administrator Aktif: <strong id="adminBannerUser">M. Separia Russanto, S.Kep., Ns</strong> (<span id="adminBannerRole">Ketua Komite</span>) &bull; Akses Penuh Tata Kelola Klinis</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span class="badge-official" style="font-size: 0.7rem; background: rgba(0,0,0,0.3);">AKSES TERAUTENTIKASI</span>
+      <button class="btn-logout" onclick="logoutAdmin()" title="Keluar dari sesi Admin" style="color: #fde68a; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TOPBAR & HEADER
+       ======================================================================== -->
+  <header class="site-header">
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <div class="top-bar-left">
+          <span class="badge-official"><i class="fa-solid fa-shield-halved"></i> PEMPROV KALBAR</span>
+          <div class="top-info-item">
+            <i class="fa-solid fa-hospital"></i>
+            <span>RSUD DR. SOEDARSO PONTIANAK &bull; RUMAH SAKIT UMUM DAERAH KELAS A PENDIDIKAN</span>
+          </div>
+          <div class="top-info-item">
+            <i class="fa-solid fa-certificate"></i>
+            <span>AKREDITASI KARS PARIPURNA ⭐⭐⭐⭐⭐</span>
+          </div>
+        </div>
+        <div class="top-bar-right">
+          <div class="top-info-item">
+            <i class="fa-regular fa-clock"></i>
+            <span>Senin - Jumat: 07.30 - 16.00 WIB</span>
+          </div>
+          <div class="top-info-item">
+            <i class="fa-regular fa-envelope"></i>
+            <span>komite.keperawatan@rsudsoedarso.kalbarprov.go.id</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="nav-container">
+      <a href="#beranda" class="brand-wrapper" id="brandLogoLink">
+        <div class="brand-logos">
+          <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" class="logo-pemprov-img" id="navLogoKalbar">
+          <img src="logo_komite.png" alt="Logo Komite Keperawatan" class="logo-komite-img" id="navLogoKomite">
+        </div>
+        <div class="brand-details">
+          <div class="brand-title">
+            KOMITE KEPERAWATAN
+            <span class="badge-official">RESMI</span>
+          </div>
+          <div class="brand-subtitle">
+            RSUD dr. Soedarso Pontianak &bull; Penjaminan Mutu & Kewenangan Klinis
+          </div>
+        </div>
+      </a>
+
+      <!-- Navigation Tabs -->
+      <ul class="nav-tabs" id="navTabs">
+        <li>
+          <button class="nav-tab-btn active" data-tab="beranda">
+            <i class="fa-solid fa-house-chimney-medical"></i> Beranda
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="kredensial">
+            <i class="fa-solid fa-id-card-clip"></i> E-Kredensialing & RKK
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="mutu">
+            <i class="fa-solid fa-clipboard-check"></i> Mutu Profesi
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="etik">
+            <i class="fa-solid fa-scale-balanced"></i> Etik & Disiplin
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="analitik">
+            <i class="fa-solid fa-chart-pie"></i> Analitik Data
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="regulasi">
+            <i class="fa-solid fa-book-bookmark"></i> Pusat Regulasi
+          </button>
+        </li>
+      </ul>
+
+      <!-- Action Buttons -->
+      <div class="nav-actions">
+        <button class="btn-icon-circle" id="themeToggleBtn" title="Beralih Mode Gelap/Terang">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <!-- Admin Login Button (shown when logged out) -->
+        <button class="btn-secondary" id="btnLoginNav" onclick="openLoginModal()" style="padding: 0.55rem 0.95rem; font-size: 0.82rem; font-weight: 700; gap: 0.4rem;">
+          <i class="fa-solid fa-lock" style="color: var(--gold-600);"></i> Login Admin
+        </button>
+
+        <!-- Admin User Pill (shown when logged in) -->
+        <div class="admin-user-pill" id="adminUserPill" style="display: none;">
+          <div class="admin-avatar" id="adminAvatarText">HW</div>
+          <div class="admin-info">
+            <span class="admin-name" id="adminNavName">Ns. Hendra W.</span>
+            <span class="admin-role-tag" id="adminNavRole">Super Admin</span>
+          </div>
+          <button class="btn-logout" onclick="logoutAdmin()" title="Keluar dari sesi Admin">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+
+        <button class="btn-cta-quick" id="btnQuickKredensial">
+          <i class="fa-solid fa-file-circle-plus"></i> + Ajukan Kredensial
+        </button>
+        <button class="btn-mobile-menu" id="mobileMenuBtn" aria-label="Menu Navigasi Mobile">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========================================================================
+       MAIN APPLICATION CONTAINER
+       ======================================================================== -->
+  <main class="main-wrapper">
+
+    <!-- ----------------------------------------------------------------------
+         TAB 1: BERANDA & PROFIL
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane active" id="pane-beranda">
+      <!-- Hero Card Banner -->
+      <div class="hero-card">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div>
+            <div class="hero-tag">
+              <i class="fa-solid fa-award"></i> TATA KELOLA KLINIS KEPERAWATAN BERSTANDAR KARS
+            </div>
+            <h1 class="hero-title">
+              Menjaga <span>Kompetensi & Mutu</span> Asuhan Keperawatan Pasien
+            </h1>
+            <p class="hero-desc">
+              Portal Terpadu Komite Keperawatan RSUD dr. Soedarso Pontianak dalam menyelenggarakan tata kelola klinis yang transparan, kredibel, dan berorientasi keselamatan pasien melalui verifikasi kewenangan klinis (RKK/SPK), audit asuhan keperawatan berkala, dan penegakan kode etik profesi.
+            </p>
+            <div class="hero-buttons">
+              <button class="btn-hero-primary" onclick="switchTab('kredensial')">
+                <i class="fa-solid fa-magnifying-glass-chart"></i> Cari & Cek Status RKK Perawat
+              </button>
+              <button class="btn-hero-secondary" onclick="openNewKredensialModal()">
+                <i class="fa-solid fa-file-signature"></i> Ajukan E-Kredensialing Baru
+              </button>
+              <button class="btn-hero-secondary" onclick="switchTab('mutu')">
+                <i class="fa-solid fa-shield-virus"></i> Indikator Mutu Klinis
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Right Metrics Panel -->
+          <div class="hero-stats-panel">
+            <div class="stat-box">
+              <div class="stat-num" id="heroStatTotal">485+</div>
+              <div class="stat-label">Tenaga Perawat & Bidan Terdaftar</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="heroStatValid">94.2%</div>
+              <div class="stat-label">Kredensial SPK & RKK Aktif</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">3</div>
+              <div class="stat-label">Subkomite Fungsional Berdaya</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">100%</div>
+              <div class="stat-label">Kepatuhan Rekomendasi Direktur</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Subkomite Executive Cards -->
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Tiga Pilar Subkomite Keperawatan</h2>
+          <p class="section-subtitle">
+            Pelaksanaan fungsi tata kelola klinis berdasarkan Permenkes No. 49 Tahun 2013 di RSUD dr. Soedarso Pontianak
+          </p>
+        </div>
+      </div>
+
+      <div class="subkomite-grid">
+        <!-- Subkomite Kredensial -->
+        <div class="subkomite-card card-kredensial">
+          <div class="subkomite-icon-wrapper">
+            <i class="fa-solid fa-id-card-clip"></i>
+          </div>
+          <h3 class="subkomite-card-title">Subkomite Kredensial</h3>
+          <p class="subkomite-card-desc">
+            Menjamin tenaga keperawatan dan kebidanan memiliki kompetensi klinis yang terverifikasi secara sahih dan memperoleh Surat Penugasan Klinis (SPK) serta Rincian Kewenangan Klinis (RKK) sesuai jenjang karir PK I - PK V.
+          </p>
+          <ul class="subkomite-features-list">
+            <li><i class="fa-solid fa-circle-check"></i> E-Kredensialing & Rekredensialing Online</li>
+            <li><i class="fa-solid fa-circle-check"></i> Penilaian Kompetensi bersama Mitra Bestari</li>
+            <li><i class="fa-solid fa-circle-check"></i> Rekomendasi Terbit SPK/RKK oleh Direktur RS</li>
+            <li><i class="fa-solid fa-circle-check"></i> Pemutakhiran White Paper (Buku Putih)</li>
+          </ul>
+          <button class="btn-card-action" onclick="switchTab('kredensial')">
+            Buka Registry Kredensialing <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Subkomite Mutu Profesi -->
+        <div class="subkomite-card card-mutu">
+          <div class="subkomite-icon-wrapper">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h3 class="subkomite-card-title">Subkomite Mutu Profesi</h3>
+          <p class="subkomite-card-desc">
+            Mempertahankan dan meningkatkan mutu asuhan keperawatan melalui audit klinis rutin, ronde keperawatan, pemantauan indikator keselamatan pasien (phlebitis, luka dekubitus), dan verifikasi CPD / SKP.
+          </p>
+          <ul class="subkomite-features-list">
+            <li><i class="fa-solid fa-circle-check"></i> Audit Kepatuhan CPPT & Dokumentasi SBAR</li>
+            <li><i class="fa-solid fa-circle-check"></i> Ronde Keperawatan Kasus Kompleks & High-Risk</li>
+            <li><i class="fa-solid fa-circle-check"></i> Monitoring Pencegahan Plebitis & Jatuh</li>
+            <li><i class="fa-solid fa-circle-check"></i> Portofolio SKP & Logbook Klinis Terintegrasi</li>
+          </ul>
+          <button class="btn-card-action" onclick="switchTab('mutu')">
+            Lihat Dashboard Mutu & Audit <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Subkomite Etik & Disiplin -->
+        <div class="subkomite-card card-etik">
+          <div class="subkomite-icon-wrapper">
+            <i class="fa-solid fa-scale-balanced"></i>
+          </div>
+          <h3 class="subkomite-card-title">Subkomite Etika & Disiplin</h3>
+          <p class="subkomite-card-desc">
+            Menegakkan kode etik keperawatan PPNI dan kebidanan IBI, menyelenggarakan pembinaan profesional berkelanjutan, serta memfasilitasi saluran konsultasi etik rahasia (whistleblowing) yang aman.
+          </p>
+          <ul class="subkomite-features-list">
+            <li><i class="fa-solid fa-circle-check"></i> Sosialisasi Kode Etik Keperawatan & Kebidanan</li>
+            <li><i class="fa-solid fa-circle-check"></i> Sidang Panel Mitra Bestari Kasus Disiplin</li>
+            <li><i class="fa-solid fa-circle-check"></i> Whistleblowing & Pengaduan Etik Rahasia</li>
+            <li><i class="fa-solid fa-circle-check"></i> Pembinaan Disiplin & Budaya Keselamatan</li>
+          </ul>
+          <button class="btn-card-action" onclick="switchTab('etik')">
+            Akses Layanan Etik & Konsultasi <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Profil Pimpinan & Struktur Komite -->
+      <div class="card-table-wrapper" style="padding: 2rem;">
+        <div class="section-header" style="margin-bottom: 1.5rem;">
+          <div>
+            <h3 class="section-title" style="font-size: 1.35rem;">Pimpinan & Struktur Organisasi Komite Keperawatan</h3>
+            <p class="section-subtitle">Masa Bakti 2024 - 2027 &bull; RSUD dr. Soedarso Pontianak</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+          <!-- 1. Ketua Komite -->
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-700), var(--primary-500)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-600); text-transform: uppercase;">Ketua Komite Keperawatan</div>
+              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">M. Separia Russanto, S.Kep., Ns</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Pimpinan Komite &bull; Super Admin</div>
+            </div>
+          </div>
+
+          <!-- 2. Sekretaris Komite -->
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #0d9488, #14b8a6); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: #0d9488; text-transform: uppercase;">Sekretaris Komite Keperawatan</div>
+              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Ns. Rusmulyadi, S.Kep., MARS</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Pimpinan Komite &bull; Super Admin</div>
+            </div>
+          </div>
+
+          <!-- 3. Sub Komite Kredensial -->
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fa-solid fa-id-card"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: #0284c7; text-transform: uppercase;">Ketua Sub Komite Kredensial</div>
+              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Divisi Kredensialing & 8 Anggota Tim</div>
+            </div>
+          </div>
+
+          <!-- 4. Sub Komite Mutu Keperawatan -->
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #10b981, #34d399); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Ketua Sub Komite Mutu Keperawatan</div>
+              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Laila Istiqomah, S.Kep., Ns</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Divisi Audit Asuhan & 6 Anggota Tim</div>
+            </div>
+          </div>
+
+          <!-- 5. Sub Komite Etika dan Disiplin -->
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #d97706, #fbbf24); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fa-solid fa-gavel"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: #d97706; text-transform: uppercase;">Ketua Sub Komite Etika & Disiplin</div>
+              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Divisi Etik & Disiplin & 5 Anggota Tim</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol & Kotak Daftar Lengkap 24 Pengurus Sesuai SK Direktur -->
+        <div style="margin-top: 1.5rem; text-align: center;">
+          <button class="btn-secondary" onclick="toggleStructureSK()" id="btnToggleStructureSK" style="font-size: 0.88rem; padding: 0.65rem 1.25rem; gap: 0.5rem; border-color: var(--primary-500); color: var(--primary-700);">
+            <i class="fa-solid fa-users-viewfinder"></i> Buka Susunan Lengkap 24 Pengurus Sesuai SK Direktur No. SK/ 280801 /RSUD/2026
+          </button>
+        </div>
+
+        <div id="boxStructureSK" style="display: none; margin-top: 1.5rem; background: var(--bg-app); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 1.5rem; animation: fadeIn 0.3s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0;">
+                <i class="fa-solid fa-file-signature" style="color: var(--gold-500);"></i>
+                Lampiran I: Susunan Struktur Komite Keperawatan RSUD Dokter Soedarso
+              </h4>
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin: 4px 0 0 0;">
+                Keputusan Direktur RSUD Dokter Soedarso Nomor SK/ 280801 /RSUD/2026 Tanggal 28 Agustus 2026 (Periode 2024 - 2027)
+              </p>
+            </div>
+            <span class="badge-official" style="background: var(--primary-700); color: #fff;">24 Pejabat / Pengurus Resmi</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">No.</th>
+                  <th>Nama Lengkap & Gelar</th>
+                  <th>Kedudukan Dalam Tim</th>
+                  <th>Sub Komite / Divisi</th>
+                  <th style="text-align: center;">Hak Akses Portal</th>
+                </tr>
+              </thead>
+              <tbody id="tableStructureSKBody">
+                <!-- Rendered dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 2: E-KREDENSIALING & RKK/SPK
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane" id="pane-kredensial">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Registry E-Kredensialing & RKK/SPK</h2>
+          <p class="section-subtitle">
+            Daftar tenaga keperawatan dan kebidanan RSUD dr. Soedarso Pontianak beserta status verifikasi kewenangan klinis (SPK/RKK)
+          </p>
+        </div>
+        <button class="btn-primary" onclick="openNewKredensialModal()">
+          <i class="fa-solid fa-plus"></i> Permohonan Kredensialing Baru
+        </button>
+      </div>
+
+      <!-- Alert RKK Dikembalikan / Perlu Perbaikan (Sesuai Komkep BARI) -->
+      <div id="boxRkkDikembalikan" style="display: none; margin-bottom: 1.5rem;">
+        <!-- Rendered dynamically via JS if any application is returned -->
+      </div>
+
+      <!-- Alur Proses E-Kredensialing 3 Langkah -->
+      <div class="alur-kredensial-wrapper">
+        <div class="alur-header-banner">
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-certificate"></i> Tata Kelola Kredensial Tenaga Keperawatan & Kebidanan
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
+              Alur Pengajuan Kredensialing & Rekredensialing (3 Tahap Utama)
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+              Berdasarkan PMK No. 49 Tahun 2013 & Buku Putih Kredensial RSUD dr. Soedarso Pontianak
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="toggleTrackerKredensial()">
+              <i class="fa-solid fa-route"></i> Lacak Status Berkas Saya
+            </button>
+            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openSuratPermohonanModal()">
+              <i class="fa-solid fa-file-pen"></i> Buat Surat Permohonan
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Step Action Grid -->
+        <div class="alur-grid">
+          <!-- Step 1 Card -->
+          <div class="alur-card" onclick="openSuratPermohonanModal()">
+            <div class="alur-card-badge step-1">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 1
+            </div>
+            <div class="alur-card-icon">
+              <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div class="alur-card-title">1. Isi Form &amp; Download Surat</div>
+            <div class="alur-card-desc">
+              Pemohon mengisi data diri, legalitas STR, dan checklist berkas, lalu langsung mengunduh/mencetak Surat Permohonan resmi untuk ditandatangani mandiri. <strong>Tidak memerlukan persetujuan pengurus komite keperawatan</strong> pada tahap ini.
+            </div>
+            <div class="alur-card-action">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" id="badgeStep1Status" style="background: rgba(20, 148, 142, 0.15); color: var(--primary-700); font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-check"></i> Siap Diisi &amp; Diunduh
+                </span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary-600);">
+                  Isi &amp; Download <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 Card -->
+          <div class="alur-card" onclick="openModalUploadSurat()">
+            <div class="alur-card-badge step-2">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 2
+            </div>
+            <div class="alur-card-icon" style="color: #d97706;">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div class="alur-card-title">2. Tanda Tangani &amp; Unggah Kembali</div>
+            <div class="alur-card-desc">
+              Surat Permohonan yang telah Anda tanda tangani diunggah kembali ke sistem bersama berkas STR aktif, ijazah, logbook tindakan, dan sertifikat CPD untuk lanjut langsung ke Langkah 3.
+            </div>
+            <div class="alur-card-action">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" id="badgeStep2Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-clock"></i> Belum Diunggah
+                </span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
+                  Upload Berkas <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 Card -->
+          <div class="alur-card" id="cardStep3Rkk" onclick="cekBukaRkkOnline()">
+            <div class="alur-card-badge step-3">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 3
+            </div>
+            <div class="alur-card-icon" style="color: #2563eb;">
+              <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div class="alur-card-title">3. Pengisian RKK Online</div>
+            <div class="alur-card-desc">
+              Setelah berkas diunggah, pemohon langsung melakukan asesmen mandiri rincian kewenangan klinis (Mandiri, Delegasi, Mandat, Supervisi) tanpa menunggu persetujuan pengurus.
+            </div>
+            <div class="alur-card-action">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" id="badgeStep3Status" style="background: #f1f5f9; color: var(--text-muted); font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-circle-play"></i> Buka Instrumen RKK
+                </span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">
+                  Asesmen RKK <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracking Timeline Box (Real-Time Tracker) -->
+        <div class="kred-tracker-box" id="boxTrackerKredensial" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+            <div>
+              <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                <i class="fa-solid fa-route" style="color: var(--primary-600); margin-right: 6px;"></i>
+                Pelacakan Status Berkas Kredensialing Real-Time
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">
+                Pantau progres verifikasi subkomite, asesmen mitra bestari hingga penerbitan SPK/RKK Direktur.
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="text" id="trackerSearchNip" class="form-input" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; width: 230px;" placeholder="Masukkan NIP / Nama Pemohon...">
+              <button class="btn-primary" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;" onclick="lacakStatusKredensial()">
+                <i class="fa-solid fa-magnifying-glass"></i> Lacak
+              </button>
+            </div>
+          </div>
+
+          <!-- Current Active Tracking Status Visual -->
+          <div id="trackerVisualContainer">
+            <!-- Rendered dynamically via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter and Table Container -->
+      <div class="card-table-wrapper">
+        <div class="card-table-header">
+          <div class="table-filter-bar">
+            <!-- Search Input -->
+            <div class="search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="nurseSearchInput" class="form-control-search" placeholder="Cari nama, NIP, atau No. STR...">
+            </div>
+
+            <!-- Filter Unit -->
+            <select id="filterUnit" class="select-filter">
+              <option value="">Semua Ruangan / Unit</option>
+              <option value="Ruang Enggang Gading 2">Ruang Enggang Gading 2</option>
+              <option value="ICU Sentral">ICU Sentral</option>
+              <option value="Instalasi Gawat Darurat">IGD</option>
+              <option value="Ruang Cendrawasih">Ruang Cendrawasih</option>
+              <option value="Ruang Bersalin">Ruang Bersalin (VK)</option>
+              <option value="Kamar Bedah Sentral">Kamar Bedah Sentral (IBS)</option>
+              <option value="Ruang Hemodialisa">Ruang Hemodialisa</option>
+              <option value="Ruang Perinatologi">Ruang Perinatologi & NICU</option>
+              <option value="Klinik Onkologi">Klinik Onkologi</option>
+              <option value="Ruang Merak">Ruang Merak</option>
+            </select>
+
+            <!-- Filter Jenjang Karir -->
+            <select id="filterPkLevel" class="select-filter">
+              <option value="">Semua Jenjang Karir</option>
+              <option value="PK I">PK I (Novice)</option>
+              <option value="PK II">PK II (Adv. Beginner)</option>
+              <option value="PK III">PK III (Competent)</option>
+              <option value="PK IV">PK IV (Proficient)</option>
+              <option value="PK V">PK V (Expert)</option>
+              <option value="PMB">PMB (Bidan)</option>
+            </select>
+
+            <!-- Filter Status -->
+            <select id="filterStatus" class="select-filter">
+              <option value="">Semua Status Kredensial</option>
+              <option value="Disetujui">Disetujui (Aktif)</option>
+              <option value="Proses Review">Proses Review</option>
+              <option value="Menunggu Mitra Bestari">Menunggu Mitra Bestari</option>
+              <option value="Mendekati Kadaluarsa">Mendekati Kadaluarsa</option>
+            </select>
+          </div>
+
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);" id="tableCountDisplay">
+            Menampilkan data tenaga keperawatan
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-responsive">
+          <table class="data-table" id="nursesTable">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Foto</th>
+                <th>Nama & Gelar</th>
+                <th>NIP / Identitas</th>
+                <th>Ruangan / Instalasi</th>
+                <th>Jenjang Karir</th>
+                <th>No. STR & Berlaku</th>
+                <th>Nomor SPK & Berlaku</th>
+                <th>Status</th>
+                <th style="text-align: right;">Aksi & Dokumen</th>
+              </tr>
+            </thead>
+            <tbody id="nurseTableBody">
+              <!-- Rendered via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 3: MUTU PROFESI & AUDIT
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane" id="pane-mutu">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Subkomite Mutu Profesi & Audit Klinis</h2>
+          <p class="section-subtitle">
+            Indikator penjaminan mutu pelayanan asuhan keperawatan dan keselamatan pasien di seluruh ruang perawatan RSUD dr. Soedarso
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <button class="btn-secondary" onclick="showToast('Data audit keperawatan berhasil disinkronisasi dengan SIMRS', 'success')">
+            <i class="fa-solid fa-arrows-rotate"></i> Sinkronisasi Audit
+          </button>
+          <button class="btn-primary" id="btnAdminAddAudit" onclick="openAuditModal()">
+            <i class="fa-solid fa-plus"></i> + Input Nilai Audit Ruangan
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Audit Metric Cards -->
+      <div class="audit-cards-grid">
+        <div class="audit-metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Kepatuhan CPPT & SBAR</span>
+            <i class="fa-solid fa-file-signature" style="color: var(--primary-600);"></i>
+          </div>
+          <div class="metric-value">98.4%</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Target Nasional: ≥90.0%</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill success" style="width: 98.4%;"></div>
+          </div>
+        </div>
+
+        <div class="audit-metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Kepatuhan Hand Hygiene</span>
+            <i class="fa-solid fa-hands-bubbles" style="color: #0284c7;"></i>
+          </div>
+          <div class="metric-value">98.8%</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">6 Langkah & 5 Momen WHO</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: 98.8%;"></div>
+          </div>
+        </div>
+
+        <div class="audit-metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Bebas Insiden Plebitis</span>
+            <i class="fa-solid fa-heart-pulse" style="color: #10b981;"></i>
+          </div>
+          <div class="metric-value">99.4%</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Insiden: 0.6 per mil (Target &lt; 1.5‰)</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill success" style="width: 99.4%;"></div>
+          </div>
+        </div>
+
+        <div class="audit-metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Capaian Portofolio CPD/SKP</span>
+            <i class="fa-solid fa-graduation-cap" style="color: var(--gold-600);"></i>
+          </div>
+          <div class="metric-value">94.5%</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Rerata SKP Kemenkes Aktif</div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill gold" style="width: 94.5%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Results by Unit Table -->
+      <div class="card-table-wrapper">
+        <div class="card-table-header">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">
+            <i class="fa-solid fa-clipboard-list" style="color: var(--primary-600); margin-right: 0.5rem;"></i>
+            Rekapitulasi Audit Klinis Asuhan Keperawatan per Ruang Perawatan (Oktober 2026)
+          </h3>
+          <span class="badge-status badge-status-approved">Standar Mutu Paripurna</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Unit / Ruangan Rawat</th>
+                <th>Kepala Ruangan (Karu)</th>
+                <th>Kepatuhan CPPT</th>
+                <th>Hand Hygiene</th>
+                <th>Bebas Plebitis</th>
+                <th>Pencegahan Jatuh</th>
+                <th>Skor CPD</th>
+                <th>Grade Mutu</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 4: ETIKA, DISIPLIN & WHISTLEBLOWING
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane" id="pane-etik">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Subkomite Etika & Disiplin Profesi</h2>
+          <p class="section-subtitle">
+            Penegakan Kode Etik Keperawatan & Kebidanan, Perlindungan Hak Pasien, dan Saluran Whistleblowing Aman & Rahasia
+          </p>
+        </div>
+      </div>
+
+      <!-- 2 Columns: Alur & Form Pengaduan Rahasia -->
+      <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Left: Kode Etik & Alur Penyelesaian -->
+        <div class="card-table-wrapper" style="padding: 1.75rem; margin-bottom: 0;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-scale-balanced" style="color: var(--gold-600);"></i>
+            Alur Penanganan Masalah Etika & Disiplin Profesi
+          </h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.25rem;">
+            <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+              <div style="background: var(--primary-100); color: var(--primary-800); width: 28px; height: 28px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0;">1</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Penerimaan Laporan / Konsultasi Etik</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Laporan masuk melalui sistem online rahasia, pengaduan keluarga pasien, atau temuan monitoring internal keperawatan.</div>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+              <div style="background: var(--primary-100); color: var(--primary-800); width: 28px; height: 28px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0;">2</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Klarifikasi & Telaah Awal Berkas</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Subkomite Etika melakukan verifikasi berkas rekam medis, CPPT, buku operan, serta memanggil pihak terkait secara tertutup.</div>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+              <div style="background: var(--primary-100); color: var(--primary-800); width: 28px; height: 28px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0;">3</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Sidang Panel Ad-Hoc Mitra Bestari</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Jika terdapat indikasi pelanggaran etik/disiplin, dibentuk panel netral untuk mendengar keterangan dan pembelaan staf perawat/bidan.</div>
+              </div>
+            </div>
+
+            <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+              <div style="background: var(--primary-100); color: var(--primary-800); width: 28px; height: 28px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0;">4</div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Rekomendasi Tindakan Korektif & Pembinaan</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Ketua Komite Keperawatan menerbitkan rekomendasi kepada Direktur RSUD dr. Soedarso (pembinaan klinis, magang ulang, atau sanksi disiplin).</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Form Whistleblowing Rahasia -->
+        <div class="card-table-wrapper" style="padding: 1.75rem; margin-bottom: 0;">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-user-shield" style="color: #10b981;"></i>
+            Layanan Pengaduan & Konsultasi Etik Rahasia
+          </h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Identitas pelapor dijamin 100% terlindungi oleh Komite Keperawatan RSUD dr. Soedarso berdasarkan asas kerahasiaan profesi.
+          </p>
+
+          <form id="formEthicsReport" onsubmit="handleEthicsSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Kategori Laporan / Konsultasi <span class="req">*</span></label>
+              <select class="form-select" id="ethicsCategory" required>
+                <option value="">-- Pilih Kategori --</option>
+                <option value="Konsultasi Dilema Etik Klinis">Konsultasi Dilema Etik Klinis (Informed Consent / DNR)</option>
+                <option value="Dugaan Ketidaksesuaian Asuhan">Dugaan Ketidaksesuaian Prosedur / SPO Asuhan</option>
+                <option value="Pelanggaran Disiplin Profesi">Dugaan Pelanggaran Disiplin & Kode Etik</option>
+                <option value="Hubungan Interprofesional">Masalah Komunikasi & Hubungan Interprofesional</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ruang / Instalasi Terkait <span class="req">*</span></label>
+              <input type="text" class="form-input" id="ethicsUnit" placeholder="Contoh: Ruang Enggang Gading 2, ICU, IGD..." required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Uraian Kronologis Singkat <span class="req">*</span></label>
+              <textarea class="form-textarea" id="ethicsDescription" rows="4" placeholder="Jelaskan fakta kejadian, waktu, dan kronologi tanpa mencantumkan identitas pribadi yang tidak perlu..." required></textarea>
+              <span class="form-hint">Data ini terenkripsi dan hanya dapat diakses oleh Ketua Subkomite Etik & Disiplin.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Nomor Kontak / WhatsApp (Opsional, untuk feedback)</label>
+              <input type="text" class="form-input" id="ethicsContact" placeholder="08xxxxxxxxxx (Boleh dikosongkan jika anonim)">
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+              <i class="fa-solid fa-paper-plane"></i> Kirim Laporan Rahasia (Whistleblowing)
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tiket Pengaduan Yang Pernah Diajukan -->
+      <div class="card-table-wrapper">
+        <div class="card-table-header">
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">
+            <i class="fa-solid fa-ticket" style="color: var(--primary-600); margin-right: 0.5rem;"></i>
+            Status Penanganan Tiket Konsultasi & Pengaduan Etik
+          </h3>
+          <span style="font-size: 0.82rem; color: var(--text-muted);">Diperbarui secara berkala</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nomor Tiket</th>
+                <th>Tanggal Masuk</th>
+                <th>Kategori Layanan</th>
+                <th>Unit Terkait</th>
+                <th>Status Penanganan</th>
+                <th>Keterangan / Tindak Lanjut</th>
+              </tr>
+            </thead>
+            <tbody id="ethicsTicketsBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 5: DASHBOARD ANALITIK DATA KEPERAWATAN
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane" id="pane-analitik">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>
+          <p class="section-subtitle">
+            Visualisasi data jenjang karir klinis (PK I - PK V), kepatuhan kredensialing, dan profil tenaga perawat & bidan RSUD dr. Soedarso
+          </p>
+        </div>
+        <button class="btn-secondary" onclick="renderAnalyticsCharts(); showToast('Grafik analitik diperbarui!', 'info');">
+          <i class="fa-solid fa-rotate"></i> Segarkan Grafik
+        </button>
+      </div>
+
+      <!-- Grid of SVG Analytics Charts -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Chart 1: Jenjang Karir PK -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">Distribusi Jenjang Karir Klinis (PK I - PK V & PMB)</span>
+            <span class="badge-official">DATA AKTIF</span>
+          </div>
+          <div class="chart-svg-container" id="chartCareerLadder">
+            <!-- Rendered via SVG in JS -->
+          </div>
+        </div>
+
+        <!-- Chart 2: Status Kredensial SPK/RKK -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">Proporsi Status Kredensial SPK & RKK</span>
+            <span class="badge-official">VALIDASI KARS</span>
+          </div>
+          <div class="chart-svg-container" id="chartCredentialStatus">
+            <!-- Rendered via SVG in JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 3: Distribusi Tenaga per Ruang Perawatan -->
+      <div class="chart-box" style="margin-bottom: 2rem;">
+        <div class="chart-header">
+          <span class="chart-title">Distribusi Perawat & Bidan Berdasarkan Ruangan Rawat Inap & Unit Khusus</span>
+          <span style="font-size: 0.82rem; color: var(--text-muted);">Total 485 Tenaga Pelayanan</span>
+        </div>
+        <div class="chart-svg-container" id="chartUnitDistribution" style="height: 280px;">
+          <!-- Rendered via SVG in JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 6: PUSAT REGULASI & UNDUHAN
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane" id="pane-regulasi">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Pusat Regulasi, Pedoman & Unduhan Resmi</h2>
+          <p class="section-subtitle">
+            Kumpulan dokumen regulasi nasional, SK Direktur, Buku Putih (White Paper) RKK, panduan audit klinis, dan format permohonan kredensialing
+          </p>
+        </div>
+      </div>
+
+      <div class="card-table-wrapper">
+        <div class="card-table-header">
+          <div class="table-filter-bar">
+            <div class="search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="regulasiSearchInput" class="form-control-search" placeholder="Cari nama dokumen atau nomor regulasi...">
+            </div>
+            <select id="regulasiCategoryFilter" class="select-filter">
+              <option value="">Semua Kategori Regulasi</option>
+              <option value="Regulasi Nasional">Regulasi Nasional (Permenkes)</option>
+              <option value="Kebijakan Direktur">Kebijakan Direktur RSUD Soedarso</option>
+              <option value="Buku Putih (White Paper)">Buku Putih (White Paper) RKK</option>
+              <option value="Panduan Klinis & Audit">Panduan Klinis & Audit Asuhan</option>
+              <option value="Formulir & Template">Formulir & Template Logbook</option>
+              <option value="Etika & Disiplin">Pedoman Etika & Whistleblowing</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Kategori</th>
+                <th>Judul Dokumen & Deskripsi</th>
+                <th>Nomor Dokumen</th>
+                <th>Tahun</th>
+                <th>Format & Ukuran</th>
+                <th style="text-align: right;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="regulasiTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       MODAL 1: FORM PENGAJUAN KREDENSIALING BARU (WIZARD)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalNewKredensial">
+    <div class="modal-container modal-container-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-file-signature" style="color: var(--primary-600);"></i>
+          Form Permohonan E-Kredensialing & Rekredensialing Tenaga Keperawatan
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalNewKredensial')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Step Wizard Indicator -->
+        <div class="step-wizard">
+          <div class="step-wizard-line">
+            <div class="step-wizard-progress" id="wizardProgressLine"></div>
+          </div>
+          <div class="wizard-step active" id="stepIndicator1" onclick="goToWizardStep(1)">
+            <div class="wizard-circle">1</div>
+            <div class="wizard-label">Data Identitas</div>
+          </div>
+          <div class="wizard-step" id="stepIndicator2" onclick="goToWizardStep(2)">
+            <div class="wizard-circle">2</div>
+            <div class="wizard-label">Jenjang & Unit</div>
+          </div>
+          <div class="wizard-step" id="stepIndicator3" onclick="goToWizardStep(3)">
+            <div class="wizard-circle">3</div>
+            <div class="wizard-label">Checklist RKK</div>
+          </div>
+          <div class="wizard-step" id="stepIndicator4" onclick="goToWizardStep(4)">
+            <div class="wizard-circle">4</div>
+            <div class="wizard-label">Verifikasi & Kirim</div>
+          </div>
+        </div>
+
+        <form id="kredensialForm" onsubmit="handleKredensialSubmit(event)">
+          <!-- STEP 1: DATA IDENTITAS -->
+          <div class="wizard-content-step active" id="wizardStep1">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nama Lengkap & Gelar <span class="req">*</span></label>
+                <input type="text" class="form-input" id="formNama" placeholder="Contoh: Ns. Ahmad Fauzi, S.Kep" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">NIP / NIK / No. Karyawan <span class="req">*</span></label>
+                <input type="text" class="form-input" id="formNip" placeholder="19900101 201502 1 001" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nomor Surat Tanda Registrasi (STR) <span class="req">*</span></label>
+                <input type="text" class="form-input" id="formStr" placeholder="140152123-xxxxxxx" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Masa Berlaku STR <span class="req">*</span></label>
+                <input type="date" class="form-input" id="formStrExpiry" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nomor WhatsApp / Kontak Aktif <span class="req">*</span></label>
+                <input type="text" class="form-input" id="formKontak" placeholder="081234567890" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Kedinasan / Pribadi <span class="req">*</span></label>
+                <input type="email" class="form-input" id="formEmail" placeholder="nama@rsudsoedarso.kalbarprov.go.id" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: JENJANG & UNIT -->
+          <div class="wizard-content-step" id="wizardStep2" style="display: none;">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Pilih Jenjang Karir Klinis Diajukan <span class="req">*</span></label>
+                <select class="form-select" id="formJenjang" onchange="onJenjangChange(this.value)" required>
+                  <option value="">-- Pilih Jenjang Karir --</option>
+                  <option value="PK I">Perawat Klinis I (PK I - Pemula)</option>
+                  <option value="PK II">Perawat Klinis II (PK II - Mandiri Dasar)</option>
+                  <option value="PK III">Perawat Klinis III (PK III - Spesifik Area)</option>
+                  <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Konsultan)</option>
+                  <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                  <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
+                </select>
+                <span class="form-hint" id="jenjangDescText">Pilih jenjang karir untuk memuat daftar rincian kewenangan klinis (RKK).</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Penempatan Ruang / Instalasi Pelayanan <span class="req">*</span></label>
+                <select class="form-select" id="formUnit" required>
+                  <option value="">-- Pilih Ruang Perawatan --</option>
+                  <option value="Ruang Enggang Gading 2 (Penyakit Dalam)">Ruang Enggang Gading 2 (Penyakit Dalam)</option>
+                  <option value="ICU Sentral (Intensive Care Unit)">ICU Sentral (Intensive Care Unit)</option>
+                  <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                  <option value="Ruang Cendrawasih (Bedah Orthopedi)">Ruang Cendrawasih (Bedah Orthopedi)</option>
+                  <option value="Ruang Bersalin (VK) & Maternal">Ruang Bersalin (VK) & Maternal</option>
+                  <option value="Kamar Bedah Sentral (IBS)">Kamar Bedah Sentral (IBS)</option>
+                  <option value="Ruang Hemodialisa (HD)">Ruang Hemodialisa (HD)</option>
+                  <option value="Ruang Perinatologi & NICU">Ruang Perinatologi & NICU</option>
+                  <option value="Klinik Onkologi & Kemoterapi Terpadu">Klinik Onkologi & Kemoterapi Terpadu</option>
+                  <option value="Ruang Merak (Penyakit Dalam Non-Infeksi)">Ruang Merak (Penyakit Dalam Non-Infeksi)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Jenis Permohonan <span class="req">*</span></label>
+              <div style="display: flex; gap: 1.5rem; margin-top: 0.25rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="radio" name="jenisPermohonan" value="Kredensialing Baru" checked>
+                  <span>Kredensialing Pertama Kali (Baru)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="radio" name="jenisPermohonan" value="Rekredensialing / Kenaikan Jenjang">
+                  <span>Rekredensialing / Kenaikan Jenjang Karir</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: CHECKLIST RKK -->
+          <div class="wizard-content-step" id="wizardStep3" style="display: none;">
+            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span class="form-label">Rincian Kewenangan Klinis (RKK) yang Dimohonkan:</span>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Centang kompetensi yang Anda kuasai untuk diverifikasi oleh Mitra Bestari.</p>
+              </div>
+              <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="toggleAllRkk(true)">
+                Pilih Semua
+              </button>
+            </div>
+
+            <div class="rkk-checklist-box" id="rkkChecklistContainer" style="max-height: 280px;">
+              <!-- Dynamically populated based on chosen PK Level -->
+              <div style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
+                Silakan pilih jenjang karir klinis pada langkah sebelumnya untuk memuat instrumen RKK.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4: VERIFIKASI & BERKAS -->
+          <div class="wizard-content-step" id="wizardStep4" style="display: none;">
+            <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
+              <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-700); margin-bottom: 0.5rem;">
+                <i class="fa-solid fa-list-check"></i> Ringkasan Pengajuan Kredensialing
+              </h4>
+              <div style="font-size: 0.85rem; line-height: 1.7;" id="wizardSummaryText">
+                <!-- Filled via JS -->
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Simulasi Unggah Berkas Portofolio (Ijazah, STR, Sertifikat Pelatihan)</label>
+              <input type="file" class="form-input" style="padding: 0.45rem;" multiple accept=".pdf,.jpg,.png">
+              <span class="form-hint">Ukuran gabungan berkas maksimal 10 MB (Format PDF disarankan).</span>
+            </div>
+
+            <div style="background: var(--gold-50); border: 1px solid var(--gold-400); border-radius: var(--radius-md); padding: 0.85rem 1rem; font-size: 0.82rem; color: #78350f; display: flex; gap: 0.5rem; align-items: flex-start;">
+              <i class="fa-solid fa-triangle-exclamation" style="margin-top: 2px;"></i>
+              <div>
+                <strong>Pernyataan Integritas:</strong> Saya menyatakan bahwa seluruh data kompetensi klinis yang saya isi adalah benar sesuai kenyataan praktik asuhan keperawatan saya dan siap dievaluasi oleh Mitra Bestari Subkomite Kredensial RSUD dr. Soedarso.
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="btnWizardPrev" style="display: none;" onclick="wizardPrevStep()">
+          <i class="fa-solid fa-arrow-left"></i> Kembali
+        </button>
+        <button type="button" class="btn-primary" id="btnWizardNext" onclick="wizardNextStep()">
+          Lanjutkan <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button type="submit" form="kredensialForm" class="btn-primary" id="btnWizardSubmit" style="display: none;">
+          <i class="fa-solid fa-check"></i> Kirim Permohonan Kredensialing
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: CETAK RESMI SPK & RKK DIREKTUR (PRINT & DOWNLOAD)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalPrintSPK">
+    <div class="modal-container modal-container-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-print" style="color: var(--primary-600);"></i>
+          Dokumen Resmi Surat Penugasan Klinis (SPK) & RKK Direktur
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalPrintSPK')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="background: #e2e8f0; padding: 2rem 1rem;">
+        <!-- Official Paper Container -->
+        <div class="official-doc-paper" id="officialDocContent">
+          <!-- Kop Surat Rumah Sakit -->
+          <div class="official-doc-kop">
+            <img src="logo_kalbar.png" alt="Pemprov Kalbar" class="kop-logo" id="kopLogoImg">
+            <div class="kop-text">
+              <h4>PEMERINTAH PROVINSI KALIMANTAN BARAT</h4>
+              <h2>RUMAH SAKIT UMUM DAERAH DOKTER SOEDARSO</h2>
+              <p>Jalan DR. Soedarso No. 1 Pontianak Tenggara, Kota Pontianak, Kalimantan Barat 78124</p>
+              <p>Telepon: (0561) 737701, Fax: (0561) 737702 | Laman: rsudsoedarso.kalbarprov.go.id</p>
+            </div>
+          </div>
+
+          <!-- Judul Dokumen -->
+          <div class="doc-heading-title">
+            <h3>SURAT PENUGASAN KLINIS (CLINICAL APPOINTMENT)</h3>
+            <p id="docSpkNumberText">NOMOR: 800/1422/RSUD-DS/KOM-KEP/2024</p>
+          </div>
+
+          <!-- Metadata Staf -->
+          <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+            Direktur Rumah Sakit Umum Daerah dr. Soedarso Pontianak, berdasarkan rekomendasi Ketua Komite Keperawatan tanggal <span id="docSpkDate">10 Februari 2024</span>, dengan ini memberikan penugasan klinis kepada:
+          </p>
+
+          <table class="doc-meta-table">
+            <tr>
+              <td class="label">Nama Tenaga Perawat</td>
+              <td>: <strong id="docStaffName">Ns. Desi Ratnasari, S.Kep</strong></td>
+            </tr>
+            <tr>
+              <td class="label">NIP / Identitas Pegawai</td>
+              <td>: <span id="docStaffNip">19880415 201001 2 005</span></td>
+            </tr>
+            <tr>
+              <td class="label">Nomor STR Kemenkes</td>
+              <td>: <span id="docStaffStr">140152123-3891021</span> (Berlaku s/d <span id="docStaffStrExpiry">15 April 2028</span>)</td>
+            </tr>
+            <tr>
+              <td class="label">Jenjang Karir Klinis</td>
+              <td>: <strong id="docStaffPk">Perawat Klinis III (PK III)</strong></td>
+            </tr>
+            <tr>
+              <td class="label">Unit / Ruang Tugas</td>
+              <td>: <span id="docStaffUnit">Ruang Enggang Gading 2 (Penyakit Dalam)</span></td>
+            </tr>
+            <tr>
+              <td class="label">Masa Berlaku SPK & RKK</td>
+              <td>: <span id="docStaffValidity">10 Februari 2024 s/d 10 Februari 2027</span> (3 Tahun)</td>
+            </tr>
+          </table>
+
+          <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+            Diberikan kewenangan klinis untuk memberikan pelayanan asuhan keperawatan / kebidanan di lingkungan RSUD dr. Soedarso Pontianak dengan rincian kompetensi sebagai berikut:
+          </p>
+
+          <!-- RKK Competency Breakdown Table -->
+          <table class="doc-rkk-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">No.</th>
+                <th>Kode</th>
+                <th>Rincian Kewenangan Klinis (Clinical Privileges)</th>
+                <th style="width: 90px;">Mandiri</th>
+                <th style="width: 90px;">Supervisi</th>
+              </tr>
+            </thead>
+            <tbody id="docRkkListBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+
+          <!-- Signatures -->
+          <div class="doc-signature-grid">
+            <div class="doc-signature-box">
+              <div>Mengetahui,</div>
+              <div style="font-weight: 700;">Ketua Komite Keperawatan</div>
+              <div class="doc-signature-space"></div>
+              <div class="doc-signer-name">M. Separia Russanto, S.Kep., Ns</div>
+              <div>RSUD Dokter Soedarso Pontianak</div>
+            </div>
+
+            <div class="doc-signature-box">
+              <div>Ditetapkan di Pontianak,</div>
+              <div style="font-weight: 700;">Direktur RSUD Dokter Soedarso</div>
+              <div class="doc-signature-space"></div>
+              <div class="doc-signer-name">Hary Agung Tjahyadi</div>
+              <div>Direktur Rumah Sakit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="exportOfficialWord()">
+          <i class="fa-solid fa-file-word" style="color: #0284c7;"></i> Unduh Format Word (.doc)
+        </button>
+        <button type="button" class="btn-primary" onclick="printOfficialDoc()">
+          <i class="fa-solid fa-print"></i> Cetak Dokumen Resmi (PDF/Print)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: DETAIL PROFIL & HISTORI KREDENSIAL
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalNurseDetail">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-user-doctor" style="color: var(--primary-600);"></i>
+          Detail Profil & Rekam Jejak Klinis Perawat
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalNurseDetail')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="nurseDetailBody">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalNurseDetail')">Tutup</button>
+        <button type="button" class="btn-primary" id="btnDetailPrintSpk">
+          <i class="fa-solid fa-print"></i> Buka SPK & RKK Resmi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: LOGIN ADMINISTRATOR KOMITE KEPERAWATAN
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalAdminLogin">
+    <div class="modal-container" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="modal-title" style="font-size: 1.15rem;">
+          <i class="fa-solid fa-user-lock" style="color: var(--gold-500);"></i>
+          Autentikasi Administrator Komite
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalAdminLogin')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+        <!-- Preset Demo Accounts Quick Select -->
+        <div class="login-presets-box">
+          <div class="presets-label">
+            <i class="fa-solid fa-bolt"></i> Pilih Akun Login Cepat (Demo):
+          </div>
+          <div class="login-preset-grid">
+            <button type="button" class="preset-chip" onclick="fillAdminPreset('separia')">
+              <i class="fa-solid fa-crown"></i>
+              <div>
+                <strong>Ketua Komite</strong>
+                <div style="font-size: 0.7rem; color: var(--gold-600); font-weight: 700;">M. Separia Russanto (Super Admin)</div>
+              </div>
+            </button>
+            <button type="button" class="preset-chip" onclick="fillAdminPreset('rusmulyadi')">
+              <i class="fa-solid fa-user-shield"></i>
+              <div>
+                <strong>Sekretaris</strong>
+                <div style="font-size: 0.7rem; color: var(--gold-600); font-weight: 700;">Ns. Rusmulyadi (Super Admin)</div>
+              </div>
+            </button>
+            <button type="button" class="preset-chip" onclick="fillAdminPreset('yohanes')">
+              <i class="fa-solid fa-id-card-clip"></i>
+              <div>
+                <strong>Kredensial</strong>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">Ns. Yohanes Rindo Ari W.</div>
+              </div>
+            </button>
+            <button type="button" class="preset-chip" onclick="fillAdminPreset('laila')">
+              <i class="fa-solid fa-chart-line"></i>
+              <div>
+                <strong>Mutu Keperawatan</strong>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">Laila Istiqomah, S.Kep., Ns</div>
+              </div>
+            </button>
+            <button type="button" class="preset-chip" onclick="fillAdminPreset('alfonsus')">
+              <i class="fa-solid fa-scale-balanced"></i>
+              <div>
+                <strong>Etika & Disiplin</strong>
+                <div style="font-size: 0.7rem; color: var(--text-muted);">Alfonsus Agus A.S., MH</div>
+              </div>
+            </button>
+          </div>
+
+          <!-- Quick Dropdown for All 24 Pengurus SK -->
+          <div style="margin-top: 0.75rem; background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.6rem 0.75rem;">
+            <label style="font-size: 0.74rem; font-weight: 700; color: var(--primary-700); display: flex; align-items: center; gap: 0.4rem; margin-bottom: 4px;">
+              <i class="fa-solid fa-users"></i> Atau Pilih Langsung dari Seluruh 24 Pengurus SK Direktur:
+            </label>
+            <select id="selectSKPengurus" class="form-input" style="font-size: 0.8rem; padding: 0.35rem 0.5rem;" onchange="if(this.value) fillAdminPreset(this.value)">
+              <option value="">-- Pilih Nama Pengurus SK untuk Mengisi Otomatis --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Username / NIP Administrator <span class="req">*</span></label>
+            <div style="position: relative;">
+              <input type="text" class="form-input" id="loginUsername" placeholder="Contoh: admin.komite" required autocomplete="username" style="padding-left: 2.25rem;">
+              <i class="fa-solid fa-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kata Sandi / PIN Keamanan <span class="req">*</span></label>
+            <div style="position: relative;">
+              <input type="password" class="form-input" id="loginPassword" placeholder="Masukkan password admin..." required autocomplete="current-password" style="padding-left: 2.25rem; padding-right: 2.5rem;">
+              <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+              <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer;">
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; font-size: 0.8rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+              <input type="checkbox" id="loginRememberMe" checked style="accent-color: var(--primary-600);">
+              <span>Ingat sesi di peramban ini</span>
+            </label>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">Password default: <code>soedarso2026</code></span>
+          </div>
+
+          <div id="loginErrorMessage" style="display: none; background: var(--danger-bg); border: 1px solid #fecaca; color: #b91c1c; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 1rem;">
+            <i class="fa-solid fa-circle-exclamation" style="margin-right: 4px;"></i>
+            <span id="loginErrorText">Username atau password keliru.</span>
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+            <i class="fa-solid fa-right-to-bracket"></i> Masuk Sebagai Administrator
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 5: INPUT / EDIT AUDIT MUTU RUANGAN (ADMIN MUTU)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalAuditInput">
+    <div class="modal-container" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-title" style="font-size: 1.15rem;">
+          <i class="fa-solid fa-clipboard-check" style="color: #10b981;"></i>
+          Input & Evaluasi Mutu Asuhan Keperawatan Ruangan
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalAuditInput')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+        <form id="formAuditInput" onsubmit="handleAuditSave(event)">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Ruang Perawatan / Instalasi <span class="req">*</span></label>
+              <input type="text" class="form-input" id="auditInputUnit" placeholder="Contoh: Ruang Enggang Gading 2" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kepala Ruangan (Karu) <span class="req">*</span></label>
+              <input type="text" class="form-input" id="auditInputKaru" placeholder="Contoh: Ns. Desi Ratnasari, S.Kep" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Kepatuhan CPPT & SBAR (%) <span class="req">*</span></label>
+              <input type="number" step="0.1" min="0" max="100" class="form-input" id="auditInputCppt" placeholder="98.5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kepatuhan Hand Hygiene (%) <span class="req">*</span></label>
+              <input type="number" step="0.1" min="0" max="100" class="form-input" id="auditInputHh" placeholder="99.0" required>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="form-label">Bebas Plebitis (%)</label>
+              <input type="number" step="0.1" min="0" max="100" class="form-input" id="auditInputPlebitis" placeholder="99.5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cegah Jatuh (%)</label>
+              <input type="number" step="0.1" min="0" max="100" class="form-input" id="auditInputJatuh" placeholder="100.0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Skor CPD / SKP (%)</label>
+              <input type="number" step="0.1" min="0" max="100" class="form-input" id="auditInputCpd" placeholder="95.0" required>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modalAuditInput')">Batal</button>
+            <button type="submit" class="btn-primary">
+              <i class="fa-solid fa-floppy-disk"></i> Simpan Hasil Audit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 6: TINDAK LANJUT TIKET ETIK (ADMIN ETIK)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalTicketAction">
+    <div class="modal-container" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title" style="font-size: 1.15rem;">
+          <i class="fa-solid fa-scale-balanced" style="color: var(--gold-500);"></i>
+          Tindak Lanjut & Keputusan Sidang Etik
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalTicketAction')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem 1.75rem;">
+        <form id="formTicketAction" onsubmit="handleTicketActionSave(event)">
+          <input type="hidden" id="actionTicketCode">
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Nomor Tiket:</div>
+            <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--primary-700);" id="actionTicketDisplay">ETIK-2026-XXXX</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-top: 4px;" id="actionTicketCategory">Kategori</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status Penanganan Subkomite <span class="req">*</span></label>
+            <select class="form-select" id="actionTicketStatus" required>
+              <option value="Menunggu Telaah Subkomite">Menunggu Telaah Subkomite</option>
+              <option value="Proses Investigasi Subkomite">Proses Investigasi Subkomite</option>
+              <option value="Sidang Panel Mitra Bestari">Sidang Panel Mitra Bestari</option>
+              <option value="Selesai Ditelaah & Rekomendasi Terbit">Selesai Ditelaah & Rekomendasi Terbit</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Hasil Telaah & Tindak Lanjut <span class="req">*</span></label>
+            <textarea class="form-textarea" id="actionTicketNotes" rows="3" placeholder="Tuliskan rekomendasi tindakan korektif, hasil klarifikasi berkas rekam medis, atau arahan pembinaan..." required></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modalTicketAction')">Batal</button>
+            <button type="submit" class="btn-primary">
+              <i class="fa-solid fa-check"></i> Simpan Tindak Lanjut
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: FORMULIR APLIKASI PERMOHONAN KREDENSIAL / RE-KREDENSIAL TENAGA KEPERAWATAN
+       (SESUAI FORMAT BAKU RESMI KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalSuratPermohonan">
+    <div class="modal-container modal-container-lg" style="max-width: 960px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+          <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" style="width: 28px; height: auto;">
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: var(--text-main);">
+              Formulir Aplikasi Permohonan Kredensial / Re-Kredensial Tenaga Keperawatan
+            </div>
+            <div style="font-size: 0.76rem; font-weight: 500; color: var(--text-muted);">
+              Komite Keperawatan RSUD dr. Soedarso Pontianak &bull; Format Baku Resmi
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalSuratPermohonan')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 1.25rem 1.5rem;">
+        <!-- Banner Info Resmi Soedarso -->
+        <div style="background: linear-gradient(135deg, rgba(20, 148, 142, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(20, 148, 142, 0.25); border-left: 4px solid var(--primary-600); padding: 0.85rem 1.1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.5; color: var(--text-main);">
+          <strong>Petunjuk Pengisian &amp; Alur Permohonan:</strong> Lengkapi rincian identitas, data legalitas formal STR/SIPP/SIPB, serta checklist 8 berkas pendukung. Formulir ini otomatis menyusun lembar Surat Permohonan 3 Halaman A4 format baku RSUD dr. Soedarso. <br>
+          <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Ketentuan Alur:</span> Surat Permohonan ini <strong>TIDAK PERLU persetujuan atau tanda tangan pengurus komite keperawatan</strong> pada tahap awal. Anda cukup mengunduh surat, menandatanganinya sendiri sebagai pemohon, lalu mengunggahnya kembali pada <strong>Langkah 2</strong>.
+        </div>
+
+        <!-- Google Form Integration & Quick-Fill Toolbar -->
+        <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.65rem;">
+            <div style="font-size: 0.82rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.45rem;">
+              <i class="fa-solid fa-square-poll-vertical" style="color: #4285f4;"></i>
+              Integrasi Google Form &amp; Blangko Resmi Soedarso
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="document.getElementById('boxGoogleFormImport').style.display = document.getElementById('boxGoogleFormImport').style.display === 'none' ? 'block' : 'none'">
+                <i class="fa-solid fa-file-import" style="color: #4285f4;"></i> Tempel Respon Google Form
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="downloadGoogleAppsScriptFile()">
+                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Unduh Skrip Google Form (.js)
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="previewSuratKredensialHVS('blank')">
+                <i class="fa-regular fa-file"></i> Blangko Kosong Asli
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="resetSuratFormToBlank()">
+                <i class="fa-solid fa-eraser"></i> Bersihkan Isian
+              </button>
+            </div>
+          </div>
+
+          <!-- Presets Cepat -->
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.76rem; color: var(--text-muted);">
+            <span style="font-weight: 600;">Muat Contoh Respon:</span>
+            <button type="button" class="badge" style="background: rgba(20, 148, 142, 0.12); color: var(--primary-700); border: 1px solid rgba(20, 148, 142, 0.3); cursor: pointer; padding: 3px 8px;" onclick="fillGoogleFormPreset('rusmulyadi')">
+              <i class="fa-solid fa-user-check"></i> Ns. Rusmulyadi, S.Kep., MARS
+            </button>
+            <button type="button" class="badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); cursor: pointer; padding: 3px 8px;" onclick="fillGoogleFormPreset('hendra')">
+              <i class="fa-solid fa-user-pen"></i> Ns. Hendra Kurniawan, S.Kep
+            </button>
+            <button type="button" class="badge" style="background: rgba(217, 119, 6, 0.12); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.3); cursor: pointer; padding: 3px 8px;" onclick="fillGoogleFormPreset('siti')">
+              <i class="fa-solid fa-user-nurse"></i> Bd. Siti Aminah, S.Tr.Keb
+            </button>
+          </div>
+
+          <!-- Expandable Box: Tempel Hasil Google Form / Spreadsheet -->
+          <div id="boxGoogleFormImport" style="display: none; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed var(--border-subtle);">
+            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px;">
+              Tempel Salinan Baris dari Google Form / Google Sheets (Tab / Koma / Baris Terpisah):
+            </label>
+            <textarea id="txtGoogleFormRaw" class="form-input" style="width: 100%; height: 70px; font-size: 0.76rem; font-family: monospace; resize: vertical;" placeholder="Contoh salinan kolom: Ns. Rusmulyadi	19800815 200501 1 008	Pontianak, 15 Agustus 1980	Laki-laki	Jl. Danau Sentarum	0812-5678-0001	..."></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 6px; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.65rem;" onclick="document.getElementById('boxGoogleFormImport').style.display='none'">Batal</button>
+              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.85rem;" onclick="importGoogleFormResponse(false)">
+                <i class="fa-solid fa-check"></i> Terapkan ke Formulir
+              </button>
+              <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.85rem;" onclick="importGoogleFormResponse(true)">
+                <i class="fa-solid fa-paper-plane"></i> Terapkan &amp; Langsung Terbitkan Surat
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <form id="formSuratPermohonan" onsubmit="handleSuratPermohonanSubmit(event)">
+          <!-- BOX PILIHAN: JENIS PERMOHONAN -->
+          <div style="background: var(--bg-card); border: 2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+            <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-check-to-slot" style="color: var(--primary-600);"></i> Jenis Permohonan <span style="font-size: 0.78rem; font-weight: normal; text-transform: none; color: var(--text-muted);">(Berikan tanda ceklis [&check;] pada kotak pilihan):</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-app); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.84rem;">
+                <input type="radio" name="jenisPermohonanRadio" id="optJenisBaru" value="baru">
+                <span><strong>Kredensial</strong> (Perawat Baru / Bidan Baru)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-app); border: 1.5px solid var(--primary-600); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.84rem; background: rgba(20, 148, 142, 0.05);">
+                <input type="radio" name="jenisPermohonanRadio" id="optJenisBerkala" value="berkala" checked>
+                <span><strong>Re-Kredensial Berkala</strong> (Setiap 3 Tahun)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-app); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.84rem;">
+                <input type="radio" name="jenisPermohonanRadio" id="optJenisKenaikan" value="kenaikan">
+                <span><strong>Re-Kredensial Kenaikan Jenjang</strong> (Pindah Level PK)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- BAGIAN I: IDENTITAS PERSONAL TENAGA KEPERAWATAN -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1.5rem;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> I. IDENTITAS PERSONAL TENAGA KEPERAWATAN
+            </div>
+            <div style="padding: 1.15rem 1.25rem;">
+              <!-- 1 & 2: Nama & NIP -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">1. Nama Lengkap (beserta Gelar) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratNama" placeholder="Contoh: Ns. Hendra Kurniawan, S.Kep" value="Ns. Hendra Kurniawan, S.Kep" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">2. Nomor Induk Pegawai (NIP / NIPPPK / NIK) <span class="req">*</span></label>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <select class="form-select" id="suratJenisNip" style="width: 130px;" required>
+                      <option value="NIP" selected>NIP (PNS)</option>
+                      <option value="NIPPPK">NIPPPK</option>
+                      <option value="NIK">NIK (Non-ASN)</option>
+                    </select>
+                    <input type="text" class="form-input" id="suratNip" placeholder="19920415 201903 1 004" value="19920415 201903 1 004" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3 & 4: TTL & Jenis Kelamin -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">3. Tempat / Tanggal Lahir <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratTtl" placeholder="Pontianak, 15 April 1992" value="Pontianak, 15 April 1992" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">4. Jenis Kelamin <span class="req">*</span></label>
+                  <select class="form-select" id="suratKelamin" required>
+                    <option value="Laki-laki" selected>Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 5: Alamat Rumah Tinggal -->
+              <div class="form-group">
+                <label class="form-label">5. Alamat Rumah Tinggal <span class="req">*</span></label>
+                <input type="text" class="form-input" id="suratAlamat" placeholder="Jl. Danau Sentarum No. 42, Kota Pontianak, Kalimantan Barat" value="Jl. Danau Sentarum No. 42, Kota Pontianak" required>
+              </div>
+
+              <!-- 6 & 7: HP & Email -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">6. Nomor Telepon / HP WA Aktif <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratHp" placeholder="0812-5678-9012" value="0812-5678-9012" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">7. Alamat Email <span class="req">*</span></label>
+                  <input type="email" class="form-input" id="suratEmail" placeholder="hendra.kurniawan@soedarso.kalbarprov.go.id" value="hendra.kurniawan@soedarso.kalbarprov.go.id" required>
+                </div>
+              </div>
+
+              <!-- 8: Unit Kerja / Ruang Rawat Saat Ini -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">8. Unit Kerja / Ruang Rawat Saat Ini <span class="req">*</span></label>
+                  <select class="form-select" id="suratUnit" required>
+                    <option value="Ruang Enggang Gading 2 (Penyakit Dalam)" selected>Ruang Enggang Gading 2 (Penyakit Dalam)</option>
+                    <option value="ICU Sentral (Intensive Care Unit)">ICU Sentral (Intensive Care Unit)</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                    <option value="Ruang Cendrawasih (Bedah Orthopedi)">Ruang Cendrawasih (Bedah Orthopedi)</option>
+                    <option value="Ruang Bersalin (VK) & Maternal">Ruang Bersalin (VK) & Maternal</option>
+                    <option value="Kamar Bedah Sentral (IBS)">Kamar Bedah Sentral (IBS)</option>
+                    <option value="Ruang Hemodialisa (HD)">Ruang Hemodialisa (HD)</option>
+                    <option value="Ruang Perinatologi & NICU">Ruang Perinatologi & NICU</option>
+                    <option value="Klinik Onkologi & Kemoterapi Terpadu">Klinik Onkologi & Kemoterapi Terpadu</option>
+                    <option value="Ruang Merak (Penyakit Dalam Non-Infeksi)">Ruang Merak (Penyakit Dalam Non-Infeksi)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">9. Jabatan Fungsional Saat Ini <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratJabatanFungsional" placeholder="Perawat Ahli Pertama / Perawat Terampil" value="Perawat Ahli Pertama" required>
+                </div>
+              </div>
+
+              <!-- 10 & 11: Level PK Saat Ini & Level PK Diusulkan -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">10. Level Perawat Klinis (PK) Saat Ini <span class="req">*</span></label>
+                  <select class="form-select" id="suratPkSaatIni" required>
+                    <option value="Pra PK / Belum Memiliki Jenjang">Pra PK / Belum Memiliki Jenjang (Perawat Baru)</option>
+                    <option value="PK I">Perawat Klinis I (PK I)</option>
+                    <option value="PK II" selected>Perawat Klinis II (PK II)</option>
+                    <option value="PK III">Perawat Klinis III (PK III)</option>
+                    <option value="PK IV">Perawat Klinis IV (PK IV)</option>
+                    <option value="PK V">Perawat Klinis V (PK V)</option>
+                    <option value="PMB">Praktisi Bidan Klinis (PMB)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">11. Level PK yang Diusulkan <span class="req">*</span></label>
+                  <select class="form-select" id="suratJenjang" required>
+                    <option value="PK I">Perawat Klinis I (PK I - Novice / Pemula)</option>
+                    <option value="PK II">Perawat Klinis II (PK II - Mandiri Dasar)</option>
+                    <option value="PK III" selected>Perawat Klinis III (PK III - Spesifik Area)</option>
+                    <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Konsultan)</option>
+                    <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                    <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
+                  </select>
+                  <span class="form-hint">Otomatis sinkron dengan formulir Asesmen Mandiri RKK Online.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN II: DATA LEGALITAS FORMAL & KUALIFIKASI -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1.5rem;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-graduation-cap" style="color: #f59e0b;"></i> II. DATA LEGALITAS FORMAL &amp; KUALIFIKASI
+            </div>
+            <div style="padding: 1.15rem 1.25rem;">
+              <!-- 1: Pendidikan Terakhir -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">1. Pendidikan Terakhir (D3 / D4+Profesi / S1+Profesi / S2) <span class="req">*</span></label>
+                  <select class="form-select" id="suratPendidikan" required>
+                    <option value="S1+Profesi Ners" selected>S1+Profesi (Ners)</option>
+                    <option value="D3 Keperawatan">D3 Keperawatan</option>
+                    <option value="D4+Profesi Kebidanan">D4+Profesi Kebidanan</option>
+                    <option value="D3 Kebidanan">D3 Kebidanan</option>
+                    <option value="S2 Keperawatan (Magister / Sp.Kep)">S2 Keperawatan (Magister / Sp.Kep)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">2 &amp; 3. Institusi Asal Lulusan &amp; Tahun Kelulusan <span class="req">*</span></label>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" class="form-input" id="suratInstitusi" placeholder="Universitas Tanjungpura" value="Universitas Tanjungpura" required>
+                    <input type="number" class="form-input" id="suratTahunLulus" placeholder="2018" value="2018" style="width: 100px;" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4 & 5: Nomor STR & Masa Berlaku -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">4. Nomor Surat Tanda Registrasi (STR) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratStr" placeholder="140152123-2893812" value="140152123-2893812" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">5. Masa Berlaku STR (Tanggal/Bulan/Tahun) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratStrExpiry" placeholder="17 Agustus 2028 (Seumur Hidup / Masa Berlaku)" value="17 Agustus 2028" required>
+                </div>
+              </div>
+
+              <!-- 6 & 7: Nomor SIPP/SIPB & Masa Berlaku -->
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">6. Nomor Surat Izin Praktik Perawat (SIPP) / SIPB <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratSipp" placeholder="503/412/Dinkes-PP/SIPP/2023" value="503/412/Dinkes-PP/SIPP/2023" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">7. Masa Berlaku SIPP/SIPB (Tanggal/Bulan/Tahun) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratSippExpiry" placeholder="17 Agustus 2028" value="17 Agustus 2028" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN III: KELENGKAPAN BERKAS PENDUKUNG (Checklist) -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1.5rem;">
+            <div style="background: #0e3860; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-list-check" style="color: #93c5fd;"></i> III. KELENGKAPAN BERKAS PENDUKUNG (Checklist)
+              </div>
+              <span style="font-size: 0.75rem; font-weight: normal; opacity: 0.9;">8 Berkas Wajib Portofolio</span>
+            </div>
+            <div style="padding: 0.5rem;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.83rem;">
+                <thead>
+                  <tr style="background: var(--bg-app); border-bottom: 2px solid var(--border-subtle);">
+                    <th style="padding: 0.5rem; text-align: center; width: 45px;">No</th>
+                    <th style="padding: 0.5rem; text-align: left;">Jenis Berkas Pendukung Dokumen</th>
+                    <th style="padding: 0.5rem; text-align: center; width: 90px;">Ada</th>
+                    <th style="padding: 0.5rem; text-align: center; width: 95px;">Tidak Ada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">1</td>
+                    <td style="padding: 0.5rem;">Salinan Ijazah Keperawatan/Kebidanan Terakhir Terlegalisir</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas1" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas1" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">2</td>
+                    <td style="padding: 0.5rem;">Salinan Surat Tanda Registrasi (STR) yang masih aktif secara hukum</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas2" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas2" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">3</td>
+                    <td style="padding: 0.5rem;">Salinan SIPP/SIPB</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas3" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas3" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">4</td>
+                    <td style="padding: 0.5rem;">Salinan Sertifikat Pelatihan Khusus Keperawatan/Kebidanan (ICU/OK/HD/dll.)</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas4" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas4" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">5</td>
+                    <td style="padding: 0.5rem;">Tangkapan layar bukti pendidikan keperawatan/kebidanan terakhir dari PDDikti (<a href="https://pisn.kemdiktisaintek.go.id/" target="_blank" style="color: var(--primary-600); text-decoration: underline;">https://pisn.kemdiktisaintek.go.id/</a>)</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas5" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas5" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">6</td>
+                    <td style="padding: 0.5rem;">Surat Keterangan Sehat dari Dokter Pemerintah</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas6" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas6" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">7</td>
+                    <td style="padding: 0.5rem;">Asli Buku Logbook Kinerja Klinis Harian (Telah diverifikasi Kepala Ruangan)</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas7" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas7" value="tidak"></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 0.5rem; text-align: center; font-weight: bold;">8</td>
+                    <td style="padding: 0.5rem;">Curriculum Vitae / Daftar Riwayat Hidup</td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas8" value="ada" checked></td>
+                    <td style="padding: 0.5rem; text-align: center;"><input type="radio" name="chkBerkas8" value="tidak"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- BAGIAN IV: PERNYATAAN DAN PERSETUJUAN PEMOHON -->
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1rem;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-file-contract" style="color: #a855f7;"></i> IV. PERNYATAAN DAN PERSETUJUAN PEMOHON
+            </div>
+            <div style="padding: 1.15rem 1.25rem;">
+              <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.83rem; line-height: 1.55; text-align: justify; color: var(--text-main); margin-bottom: 1rem;">
+                <em>"Dengan ini saya menyatakan bahwa seluruh data administrasi, dokumen kompetensi, serta berkas portofolio yang saya lampirkan dalam Formulir Aplikasi Kredensial / Re-Kredensial ini adalah benar, valid, dan sah secara hukum. Apabila di kemudian hari ditemukan adanya pemalsuan data atau informasi yang tidak benar, maka saya bersedia menerima sanksi administrasi, pencabutan kewenangan klinis (Clinical Privilege), maupun sanksi hukum sesuai ketentuan yang berlaku di RSUD dr. Soedarso Provinsi Kalimantan Barat."</em>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Tanggal Surat Permohonan <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="suratTanggal" value="21 Oktober 2026" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ketentuan Pengesahan Surat Permohonan</label>
+                  <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); padding: 0.6rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--text-muted); line-height: 1.45;">
+                    <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> <strong>Tanda Tangan Mandiri Pemohon:</strong> Surat permohonan ini ditandatangani mandiri oleh Anda sebagai pemohon dan <u>tidak memerlukan persetujuan pengurus komite keperawatan</u> terlebih dahulu sebelum diunggah kembali pada Langkah 2.
+                  </div>
+                  <input type="hidden" id="suratPemeriksaNama" value="">
+                  <input type="hidden" id="suratPemeriksaNip" value="">
+                </div>
+              </div>
+
+              <label style="display: flex; align-items: flex-start; gap: 0.65rem; margin-top: 0.75rem; cursor: pointer; font-size: 0.84rem; color: var(--text-main);">
+                <input type="checkbox" id="chkSetujuPernyataan" checked required style="margin-top: 3px;">
+                <span>Saya menyetujui seluruh klausul pernyataan integritas dan menyatakan kebenaran dokumen yang saya lampirkan untuk proses kredensial RSUD dr. Soedarso.</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- ACTION SUBMIT FORMULIR: MENGHASILKAN SURAT PERMOHONAN -->
+          <div style="margin-top: 1.5rem; padding: 1.25rem; background: linear-gradient(135deg, rgba(20, 148, 142, 0.08), rgba(14, 56, 96, 0.08)); border: 1.5px solid var(--primary-600); border-radius: var(--radius-md); text-align: center;">
+            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.35rem;">
+              <i class="fa-solid fa-file-circle-check" style="color: var(--primary-600);"></i> Terbitkan Surat Permohonan Kredensial Resmi
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Hasil pengisian formulir ini akan seketika menghasilkan Surat Permohonan 3 Halaman A4 format fisik resmi RSUD dr. Soedarso persis sesuai template terlampir.
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+              <button type="submit" class="btn-primary" style="font-size: 0.92rem; padding: 0.7rem 1.6rem; box-shadow: 0 4px 14px rgba(20, 148, 142, 0.35);">
+                <i class="fa-solid fa-paper-plane"></i> Kirim Respon &amp; Terbitkan Surat Permohonan Resmi
+              </button>
+              <button type="button" class="btn-secondary" onclick="previewSuratKredensialHVS('filled')" style="font-size: 0.92rem; padding: 0.7rem 1.2rem;">
+                <i class="fa-solid fa-eye"></i> Pratinjau Surat Hasil Isian
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalSuratPermohonan')">
+          <i class="fa-solid fa-xmark"></i> Tutup
+        </button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" onclick="previewSuratKredensialHVS('blank')">
+            <i class="fa-regular fa-file"></i> Blangko Kosong
+          </button>
+          <button type="button" class="btn-secondary" onclick="previewSuratKredensialHVS('filled')" style="background: rgba(20, 148, 142, 0.1); border-color: var(--primary-600); color: var(--primary-700); font-weight: 700;">
+            <i class="fa-solid fa-eye"></i> Pratinjau Surat Hasil Isian
+          </button>
+          <button type="button" class="btn-secondary" onclick="exportSuratKredensialWord()">
+            <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Dokumen (.doc)
+          </button>
+          <button type="button" class="btn-secondary" onclick="printSuratKredensialHVS()">
+            <i class="fa-solid fa-print"></i> Cetak Formulir HVS (PDF)
+          </button>
+          <button type="submit" form="formSuratPermohonan" class="btn-primary" style="box-shadow: 0 2px 8px rgba(20, 148, 142, 0.35);">
+            <i class="fa-solid fa-paper-plane"></i> Kirim &amp; Terbitkan Surat Resmi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: PRATINJAU KERTAS HVS STANDAR SURAT PERMOHONAN
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalPreviewSuratHVS">
+    <div class="modal-container modal-container-lg" style="max-width: 950px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-file-lines" style="color: var(--primary-600);"></i>
+          Pratinjau Lembar Surat Permohonan Kredensial (Format Cetak Kertas HVS A4 Resmi)
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalPreviewSuratHVS')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="background: #64748b; padding: 2rem 1rem; overflow-y: auto; max-height: 76vh;">
+        <!-- Success Alert Banner if newly generated -->
+        <div id="previewSuratSuccessBanner" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-sm); padding: 0.85rem 1.15rem; margin: 0 auto 1.25rem auto; max-width: 210mm; box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="color: #065f46; font-size: 0.84rem; line-height: 1.55;">
+              <div style="font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 4px;">
+                <i class="fa-solid fa-circle-check fa-lg" style="color: #10b981;"></i>
+                Surat Permohonan Resmi Telah Diterbitkan untuk <span id="previewSuratApplicantBadge" style="text-decoration: underline;"></span>!
+              </div>
+              <div>
+                <strong>Langkah Selanjutnya:</strong> Unduh berkas (Word / PDF) di bawah ini, tanda tangani pada kolom <em>Pemohon</em>, lalu unggah kembali scan dokumen pada <strong>Langkah 2</strong>.<br>
+                <span style="color: #047857; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Ketentuan Alur:</span> Surat permohonan ini <u>TIDAK MEMERLUKAN persetujuan atau tanda tangan pengurus komite keperawatan</u> di tahap awal pengajuan.
+              </div>
+            </div>
+            <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 2: Unggah Berkas
+            </button>
+          </div>
+        </div>
+
+        <!-- Container HVS Sheet -->
+        <div id="suratHvsPrintArea" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewSuratHVS')">Tutup Pratinjau</button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" id="btnTogglePreviewMode" onclick="togglePreviewSuratMode()">
+            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
+          </button>
+          <button type="button" class="btn-secondary" onclick="exportSuratKredensialWord()">
+            <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
+          </button>
+          <button type="button" class="btn-primary" onclick="printSuratKredensialHVS()">
+            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+          </button>
+          <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
+            <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 2: Unggah Berkas
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: UGGAH SURAT PERMOHONAN & PORTOFOLIO (LANGKAH 2)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalUploadBerkasKredensial">
+    <div class="modal-container" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-cloud-arrow-up" style="color: #d97706;"></i>
+          Langkah 2: Unggah Surat Permohonan Bertanda Tangan & Portofolio Berkas
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalUploadBerkasKredensial')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background: #fef3c7; border-left: 4px solid #d97706; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: #78350f;">
+          <strong>Instruksi Langkah 2:</strong> Unggah lembar Surat Permohonan (dari Langkah 1) yang telah Anda tanda tangani sendiri sebagai pemohon. <br>
+          <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-info"></i> Penting:</span> Surat Permohonan <strong>TIDAK MEMERLUKAN persetujuan pengurus komite keperawatan</strong> pada tahap ini. Setelah mengunggah berkas ini, Anda dapat langsung melanjutkan ke <strong>Langkah 3: Pengisian RKK Online</strong>.
+        </div>
+
+        <form id="formUploadBerkas" onsubmit="simpanUploadSurat(event)">
+          <div class="form-group">
+            <label class="form-label">Nama Tenaga Keperawatan / Bidan Pemohon <span class="req">*</span></label>
+            <input type="text" class="form-input" id="uploadNamaPemohon" value="Ns. Hendra Kurniawan, S.Kep" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unggah Scan Surat Permohonan yang Telah Ditandatangani <span class="req">*</span></label>
+            <input type="file" class="form-input" id="uploadFileSurat" accept=".pdf,.jpg,.jpeg,.png" required>
+            <span class="form-hint">Format PDF atau JPG/PNG hasil scan jelas bertanda tangan basah / e-sign.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unggah Salinan STR Aktif <span class="req">*</span></label>
+            <input type="file" class="form-input" id="uploadFileStr" accept=".pdf,.jpg,.jpeg,.png" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unggah Ijazah & Transkrip Terakhir <span class="req">*</span></label>
+            <input type="file" class="form-input" id="uploadFileIjazah" accept=".pdf,.jpg,.jpeg,.png" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unggah Logbook Asuhan Keperawatan (1 Tahun Terakhir) <span class="req">*</span></label>
+            <input type="file" class="form-input" id="uploadFileLogbook" accept=".pdf,.xlsx,.xls,.doc,.docx" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Unggah Gabungan Sertifikat Pelatihan CPD (Opsional)</label>
+            <input type="file" class="form-input" id="uploadFileCpd" accept=".pdf,.zip,.rar">
+            <span class="form-hint">Maksimal 15 MB format PDF atau ZIP arsip sertifikat.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Tambahan untuk Subkomite Kredensial</label>
+            <textarea class="form-textarea" id="uploadCatatan" rows="2" placeholder="Tuliskan catatan khusus atau keterangan verifikasi bila diperlukan..."></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modalUploadBerkasKredensial')">Batal</button>
+            <button type="submit" class="btn-primary" style="background: #d97706; border-color: #d97706;">
+              <i class="fa-solid fa-check"></i> Simpan & Verifikasi Berkas
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TOAST CONTAINER
+       ======================================================================== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========================================================================
+       SITE FOOTER
+       ======================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand-title">KOMITE KEPERAWATAN RSUD DR. SOEDARSO</div>
+        <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Wadah non-struktural rumah sakit yang bertugas menegakkan profesionalisme, etika, dan keselamatan asuhan keperawatan dan kebidanan di Rumah Sakit Umum Daerah dr. Soedarso Pontianak, Kalimantan Barat.
+        </p>
+        <div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.82rem; flex-wrap: wrap;">
+          <span class="badge-official"><i class="fa-solid fa-award"></i> Akreditasi Paripurna KARS</span>
+          <span class="badge-official"><i class="fa-solid fa-hospital"></i> RS Kelas A Rujukan Utama</span>
+          <a href="https://regal-smakager-133704.netlify.app/" target="_blank" class="badge-official" style="background: rgba(20, 148, 142, 0.15); color: var(--primary-700); text-decoration: none; font-weight: 700;">
+            <i class="fa-solid fa-lock"></i> regal-smakager-133704.netlify.app
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Tiga Subkomite</div>
+        <ul class="footer-links">
+          <li><a href="#kredensial" onclick="switchTab('kredensial')">Subkomite Kredensial</a></li>
+          <li><a href="#mutu" onclick="switchTab('mutu')">Subkomite Mutu Profesi</a></li>
+          <li><a href="#etik" onclick="switchTab('etik')">Subkomite Etika & Disiplin</a></li>
+          <li><a href="#analitik" onclick="switchTab('analitik')">Mitra Bestari (Peer Review)</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Layanan Mandiri</div>
+        <ul class="footer-links">
+          <li><a href="javascript:void(0)" onclick="openNewKredensialModal()">Pengajuan Kredensialing Online</a></li>
+          <li><a href="#kredensial" onclick="switchTab('kredensial')">Pencarian & Verifikasi RKK</a></li>
+          <li><a href="#etik" onclick="switchTab('etik')">Whistleblowing & Konsultasi Etik</a></li>
+          <li><a href="#regulasi" onclick="switchTab('regulasi')">Unduh Buku Putih RKK</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Sekretariat Komite</div>
+        <p style="font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.75rem;">
+          Gedung Manajemen Lantai 2, RSUD dr. Soedarso<br>
+          Jl. DR. Soedarso No. 1 Pontianak 78124<br>
+          Kalimantan Barat, Indonesia
+        </p>
+        <p style="font-size: 0.82rem; color: var(--gold-600); font-weight: 700;">
+          <i class="fa-solid fa-phone"></i> (0561) 737701 / Ext. 214
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>
+        &copy; 2026 Komite Keperawatan RSUD dr. Soedarso Pontianak &bull; Pemerintah Provinsi Kalimantan Barat. Hak Cipta Dilindungi Undang-Undang.
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <a href="https://regal-smakager-133704.netlify.app/" target="_blank" style="color: var(--primary-700); text-decoration: none; font-weight: 700;">
+          <i class="fa-solid fa-globe"></i> https://regal-smakager-133704.netlify.app/
+        </a>
+        <span>&bull;</span>
+        <span>Standar PMK RI No. 49/2013</span>
+        <span>&bull;</span>
+        <span>KARS Versi STARKES</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="logo_asset.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
