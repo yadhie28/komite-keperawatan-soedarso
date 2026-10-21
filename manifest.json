@@ -1,0 +1,26 @@
+{
+  "name": "Komite Keperawatan RSUD dr. Soedarso",
+  "short_name": "Komite Kep Soedarso",
+  "description": "Portal Resmi E-Kredensialing, RKK/SPK, Mutu Asuhan, dan Etika Profesi RSUD dr. Soedarso Pontianak",
+  "id": "https://regal-smakager-133704.netlify.app/",
+  "start_url": "https://regal-smakager-133704.netlify.app/",
+  "scope": "https://regal-smakager-133704.netlify.app/",
+  "display": "standalone",
+  "background_color": "#042f2e",
+  "theme_color": "#074744",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logo_komite_256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo_komite.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

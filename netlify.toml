@@ -1,0 +1,63 @@
+# ==============================================================================
+# NETLIFY CONFIGURATION FILE
+# Komite Keperawatan RSUD dr. Soedarso Pontianak
+# Permanent Locked Site: https://regal-smakager-133704.netlify.app/
+# Site ID: regal-smakager-133704
+# ==============================================================================
+
+[build]
+  publish = "."
+
+[context.production.environment]
+  URL = "https://regal-smakager-133704.netlify.app"
+  DEPLOY_PRIME_URL = "https://regal-smakager-133704.netlify.app"
+  SITE_NAME = "regal-smakager-133704"
+
+# Single Page App Navigation Redirects
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security & Performance Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache Optimization for Images & Media
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache Optimization for CSS & JavaScript
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# HTML always fresh
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
