@@ -460,20 +460,23 @@
             </div>
           </div>
           <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="toggleTrackerKredensial()">
-              <i class="fa-solid fa-route"></i> Lacak Status Berkas Saya
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openCvModal()">
+              <i class="fa-solid fa-address-card"></i> 1. Buat CV Portofolio (PDF)
             </button>
             <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openLogbookModal()">
-              <i class="fa-solid fa-book-medical" style="color: #7e22ce;"></i> Buat Logbook Klinis (PDF)
+              <i class="fa-solid fa-book-medical" style="color: #7e22ce;"></i> 2. Buat Logbook Klinis (PDF)
             </button>
             <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openSuratPermohonanModal()">
-              <i class="fa-solid fa-file-pen"></i> Buat Surat Permohonan
-            </button>
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openCvModal()">
-              <i class="fa-solid fa-address-card"></i> Buat CV Portofolio (PDF)
+              <i class="fa-solid fa-file-pen"></i> 3. Buat Surat Permohonan
             </button>
             <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #0e3860; border-color: #0e3860;" onclick="openPreviewRkkModal()">
-              <i class="fa-solid fa-file-contract"></i> Cetak RKK Resmi (PDF)
+              <i class="fa-solid fa-file-contract"></i> 4. Cetak RKK Resmi (PDF)
+            </button>
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #fef3c7; color: #92400e; border-color: #f59e0b;" onclick="openModalUploadSurat()">
+              <i class="fa-solid fa-cloud-arrow-up"></i> 5. Unggah Berkas Lengkap
+            </button>
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="toggleTrackerKredensial()">
+              <i class="fa-solid fa-route"></i> Lacak Status Berkas
             </button>
           </div>
         </div>
@@ -552,45 +555,21 @@
             </div>
           </div>
 
-          <!-- Step 4 Card: Unggah Berkas Lengkap (CV + Logbook + Surat + STR) -->
-          <div class="alur-card" onclick="openModalUploadSurat()">
+          <!-- Step 4 Card: Asesmen RKK Online & Cetak Dokumen Resmi -->
+          <div class="alur-card" id="cardStep4Rkk" onclick="cekBukaRkkOnline()">
             <div class="alur-card-badge step-4">
               <i class="fa-solid fa-circle-dot"></i> LANGKAH 4
-            </div>
-            <div class="alur-card-icon" style="color: #d97706;">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-            </div>
-            <div class="alur-card-title">4. Tanda Tangani &amp; Unggah Berkas</div>
-            <div class="alur-card-desc">
-              Scan dokumen CV, Logbook tervalidasi Kepala Ruangan, dan Surat Permohonan yang telah Anda tanda tangani diunggah bersama salinan STR aktif, ijazah, dan sertifikat pelatihan untuk membuka instrumen asesmen RKK.
-            </div>
-            <div class="alur-card-action">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="badge" id="badgeStep4Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
-                  <i class="fa-solid fa-clock"></i> Belum Diunggah
-                </span>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
-                  Upload Berkas <i class="fa-solid fa-arrow-right"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 5 Card: Asesmen RKK Online & Cetak Dokumen Resmi -->
-          <div class="alur-card" id="cardStep5Rkk" onclick="cekBukaRkkOnline()">
-            <div class="alur-card-badge step-5">
-              <i class="fa-solid fa-circle-dot"></i> LANGKAH 5
             </div>
             <div class="alur-card-icon" style="color: #0e3860;">
               <i class="fa-solid fa-file-contract"></i>
             </div>
-            <div class="alur-card-title">5. Pengisian &amp; Cetak RKK Online (PDF)</div>
+            <div class="alur-card-title">4. Pengisian &amp; Cetak RKK Online (PDF)</div>
             <div class="alur-card-desc">
               Pilih kewenangan klinis sesuai jenjang PK usulan dan area spesialisasi Buku Pedoman (White Book 2026), lakukan asesmen mandiri (Kode 1, 2, 3), serta langsung cetak/unduh dokumen <strong>RKK Resmi 3 Halaman A4 format baku RSUD dr. Soedarso</strong>.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                <span class="badge" id="badgeStep5Status" style="background: rgba(14, 56, 96, 0.12); color: #0e3860; font-weight: 700; font-size: 0.72rem;">
+                <span class="badge" id="badgeStep4Status" style="background: rgba(14, 56, 96, 0.12); color: #0e3860; font-weight: 700; font-size: 0.72rem;">
                   <i class="fa-solid fa-file-circle-check"></i> Sesuai Buku Putih 2026
                 </span>
                 <div style="display: flex; gap: 0.35rem;">
@@ -601,6 +580,30 @@
                     Isi RKK <i class="fa-solid fa-arrow-right"></i>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5 Card: Tanda Tangani & Unggah Berkas Lengkap (CV + Logbook + Surat + RKK) -->
+          <div class="alur-card" id="cardStep5Upload" onclick="openModalUploadSurat()">
+            <div class="alur-card-badge step-5">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 5 (FINAL)
+            </div>
+            <div class="alur-card-icon" style="color: #d97706;">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div class="alur-card-title">5. Tanda Tangani &amp; Unggah Berkas Lengkap</div>
+            <div class="alur-card-desc">
+              Scan seluruh dokumen hasil cetak yang telah Anda tanda tangani mandiri (CV, Logbook diverifikasi Kepala Ruangan, Surat Permohonan, dan RKK asesmen mandiri) diunggah bersama STR aktif, ijazah, dan sertifikat pelatihan untuk verifikasi Subkomite Kredensial.
+            </div>
+            <div class="alur-card-action">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" id="badgeStep5Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-clock"></i> Belum Diunggah
+                </span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
+                  Upload Berkas Lengkap <i class="fa-solid fa-arrow-right"></i>
+                </span>
               </div>
             </div>
           </div>
@@ -2613,7 +2616,7 @@
                 Surat Permohonan Resmi Telah Diterbitkan untuk <span id="previewSuratApplicantBadge" style="text-decoration: underline;"></span>!
               </div>
               <div>
-                <strong>Langkah Selanjutnya:</strong> Unduh berkas (Word / PDF) di bawah ini, tanda tangani pada kolom <em>Pemohon</em>, lalu unggah kembali scan dokumen pada <strong>Langkah 4</strong>.<br>
+                <strong>Langkah Selanjutnya:</strong> Unduh berkas (Word / PDF) di bawah ini, tanda tangani pada kolom <em>Pemohon</em>, lalu lanjutkan ke <strong>Langkah 4: Asesmen Mandiri RKK Online</strong>.<br>
                 <span style="color: #047857; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Ketentuan Alur:</span> Surat permohonan ini <u>TIDAK MEMERLUKAN persetujuan atau tanda tangan pengurus komite keperawatan</u> di tahap awal pengajuan.
                 <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                   <div style="font-size: 0.78rem; color: #065f46;">
@@ -2625,8 +2628,8 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 4: Unggah Berkas
+            <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewSuratHVS'); cekBukaRkkOnline();">
+              <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 4: Asesmen RKK
             </button>
           </div>
         </div>
@@ -2649,8 +2652,8 @@
           <button type="button" class="btn-primary" onclick="printSuratKredensialHVS()">
             <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
           </button>
-          <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
-            <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 4: Unggah Berkas
+          <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860;" onclick="closeModal('modalPreviewSuratHVS'); cekBukaRkkOnline();">
+            <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 4: Isi RKK Online
           </button>
         </div>
       </div>
@@ -2812,7 +2815,7 @@
                 Dokumen RKK Resmi Telah Terbit untuk <span id="previewRkkApplicantBadge" style="text-decoration: underline;"></span>!
               </div>
               <div>
-                <strong>Format Dokumen:</strong> Telah disesuaikan dengan <strong>Template Baku Lampiran Rekomendasi Komite Keperawatan RSUD dr. Soedarso</strong> dan <strong>Buku Pedoman (White Book) Tahun 2026</strong>.
+                <strong>Langkah Selanjutnya:</strong> Cetak atau simpan dokumen RKK 3 halaman di bawah ini, tanda tangani pada Lembar 3 (Bagian D), lalu lanjutkan ke <strong>Langkah 5 (Final): Tanda Tangani &amp; Unggah Berkas Lengkap</strong>.<br>
                 <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                   <div style="font-size: 0.78rem; color: #065f46;">
                     <i class="fa-solid fa-envelope-circle-check"></i> Notifikasi Administrasi otomatis terhubung: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
@@ -2820,8 +2823,8 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="printRkkHVS()">
-              <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+            <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewRkkResmiHVS'); openModalUploadSurat();">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 5: Unggah Berkas
             </button>
           </div>
         </div>
@@ -2844,8 +2847,8 @@
           <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860;" onclick="printRkkHVS()">
             <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
           </button>
-          <button type="button" class="btn-primary" style="background: #15803d; border-color: #15803d;" onclick="closeModal('modalPreviewRkkResmiHVS'); toggleTrackerKredensial();">
-            <i class="fa-solid fa-route"></i> Lacak Status Berkas
+          <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706;" onclick="closeModal('modalPreviewRkkResmiHVS'); openModalUploadSurat();">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 5: Unggah Berkas Lengkap
           </button>
         </div>
       </div>
@@ -2853,14 +2856,14 @@
   </div>
 
   <!-- ========================================================================
-       MODAL: UNGGAH BERKAS KREDENSIAL LENGKAP (CV + LOGBOOK + SURAT) (LANGKAH 4)
+       MODAL: UNGGAH BERKAS KREDENSIAL LENGKAP (CV + LOGBOOK + SURAT + RKK) (LANGKAH 5 - FINAL)
        ======================================================================== -->
   <div class="modal-overlay" id="modalUploadBerkasKredensial">
     <div class="modal-container" style="max-width: 650px;">
       <div class="modal-header">
         <div class="modal-title">
           <i class="fa-solid fa-cloud-arrow-up" style="color: #d97706;"></i>
-          Langkah 4: Unggah Berkas Kredensial Lengkap (CV + Logbook + Surat)
+          Langkah 5 (Final): Tanda Tangani &amp; Unggah Berkas Kredensial Lengkap
         </div>
         <button class="btn-close-modal" onclick="closeModal('modalUploadBerkasKredensial')">
           <i class="fa-solid fa-xmark fa-lg"></i>
@@ -2869,8 +2872,8 @@
 
       <div class="modal-body">
         <div style="background: #fef3c7; border-left: 4px solid #d97706; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: #78350f;">
-          <strong>Instruksi Langkah 4:</strong> Unggah lembar scan CV Portofolio Klinis (Langkah 1), Logbook Kinerja Klinis tervalidasi Kepala Ruangan (Langkah 2), dan Surat Permohonan (Langkah 3) yang telah Anda tanda tangani mandiri. <br>
-          <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-info"></i> Penting:</span> Berkas ini <strong>TIDAK MEMERLUKAN persetujuan pengurus komite keperawatan</strong> pada tahap awal. Setelah mengunggah berkas ini, Anda dapat langsung melanjutkan ke <strong>Langkah 5: Pengisian RKK Online</strong>.
+          <strong>Instruksi Langkah 5 (Tahap Akhir):</strong> Unggah scan seluruh dokumen yang telah Anda cetak dan tanda tangani mandiri: CV Portofolio Klinis (Langkah 1), Logbook Kinerja Klinis tervalidasi Kepala Ruangan (Langkah 2), Surat Permohonan (Langkah 3), dan Rincian Kewenangan Klinis/RKK (Langkah 4), beserta salinan STR aktif dan ijazah.<br>
+          <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-check"></i> Tahap Pengesahan:</span> Setelah mengunggah berkas lengkap ini, pengajuan Anda resmi masuk ke antrean verifikasi Subkomite Kredensial dan disposisi Mitra Bestari.
         </div>
 
         <!-- Banner Notifikasi Administrasi Unggah Berkas -->
@@ -2878,7 +2881,7 @@
           <div style="font-weight: 800; color: #047857; display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
             <i class="fa-solid fa-envelope-circle-check"></i> Notifikasi Administrasi Terkoneksi
           </div>
-          <span>Berkas yang diunggah otomatis tersimpan dan notifikasi diteruskan ke email Komite (<strong>komitekeperawatanrsds2023@gmail.com</strong>) dan Sekretaris (<strong>yadhie28@gmail.com</strong>).</span>
+          <span>Berkas lengkap yang diunggah otomatis tersimpan dan notifikasi diteruskan ke email Komite (<strong>komitekeperawatanrsds2023@gmail.com</strong>) dan Sekretaris (<strong>yadhie28@gmail.com</strong>).</span>
         </div>
 
         <form id="formUploadBerkas" onsubmit="simpanUploadSurat(event)">
@@ -2888,35 +2891,41 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Scan CV Portofolio Klinis yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
+            <label class="form-label">1. Unggah Scan CV Portofolio Klinis yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileCv" accept=".pdf,.jpg,.jpeg,.png">
             <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 1 yang telah ditandatangani pada Lembar 3 (Bagian F).</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Scan Logbook Kinerja Klinis Tervalidasi Kepala Ruangan (PDF 2 Halaman) <span class="req">*</span></label>
+            <label class="form-label">2. Unggah Scan Logbook Kinerja Klinis Tervalidasi Kepala Ruangan (PDF 2 Halaman) <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileLogbook" accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx" required>
-            <span class="form-hint">Format PDF 2 halaman hasil unduh dari Langkah 2 yang telah ditandatangani dan diverifikasi Kepala Ruangan.</span>
+            <span class="form-hint">Format PDF 2 halaman hasil unduh dari Langkah 2 yang telah diverifikasi &amp; ditandatangani Kepala Ruangan pada Lembar 2.</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Scan Surat Permohonan yang Telah Ditandatangani <span class="req">*</span></label>
+            <label class="form-label">3. Unggah Scan Surat Permohonan yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileSurat" accept=".pdf,.jpg,.jpeg,.png" required>
-            <span class="form-hint">Format PDF atau JPG/PNG hasil scan jelas bertanda tangan basah / e-sign.</span>
+            <span class="form-hint">Format PDF hasil unduh dari Langkah 3 bertanda tangan pemohon pada Lembar 3.</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Salinan STR Aktif <span class="req">*</span></label>
+            <label class="form-label">4. Unggah Scan Dokumen RKK Resmi yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
+            <input type="file" class="form-input" id="uploadFileRkk" accept=".pdf,.jpg,.jpeg,.png">
+            <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 4 yang telah ditandatangani pemohon pada Lembar 3 (Bagian D).</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">5. Unggah Salinan STR Aktif <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileStr" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Ijazah &amp; Transkrip Terakhir <span class="req">*</span></label>
+            <label class="form-label">6. Unggah Ijazah &amp; Transkrip Terakhir <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileIjazah" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Gabungan Sertifikat Pelatihan CPD (Opsional)</label>
+            <label class="form-label">7. Unggah Gabungan Sertifikat Pelatihan CPD (Opsional)</label>
             <input type="file" class="form-input" id="uploadFileCpd" accept=".pdf,.zip,.rar">
             <span class="form-hint">Maksimal 15 MB format PDF atau ZIP arsip sertifikat.</span>
           </div>
@@ -2929,7 +2938,7 @@
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalUploadBerkasKredensial')">Batal</button>
             <button type="submit" class="btn-primary" style="background: #d97706; border-color: #d97706;">
-              <i class="fa-solid fa-check"></i> Simpan &amp; Verifikasi Berkas
+              <i class="fa-solid fa-check"></i> Simpan &amp; Kirim Pengajuan Berkas Lengkap
             </button>
           </div>
         </form>
