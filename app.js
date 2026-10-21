@@ -16,6 +16,9 @@ const state = {
   wizardStep: 1,
   selectedNurse: null,
   currentWizardRkkList: [],
+  kredensialCvGenerated: localStorage.getItem('komite_cv_generated') === 'true',
+  cvData: null,
+  cvPreviewMode: 'filled',
   kredensialSuratGenerated: localStorage.getItem('komite_surat_generated') === 'true',
   kredensialBerkasUploaded: localStorage.getItem('komite_berkas_uploaded') === 'true',
   trackerQueryNip: ''
@@ -276,6 +279,18 @@ function loadData() {
   } else {
     state.ethicsTickets = master.sampleTickets || [];
     saveEthicsTickets();
+  }
+
+  // Load CV Data Portofolio Staf Keperawatan (3 Halaman Soedarso)
+  const savedCv = localStorage.getItem('komite_cv_data');
+  if (savedCv) {
+    try {
+      state.cvData = JSON.parse(savedCv);
+    } catch (e) {
+      state.cvData = master.sampleCv?.perawat || null;
+    }
+  } else {
+    state.cvData = master.sampleCv?.perawat || null;
   }
 
   // Load Administrative Notifications (Email Komite & Sekretaris)
@@ -1563,29 +1578,873 @@ function updateAlurStepStatus() {
   const b1 = document.getElementById('badgeStep1Status');
   const b2 = document.getElementById('badgeStep2Status');
   const b3 = document.getElementById('badgeStep3Status');
-  const card3 = document.getElementById('cardStep3Rkk');
+  const b4 = document.getElementById('badgeStep4Status');
+  const card4 = document.getElementById('cardStep4Rkk');
 
-  if (state.kredensialSuratGenerated && b1) {
+  // Langkah 1: CV Portofolio Klinis
+  if (state.kredensialCvGenerated && b1) {
     b1.style.background = '#dcfce7';
     b1.style.color = '#15803d';
-    const appName = state.currentApplicant?.nama ? ` (${state.currentApplicant.nama.split(' ')[0]})` : '';
-    b1.innerHTML = `<i class="fa-solid fa-circle-check"></i> Surat Diunduh${appName}`;
+    const cvName = state.cvData?.nama ? ` (${state.cvData.nama.split(' ')[0]})` : '';
+    b1.innerHTML = `<i class="fa-solid fa-circle-check"></i> CV Diunduh${cvName}`;
   }
 
+  // Langkah 2: Surat Permohonan Kredensial
+  if (state.kredensialSuratGenerated && b2) {
+    b2.style.background = '#dcfce7';
+    b2.style.color = '#15803d';
+    const appName = state.currentApplicant?.nama ? ` (${state.currentApplicant.nama.split(' ')[0]})` : '';
+    b2.innerHTML = `<i class="fa-solid fa-circle-check"></i> Surat Diunduh${appName}`;
+  }
+
+  // Langkah 3: Unggah Berkas Portofolio (CV + Surat + Dokumen)
   if (state.kredensialBerkasUploaded) {
-    if (b2) {
-      b2.style.background = '#dcfce7';
-      b2.style.color = '#15803d';
-      b2.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Diunggah (Siap RKK)';
-    }
     if (b3) {
-      b3.style.background = 'rgba(37, 99, 235, 0.12)';
-      b3.style.color = '#1d4ed8';
-      b3.innerHTML = '<i class="fa-solid fa-circle-play"></i> Siap Asesmen Mandiri';
+      b3.style.background = '#dcfce7';
+      b3.style.color = '#15803d';
+      b3.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Siap RKK)';
     }
-    if (card3) card3.classList.remove('locked');
+    // Langkah 4: Asesmen RKK Online
+    if (b4) {
+      b4.style.background = 'rgba(5, 150, 105, 0.15)';
+      b4.style.color = '#047857';
+      b4.innerHTML = '<i class="fa-solid fa-circle-play"></i> Siap Asesmen Mandiri';
+    }
+    if (card4) card4.classList.remove('locked');
   }
 }
+
+/* ==========================================================================
+   ALUR LANGKAH 1: FORMULIR & BLANGKO RESMI CURRICULUM VITAE (CV) 3 HALAMAN
+   STANDAR KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK
+   ========================================================================== */
+
+function openCvModal() {
+  const cv = state.cvData || window.KOMITE_DATA?.sampleCv?.perawat;
+  if (cv) {
+    fillCvFormWithData(cv);
+  } else {
+    renderCvExpRows([]);
+    renderCvTrainRows([]);
+  }
+  openModal('modalCvKredensial');
+}
+
+function fillCvFormWithData(cv) {
+  if (!cv) return;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val !== undefined ? val : '';
+  };
+  setVal('cvNama', cv.nama);
+  setVal('cvNip', cv.nip);
+  setVal('cvTtl', cv.ttl);
+  setVal('cvJabatan', cv.jabatan);
+  setVal('cvUnit', cv.unit);
+  setVal('cvPkSaatIni', cv.pkSaatIni);
+  setVal('cvPkDiusulkan', cv.pkDiusulkan);
+
+  setVal('cvStr', cv.str);
+  setVal('cvStrBerlaku', cv.strBerlaku);
+  setVal('cvSipp', cv.sipp);
+  setVal('cvSippBerlaku', cv.sippBerlaku);
+  setVal('cvKta', cv.kta);
+
+  if (cv.pendidikan && cv.pendidikan.length >= 4) {
+    cv.pendidikan.forEach((edu, idx) => {
+      setVal(`cvEduInst_${idx}`, edu.institusi);
+      setVal(`cvEduTahun_${idx}`, edu.tahun);
+      setVal(`cvEduIjazah_${idx}`, edu.noIjazah);
+    });
+  }
+
+  renderCvExpRows(cv.pengalamanKerja || []);
+  renderCvTrainRows(cv.pelatihan || []);
+
+  setVal('cvPernyataanKota', cv.pernyataanKota || 'Pontianak');
+  setVal('cvPernyataanTanggal', cv.pernyataanTanggal || '21 Oktober');
+  setVal('cvPernyataanTahun', cv.pernyataanTahun || '2026');
+}
+
+function fillCvPreset(type) {
+  const preset = window.KOMITE_DATA?.sampleCv?.[type];
+  if (preset) {
+    fillCvFormWithData(preset);
+    showToast(`Data profil ${type === 'bidan' ? 'Bdn. Siti Nurhaliza (BK III)' : 'Ns. Hendra Kurniawan (PK III)'} berhasil dimuat!`, 'info');
+  }
+}
+
+function resetCvForm() {
+  const ids = ['cvNama', 'cvNip', 'cvTtl', 'cvJabatan', 'cvUnit', 'cvPkSaatIni', 'cvPkDiusulkan', 'cvStr', 'cvStrBerlaku', 'cvSipp', 'cvSippBerlaku', 'cvKta'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  for (let i = 0; i < 4; i++) {
+    const iEl = document.getElementById(`cvEduInst_${i}`);
+    const tEl = document.getElementById(`cvEduTahun_${i}`);
+    const jEl = document.getElementById(`cvEduIjazah_${i}`);
+    if (iEl) iEl.value = '';
+    if (tEl) tEl.value = '';
+    if (jEl) jEl.value = '';
+  }
+  renderCvExpRows([
+    { instansi: '', ruangan: '', periode: '', durasi: '' },
+    { instansi: '', ruangan: '', periode: '', durasi: '' },
+    { instansi: '', ruangan: '', periode: '', durasi: '' }
+  ]);
+  renderCvTrainRows([
+    { jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' },
+    { jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' },
+    { jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' },
+    { jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' }
+  ]);
+  showToast('Formulir CV berhasil dikosongkan. Siap diisi data baru atau dipratinjau sebagai blangko kosong.', 'info');
+}
+
+function renderCvExpRows(rows) {
+  const tbody = document.getElementById('cvExpBody');
+  if (!tbody) return;
+  const list = (rows && rows.length > 0) ? rows : [
+    { instansi: 'RSUD dr. Soedarso Pontianak', ruangan: 'Ruang Bedah Pria', periode: '04/2019 s.d 10/2022', durasi: '3 Tahun 6 Bulan' },
+    { instansi: 'RSUD dr. Soedarso Pontianak', ruangan: 'Ruang Intensive Care (ICU)', periode: '11/2022 s.d Sekarang', durasi: '3 Tahun 11 Bulan' },
+    { instansi: 'RS Antonius Pontianak', ruangan: 'Instalasi Gawat Darurat (IGD)', periode: '01/2014 s.d 02/2019', durasi: '5 Tahun 1 Bulan' }
+  ];
+  tbody.innerHTML = list.map((item, idx) => `
+    <tr data-idx="${idx}">
+      <td><input type="text" class="form-input cv-exp-inst" value="${item.instansi || ''}" placeholder="RSUD dr. Soedarso Pontianak" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+      <td><input type="text" class="form-input cv-exp-ruang" value="${item.ruangan || ''}" placeholder="Misal: Ruang Bedah Pria" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+      <td><input type="text" class="form-input cv-exp-periode" value="${item.periode || ''}" placeholder="MM/YYYY s.d MM/YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+      <td><input type="text" class="form-input cv-exp-durasi" value="${item.durasi || ''}" placeholder="X Tahun X Bulan" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+      <td style="text-align: center;">
+        <button type="button" class="btn-icon" style="color: #ef4444; padding: 4px;" onclick="removeCvExpRow(${idx})" title="Hapus Baris">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addCvExpRow(data = {}) {
+  const current = getCvExpRowsFromForm();
+  current.push(data.instansi ? data : { instansi: 'RSUD dr. Soedarso Pontianak', ruangan: '', periode: '', durasi: '' });
+  renderCvExpRows(current);
+}
+
+function removeCvExpRow(idx) {
+  const current = getCvExpRowsFromForm();
+  current.splice(idx, 1);
+  renderCvExpRows(current.length > 0 ? current : [{ instansi: '', ruangan: '', periode: '', durasi: '' }]);
+}
+
+function getCvExpRowsFromForm() {
+  const tbody = document.getElementById('cvExpBody');
+  if (!tbody) return [];
+  const rows = tbody.querySelectorAll('tr');
+  const result = [];
+  rows.forEach(r => {
+    const instansi = r.querySelector('.cv-exp-inst')?.value || '';
+    const ruangan = r.querySelector('.cv-exp-ruang')?.value || '';
+    const periode = r.querySelector('.cv-exp-periode')?.value || '';
+    const durasi = r.querySelector('.cv-exp-durasi')?.value || '';
+    if (instansi || ruangan || periode || durasi) {
+      result.push({ instansi, ruangan, periode, durasi });
+    }
+  });
+  return result;
+}
+
+function renderCvTrainRows(rows) {
+  const tbody = document.getElementById('cvTrainBody');
+  if (!tbody) return;
+  const list = (rows && rows.length > 0) ? rows : [
+    { jenis: 'Basic Trauma Cardiac Life Support (BTCLS)', penyelenggara: 'Ambulance Gawat Darurat 118 / PPNI', tahun: '2023', masaBerlaku: 'Aktif s.d 20/08/2027' },
+    { jenis: 'Pelatihan Intensive Care Unit (ICU) Komprehensif', penyelenggara: 'Bapelkes / RS Rujukan Pusat Tipe A', tahun: '2022', masaBerlaku: 'Seumur Hidup / Re-sertifikasi' },
+    { jenis: 'Pelatihan Asisten Kateterisasi Jantung (Cath Lab)', penyelenggara: 'RS Jantung & Pembuluh Darah Harapan Kita', tahun: '2021', masaBerlaku: 'Valid / Berlaku' },
+    { jenis: 'Workshop Asesmen Keperawatan Lanjutan', penyelenggara: 'Komite Keperawatan RSUD dr. Soedarso', tahun: '2024', masaBerlaku: 'Internal RS' }
+  ];
+  tbody.innerHTML = list.map((item, idx) => `
+    <tr data-idx="${idx}">
+      <td><input type="text" class="form-input cv-train-jenis" value="${item.jenis || ''}" placeholder="Nama Pelatihan / Workshop" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+      <td><input type="text" class="form-input cv-train-org" value="${item.penyelenggara || ''}" placeholder="Penyelenggara Resmi (Kemenkes/PPNI/dll)" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+      <td><input type="text" class="form-input cv-train-tahun" value="${item.tahun || ''}" placeholder="YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+      <td><input type="text" class="form-input cv-train-masa" value="${item.masaBerlaku || ''}" placeholder="Masa Berlaku / Valid" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+      <td style="text-align: center;">
+        <button type="button" class="btn-icon" style="color: #ef4444; padding: 4px;" onclick="removeCvTrainRow(${idx})" title="Hapus Baris">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addCvTrainRow(data = {}) {
+  const current = getCvTrainRowsFromForm();
+  current.push(data.jenis ? data : { jenis: '', penyelenggara: '', tahun: '2024', masaBerlaku: 'Berlaku' });
+  renderCvTrainRows(current);
+}
+
+function removeCvTrainRow(idx) {
+  const current = getCvTrainRowsFromForm();
+  current.splice(idx, 1);
+  renderCvTrainRows(current.length > 0 ? current : [{ jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' }]);
+}
+
+function getCvTrainRowsFromForm() {
+  const tbody = document.getElementById('cvTrainBody');
+  if (!tbody) return [];
+  const rows = tbody.querySelectorAll('tr');
+  const result = [];
+  rows.forEach(r => {
+    const jenis = r.querySelector('.cv-train-jenis')?.value || '';
+    const penyelenggara = r.querySelector('.cv-train-org')?.value || '';
+    const tahun = r.querySelector('.cv-train-tahun')?.value || '';
+    const masaBerlaku = r.querySelector('.cv-train-masa')?.value || '';
+    if (jenis || penyelenggara || tahun || masaBerlaku) {
+      result.push({ jenis, penyelenggara, tahun, masaBerlaku });
+    }
+  });
+  return result;
+}
+
+function handleCvSubmit(e) {
+  if (e) e.preventDefault();
+  const getVal = id => document.getElementById(id)?.value?.trim() || '';
+
+  const nama = getVal('cvNama') || 'Ns. Pemohon';
+  const nip = getVal('cvNip');
+  const ttl = getVal('cvTtl');
+  const jabatan = getVal('cvJabatan');
+  const unit = getVal('cvUnit');
+  const pkSaatIni = getVal('cvPkSaatIni');
+  const pkDiusulkan = getVal('cvPkDiusulkan');
+
+  const str = getVal('cvStr');
+  const strBerlaku = getVal('cvStrBerlaku');
+  const sipp = getVal('cvSipp');
+  const sippBerlaku = getVal('cvSippBerlaku');
+  const kta = getVal('cvKta');
+
+  const pendidikan = [
+    { jenjang: 'D3 Keperawatan', institusi: getVal('cvEduInst_0'), tahun: getVal('cvEduTahun_0'), noIjazah: getVal('cvEduIjazah_0') },
+    { jenjang: 'S1 Keperawatan', institusi: getVal('cvEduInst_1'), tahun: getVal('cvEduTahun_1'), noIjazah: getVal('cvEduIjazah_1') },
+    { jenjang: 'Profesi Ners', institusi: getVal('cvEduInst_2'), tahun: getVal('cvEduTahun_2'), noIjazah: getVal('cvEduIjazah_2') },
+    { jenjang: 'S2 / Spesialis', institusi: getVal('cvEduInst_3'), tahun: getVal('cvEduTahun_3'), noIjazah: getVal('cvEduIjazah_3') }
+  ];
+
+  const pengalamanKerja = getCvExpRowsFromForm();
+  const pelatihan = getCvTrainRowsFromForm();
+
+  const cvData = {
+    nama,
+    nip,
+    ttl,
+    jabatan,
+    unit,
+    pkSaatIni,
+    pkDiusulkan,
+    str,
+    strBerlaku,
+    sipp,
+    sippBerlaku,
+    kta,
+    pendidikan,
+    pengalamanKerja,
+    pelatihan,
+    pernyataanKota: getVal('cvPernyataanKota') || 'Pontianak',
+    pernyataanTanggal: getVal('cvPernyataanTanggal') || '21 Oktober',
+    pernyataanTahun: getVal('cvPernyataanTahun') || '2026',
+    timestamp: new Date().toISOString()
+  };
+
+  state.cvData = cvData;
+  state.kredensialCvGenerated = true;
+  localStorage.setItem('komite_cv_data', JSON.stringify(cvData));
+  localStorage.setItem('komite_cv_generated', 'true');
+
+  // Sinkronkan ke Surat Permohonan (Langkah 2) dan Upload Modal (Langkah 3)
+  transferCvToSurat(cvData);
+
+  updateAlurStepStatus();
+  closeModal('modalCvKredensial');
+
+  // Buka pratinjau lembar CV 3 Halaman
+  previewCvHVS('filled');
+
+  // Rekam Notifikasi Administrasi
+  const adminSubject = `[CV RESMI DITERBITKAN] ${nama} (${pkDiusulkan} - ${unit})`;
+  const adminBody =
+    `Kepada Yth.\n` +
+    `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `Pemberitahuan Penerbitan Curriculum Vitae (CV) Resmi Portofolio Klinis (Langkah 1):\n\n` +
+    `• Nama Lengkap    : ${nama}\n` +
+    `• NIP/NIPPPK/NIK  : ${nip}\n` +
+    `• Unit Kerja      : ${unit}\n` +
+    `• Jenjang Usulan  : ${pkDiusulkan}\n` +
+    `• STR / SIPP      : ${str} / ${sipp}\n` +
+    `• Waktu Terbit    : ${new Date().toLocaleString('id-ID')}\n` +
+    `• Format Dokumen  : Format Baku 3 Halaman A4 Sesuai Template RSUD dr. Soedarso.\n\n` +
+    `Dokumen CV siap dicetak dan ditandatangani pemohon pada Lembar F.\n\n` +
+    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  recordAdminNotification({
+    eventType: 'Penerbitan CV Portofolio Klinis (Langkah 1)',
+    subject: adminSubject,
+    applicantName: nama,
+    applicantNip: nip,
+    unit: unit,
+    bodyText: adminBody
+  });
+
+  const banner = document.getElementById('previewCvSuccessBanner');
+  const badge = document.getElementById('previewCvApplicantBadge');
+  if (banner) banner.style.display = 'block';
+  if (badge) badge.textContent = nama;
+
+  showToast(`Curriculum Vitae (CV) resmi untuk ${nama} berhasil diterbitkan (3 Halaman)! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
+}
+
+function transferCvToSurat(cv) {
+  if (!cv) return;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+
+  setVal('suratNama', cv.nama);
+  if (cv.nip) {
+    const cleanNip = cv.nip.replace(/[^0-9]/g, '');
+    setVal('suratNip', cleanNip || cv.nip);
+  }
+  setVal('suratTtl', cv.ttl);
+  setVal('suratUnit', cv.unit);
+  setVal('suratJabatanFungsional', cv.jabatan);
+  if (cv.pkSaatIni) {
+    if (cv.pkSaatIni.includes('PK I') || cv.pkSaatIni.includes('Level I')) setVal('suratPkSaatIni', 'PK I');
+    else if (cv.pkSaatIni.includes('PK II')) setVal('suratPkSaatIni', 'PK II');
+    else if (cv.pkSaatIni.includes('PK III')) setVal('suratPkSaatIni', 'PK III');
+    else if (cv.pkSaatIni.includes('PK IV')) setVal('suratPkSaatIni', 'PK IV');
+    else if (cv.pkSaatIni.includes('PK V')) setVal('suratPkSaatIni', 'PK V');
+    else setVal('suratPkSaatIni', 'PK II');
+  }
+  if (cv.pkDiusulkan) {
+    if (cv.pkDiusulkan.includes('PK I') || cv.pkDiusulkan.includes('Level I')) setVal('suratJenjang', 'PK I');
+    else if (cv.pkDiusulkan.includes('PK II')) setVal('suratJenjang', 'PK II');
+    else if (cv.pkDiusulkan.includes('PK III')) setVal('suratJenjang', 'PK III');
+    else if (cv.pkDiusulkan.includes('PK IV')) setVal('suratJenjang', 'PK IV');
+    else if (cv.pkDiusulkan.includes('PK V')) setVal('suratJenjang', 'PK V');
+    else setVal('suratJenjang', 'PK III');
+  }
+  setVal('suratStr', cv.str);
+  setVal('suratStrExpiry', cv.strBerlaku);
+  setVal('suratSipp', cv.sipp);
+  setVal('suratSippExpiry', cv.sippBerlaku);
+  setVal('suratKtaPpni', cv.kta);
+
+  // Sync to Langkah 3 (Upload modal)
+  setVal('uploadNamaPemohon', cv.nama);
+
+  state.currentApplicant = {
+    nama: cv.nama,
+    nip: cv.nip,
+    rawNip: cv.nip,
+    unit: cv.unit,
+    jenjang: cv.pkDiusulkan,
+    timestamp: new Date().toISOString()
+  };
+}
+
+function generateCvHVS(mode) {
+  const previewMode = mode || state.cvPreviewMode || 'filled';
+  const isBlank = (previewMode === 'blank');
+  const cv = (!isBlank && state.cvData) ? state.cvData : (isBlank ? null : window.KOMITE_DATA?.sampleCv?.perawat);
+
+  const v = (val, placeholder) => {
+    if (isBlank) return placeholder || '';
+    return (val !== undefined && val !== null && String(val).trim() !== '') ? val : (placeholder || '');
+  };
+
+  const nama = v(cv?.nama, '[ Ns. Nama Lengkap, S.Kep ]');
+  const nip = v(cv?.nip, '[ 19xxxxxxxxxxxxxx ]');
+  const ttl = v(cv?.ttl, '[ Pontianak, DD / MM / YYYY ]');
+  const jabatan = v(cv?.jabatan, '[ Perawat Pelaksana / Ketua Tim / Kepala Ruangan ]');
+  const unit = v(cv?.unit, '[ Misal: Ruang ICU / IGD / Kanker / Cath Lab Jantung ]');
+  const pkSaatIni = v(cv?.pkSaatIni, '[ Perawat Klinis I / II / III / IV / V ]');
+  const pkDiusulkan = v(cv?.pkDiusulkan, '[ PK II / PK III / PK IV - Sesuaikan White Paper ]');
+
+  const str = v(cv?.str, '[ xxxxxxxxx-xxxxxxx ]');
+  const strBerlaku = v(cv?.strBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY (Wajib Aktif) ]');
+  const sipp = v(cv?.sipp, '[ xxxx/SIPP/DPMPTSP/YYYY ]');
+  const sippBerlaku = v(cv?.sippBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY ]');
+  const kta = v(cv?.kta, '[ xxxxxxxxx (Terdaftar Aktif di Komisariat RSUD dr. Soedarso) ]');
+
+  const edu = cv?.pendidikan || [
+    { jenjang: 'D3 Keperawatan', institusi: '', tahun: '', noIjazah: '' },
+    { jenjang: 'S1 Keperawatan', institusi: '', tahun: '', noIjazah: '' },
+    { jenjang: 'Profesi Ners', institusi: '', tahun: '', noIjazah: '' },
+    { jenjang: 'S2 / Spesialis', institusi: '', tahun: '', noIjazah: '' }
+  ];
+
+  const edu0 = {
+    jenjang: v(edu[0]?.jenjang, 'D3 Keperawatan'),
+    institusi: v(edu[0]?.institusi, '[ Tulis Nama Akper / Poltekkes / Univ ]'),
+    tahun: v(edu[0]?.tahun, '[ YYYY ]'),
+    noIjazah: v(edu[0]?.noIjazah, '[ No. Ijazah Tertera ]')
+  };
+
+  const edu1 = {
+    jenjang: v(edu[1]?.jenjang, 'S1 Keperawatan'),
+    institusi: v(edu[1]?.institusi, '[ Tulis Nama Stikes / Universitas ]'),
+    tahun: v(edu[1]?.tahun, '[ YYYY ]'),
+    noIjazah: v(edu[1]?.noIjazah, '[ No. Ijazah Tertera ]')
+  };
+
+  const edu2 = {
+    jenjang: v(edu[2]?.jenjang, 'Profesi Ners'),
+    institusi: v(edu[2]?.institusi, '[ Tulis Nama Institusi Penyelenggara Ners ]'),
+    tahun: v(edu[2]?.tahun, '[ YYYY ]'),
+    noIjazah: v(edu[2]?.noIjazah, '[ No. Ijazah Tertera ]')
+  };
+
+  const edu3 = {
+    jenjang: v(edu[3]?.jenjang, 'S2 / Spesialis'),
+    institusi: v(edu[3]?.institusi, '[ Tulis Jika Ada: Kritis / Jiwa / Maternitas / dll ]'),
+    tahun: v(edu[3]?.tahun, '[ YYYY ]'),
+    noIjazah: v(edu[3]?.noIjazah, '[ No. Ijazah Tertera ]')
+  };
+
+  // Section D Rows
+  let expRows = cv?.pengalamanKerja || [];
+  if (isBlank || expRows.length === 0) {
+    expRows = [
+      { instansi: '[ RSUD dr. Soedarso Pontianak ]', ruangan: '[ Misal: Ruang Bedah Pria ]', periode: '[ MM/YYYY ] s.d [ MM/YYYY ]', durasi: '[ X Tahun X Bulan ]' },
+      { instansi: '[ RSUD dr. Soedarso Pontianak ]', ruangan: '[ Misal: Ruang Intensive Care (ICU) ]', periode: '[ MM/YYYY ] s.d [ Sekarang ]', durasi: '[ X Tahun X Bulan ]' },
+      { instansi: '[ Tulis RS Sebelumnya Jika Ada ]', ruangan: '[ Tulis Ruangan ]', periode: '[ MM/YYYY ] s.d [ MM/YYYY ]', durasi: '[ X Tahun ]' }
+    ];
+  }
+
+  const expRowsHtml = expRows.map(r => `
+    <tr>
+      <td style="border: 1px solid #000; padding: 5px 8px;">${r.instansi || ''}</td>
+      <td style="border: 1px solid #000; padding: 5px 8px;">${r.ruangan || ''}</td>
+      <td style="border: 1px solid #000; padding: 5px 8px; text-align: center;">${r.periode || ''}</td>
+      <td style="border: 1px solid #000; padding: 5px 8px; text-align: center;">${r.durasi || ''}</td>
+    </tr>
+  `).join('');
+
+  // Section E Rows
+  let trainRows = cv?.pelatihan || [];
+  if (isBlank || trainRows.length === 0) {
+    trainRows = [
+      { jenis: 'Basic Trauma Cardiac Life Support (BTCLS)', penyelenggara: '[ Ambulance Gawat Darurat 118 / PPNI ]', tahun: '[ YYYY ]', masaBerlaku: '[ Aktif s.d DD/MM/YYYY ]' },
+      { jenis: 'Pelatihan Intensive Care Unit (ICU) Komprehensif', penyelenggara: '[ Bapelkes / RS Rujukan Pusat Tipe A ]', tahun: '[ YYYY ]', masaBerlaku: '[ Seumur Hidup / Re-sertifikasi ]' },
+      { jenis: 'Pelatihan Asisten Kateterisasi Jantung (Cath Lab)', penyelenggara: '[ RS Jantung & Pembuluh Darah Harapan Kita ]', tahun: '[ YYYY ]', masaBerlaku: '[ Valid / Berlaku ]' },
+      { jenis: 'Workshop Asesmen Keperawatan Lanjutan', penyelenggara: '[ Komite Keperawatan RSUD dr. Soedarso ]', tahun: '[ YYYY ]', masaBerlaku: '[ Internal RS ]' }
+    ];
+  }
+
+  const trainRowsHtml = trainRows.map(t => `
+    <tr>
+      <td style="border: 1px solid #000; padding: 5px 8px;">${t.jenis || ''}</td>
+      <td style="border: 1px solid #000; padding: 5px 8px;">${t.penyelenggara || ''}</td>
+      <td style="border: 1px solid #000; padding: 5px 8px; text-align: center;">${t.tahun || ''}</td>
+      <td style="border: 1px solid #000; padding: 5px 8px; text-align: center;">${t.masaBerlaku || ''}</td>
+    </tr>
+  `).join('');
+
+  const kota = isBlank ? 'Pontianak' : (cv?.pernyataanKota || 'Pontianak');
+  const tanggal = isBlank ? '__________________' : (cv?.pernyataanTanggal || '21 Oktober');
+  const tahun = isBlank ? '2026' : (cv?.pernyataanTahun || '2026');
+  const namaTtd = isBlank ? 'Nama Lengkap & Gelar Profesinya' : (cv?.nama || 'Nama Lengkap & Gelar Profesinya');
+
+  return `
+    <!-- ==========================================
+         HALAMAN 1: KOP SURAT + SECTION A + B + C (Header & D3)
+         ========================================== -->
+    <div class="soedarso-page page-1">
+      <!-- Kop Surat Resmi Komite Keperawatan RSUD dr. Soedarso -->
+      <table style="width: 100%; border-collapse: collapse; border: none; margin-bottom: 0;">
+        <tr>
+          <td style="width: 75px; vertical-align: middle; border: none; padding: 0 10px 0 0; text-align: center;">
+            <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" style="width: 65px; height: auto;">
+          </td>
+          <td style="border: none; text-align: center; vertical-align: middle; padding: 0;">
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11pt; font-weight: bold; letter-spacing: 0.5px; line-height: 1.25; color: #000;">
+              PEMERINTAH PROVINSI KALIMANTAN BARAT
+            </div>
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 13pt; font-weight: 800; letter-spacing: 0.5px; line-height: 1.25; color: #000; margin-top: 1px;">
+              RUMAH SAKIT UMUM DAERAH DOKTER SOEDARSO
+            </div>
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 11pt; font-weight: bold; letter-spacing: 0.5px; line-height: 1.25; color: #000; margin-top: 1px;">
+              KOMITE KEPERAWATAN
+            </div>
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 8pt; line-height: 1.25; color: #000; margin-top: 2px;">
+              Jalan Dokter Soedarso No.1 Pontianak Tenggara, Kota Pontianak, Kalimantan Barat 78124<br>
+              Telp. (0561) 737701, (0561) 746152, Fax. (0561) 736528<br>
+              Laman : <span style="text-decoration: underline; color: #0044cc;">https://rsuddrsoedarso.kalbarprov.go.id</span>, Pos-el : <span style="text-decoration: underline; color: #0044cc;">rsud@kalbarprov.go.id</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Garis Ganda Kop Surat -->
+      <div style="border-top: 3px solid #000000; border-bottom: 1px solid #000000; height: 2px; margin: 6px 0 16px 0;"></div>
+
+      <!-- SECTION A -->
+      <div class="soedarso-form-box">
+        A. IDENTITAS PRIBADI STAF KEPERAWATAN
+      </div>
+      <table class="soedarso-table" style="margin-bottom: 16px;">
+        <tr>
+          <td style="width: 38%; font-weight: bold;">Nama Lengkap &amp; Gelar:</td>
+          <td style="width: 62%;">${nama}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">NIP/NIPPPK/NIK:</td>
+          <td>${nip}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Tempat / Tanggal Lahir:</td>
+          <td>${ttl}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Jabatan / Fungsi Saat Ini:</td>
+          <td>${jabatan}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Unit Kerja / Penempatan:</td>
+          <td>${unit}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Jenjang Klinis Saat Ini:</td>
+          <td>${pkSaatIni}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Rencana Jenjang Diusulkan:</td>
+          <td>${pkDiusulkan}</td>
+        </tr>
+      </table>
+
+      <!-- SECTION B -->
+      <div class="soedarso-form-box">
+        B. LEGALITAS FORMAL HUKUM DAN PRAKTIK
+      </div>
+      <table class="soedarso-table" style="margin-bottom: 16px;">
+        <tr>
+          <td style="width: 38%; font-weight: bold;">Nomor STR (Surat Tanda Registrasi):</td>
+          <td style="width: 62%;">${str}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Masa Berlaku STR:</td>
+          <td>${strBerlaku}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Nomor SIPP (Surat Izin Praktik Perawat)/<br>SIPB (Surat Izin Praktik Bidan):</td>
+          <td>${sipp}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Masa Berlaku SIPP/SIPB:</td>
+          <td>${sippBerlaku}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold;">Keanggotaan PPNI (NIRA)/IBI (KTA):</td>
+          <td>${kta}</td>
+        </tr>
+      </table>
+
+      <!-- SECTION C (Header & D3 Keperawatan) -->
+      <div class="soedarso-form-box">
+        C. RIWAYAT PENDIDIKAN FORMAL KEPERAWATAN
+      </div>
+      <table class="soedarso-table">
+        <thead>
+          <tr>
+            <th class="soedarso-th-blue" style="width: 18%;">Jenjang</th>
+            <th class="soedarso-th-blue" style="width: 44%;">Institusi Pendidikan / Universitas</th>
+            <th class="soedarso-th-blue" style="width: 16%;">Tahun<br>Kelulusan</th>
+            <th class="soedarso-th-blue" style="width: 22%;">Nomor Ijazah Resmi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight: bold;">${edu0.jenjang}</td>
+            <td>${edu0.institusi}</td>
+            <td style="text-align: center;">${edu0.tahun}</td>
+            <td>${edu0.noIjazah}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-separator-preview">
+      <span>Lembar HVS 2 &bull; Halaman 2</span>
+    </div>
+
+    <!-- ==========================================
+         HALAMAN 2: SECTION C LANJUTAN + D + E
+         ========================================== -->
+    <div class="soedarso-page page-2">
+      <div style="text-align: right; font-size: 9.5pt; font-family: Arial, Helvetica, sans-serif; margin-bottom: 8px;">
+        2
+      </div>
+
+      <!-- Continuation of Section C Table -->
+      <table class="soedarso-table" style="margin-bottom: 18px;">
+        <tbody>
+          <tr>
+            <td style="width: 18%; font-weight: bold;">${edu1.jenjang}</td>
+            <td style="width: 44%;">${edu1.institusi}</td>
+            <td style="width: 16%; text-align: center;">${edu1.tahun}</td>
+            <td style="width: 22%;">${edu1.noIjazah}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">${edu2.jenjang}</td>
+            <td>${edu2.institusi}</td>
+            <td style="text-align: center;">${edu2.tahun}</td>
+            <td>${edu2.noIjazah}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: bold;">${edu3.jenjang}</td>
+            <td>${edu3.institusi}</td>
+            <td style="text-align: center;">${edu3.tahun}</td>
+            <td>${edu3.noIjazah}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SECTION D -->
+      <div class="soedarso-form-box">
+        D. RIWAYAT PENGALAMAN KERJA KLINIS (LOG RUANGAN)
+      </div>
+      <table class="soedarso-table" style="margin-bottom: 18px;">
+        <thead>
+          <tr>
+            <th class="soedarso-th-blue" style="width: 28%;">Nama Rumah Sakit /<br>Instansi</th>
+            <th class="soedarso-th-blue" style="width: 32%;">Ruang Perawatan /<br>Instalasi</th>
+            <th class="soedarso-th-blue" style="width: 22%;">Periode Dinas<br>(Bulan/Tahun)</th>
+            <th class="soedarso-th-blue" style="width: 18%;">Total Durasi<br>Masa Kerja</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${expRowsHtml}
+        </tbody>
+      </table>
+
+      <!-- SECTION E -->
+      <div class="soedarso-form-box">
+        E. RIWAYAT PELATIHAN &amp; SERTIFIKASI KOMPETENSI (MANDATORY WHITE PAPER)
+      </div>
+      <table class="soedarso-table">
+        <thead>
+          <tr>
+            <th class="soedarso-th-blue" style="width: 34%;">Jenis Pelatihan / Workshop<br>Klinis</th>
+            <th class="soedarso-th-blue" style="width: 32%;">Penyelenggara Resmi<br>(Kemenkes/PPNI/Kolegium)</th>
+            <th class="soedarso-th-blue" style="width: 12%;">Tahun</th>
+            <th class="soedarso-th-blue" style="width: 22%;">Masa Berlaku<br>Sertifikat</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${trainRowsHtml}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-separator-preview">
+      <span>Lembar HVS 3 &bull; Halaman 3</span>
+    </div>
+
+    <!-- ==========================================
+         HALAMAN 3: SECTION F & TANDA TANGAN RESMI
+         ========================================== -->
+    <div class="soedarso-page page-3">
+      <div style="text-align: right; font-size: 9.5pt; font-family: Arial, Helvetica, sans-serif; margin-bottom: 10px;">
+        3
+      </div>
+
+      <!-- SECTION F -->
+      <div class="soedarso-form-box">
+        F. PERNYATAAN KEOTENTIKAN BERKAS PORTOFOLIO
+      </div>
+      <div style="border: 1px solid #000000; border-top: none; padding: 14px 14px 18px 14px; font-size: 10pt; line-height: 1.6; text-align: justify; font-family: Arial, Helvetica, sans-serif; margin-bottom: 35px;">
+        Dengan ini saya menyatakan bahwa seluruh data penulisan Curriculum Vitae, riwayat kompetensi klinis, serta lampiran sertifikat pendukung yang saya sertakan untuk pemenuhan kualifikasi kredensial / re-kredensial di RSUD dr. Soedarso ini adalah benar adanya, sah secara hukum, dan sesuai dengan fakta logbook penugasan saya. Apabila di kemudian hari ditemukan manipulasi data, saya bersedia menerima sanksi pencabutan Penugasan Klinis (Clinical Appointment) sesuai regulasi subkomite etik rumah sakit.
+      </div>
+
+      <!-- Signature Block -->
+      <div style="width: 100%; display: flex; justify-content: flex-end;">
+        <div style="width: 320px; text-align: left; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 1.45;">
+          <div>${kota}, ${tanggal} ${tahun}</div>
+          <div style="margin-top: 4px;">Hormat Saya (Pemohon Kredensial),</div>
+          <div style="height: 75px;"></div>
+          <div>( _________________________________ )</div>
+          <div style="font-weight: bold; margin-top: 4px;">${namaTtd}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function previewCvHVS(mode) {
+  if (mode) state.cvPreviewMode = mode;
+  else if (!state.cvPreviewMode) state.cvPreviewMode = 'filled';
+
+  const container = document.getElementById('cvHvsPrintArea');
+  if (container) {
+    container.innerHTML = generateCvHVS(state.cvPreviewMode);
+  }
+
+  const btnToggle = document.getElementById('btnTogglePreviewCvMode');
+  if (btnToggle) {
+    if (state.cvPreviewMode === 'blank') {
+      btnToggle.innerHTML = '<i class="fa-solid fa-file-signature"></i> Tampilkan Data Hasil Isian';
+      btnToggle.style.background = '#d97706';
+      btnToggle.style.color = '#fff';
+    } else {
+      btnToggle.innerHTML = '<i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong';
+      btnToggle.style.background = 'var(--bg-app)';
+      btnToggle.style.color = 'var(--text-main)';
+    }
+  }
+
+  openModal('modalPreviewCvHVS');
+}
+
+function togglePreviewCvMode() {
+  const nextMode = (state.cvPreviewMode === 'blank') ? 'filled' : 'blank';
+  previewCvHVS(nextMode);
+}
+
+function printCvHVS(mode) {
+  const printMode = mode || state.cvPreviewMode || 'filled';
+  const printContent = generateCvHVS(printMode);
+  const printWindow = window.open('', '_blank', 'width=880,height=960');
+  if (printWindow) {
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Curriculum Vitae Staf Keperawatan - RSUD dr. Soedarso</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 12mm 15mm;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5pt;
+            line-height: 1.35;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+          }
+          table { width: 100%; border-collapse: collapse; }
+          .soedarso-page {
+            page-break-after: always;
+            break-after: page;
+            background: #fff;
+            padding: 0;
+            width: 100%;
+          }
+          .soedarso-page.page-3 {
+            page-break-after: avoid;
+            break-after: avoid;
+          }
+          .soedarso-form-box {
+            border: 2px solid #000000;
+            padding: 6px 10px;
+            font-weight: bold;
+            font-size: 10.5pt;
+            text-transform: uppercase;
+            background: #fff;
+            margin-bottom: -1px;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          .soedarso-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5pt;
+            border: 1px solid #000000;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          .soedarso-table td, .soedarso-table th {
+            border: 1px solid #000000;
+            padding: 5px 8px;
+            vertical-align: top;
+          }
+          thead tr, thead tr th, .soedarso-th-blue {
+            background-color: #0e3860 !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .page-separator-preview { display: none !important; }
+          img { max-width: 65px; height: auto; }
+        </style>
+      </head>
+      <body>
+        ${printContent}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 400);
+  } else {
+    window.print();
+  }
+}
+
+function exportCvWord(mode) {
+  const exportMode = mode || state.cvPreviewMode || 'filled';
+  const isBlank = (exportMode === 'blank');
+  const content = generateCvHVS(exportMode);
+  const rawNama = document.getElementById('cvNama')?.value || (state.cvData?.nama || 'Pemohon');
+  const nama = isBlank ? 'Blangko_Kosong_CV_Soedarso' : rawNama.replace(/[^a-zA-Z0-9]/g, '_');
+  const header = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>Curriculum Vitae Portofolio - ${nama}</title>
+    <style>
+      @page Section1 { size: 595.3pt 841.9pt; margin: 0.6in 0.7in 0.6in 0.7in; mso-header-margin: 35.4pt; mso-footer-margin: 35.4pt; mso-paper-source: 0; }
+      div.Section1 { page: Section1; }
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; line-height: 1.35; color: #000; }
+      table { border-collapse: collapse; width: 100%; }
+      .soedarso-form-box { border: 2pt solid black; padding: 4pt 6pt; font-weight: bold; font-size: 11pt; text-transform: uppercase; font-family: Arial, sans-serif; }
+      .soedarso-table td, .soedarso-table th { border: 1pt solid black; padding: 4pt 6pt; font-family: Arial, sans-serif; font-size: 9.5pt; }
+      .page-separator-preview { display: none; }
+      .soedarso-page { page-break-after: always; }
+      .soedarso-page.page-3 { page-break-after: avoid; }
+      .soedarso-th-blue { background-color: #0e3860; color: #ffffff; font-weight: bold; text-align: center; }
+    </style>
+    </head>
+    <body>
+    <div class="Section1">
+  `;
+  const footer = `</div></body></html>`;
+  const sourceHTML = header + content + footer;
+  const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+  const fileDownload = document.createElement("a");
+  document.body.appendChild(fileDownload);
+  fileDownload.href = source;
+  fileDownload.download = `CV_Portofolio_${nama}_RSUD_dr_Soedarso.doc`;
+  fileDownload.click();
+  document.body.removeChild(fileDownload);
+  showToast(`Curriculum Vitae ${rawNama} berhasil diunduh dalam format Word (.doc)!`, 'success');
+}
+
+/* ==========================================================================
+   ALUR LANGKAH 2: FORMULIR SURAT PERMOHONAN KREDENSIAL / RE-KREDENSIAL
+   ========================================================================== */
 
 function openSuratPermohonanModal() {
   if (state.currentUser && !state.currentUser.isSuperAdmin) {
@@ -2362,37 +3221,37 @@ function simpanUploadSurat(e) {
   const unit = state.currentApplicant ? state.currentApplicant.unit : 'Ruang Pelayanan';
 
   // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
-  const adminSubject = `[PORTOFOLIO DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 2)`;
+  const adminSubject = `[PORTOFOLIO DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 3)`;
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
     `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
-    `Pemberitahuan Unggah Surat Permohonan & Portofolio Kredensial:\n\n` +
+    `Pemberitahuan Unggah Dokumen Kredensial & Portofolio (Langkah 3):\n\n` +
     `• Nama Pemohon    : ${pemohon}\n` +
     `• Unit Kerja      : ${unit}\n` +
-    `• Tahapan         : Langkah 2 (Unggah Berkas Mandiri)\n` +
-    `• Status Berkas   : Surat Permohonan bertanda tangan mandiri dan dokumen portofolio (STR, SIPP, Logbook, Sertifikat) telah tersimpan di sistem.\n` +
+    `• Tahapan         : Langkah 3 (Unggah Berkas Mandiri)\n` +
+    `• Status Berkas   : Dokumen CV 3 Halaman, Surat Permohonan bertanda tangan mandiri, dan dokumen portofolio (STR, SIPP, Logbook, Sertifikat) telah tersimpan di sistem.\n` +
     `• Waktu Unggah    : ${new Date().toLocaleString('id-ID')}\n\n` +
-    `Pemohon telah diizinkan langsung melanjutkan ke Langkah 3 (Asesmen Mandiri RKK Online).\n\n` +
+    `Pemohon telah diizinkan langsung melanjutkan ke Langkah 4 (Pengisian Asesmen Mandiri RKK Online).\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Unggah Portofolio & Surat Permohonan (Langkah 2)',
+    eventType: 'Unggah Berkas CV, Surat & Portofolio (Langkah 3)',
     subject: adminSubject,
     applicantName: pemohon,
     unit: unit,
     bodyText: adminBody
   });
 
-  showToast(`Surat Permohonan bertanda tangan pemohon & portofolio berhasil diunggah! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
+  showToast(`Berkas CV, Surat Permohonan & portofolio berhasil diunggah! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
 
   // Opsi membuka langsung RKK Online tanpa hambatan
   setTimeout(() => {
     const bukaRkk = confirm(
       "Alur E-Kredensialing RSUD dr. Soedarso:\n\n" +
-      "Surat Permohonan bertanda tangan mandiri dan portofolio berkas telah tersimpan ke sistem tanpa memerlukan persetujuan pengurus komite keperawatan di awal.\n\n" +
-      "Apakah Anda ingin langsung melanjutkan ke LANGKAH 3 (Pengisian Asesmen Mandiri RKK Online) sekarang?"
+      "Dokumen CV, Surat Permohonan bertanda tangan mandiri dan portofolio berkas telah tersimpan ke sistem tanpa hambatan.\n\n" +
+      "Apakah Anda ingin langsung melanjutkan ke LANGKAH 4 (Pengisian Asesmen Mandiri RKK Online) sekarang?"
     );
     if (bukaRkk) {
       cekBukaRkkOnline();
@@ -3148,3 +4007,17 @@ window.renderAdminNotificationsTable = renderAdminNotificationsTable;
 window.viewAdminNotifDetail = viewAdminNotifDetail;
 window.testSendAdminEmailPing = testSendAdminEmailPing;
 window.openQuickAdminEmailDispatch = openQuickAdminEmailDispatch;
+window.openCvModal = openCvModal;
+window.fillCvPreset = fillCvPreset;
+window.resetCvForm = resetCvForm;
+window.addCvExpRow = addCvExpRow;
+window.removeCvExpRow = removeCvExpRow;
+window.addCvTrainRow = addCvTrainRow;
+window.removeCvTrainRow = removeCvTrainRow;
+window.handleCvSubmit = handleCvSubmit;
+window.generateCvHVS = generateCvHVS;
+window.previewCvHVS = previewCvHVS;
+window.togglePreviewCvMode = togglePreviewCvMode;
+window.printCvHVS = printCvHVS;
+window.exportCvWord = exportCvWord;
+window.transferCvToSurat = transferCvToSurat;

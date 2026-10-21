@@ -450,38 +450,41 @@
         <div class="alur-header-banner">
           <div>
             <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fa-solid fa-certificate"></i> Tata Kelola Kredensial Tenaga Keperawatan & Kebidanan
+              <i class="fa-solid fa-certificate"></i> Tata Kelola Kredensial Tenaga Keperawatan &amp; Kebidanan
             </div>
             <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
-              Alur Pengajuan Kredensialing & Rekredensialing (3 Tahap Utama)
+              Alur Pengajuan Kredensialing &amp; Rekredensialing (4 Tahap Terintegrasi)
             </div>
             <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
-              Berdasarkan PMK No. 49 Tahun 2013 & Buku Putih Kredensial RSUD dr. Soedarso Pontianak
+              Berdasarkan PMK No. 49 Tahun 2013 &amp; Format Baku Portofolio RSUD dr. Soedarso Pontianak
             </div>
           </div>
           <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
             <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="toggleTrackerKredensial()">
               <i class="fa-solid fa-route"></i> Lacak Status Berkas Saya
             </button>
-            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openSuratPermohonanModal()">
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openSuratPermohonanModal()">
               <i class="fa-solid fa-file-pen"></i> Buat Surat Permohonan
+            </button>
+            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openCvModal()">
+              <i class="fa-solid fa-address-card"></i> Buat CV Portofolio (PDF)
             </button>
           </div>
         </div>
 
-        <!-- 3-Step Action Grid -->
+        <!-- 4-Step Action Grid -->
         <div class="alur-grid">
-          <!-- Step 1 Card -->
-          <div class="alur-card" onclick="openSuratPermohonanModal()">
+          <!-- Step 1 Card: CV Resmi PDF -->
+          <div class="alur-card" onclick="openCvModal()">
             <div class="alur-card-badge step-1">
               <i class="fa-solid fa-circle-dot"></i> LANGKAH 1
             </div>
-            <div class="alur-card-icon">
-              <i class="fa-solid fa-file-invoice"></i>
+            <div class="alur-card-icon" style="color: var(--primary-600);">
+              <i class="fa-solid fa-address-card"></i>
             </div>
-            <div class="alur-card-title">1. Isi Form &amp; Download Surat</div>
+            <div class="alur-card-title">1. Form &amp; Download CV Resmi (PDF)</div>
             <div class="alur-card-desc">
-              Pemohon mengisi data diri, legalitas STR, dan checklist berkas, lalu langsung mengunduh/mencetak Surat Permohonan resmi untuk ditandatangani mandiri. <strong>Tidak memerlukan persetujuan pengurus komite keperawatan</strong> pada tahap ini.
+              Pemohon mengisi data identitas, legalitas formal STR/SIPP/SIPB, riwayat pendidikan, logbook pengalaman kerja ruangan, dan sertifikasi pelatihan kompetensi (white paper), lalu langsung mengunduh/mencetak dokumen <strong>CV 3 Halaman A4 format baku RSUD dr. Soedarso</strong>.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -489,27 +492,51 @@
                   <i class="fa-solid fa-check"></i> Siap Diisi &amp; Diunduh
                 </span>
                 <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary-600);">
-                  Isi &amp; Download <i class="fa-solid fa-arrow-right"></i>
+                  Isi &amp; Download CV <i class="fa-solid fa-arrow-right"></i>
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- Step 2 Card -->
-          <div class="alur-card" onclick="openModalUploadSurat()">
+          <!-- Step 2 Card: Surat Permohonan -->
+          <div class="alur-card" onclick="openSuratPermohonanModal()">
             <div class="alur-card-badge step-2">
               <i class="fa-solid fa-circle-dot"></i> LANGKAH 2
+            </div>
+            <div class="alur-card-icon" style="color: #2563eb;">
+              <i class="fa-solid fa-file-invoice"></i>
+            </div>
+            <div class="alur-card-title">2. Isi &amp; Download Surat Permohonan</div>
+            <div class="alur-card-desc">
+              Data dari formulir CV otomatis disinkronkan ke Surat Permohonan resmi. Cukup periksa checklist kelengkapan 8 berkas, lalu unduh dan cetak surat untuk ditandatangani mandiri. <strong>Tidak memerlukan tanda tangan pengurus komite</strong> di tahap awal.
+            </div>
+            <div class="alur-card-action">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge" id="badgeStep2Status" style="background: rgba(37, 99, 235, 0.12); color: #1d4ed8; font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-file-circle-check"></i> Siap Diisi (Auto-Sync)
+                </span>
+                <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">
+                  Buat Surat <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 Card: Unggah Berkas (CV + Surat + Portofolio) -->
+          <div class="alur-card" onclick="openModalUploadSurat()">
+            <div class="alur-card-badge step-3">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 3
             </div>
             <div class="alur-card-icon" style="color: #d97706;">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
-            <div class="alur-card-title">2. Tanda Tangani &amp; Unggah Kembali</div>
+            <div class="alur-card-title">3. Tanda Tangani &amp; Unggah Berkas</div>
             <div class="alur-card-desc">
-              Surat Permohonan yang telah Anda tanda tangani diunggah kembali ke sistem bersama berkas STR aktif, ijazah, logbook tindakan, dan sertifikat CPD untuk lanjut langsung ke Langkah 3.
+              Scan dokumen CV dan Surat Permohonan yang telah Anda tanda tangani mandiri diunggah bersama salinan STR aktif, ijazah, logbook ruangan, dan sertifikat pelatihan untuk membuka akses instrumen RKK.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="badge" id="badgeStep2Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
+                <span class="badge" id="badgeStep3Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
                   <i class="fa-solid fa-clock"></i> Belum Diunggah
                 </span>
                 <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
@@ -519,24 +546,24 @@
             </div>
           </div>
 
-          <!-- Step 3 Card -->
-          <div class="alur-card" id="cardStep3Rkk" onclick="cekBukaRkkOnline()">
-            <div class="alur-card-badge step-3">
-              <i class="fa-solid fa-circle-dot"></i> LANGKAH 3
+          <!-- Step 4 Card: Asesmen RKK Online -->
+          <div class="alur-card" id="cardStep4Rkk" onclick="cekBukaRkkOnline()">
+            <div class="alur-card-badge step-4">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 4
             </div>
-            <div class="alur-card-icon" style="color: #2563eb;">
+            <div class="alur-card-icon" style="color: #059669;">
               <i class="fa-solid fa-clipboard-check"></i>
             </div>
-            <div class="alur-card-title">3. Pengisian RKK Online</div>
+            <div class="alur-card-title">4. Pengisian RKK Online</div>
             <div class="alur-card-desc">
               Setelah berkas diunggah, pemohon langsung melakukan asesmen mandiri rincian kewenangan klinis (Mandiri, Delegasi, Mandat, Supervisi) tanpa menunggu persetujuan pengurus.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="badge" id="badgeStep3Status" style="background: #f1f5f9; color: var(--text-muted); font-weight: 700; font-size: 0.72rem;">
+                <span class="badge" id="badgeStep4Status" style="background: #f1f5f9; color: var(--text-muted); font-weight: 700; font-size: 0.72rem;">
                   <i class="fa-solid fa-circle-play"></i> Buka Instrumen RKK
                 </span>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">
                   Asesmen RKK <i class="fa-solid fa-arrow-right"></i>
                 </span>
               </div>
@@ -1563,6 +1590,302 @@
   </div>
 
   <!-- ========================================================================
+       MODAL: FORMULIR CURRICULUM VITAE (CV) PORTOFOLIO KLINIS RESMI
+       (SESUAI FORMAT BAKU 3 HALAMAN A4 RSUD DOKTER SOEDARSO)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalCvKredensial">
+    <div class="modal-container modal-container-lg" style="max-width: 980px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+          <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" style="width: 28px; height: auto;">
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: var(--text-main);">
+              Formulir Curriculum Vitae (CV) Portofolio Klinis Staf Keperawatan
+            </div>
+            <div style="font-size: 0.76rem; font-weight: 500; color: var(--text-muted);">
+              Komite Keperawatan RSUD dr. Soedarso Pontianak &bull; Format Baku Resmi Cetak 3 Halaman A4
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalCvKredensial')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 1.25rem 1.5rem;">
+        <!-- Banner Info Resmi CV Soedarso -->
+        <div style="background: linear-gradient(135deg, rgba(20, 148, 142, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(20, 148, 142, 0.25); border-left: 4px solid var(--primary-600); padding: 0.85rem 1.1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.5; color: var(--text-main);">
+          <strong>Petunjuk Pengisian &amp; Standar Portofolio:</strong> Lengkapi data Identitas Pribadi (A), Legalitas STR/SIPP/SIPB (B), Riwayat Pendidikan Formal (C), Log Pengalaman Kerja Ruangan (D), dan Pelatihan Kompetensi Mandatory White Paper (E). Formulir ini menyusun dokumen <strong>CV Resmi 3 Halaman A4 format baku RSUD dr. Soedarso</strong> yang langsung dapat dicetak/disimpan ke PDF untuk ditandatangani. Data yang Anda isi di sini juga otomatis disinkronkan ke Surat Permohonan Kredensial.
+        </div>
+
+        <!-- Banner Koneksi Notifikasi Administrasi Resmi (Komite & Sekretaris) -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
+              <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.84rem; font-weight: 800; color: #065f46;">
+                Terkoneksi Otomatis ke Email Komite &amp; Sekretaris
+              </div>
+              <div style="font-size: 0.76rem; color: #047857;">
+                Penerbitan CV dan berkas kredensial terpantau langsung oleh: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
+              </div>
+            </div>
+          </div>
+          <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
+            <i class="fa-solid fa-link"></i> SALURAN AKTIF
+          </span>
+        </div>
+
+        <!-- Quick-Fill Toolbar -->
+        <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
+            <div style="font-size: 0.82rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.45rem;">
+              <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i>
+              Isi Cepat / Muat Contoh Profil Portofolio:
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="fillCvPreset('perawat')">
+                <i class="fa-solid fa-user-nurse" style="color: #0d9488;"></i> Ns. Hendra (Perawat PK III)
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="fillCvPreset('bidan')">
+                <i class="fa-solid fa-baby" style="color: #ea580c;"></i> Bdn. Siti (Bidan BK III)
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="previewCvHVS('blank')">
+                <i class="fa-regular fa-file"></i> Blangko Kosong Asli
+              </button>
+              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="resetCvForm()">
+                <i class="fa-solid fa-eraser"></i> Bersihkan Isian
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <form id="formCvKredensial" onsubmit="handleCvSubmit(event)">
+          <!-- BAGIAN A -->
+          <div style="border: 2px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 1.25rem; overflow: hidden;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.65rem 1rem; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3px; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-user-circle"></i> A. IDENTITAS PRIBADI STAF KEPERAWATAN
+            </div>
+            <div style="padding: 1rem 1.25rem; background: var(--bg-card);">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Nama Lengkap &amp; Gelar <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvNama" value="Ns. Hendra Kurniawan, S.Kep" placeholder="Ns. Nama Lengkap, S.Kep" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvNip" value="19920415 201903 1 004" placeholder="19xxxxxxxxxxxxxx" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Tempat / Tanggal Lahir <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvTtl" value="Pontianak, 15 April 1992" placeholder="Pontianak, DD / MM / YYYY" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Jabatan / Fungsi Saat Ini <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvJabatan" value="Perawat Pelaksana / Ketua Tim" placeholder="Perawat Pelaksana / Ketua Tim / Kepala Ruangan" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Unit Kerja / Penempatan <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvUnit" value="Ruang Bedah Pria / ICU" placeholder="Misal: Ruang ICU / IGD / Kanker / Cath Lab Jantung" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Jenjang Klinis Saat Ini <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvPkSaatIni" value="Perawat Klinis II (PK II)" placeholder="Perawat Klinis I / II / III / IV / V" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
+                  <label class="form-label">Rencana Jenjang Diusulkan <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvPkDiusulkan" value="Perawat Klinis III (PK III) - Sesuai White Paper" placeholder="PK II / PK III / PK IV - Sesuaikan White Paper" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN B -->
+          <div style="border: 2px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 1.25rem; overflow: hidden;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.65rem 1rem; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3px; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-scale-balanced"></i> B. LEGALITAS FORMAL HUKUM DAN PRAKTIK
+            </div>
+            <div style="padding: 1rem 1.25rem; background: var(--bg-card);">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Nomor STR (Surat Tanda Registrasi) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvStr" value="140152119-2849103" placeholder="xxxxxxxxx-xxxxxxx" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Masa Berlaku STR <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvStrBerlaku" value="15 April 2028 (Wajib Aktif)" placeholder="Berakhir Tanggal: DD / MM / YYYY (Wajib Aktif)" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Nomor SIPP (Perawat) / SIPB (Bidan) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvSipp" value="503/0842/SIPP/DPMPTSP-C/2022" placeholder="xxxx/SIPP/DPMPTSP/YYYY" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Masa Berlaku SIPP / SIPB <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvSippBerlaku" value="15 April 2027" placeholder="Berakhir Tanggal: DD / MM / YYYY" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
+                  <label class="form-label">Keanggotaan Organisasi Profesi PPNI (NIRA) / IBI (KTA) <span class="req">*</span></label>
+                  <input type="text" class="form-input" id="cvKta" value="61710048291 (Terdaftar Aktif di Komisariat RSUD dr. Soedarso)" placeholder="xxxxxxxxx (Terdaftar Aktif di Komisariat RSUD dr. Soedarso)" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN C -->
+          <div style="border: 2px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 1.25rem; overflow: hidden;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.65rem 1rem; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-graduation-cap"></i> C. RIWAYAT PENDIDIKAN FORMAL KEPERAWATAN
+              </div>
+              <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 600;">(D3 tampil di Hal. 1 &bull; S1, Ners, S2 di Hal. 2)</span>
+            </div>
+            <div style="padding: 1rem 1.25rem; background: var(--bg-card);">
+              <div class="table-responsive">
+                <table class="data-table" style="font-size: 0.85rem; width: 100%;">
+                  <thead>
+                    <tr style="background: #0e3860; color: #ffffff;">
+                      <th style="width: 22%; color: #fff;">Jenjang</th>
+                      <th style="width: 40%; color: #fff;">Institusi Pendidikan / Universitas</th>
+                      <th style="width: 15%; color: #fff; text-align: center;">Tahun Lulus</th>
+                      <th style="width: 23%; color: #fff;">Nomor Ijazah Resmi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight: 700;">D3 Keperawatan</td>
+                      <td><input type="text" class="form-input" id="cvEduInst_0" value="Poltekkes Kemenkes Pontianak" placeholder="Tulis Nama Akper / Poltekkes / Univ" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                      <td><input type="text" class="form-input" id="cvEduTahun_0" value="2013" placeholder="YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+                      <td><input type="text" class="form-input" id="cvEduIjazah_0" value="14201/POLTEK-PTK/D3/2013" placeholder="No. Ijazah Tertera" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">S1 Keperawatan</td>
+                      <td><input type="text" class="form-input" id="cvEduInst_1" value="STIKes Yarsi Pontianak" placeholder="Tulis Nama Stikes / Universitas" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                      <td><input type="text" class="form-input" id="cvEduTahun_1" value="2017" placeholder="YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+                      <td><input type="text" class="form-input" id="cvEduIjazah_1" value="08412/YARSI/S1-KEP/2017" placeholder="No. Ijazah Tertera" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">Profesi Ners</td>
+                      <td><input type="text" class="form-input" id="cvEduInst_2" value="Fakultas Kedokteran Universitas Tanjungpura" placeholder="Tulis Nama Institusi Penyelenggara Ners" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                      <td><input type="text" class="form-input" id="cvEduTahun_2" value="2018" placeholder="YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+                      <td><input type="text" class="form-input" id="cvEduIjazah_2" value="180901/NERS-UNTAN/2018" placeholder="No. Ijazah Tertera" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700;">S2 / Spesialis</td>
+                      <td><input type="text" class="form-input" id="cvEduInst_3" value="Peminatan KMB Universitas Indonesia" placeholder="Tulis Jika Ada: Kritis / Jiwa / Maternitas / dll" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                      <td><input type="text" class="form-input" id="cvEduTahun_3" value="2024" placeholder="YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
+                      <td><input type="text" class="form-input" id="cvEduIjazah_3" value="0912/UI-FIK/S2-KMB/2024" placeholder="No. Ijazah Tertera" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN D -->
+          <div style="border: 2px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 1.25rem; overflow: hidden;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.65rem 1rem; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-hospital-user"></i> D. RIWAYAT PENGALAMAN KERJA KLINIS (LOG RUANGAN)
+              </div>
+              <button type="button" class="btn-secondary" style="font-size: 0.72rem; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);" onclick="addCvExpRow()">
+                <i class="fa-solid fa-plus"></i> Tambah Baris
+              </button>
+            </div>
+            <div style="padding: 1rem 1.25rem; background: var(--bg-card);">
+              <div class="table-responsive">
+                <table class="data-table" style="font-size: 0.85rem; width: 100%;">
+                  <thead>
+                    <tr style="background: #0e3860; color: #ffffff;">
+                      <th style="width: 30%; color: #fff;">Nama Rumah Sakit / Instansi</th>
+                      <th style="width: 32%; color: #fff;">Ruang Perawatan / Instalasi</th>
+                      <th style="width: 20%; color: #fff; text-align: center;">Periode Dinas</th>
+                      <th style="width: 14%; color: #fff; text-align: center;">Durasi</th>
+                      <th style="width: 4%; color: #fff; text-align: center;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cvExpBody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN E -->
+          <div style="border: 2px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 1.25rem; overflow: hidden;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.65rem 1rem; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-certificate"></i> E. RIWAYAT PELATIHAN &amp; SERTIFIKASI KOMPETENSI (MANDATORY WHITE PAPER)
+              </div>
+              <button type="button" class="btn-secondary" style="font-size: 0.72rem; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);" onclick="addCvTrainRow()">
+                <i class="fa-solid fa-plus"></i> Tambah Pelatihan
+              </button>
+            </div>
+            <div style="padding: 1rem 1.25rem; background: var(--bg-card);">
+              <div class="table-responsive">
+                <table class="data-table" style="font-size: 0.85rem; width: 100%;">
+                  <thead>
+                    <tr style="background: #0e3860; color: #ffffff;">
+                      <th style="width: 35%; color: #fff;">Jenis Pelatihan / Workshop Klinis</th>
+                      <th style="width: 32%; color: #fff;">Penyelenggara Resmi</th>
+                      <th style="width: 12%; color: #fff; text-align: center;">Tahun</th>
+                      <th style="width: 17%; color: #fff;">Masa Berlaku</th>
+                      <th style="width: 4%; color: #fff; text-align: center;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cvTrainBody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN F -->
+          <div style="border: 2px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 1.25rem; overflow: hidden;">
+            <div style="background: #0f172a; color: #ffffff; padding: 0.65rem 1rem; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.3px; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-signature"></i> F. PERNYATAAN KEOTENTIKAN BERKAS PORTOFOLIO
+            </div>
+            <div style="padding: 1rem 1.25rem; background: var(--bg-card);">
+              <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.6; color: var(--text-main); text-align: justify; margin-bottom: 1rem;">
+                <em>"Dengan ini saya menyatakan bahwa seluruh data penulisan Curriculum Vitae, riwayat kompetensi klinis, serta lampiran sertifikat pendukung yang saya sertakan untuk pemenuhan kualifikasi kredensial / re-kredensial di RSUD dr. Soedarso ini adalah benar adanya, sah secara hukum, dan sesuai dengan fakta logbook penugasan saya. Apabila di kemudian hari ditemukan manipulasi data, saya bersedia menerima sanksi pencabutan Penugasan Klinis (Clinical Appointment) sesuai regulasi subkomite etik rumah sakit."</em>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; align-items: center;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Kota Penandatanganan</label>
+                  <input type="text" class="form-input" id="cvPernyataanKota" value="Pontianak" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Tanggal / Bulan</label>
+                  <input type="text" class="form-input" id="cvPernyataanTanggal" value="21 Oktober" placeholder="DD Bulan">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Tahun</label>
+                  <input type="text" class="form-input" id="cvPernyataanTahun" value="2026" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modalCvKredensial')">Batal</button>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary" onclick="previewCvHVS('blank')">
+                <i class="fa-regular fa-file"></i> Pratinjau Blangko Kosong
+              </button>
+              <button type="submit" class="btn-primary" style="background: var(--primary-600); border-color: var(--primary-600);">
+                <i class="fa-solid fa-file-pdf"></i> Simpan &amp; Terbitkan CV Resmi (PDF)
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
        MODAL: FORMULIR APLIKASI PERMOHONAN KREDENSIAL / RE-KREDENSIAL TENAGA KEPERAWATAN
        (SESUAI FORMAT BAKU RESMI KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO)
        ======================================================================== -->
@@ -2040,7 +2363,7 @@
               </div>
             </div>
             <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 2: Unggah Berkas
+              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 3: Unggah Berkas
             </button>
           </div>
         </div>
@@ -2064,7 +2387,7 @@
             <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
           </button>
           <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
-            <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 2: Unggah Berkas
+            <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 3: Unggah Berkas
           </button>
         </div>
       </div>
@@ -2072,14 +2395,79 @@
   </div>
 
   <!-- ========================================================================
-       MODAL: UGGAH SURAT PERMOHONAN & PORTOFOLIO (LANGKAH 2)
+       MODAL: PRATINJAU KERTAS HVS STANDAR CV PORTOFOLIO KLINIS (3 HALAMAN A4)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalPreviewCvHVS">
+    <div class="modal-container modal-container-lg" style="max-width: 950px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-address-card" style="color: var(--primary-600);"></i>
+          Pratinjau Lembar Curriculum Vitae (CV) Resmi Staf Keperawatan (Format Kertas HVS A4 - 3 Halaman)
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalPreviewCvHVS')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="background: #64748b; padding: 2rem 1rem; overflow-y: auto; max-height: 76vh;">
+        <!-- Success Alert Banner -->
+        <div id="previewCvSuccessBanner" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-sm); padding: 0.85rem 1.15rem; margin: 0 auto 1.25rem auto; max-width: 210mm; box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="color: #065f46; font-size: 0.84rem; line-height: 1.55;">
+              <div style="font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 4px;">
+                <i class="fa-solid fa-circle-check fa-lg" style="color: #10b981;"></i>
+                Curriculum Vitae (CV) Resmi Telah Diterbitkan untuk <span id="previewCvApplicantBadge" style="text-decoration: underline;"></span>!
+              </div>
+              <div>
+                <strong>Langkah Selanjutnya:</strong> Cetak atau simpan dokumen PDF 3 halaman di bawah ini, tanda tangani pada <strong>Lembar 3 (Bagian F)</strong>, lalu lanjutkan ke <strong>Langkah 2: Isi Surat Permohonan</strong> (data otomatis disinkronkan).
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                  <div style="font-size: 0.78rem; color: #065f46;">
+                    <i class="fa-solid fa-envelope-circle-check"></i> Terhubung ke: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn-primary" style="background: #2563eb; border-color: #2563eb; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewCvHVS'); openSuratPermohonanModal();">
+              <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 2: Surat Permohonan
+            </button>
+          </div>
+        </div>
+
+        <!-- Container HVS Sheet for 3 Pages -->
+        <div id="cvHvsPrintArea" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewCvHVS')">Tutup Pratinjau</button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" id="btnTogglePreviewCvMode" onclick="togglePreviewCvMode()">
+            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
+          </button>
+          <button type="button" class="btn-secondary" onclick="exportCvWord()">
+            <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
+          </button>
+          <button type="button" class="btn-primary" onclick="printCvHVS()">
+            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+          </button>
+          <button type="button" class="btn-primary" style="background: #2563eb; border-color: #2563eb;" onclick="closeModal('modalPreviewCvHVS'); openSuratPermohonanModal();">
+            <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 2: Buat Surat Permohonan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: UGGAH BERKAS KREDENSIAL (CV + SURAT + PORTOFOLIO) (LANGKAH 3)
        ======================================================================== -->
   <div class="modal-overlay" id="modalUploadBerkasKredensial">
-    <div class="modal-container" style="max-width: 620px;">
+    <div class="modal-container" style="max-width: 650px;">
       <div class="modal-header">
         <div class="modal-title">
           <i class="fa-solid fa-cloud-arrow-up" style="color: #d97706;"></i>
-          Langkah 2: Unggah Surat Permohonan Bertanda Tangan & Portofolio Berkas
+          Langkah 3: Unggah Berkas Kredensial (CV + Surat + Portofolio)
         </div>
         <button class="btn-close-modal" onclick="closeModal('modalUploadBerkasKredensial')">
           <i class="fa-solid fa-xmark fa-lg"></i>
@@ -2088,8 +2476,8 @@
 
       <div class="modal-body">
         <div style="background: #fef3c7; border-left: 4px solid #d97706; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: #78350f;">
-          <strong>Instruksi Langkah 2:</strong> Unggah lembar Surat Permohonan (dari Langkah 1) yang telah Anda tanda tangani sendiri sebagai pemohon. <br>
-          <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-info"></i> Penting:</span> Surat Permohonan <strong>TIDAK MEMERLUKAN persetujuan pengurus komite keperawatan</strong> pada tahap ini. Setelah mengunggah berkas ini, Anda dapat langsung melanjutkan ke <strong>Langkah 3: Pengisian RKK Online</strong>.
+          <strong>Instruksi Langkah 3:</strong> Unggah lembar scan CV Portofolio Klinis (Langkah 1) dan Surat Permohonan (Langkah 2) yang telah Anda tanda tangani sendiri sebagai pemohon. <br>
+          <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-info"></i> Penting:</span> Berkas ini <strong>TIDAK MEMERLUKAN persetujuan pengurus komite keperawatan</strong> pada tahap awal. Setelah mengunggah berkas ini, Anda dapat langsung melanjutkan ke <strong>Langkah 4: Pengisian RKK Online</strong>.
         </div>
 
         <!-- Banner Notifikasi Administrasi Unggah Berkas -->
@@ -2107,6 +2495,12 @@
           </div>
 
           <div class="form-group">
+            <label class="form-label">Unggah Scan CV Portofolio Klinis yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
+            <input type="file" class="form-input" id="uploadFileCv" accept=".pdf,.jpg,.jpeg,.png">
+            <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 1 yang telah ditandatangani pada Lembar 3 (Bagian F).</span>
+          </div>
+
+          <div class="form-group">
             <label class="form-label">Unggah Scan Surat Permohonan yang Telah Ditandatangani <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileSurat" accept=".pdf,.jpg,.jpeg,.png" required>
             <span class="form-hint">Format PDF atau JPG/PNG hasil scan jelas bertanda tangan basah / e-sign.</span>
@@ -2118,7 +2512,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Unggah Ijazah & Transkrip Terakhir <span class="req">*</span></label>
+            <label class="form-label">Unggah Ijazah &amp; Transkrip Terakhir <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileIjazah" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
 
@@ -2141,7 +2535,7 @@
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalUploadBerkasKredensial')">Batal</button>
             <button type="submit" class="btn-primary" style="background: #d97706; border-color: #d97706;">
-              <i class="fa-solid fa-check"></i> Simpan & Verifikasi Berkas
+              <i class="fa-solid fa-check"></i> Simpan &amp; Verifikasi Berkas
             </button>
           </div>
         </form>

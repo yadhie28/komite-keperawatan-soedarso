@@ -857,6 +857,76 @@ window.KOMITE_DATA = {
     }
   ],
 
+  // Preset Format Baku CV Portofolio Klinis Staf Keperawatan (3 Halaman RSUD dr. Soedarso)
+  sampleCv: {
+    perawat: {
+      nama: "Ns. Hendra Kurniawan, S.Kep",
+      nip: "19920415 201903 1 004",
+      ttl: "Pontianak, 15 April 1992",
+      jabatan: "Perawat Pelaksana / Ketua Tim",
+      unit: "Ruang Enggang Gading 2 (Bedah Terpadu)",
+      pkSaatIni: "Perawat Klinis II (PK II)",
+      pkDiusulkan: "Perawat Klinis III (PK III)",
+      str: "140152119-2849103",
+      strBerlaku: "15 April 2028 (Wajib Aktif)",
+      sipp: "503/0842/SIPP/DPMPTSP-C/2022",
+      sippBerlaku: "15 April 2027",
+      kta: "61710048291 (Terdaftar Aktif di Komisariat RSUD dr. Soedarso)",
+      pendidikan: [
+        { jenjang: "D3 Keperawatan", institusi: "Poltekkes Kemenkes Pontianak", tahun: "2013", noIjazah: "14201/POLTEK-PTK/D3/2013" },
+        { jenjang: "S1 Keperawatan", institusi: "STIKes Yarsi Pontianak", tahun: "2017", noIjazah: "08412/YARSI/S1-KEP/2017" },
+        { jenjang: "Profesi Ners", institusi: "Fakultas Kedokteran Universitas Tanjungpura", tahun: "2018", noIjazah: "180901/NERS-UNTAN/2018" },
+        { jenjang: "S2 / Spesialis", institusi: "Peminatan KMB Universitas Indonesia", tahun: "2024", noIjazah: "0912/UI-FIK/S2-KMB/2024" }
+      ],
+      pengalamanKerja: [
+        { instansi: "RSUD dr. Soedarso Pontianak", ruangan: "Ruang Bedah Pria (Enggang Gading)", periode: "04/2019 s.d 10/2022", durasi: "3 Tahun 6 Bulan" },
+        { instansi: "RSUD dr. Soedarso Pontianak", ruangan: "Ruang Intensive Care Unit (ICU)", periode: "11/2022 s.d Sekarang", durasi: "3 Tahun 11 Bulan" },
+        { instansi: "RS Antonius Pontianak", ruangan: "Instalasi Gawat Darurat (IGD)", periode: "01/2014 s.d 02/2019", durasi: "5 Tahun 1 Bulan" }
+      ],
+      pelatihan: [
+        { jenis: "Basic Trauma Cardiac Life Support (BTCLS)", penyelenggara: "Ambulance Gawat Darurat 118 / PPNI", tahun: "2023", masaBerlaku: "Aktif s.d 20/08/2027" },
+        { jenis: "Pelatihan Intensive Care Unit (ICU) Komprehensif", penyelenggara: "Bapelkes / RS Rujukan Pusat Tipe A", tahun: "2022", masaBerlaku: "Seumur Hidup / Re-sertifikasi" },
+        { jenis: "Pelatihan Asisten Kateterisasi Jantung (Cath Lab)", penyelenggara: "RS Jantung & Pembuluh Darah Harapan Kita", tahun: "2021", masaBerlaku: "Valid / Berlaku" },
+        { jenis: "Workshop Asesmen Keperawatan Lanjutan", penyelenggara: "Komite Keperawatan RSUD dr. Soedarso", tahun: "2024", masaBerlaku: "Internal RS" }
+      ],
+      pernyataanKota: "Pontianak",
+      pernyataanTahun: "2026"
+    },
+    bidan: {
+      nama: "Bdn. Siti Nurhaliza, S.Tr.Keb",
+      nip: "19940822 202012 2 006",
+      ttl: "Mempawah, 22 Agustus 1994",
+      jabatan: "Bidan Pelaksana Lanjutan",
+      unit: "Ruang Bersalin (VK Sentral) / Maternitas",
+      pkSaatIni: "Bidan Klinis II (BK II)",
+      pkDiusulkan: "Bidan Klinis III (BK III)",
+      str: "140252220-3918204",
+      strBerlaku: "22 Agustus 2028 (Wajib Aktif)",
+      sipp: "503/1209/SIPB/DPMPTSP-C/2021",
+      sippBerlaku: "22 Agustus 2026",
+      kta: "61710928172 (Terdaftar Aktif di Pengurus Ranting IBI RSUD dr. Soedarso)",
+      pendidikan: [
+        { jenjang: "D3 Keperawatan / Kebidanan", institusi: "Poltekkes Kemenkes Pontianak", tahun: "2015", noIjazah: "15201/POLTEK-PTK/D3-KEB/2015" },
+        { jenjang: "S1 Keperawatan / D4 Kebidanan", institusi: "Poltekkes Kemenkes Semarang (D4 Kebidanan)", tahun: "2018", noIjazah: "0912/POLTEK-SMG/D4/2018" },
+        { jenjang: "Profesi Ners / Bidan", institusi: "Universitas Aisyiyah Yogyakarta (Profesi Bidan)", tahun: "2020", noIjazah: "20092/UNISA/PROF-BDN/2020" },
+        { jenjang: "S2 / Spesialis", institusi: "Magister Kebidanan Terapan Poltekkes Semarang", tahun: "2023", noIjazah: "M.Keb/POLTEK-SMG/2023" }
+      ],
+      pengalamanKerja: [
+        { instansi: "RSUD dr. Soedarso Pontianak", ruangan: "Ruang Nifas & Perinatologi", periode: "12/2020 s.d 06/2023", durasi: "2 Tahun 6 Bulan" },
+        { instansi: "RSUD dr. Soedarso Pontianak", ruangan: "Kamar Bersalin (VK Sentral)", periode: "07/2023 s.d Sekarang", durasi: "3 Tahun 3 Bulan" },
+        { instansi: "Puskesmas Siantan Hilir", ruangan: "Pelayanan KIA / KB", periode: "01/2016 s.d 11/2020", durasi: "4 Tahun 11 Bulan" }
+      ],
+      pelatihan: [
+        { jenis: "Pelatihan Asuhan Persalinan Normal (APN) & Resusitasi Neonatus", penyelenggara: "JNPK-KR / P2KS Kalbar", tahun: "2022", masaBerlaku: "Aktif s.d 15/10/2026" },
+        { jenis: "Midwifery Update (MU) Standar IBI", penyelenggara: "Pengurus Daerah IBI Kalimantan Barat", tahun: "2024", masaBerlaku: "Aktif s.d 2029" },
+        { jenis: "Pelatihan Penanganan Kegawatdaruratan Maternal & Neonatal (PONEK)", penyelenggara: "RSUP Dr. Sardjito / Kemenkes", tahun: "2023", masaBerlaku: "Seumur Hidup / Re-sertifikasi" },
+        { jenis: "Workshop USG Dasar Obstetri Terbatas Bidan", penyelenggara: "Komite Keperawatan & POGI Kalbar", tahun: "2024", masaBerlaku: "Internal RS" }
+      ],
+      pernyataanKota: "Pontianak",
+      pernyataanTahun: "2026"
+    }
+  },
+
   // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)
   administrativeNotification: {
     enabled: true,
