@@ -1324,68 +1324,129 @@ function goToWizardStep(step, force = false) {
 }
 
 function onJenjangChange(pkLevel) {
-  const container = document.getElementById('rkkChecklistContainer');
   const descEl = document.getElementById('jenjangDescText');
   const catalog = window.KOMITE_DATA?.rkkCatalog?.[pkLevel];
+  if (descEl && catalog) {
+    descEl.textContent = `${catalog.title} - ${catalog.description}`;
+  }
+  populateAreaKlinisDropdown(pkLevel);
+}
 
-  if (!catalog || !container) {
-    if (descEl) descEl.textContent = 'Pilih jenjang karir untuk memuat daftar rincian kewenangan klinis (RKK).';
-    if (container) container.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-muted);">Silakan pilih jenjang karir klinis pada langkah sebelumnya.</div>';
-    return;
+function populateAreaKlinisDropdown(pkLevel) {
+  const selectArea = document.getElementById('formAreaKlinis');
+  if (!selectArea) return;
+
+  const areas = window.KOMITE_DATA?.whiteBookAreas?.[pkLevel] || window.KOMITE_DATA?.whiteBookAreas?.['PK I'] || [];
+  let html = '';
+  areas.forEach((area, idx) => {
+    html += `<option value="${area.key}" ${idx === 0 ? 'selected' : ''}>${area.name}</option>`;
+  });
+  selectArea.innerHTML = html;
+
+  if (areas.length > 0) {
+    onAreaKlinisChange(areas[0].key);
+  }
+}
+
+function onAreaKlinisChange(areaKey) {
+  const container = document.getElementById('rkkChecklistContainer');
+  const descEl = document.getElementById('areaKlinisDescText');
+  const pkLevel = document.getElementById('formJenjang')?.value || 'PK I';
+  if (!container) return;
+
+  const areas = window.KOMITE_DATA?.whiteBookAreas?.[pkLevel] || [];
+  const curArea = areas.find(a => a.key === areaKey) || { name: 'Asuhan Keperawatan Spesifik Area' };
+  if (descEl) {
+    descEl.textContent = `Area Terpilih: ${curArea.name} (Buku Pedoman 2026).`;
   }
 
-  if (descEl) descEl.textContent = `${catalog.title} - ${catalog.description}`;
+  const baseActions = (window.KOMITE_DATA?.mandatoryBaseActions || []).map(a => Object.assign({}, a));
+  const specificActions = (window.KOMITE_DATA?.whiteBookActions?.[areaKey] || window.KOMITE_DATA?.whiteBookActions?.['generalis'] || []).map(a => Object.assign({}, a));
 
-  state.currentWizardRkkList = catalog.competencies || [];
+  specificActions.forEach(a => {
+    a.kategori = `B. ASUHAN KEPERAWATAN ADVANCED / INTERVENSI KHUSUS (${curArea.name.toUpperCase()})`;
+  });
+
+  state.currentWizardRkkList = [...baseActions, ...specificActions];
 
   let html = `
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; background: var(--bg-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; background: var(--bg-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
       <div style="font-size: 0.76rem; color: var(--text-muted);">
-        Klasifikasi KARS & BARI: <span class="badge-kewenangan mandiri">M: Mandiri</span> <span class="badge-kewenangan delegasi">D: Delegasi</span> <span class="badge-kewenangan mandat">Mn: Mandat</span> <span class="badge-kewenangan supervisi">S: Supervisi</span>
+        Format Baku RKK RSUD dr. Soedarso: 
+        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">1: Mandiri Penuh</span>
+        <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">2: Supervisi</span>
+        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">3: Tidak Diminta</span>
       </div>
-      <div style="display: flex; gap: 0.35rem;">
-        <button type="button" class="btn-secondary" style="font-size: 0.72rem; padding: 2px 8px;" onclick="setAllKewenangan('M')">Set Semua Mandiri (M)</button>
-        <button type="button" class="btn-secondary" style="font-size: 0.72rem; padding: 2px 8px;" onclick="resetAllKewenangan()">Reset Standar</button>
+      <div style="font-size: 0.75rem; font-weight: 700; color: #0e3860;">
+        Total: ${state.currentWizardRkkList.length} Tindakan Asuhan
       </div>
     </div>
-    <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
-      <table class="table-rkk-medis">
+    <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+      <table class="soedarso-table" style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
         <thead>
-          <tr>
-            <th style="width: 35px;">No</th>
-            <th style="width: 85px;">Kode</th>
-            <th>Rincian Kewenangan Klinis (RKK)</th>
-            <th style="width: 110px;">Domain</th>
-            <th style="width: 45px;" title="Mandiri">M</th>
-            <th style="width: 45px;" title="Delegasi">D</th>
-            <th style="width: 45px;" title="Mandat">Mn</th>
-            <th style="width: 45px;" title="Supervisi">S</th>
+          <tr style="background: #0e3860; color: #ffffff;">
+            <th rowspan="2" class="soedarso-th-blue" style="width: 32px; text-align: center;">No</th>
+            <th rowspan="2" class="soedarso-th-blue" style="text-align: left;">Daftar Kompetensi &amp; Tindakan Klinis Asuhan Keperawatan</th>
+            <th colspan="3" class="soedarso-th-blue" style="width: 105px; text-align: center;">Penilaian Mandiri</th>
+            <th colspan="3" class="soedarso-th-blue" style="width: 105px; text-align: center;">Rekomendasi MB</th>
+            <th rowspan="2" class="soedarso-th-blue" style="width: 120px; text-align: left;">Catatan MB</th>
+          </tr>
+          <tr style="background: #0e3860; color: #ffffff;">
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center;" title="Kode 1: Mandiri Penuh">1</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center;" title="Kode 2: Di bawah Supervisi">2</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center;" title="Kode 3: Tidak Diminta">3</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center;">1</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center;">2</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center;">3</th>
           </tr>
         </thead>
         <tbody>
   `;
 
+  let currentCat = '';
   state.currentWizardRkkList.forEach((item, idx) => {
-    const isMandiri = item.defaultMandiri;
+    if (item.kategori !== currentCat) {
+      currentCat = item.kategori;
+      html += `
+        <tr style="background: #f1f5f9; font-weight: 800; color: #0e3860;">
+          <td colspan="9" style="padding: 6px 10px; font-size: 0.82rem; border: 1px solid #cbd5e1; text-transform: uppercase;">
+            ${currentCat}
+          </td>
+        </tr>
+      `;
+    }
+
+    const kode = item.defaultKode || 1;
     html += `
-      <tr>
-        <td style="text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.75rem;">${idx + 1}</td>
-        <td style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--primary-700);">${item.id}</td>
-        <td>
-          <div style="font-weight: 600; color: var(--text-main); font-size: 0.84rem;">${item.name}</div>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.78rem; border: 1px solid #e2e8f0;">${item.no || (idx + 1)}</td>
+        <td style="border: 1px solid #e2e8f0; padding: 6px 8px;">
+          <div style="font-weight: 600; color: var(--text-main); font-size: 0.83rem;">${item.name}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 2px;">
+            <span class="badge" style="background: #f1f5f9; padding: 1px 6px;">${item.domain || 'Asuhan'}</span>
+            <span class="badge" style="background: #eef2ff; color: #4338ca; padding: 1px 6px;">Sifat: ${item.jenisTindakan || 'Mandiri'}</span>
+          </div>
         </td>
-        <td><span class="badge-official" style="font-size: 0.68rem;">${item.domain}</span></td>
-        <td style="text-align: center;">
-          <input type="radio" name="rkk_opt_${item.id}" value="M" ${isMandiri ? 'checked' : ''} title="Mandiri">
+        <td style="text-align: center; border: 1px solid #e2e8f0;">
+          <input type="radio" name="rkk_mandiri_${item.id}" value="1" ${kode === 1 ? 'checked' : ''} title="Kode 1: Mandiri Penuh">
         </td>
-        <td style="text-align: center;">
-          <input type="radio" name="rkk_opt_${item.id}" value="D" title="Delegasi">
+        <td style="text-align: center; border: 1px solid #e2e8f0;">
+          <input type="radio" name="rkk_mandiri_${item.id}" value="2" ${kode === 2 ? 'checked' : ''} title="Kode 2: Di bawah Supervisi">
         </td>
-        <td style="text-align: center;">
-          <input type="radio" name="rkk_opt_${item.id}" value="Mn" title="Mandat">
+        <td style="text-align: center; border: 1px solid #e2e8f0;">
+          <input type="radio" name="rkk_mandiri_${item.id}" value="3" ${kode === 3 ? 'checked' : ''} title="Kode 3: Tidak Diminta">
         </td>
-        <td style="text-align: center;">
-          <input type="radio" name="rkk_opt_${item.id}" value="S" ${!isMandiri ? 'checked' : ''} title="Supervisi">
+        <td style="text-align: center; border: 1px solid #e2e8f0; color: #16a34a; font-weight: bold;">
+          <span style="font-size: 0.85rem;">[√]</span>
+        </td>
+        <td style="text-align: center; border: 1px solid #e2e8f0; color: #94a3b8;">
+          <span style="font-size: 0.85rem;">[ ]</span>
+        </td>
+        <td style="text-align: center; border: 1px solid #e2e8f0; color: #94a3b8;">
+          <span style="font-size: 0.85rem;">[ ]</span>
+        </td>
+        <td style="border: 1px solid #e2e8f0; padding: 4px 6px; font-size: 0.75rem; color: #475569;">
+          <input type="text" class="form-input" style="padding: 2px 6px; font-size: 0.72rem;" value="Kompeten Penuh" placeholder="Catatan...">
         </td>
       </tr>
     `;
@@ -1400,21 +1461,33 @@ function onJenjangChange(pkLevel) {
   container.innerHTML = html;
 }
 
-function setAllKewenangan(val) {
+function setAllRkkKode(val) {
   document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="' + val + '"]').forEach(r => {
     r.checked = true;
   });
 }
 
-function resetAllKewenangan() {
-  const currentPk = document.getElementById('formJenjang')?.value;
-  if (currentPk) {
+function resetAllRkkKode() {
+  const currentArea = document.getElementById('formAreaKlinis')?.value;
+  if (currentArea) {
+    onAreaKlinisChange(currentArea);
+  } else {
+    const currentPk = document.getElementById('formJenjang')?.value || 'PK I';
     onJenjangChange(currentPk);
   }
 }
 
+function setAllKewenangan(val) {
+  if (val === 'M') setAllRkkKode(1);
+  else if (val === 'S') setAllRkkKode(2);
+}
+
+function resetAllKewenangan() {
+  resetAllRkkKode();
+}
+
 function toggleAllRkk(checkAll) {
-  setAllKewenangan(checkAll ? 'M' : 'S');
+  setAllRkkKode(checkAll ? 1 : 2);
 }
 
 function generateWizardSummary() {
@@ -1426,30 +1499,31 @@ function generateWizardSummary() {
   const str = document.getElementById('formStr').value;
   const strExp = document.getElementById('formStrExpiry').value;
   const jenjang = document.getElementById('formJenjang').value;
+  const areaSelect = document.getElementById('formAreaKlinis');
+  const areaName = areaSelect?.options[areaSelect.selectedIndex]?.text || 'Generalis';
   const unit = document.getElementById('formUnit').value;
 
   const radios = document.querySelectorAll('#rkkChecklistContainer input[type="radio"]:checked');
-  let countM = 0, countD = 0, countMn = 0, countS = 0;
+  let count1 = 0, count2 = 0, count3 = 0;
   radios.forEach(r => {
-    if (r.value === 'M') countM++;
-    else if (r.value === 'D') countD++;
-    else if (r.value === 'Mn') countMn++;
-    else if (r.value === 'S') countS++;
+    if (r.value === '1') count1++;
+    else if (r.value === '2') count2++;
+    else if (r.value === '3') count3++;
   });
   const totalCount = state.currentWizardRkkList.length || radios.length;
 
   summaryBox.innerHTML = `
     <div><strong>Nama Pegawai:</strong> ${nama}</div>
-    <div><strong>NIP:</strong> ${nip}</div>
+    <div><strong>NIP / NIK:</strong> ${nip}</div>
     <div><strong>Nomor STR:</strong> ${str} (Berlaku s/d ${formatDate(strExp)})</div>
     <div><strong>Jenjang Karir Diajukan:</strong> <span class="badge-pk badge-pk3">${jenjang}</span></div>
+    <div><strong>Rumpun / Area Buku Putih:</strong> <strong style="color:#0e3860;">${areaName}</strong></div>
     <div><strong>Unit Pelayanan:</strong> ${unit}</div>
     <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-subtle);">
-      <strong>Rincian Asesmen Mandiri (${totalCount} Kompetensi):</strong><br>
-      <span class="badge-kewenangan mandiri">Mandiri (M): ${countM}</span>
-      <span class="badge-kewenangan delegasi" style="margin-left:4px;">Delegasi (D): ${countD}</span>
-      <span class="badge-kewenangan mandat" style="margin-left:4px;">Mandat (Mn): ${countMn}</span>
-      <span class="badge-kewenangan supervisi" style="margin-left:4px;">Supervisi (S): ${countS}</span>
+      <strong>Hasil Asesmen Mandiri (${totalCount} Tindakan Asuhan Sesuai Template Resmi):</strong><br>
+      <span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">Kode 1 (Mandiri Penuh): ${count1}</span>
+      <span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700; margin-left:4px;">Kode 2 (Supervisi): ${count2}</span>
+      <span class="badge" style="background:#f1f5f9; color:#475569; font-weight:700; margin-left:4px;">Kode 3 (Tidak Diminta): ${count3}</span>
     </div>
   `;
 }
@@ -4682,6 +4756,427 @@ function openQuickAdminEmailDispatch(type) {
   });
 }
 
+/* ==========================================================================
+   ALUR LANGKAH 5: DOKUMEN RESMI RINCIAN KEWENANGAN KLINIS (RKK) HVS & EXPORT
+   Format Standar Lampiran SPK RSUD dr. Soedarso Pontianak (Buku Pedoman 2026)
+   ========================================================================== */
+
+function openPreviewRkkModal() {
+  const applicantBadge = document.getElementById('previewRkkApplicantBadge');
+  const banner = document.getElementById('previewRkkSuccessBanner');
+  
+  const nama = document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (applicantBadge) applicantBadge.textContent = nama;
+  if (banner) banner.style.display = 'block';
+
+  previewRkkHVS('filled');
+}
+
+function previewRkkHVS(mode) {
+  state.rkkPreviewMode = mode || state.rkkPreviewMode || 'filled';
+  const container = document.getElementById('rkkHvsPrintArea');
+  if (container) {
+    container.innerHTML = generateRkkHVS(state.rkkPreviewMode);
+  }
+
+  const btnToggle = document.getElementById('btnTogglePreviewRkkMode');
+  if (btnToggle) {
+    if (state.rkkPreviewMode === 'blank') {
+      btnToggle.innerHTML = '<i class="fa-solid fa-file-signature"></i> Tampilkan Data Terisi';
+      btnToggle.style.background = '#d97706';
+      btnToggle.style.color = '#fff';
+    } else {
+      btnToggle.innerHTML = '<i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong';
+      btnToggle.style.background = 'var(--bg-app)';
+      btnToggle.style.color = 'var(--text-main)';
+    }
+  }
+
+  openModal('modalPreviewRkkResmiHVS');
+}
+
+function togglePreviewRkkMode() {
+  const nextMode = (state.rkkPreviewMode === 'blank') ? 'filled' : 'blank';
+  previewRkkHVS(nextMode);
+}
+
+function generateRkkHVS(mode) {
+  const isBlank = (mode === 'blank');
+  
+  const nama = isBlank ? '....................................................................' : (document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
+  const nip = isBlank ? '....................................................................' : (document.getElementById('formNip')?.value.trim() || state.currentApplicant?.nip || '19920415 201903 1 004');
+  const jenjang = isBlank ? '....................................................................' : (document.getElementById('formJenjang')?.value || state.currentApplicant?.jenjang || 'PK III');
+  const unit = isBlank ? '....................................................................' : (document.getElementById('formUnit')?.value || state.currentApplicant?.unit || 'Ruang Enggang Gading 2 (Penyakit Dalam)');
+  const str = isBlank ? '....................................................................' : (document.getElementById('formStr')?.value.trim() || state.currentApplicant?.str || '140152119-3284910');
+  const strExp = isBlank ? '........................' : (document.getElementById('formStrExpiry')?.value || '2028-11-20');
+  
+  const areaSelect = document.getElementById('formAreaKlinis');
+  const areaName = isBlank ? '....................................................................' : (areaSelect?.options[areaSelect.selectedIndex]?.text || 'Keperawatan Medikal Bedah (KMB)');
+  const areaKey = areaSelect?.value || 'kmb_medikal_pk3';
+
+  const baseActions = window.KOMITE_DATA?.mandatoryBaseActions || [];
+  const specificActions = (state.currentWizardRkkList && state.currentWizardRkkList.length > 0)
+    ? state.currentWizardRkkList.filter(a => !a.id?.startsWith('RKK-BASE'))
+    : (window.KOMITE_DATA?.whiteBookActions?.[areaKey] || window.KOMITE_DATA?.whiteBookActions?.['generalis'] || []);
+
+  const logoSrc = 'logo_kalbar.png';
+
+  const kopSoedarso = `
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
+      <tr>
+        <td style="width: 75px; vertical-align: middle; text-align: center; padding-right: 10px;">
+          <img src="${logoSrc}" alt="Logo Pemprov Kalbar" style="width: 68px; height: auto;">
+        </td>
+        <td style="text-align: center; vertical-align: middle; font-family: Arial, Helvetica, sans-serif; color: #000;">
+          <div style="font-size: 10.5pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">PEMERINTAH PROVINSI KALIMANTAN BARAT</div>
+          <div style="font-size: 12pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">RUMAH SAKIT UMUM DAERAH DOKTER SOEDARSO</div>
+          <div style="font-size: 11pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">KOMITE KEPERAWATAN</div>
+          <div style="font-size: 8pt; line-height: 1.3; margin-top: 2px;">
+            Jalan Dokter Soedarso No.1 Pontianak Tenggara, Kota Pontianak, Kalimantan Barat 78124<br>
+            Telp. (0561) 737701, (0561) 746152, Fax. (0561) 736528<br>
+            Laman : <span style="color: #0000ee; text-decoration: underline;">https://rsuddrsoedarso.kalbarprov.go.id</span>, Pos-el : <span style="color: #0000ee; text-decoration: underline;">rsud@kalbarprov.go.id</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <div style="border-top: 2.5px solid #000000; border-bottom: 0.8px solid #000000; height: 2px; margin-top: 5px; margin-bottom: 12px;"></div>
+  `;
+
+  const renderRkkRow = (item, idx) => {
+    let mandiri1 = '&nbsp;', mandiri2 = '&nbsp;', mandiri3 = '&nbsp;';
+    let mb1 = '&nbsp;', mb2 = '&nbsp;', mb3 = '&nbsp;';
+    let catatan = '&nbsp;';
+
+    if (!isBlank) {
+      const radio = document.querySelector(`input[name="rkk_mandiri_${item.id}"]:checked`);
+      const val = radio ? radio.value : String(item.defaultKode || 1);
+      if (val === '1') mandiri1 = '<strong>&check;</strong>';
+      else if (val === '2') mandiri2 = '<strong>&check;</strong>';
+      else mandiri3 = '<strong>&check;</strong>';
+
+      // Mitra Bestari recommendation
+      if (val === '1') {
+        mb1 = '<strong style="color:#047857;">&check;</strong>';
+        catatan = 'Kompeten Penuh';
+      } else if (val === '2') {
+        mb2 = '<strong style="color:#b45309;">&check;</strong>';
+        catatan = 'Supervisi Berlanjut';
+      } else {
+        mb3 = '<strong style="color:#64748b;">&check;</strong>';
+        catatan = 'Tidak Diberikan';
+      }
+    }
+
+    return `
+      <tr>
+        <td style="border: 1px solid #000; padding: 4px 3px; text-align: center; font-size: 8pt; vertical-align: middle;">${item.no || (idx + 1)}</td>
+        <td style="border: 1px solid #000; padding: 4px 6px; font-size: 8pt; vertical-align: middle; line-height: 1.25;">
+          ${item.name}
+          ${item.jenisTindakan ? `<span style="font-size: 7pt; color: #555; display: block;">Sifat: ${item.jenisTindakan}</span>` : ''}
+        </td>
+        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri1}</td>
+        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri2}</td>
+        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri3}</td>
+        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb1}</td>
+        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb2}</td>
+        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb3}</td>
+        <td style="border: 1px solid #000; padding: 4px 5px; font-size: 7.5pt; vertical-align: middle; color: #1e293b;">${catatan}</td>
+      </tr>
+    `;
+  };
+
+  const tableHeader = `
+    <table class="soedarso-table" style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1px solid #000;">
+      <thead>
+        <tr style="background: #e2e8f0; color: #000;">
+          <th rowspan="2" style="border: 1px solid #000; width: 28px; text-align: center; font-size: 7.5pt; padding: 4px 2px;">NO</th>
+          <th rowspan="2" style="border: 1px solid #000; text-align: left; font-size: 8pt; padding: 4px 6px;">RINCIAN KOMPETENSI / TINDAKAN ASUHAN KEPERAWATAN</th>
+          <th colspan="3" style="border: 1px solid #000; width: 75px; text-align: center; font-size: 7.5pt; padding: 3px 2px;">PERMOHONAN<br>PEMOHON</th>
+          <th colspan="3" style="border: 1px solid #000; width: 75px; text-align: center; font-size: 7.5pt; padding: 3px 2px;">REKOMENDASI<br>MITRA BESTARI</th>
+          <th rowspan="2" style="border: 1px solid #000; width: 95px; text-align: center; font-size: 7.5pt; padding: 4px 4px;">CATATAN / TINJAUAN BUKTI</th>
+        </tr>
+        <tr style="background: #e2e8f0; color: #000;">
+          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">1</th>
+          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">2</th>
+          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">3</th>
+          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">1</th>
+          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">2</th>
+          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">3</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  // Page 1: Kop + Identitas + Keterangan Kode + Bagian A (Base Actions)
+  const rowsBagianA = baseActions.map((item, idx) => renderRkkRow(item, idx)).join('');
+
+  // Page 2: Bagian B (Specific Actions)
+  const rowsBagianB = specificActions.map((item, idx) => renderRkkRow(item, idx)).join('');
+
+  return `
+    <!-- ==========================================
+         LEMBAR 1: IDENTITAS + BAGIAN A DASAR
+         ========================================== -->
+    <div class="soedarso-page page-1" style="background:#fff; width:210mm; min-height:297mm; padding:12mm 15mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+      ${kopSoedarso}
+
+      <div style="text-align: center; margin-bottom: 12px;">
+        <div style="font-size: 11pt; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase;">
+          RINCIAN KEWENANGAN KLINIS (RKK) TENAGA KEPERAWATAN
+        </div>
+        <div style="font-size: 9.5pt; font-weight: bold; color: #1e3a8a; margin-top: 2px;">
+          LAMPIRAN REKOMENDASI SURAT PENUGASAN KLINIS (SPK)
+        </div>
+        <div style="font-size: 8.5pt; color: #475569; margin-top: 1px;">
+          Nomor Register Komite: 800/RKK/KOM-KEP/RSUD-DS/2026
+        </div>
+      </div>
+
+      <!-- Identitas Pemohon -->
+      <table class="soedarso-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt;">
+        <tr>
+          <td style="width: 25%; font-weight: bold; padding: 3px 4px;">Nama Tenaga Keperawatan</td>
+          <td style="width: 2%; padding: 3px 2px;">:</td>
+          <td style="width: 38%; font-weight: bold; padding: 3px 4px; color: #0f172a;">${nama}</td>
+          <td style="width: 15%; font-weight: bold; padding: 3px 4px;">Jenjang Diusulkan</td>
+          <td style="width: 2%; padding: 3px 2px;">:</td>
+          <td style="width: 18%; font-weight: bold; padding: 3px 4px; color: #1e3a8a;">${jenjang}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold; padding: 3px 4px;">NIP / NIPPPK / NIK</td>
+          <td style="padding: 3px 2px;">:</td>
+          <td style="padding: 3px 4px;">${nip}</td>
+          <td style="font-weight: bold; padding: 3px 4px;">Unit Pelayanan</td>
+          <td style="padding: 3px 2px;">:</td>
+          <td style="padding: 3px 4px;">${unit}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold; padding: 3px 4px;">Nomor STR &amp; Masa Berlaku</td>
+          <td style="padding: 3px 2px;">:</td>
+          <td style="padding: 3px 4px;">${str} (s/d ${strExp})</td>
+          <td style="font-weight: bold; padding: 3px 4px;">Area Buku Putih</td>
+          <td style="padding: 3px 2px;">:</td>
+          <td style="padding: 3px 4px; font-weight: 600;">${areaName}</td>
+        </tr>
+      </table>
+
+      <!-- Petunjuk Kode Kewenangan -->
+      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; font-size: 7.8pt; line-height: 1.35;">
+        <strong>Keterangan Kode Kewenangan Klinis:</strong><br>
+        <strong>Kode 1</strong>: Mandiri Penuh (M) &bull; 
+        <strong>Kode 2</strong>: Di bawah Supervisi (S) &bull; 
+        <strong>Kode 3</strong>: Tidak Diminta / Tidak Diberikan Kewenangan (T)
+      </div>
+
+      <!-- Bagian A: Umum & Dasar -->
+      <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 4px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
+        A. KEWENANGAN KLINIS UMUM &amp; ASUHAN KEPERAWATAN DASAR (MANDATORY)
+      </div>
+      ${tableHeader}
+      ${rowsBagianA}
+      </tbody></table>
+
+      <div style="text-align: right; font-size: 7.5pt; color: #64748b; margin-top: 10px;">
+        Dokumen RKK RSUD dr. Soedarso &bull; Lembar 1 dari 3
+      </div>
+    </div>
+
+    <!-- ==========================================
+         LEMBAR 2: BAGIAN B AREA SPESIFIK BUKU PUTIH
+         ========================================== -->
+    <div class="soedarso-page page-2" style="background:#fff; width:210mm; min-height:297mm; padding:12mm 15mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 10px;">
+        <span style="font-size: 8pt; font-weight: bold; color: #475569;">KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK</span>
+        <span style="font-size: 8pt; color: #64748b;">Lembar 2 &bull; Bagian B Spesifik Area</span>
+      </div>
+
+      <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 4px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
+        B. KEWENANGAN KLINIS LANJUTAN &amp; INTERVENSI KHUSUS AREA KLINIS: ${areaName.toUpperCase()}
+      </div>
+      ${tableHeader}
+      ${rowsBagianB}
+      </tbody></table>
+
+      <div style="text-align: right; font-size: 7.5pt; color: #64748b; margin-top: 12px;">
+        Dokumen RKK RSUD dr. Soedarso &bull; Lembar 2 dari 3
+      </div>
+    </div>
+
+    <!-- ==========================================
+         LEMBAR 3: CATATAN REKOMENDASI & PENGESAHAN 4 PIHAK
+         ========================================== -->
+    <div class="soedarso-page page-3" style="background:#fff; width:210mm; min-height:297mm; padding:12mm 15mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 12px;">
+        <span style="font-size: 8pt; font-weight: bold; color: #475569;">KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK</span>
+        <span style="font-size: 8pt; color: #64748b;">Lembar 3 &bull; Pengesahan &amp; Rekomendasi</span>
+      </div>
+
+      <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 6px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
+        C. CATATAN &amp; KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL
+      </div>
+      <div style="border: 1px solid #000; padding: 8px 10px; font-size: 8.3pt; line-height: 1.5; margin-bottom: 18px; background: #fff;">
+        ${isBlank ? `
+          <div style="height: 60px;">&nbsp;</div>
+        ` : `
+          Berdasarkan hasil asesmen mandiri, verifikasi portofolio klinis, bukti logbook harian, serta penelaahan kompetensi oleh Mitra Bestari, tenaga keperawatan atas nama <strong>${nama}</strong> (NIP: ${nip}) direkomendasikan untuk diberikan <strong>Surat Penugasan Klinis (SPK)</strong> dengan Rincian Kewenangan Klinis sebagaimana tercantum pada Bagian A dan Bagian B dokumen ini pada jenjang <strong>${jenjang}</strong> di lingkungan RSUD dr. Soedarso Pontianak.
+        `}
+      </div>
+
+      <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 8px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
+        D. LEMBAR PENGESAHAN DOKUMEN REKOMENDASI RINCIAN KEWENANGAN KLINIS
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 8.5pt;">
+        <tr>
+          <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
+            <div>Pemohon (Tenaga Keperawatan),</div>
+            <div style="height: 60px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">${nama}</div>
+            <div>NIP / NIPPPK / NIK. ${nip}</div>
+          </td>
+          <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
+            <div>Pontianak, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}<br>Mitra Bestari (Reviewer Kredensial),</div>
+            <div style="height: 50px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
+            <div>NIP. 19850612 201001 1 012</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="height: 25px;"></td>
+        </tr>
+        <tr>
+          <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
+            <div>Ketua Subkomite Kredensial,</div>
+            <div style="height: 60px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Rusmulyadi, S.Kep., MARS</div>
+            <div>NIP. 19780828 200212 1 003</div>
+          </td>
+          <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
+            <div>Mengetahui,<br>Ketua Komite Keperawatan RSUD dr. Soedarso,</div>
+            <div style="height: 50px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Akie Prawira, S.Kep</div>
+            <div>NIP. 19800418 200501 1 008</div>
+          </td>
+        </tr>
+      </table>
+
+      <div style="margin-top: 25px; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-size: 7.5pt; color: #64748b; display: flex; justify-content: space-between;">
+        <span>Sistem Informasi Terintegrasi Komite Keperawatan RSUD dr. Soedarso Pontianak</span>
+        <span>Dokumen RKK RSUD dr. Soedarso &bull; Lembar 3 dari 3</span>
+      </div>
+    </div>
+  `;
+}
+
+function printRkkHVS() {
+  const content = generateRkkHVS(state.rkkPreviewMode || 'filled');
+  const nama = (document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Staf').replace(/[^a-zA-Z0-9]/g, '_');
+  const printWindow = window.open('', '_blank', 'width=900,height=800');
+  if (!printWindow) {
+    alert('Popup diblokir oleh browser. Silakan izinkan popup untuk mencetak dokumen RKK.');
+    return;
+  }
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>RKK_Resmi_${nama}_RSUD_dr_Soedarso</title>
+      <style>
+        @page {
+          size: A4 portrait;
+          margin: 10mm 12mm;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, Helvetica, sans-serif;
+          color: #000;
+          background: #fff;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .soedarso-page {
+          box-sizing: border-box;
+          width: 100%;
+        }
+        .page-1, .page-2 {
+          page-break-after: always;
+          break-after: page;
+        }
+        .page-3 {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        @media screen {
+          body {
+            background: #e2e8f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          .soedarso-page {
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm 12mm;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+          }
+        }
+      </style>
+    </head>
+    <body>
+      ${content}
+      <script>
+        window.onload = function() {
+          window.print();
+        };
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function exportRkkWord() {
+  const content = generateRkkHVS(state.rkkPreviewMode || 'filled');
+  const rawNama = document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Staf';
+  const nama = rawNama.replace(/[^a-zA-Z0-9]/g, '_');
+  const header = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+          xmlns:w='urn:schemas-microsoft-com:office:word' 
+          xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>RKK Resmi RSUD dr Soedarso</title>
+    <style>
+      @page Section1 { size: 595.3pt 841.9pt; margin: 0.5in 0.6in 0.5in 0.6in; }
+      div.Section1 { page: Section1; }
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; line-height: 1.3; color: #000; }
+      table { border-collapse: collapse; width: 100%; }
+      .page-1, .page-2 { page-break-after: always; }
+      .page-3 { page-break-after: avoid; }
+    </style>
+    </head>
+    <body>
+    <div class="Section1">
+  `;
+  const footer = `</div></body></html>`;
+  const sourceHTML = header + content + footer;
+  const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+  const fileDownload = document.createElement("a");
+  document.body.appendChild(fileDownload);
+  fileDownload.href = source;
+  fileDownload.download = `RKK_Resmi_${nama}_RSUD_dr_Soedarso.doc`;
+  fileDownload.click();
+  document.body.removeChild(fileDownload);
+  showToast(`Dokumen RKK Resmi ${rawNama} berhasil diunduh dalam format Word (.doc)!`, 'success');
+}
+
 // Expose functions globally for inline onclick handlers
 window.switchTab = switchTab;
 window.toggleTheme = toggleTheme;
@@ -4774,4 +5269,13 @@ window.previewLogbookHVS = previewLogbookHVS;
 window.togglePreviewLogbookMode = togglePreviewLogbookMode;
 window.printLogbookHVS = printLogbookHVS;
 window.exportLogbookWord = exportLogbookWord;
+window.openPreviewRkkModal = openPreviewRkkModal;
+window.previewRkkHVS = previewRkkHVS;
+window.togglePreviewRkkMode = togglePreviewRkkMode;
+window.generateRkkHVS = generateRkkHVS;
+window.printRkkHVS = printRkkHVS;
+window.exportRkkWord = exportRkkWord;
+window.setAllRkkKode = setAllRkkKode;
+window.resetAllRkkKode = resetAllRkkKode;
+window.onAreaKlinisChange = onAreaKlinisChange;
 
