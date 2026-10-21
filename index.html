@@ -77,9 +77,17 @@
             <i class="fa-regular fa-clock"></i>
             <span>Senin - Jumat: 07.30 - 16.00 WIB</span>
           </div>
-          <div class="top-info-item">
-            <i class="fa-regular fa-envelope"></i>
-            <span>komite.keperawatan@rsudsoedarso.kalbarprov.go.id</span>
+          <div class="top-info-item" title="Email Resmi Komite Keperawatan">
+            <i class="fa-solid fa-envelope" style="color: #6ee7b7;"></i>
+            <a href="mailto:komitekeperawatanrsds2023@gmail.com,yadhie28@gmail.com" style="color: inherit; text-decoration: none; font-weight: 600;">
+              komitekeperawatanrsds2023@gmail.com
+            </a>
+          </div>
+          <div class="top-info-item" title="Email Sekretaris Komite Keperawatan">
+            <i class="fa-solid fa-user-pen" style="color: #fde68a;"></i>
+            <a href="mailto:yadhie28@gmail.com" style="color: inherit; text-decoration: none; font-weight: 600;">
+              Sekretaris: yadhie28@gmail.com
+            </a>
           </div>
         </div>
       </div>
@@ -141,6 +149,13 @@
       <div class="nav-actions">
         <button class="btn-icon-circle" id="themeToggleBtn" title="Beralih Mode Gelap/Terang">
           <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <!-- Tombol Status Email Administrasi -->
+        <button class="btn-icon-text" id="btnAdminEmailStatus" onclick="openAdminEmailCenter()" title="Pusat Koneksi Email Komite & Sekretaris" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); color: #047857; border: 1.5px solid rgba(16, 185, 129, 0.4); font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+          <i class="fa-solid fa-envelope"></i>
+          <span>Email Administrasi (2 Aktif)</span>
         </button>
 
         <!-- Admin Login Button (shown when logged out) -->
@@ -802,9 +817,17 @@
             <i class="fa-solid fa-user-shield" style="color: #10b981;"></i>
             Layanan Pengaduan & Konsultasi Etik Rahasia
           </h3>
-          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
             Identitas pelapor dijamin 100% terlindungi oleh Komite Keperawatan RSUD dr. Soedarso berdasarkan asas kerahasiaan profesi.
           </p>
+
+          <!-- Banner Notifikasi Administrasi Etik & Disiplin -->
+          <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-left: 4px solid #10b981; padding: 0.65rem 0.85rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.78rem; line-height: 1.45; color: var(--text-main);">
+            <div style="font-weight: 800; color: #047857; display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+              <i class="fa-solid fa-envelope-shield"></i> Terkoneksi ke Email Pimpinan &amp; Sekretariat
+            </div>
+            <span>Laporan diteruskan secara aman &amp; konfidensial ke email resmi Komite (<strong>komitekeperawatanrsds2023@gmail.com</strong>) dan Sekretaris (<strong>yadhie28@gmail.com</strong>).</span>
+          </div>
 
           <form id="formEthicsReport" onsubmit="handleEthicsSubmit(event)">
             <div class="form-group">
@@ -1132,6 +1155,14 @@
               <div style="font-size: 0.85rem; line-height: 1.7;" id="wizardSummaryText">
                 <!-- Filled via JS -->
               </div>
+            </div>
+
+            <!-- Banner Notifikasi Administrasi E-Kredensialing -->
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 4px solid #10b981; border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: var(--text-main);">
+              <div style="font-weight: 800; color: #047857; display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                <i class="fa-solid fa-envelope-circle-check"></i> Notifikasi Administrasi Otomatis Terhubung
+              </div>
+              <span>Pengajuan RKK ini otomatis tercatat dan diteruskan ke email Komite (<strong>komitekeperawatanrsds2023@gmail.com</strong>) dan Sekretaris (<strong>yadhie28@gmail.com</strong>) untuk disposisi Mitra Bestari.</span>
             </div>
 
             <div class="form-group">
@@ -1564,6 +1595,26 @@
           <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Ketentuan Alur:</span> Surat Permohonan ini <strong>TIDAK PERLU persetujuan atau tanda tangan pengurus komite keperawatan</strong> pada tahap awal. Anda cukup mengunduh surat, menandatanganinya sendiri sebagai pemohon, lalu mengunggahnya kembali pada <strong>Langkah 2</strong>.
         </div>
 
+        <!-- Banner Koneksi Notifikasi Administrasi Resmi (Komite & Sekretaris) -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
+              <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.84rem; font-weight: 800; color: #065f46;">
+                Terkoneksi Otomatis ke Email Komite &amp; Sekretaris
+              </div>
+              <div style="font-size: 0.76rem; color: #047857;">
+                Setiap permohonan diteruskan langsung ke: <strong>komitekeperawatanrsds2023@gmail.com</strong> dan <strong>yadhie28@gmail.com</strong>
+              </div>
+            </div>
+          </div>
+          <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
+            <i class="fa-solid fa-link"></i> SALURAN AKTIF
+          </span>
+        </div>
+
         <!-- Google Form Integration & Quick-Fill Toolbar -->
         <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.65rem;">
@@ -1981,6 +2032,14 @@
               <div>
                 <strong>Langkah Selanjutnya:</strong> Unduh berkas (Word / PDF) di bawah ini, tanda tangani pada kolom <em>Pemohon</em>, lalu unggah kembali scan dokumen pada <strong>Langkah 2</strong>.<br>
                 <span style="color: #047857; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Ketentuan Alur:</span> Surat permohonan ini <u>TIDAK MEMERLUKAN persetujuan atau tanda tangan pengurus komite keperawatan</u> di tahap awal pengajuan.
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                  <div style="font-size: 0.78rem; color: #065f46;">
+                    <i class="fa-solid fa-envelope-circle-check"></i> Terhubung ke: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
+                  </div>
+                  <button type="button" class="btn-secondary" style="padding: 0.25rem 0.65rem; font-size: 0.74rem; background: #ffffff; color: #047857; border: 1px solid #10b981; font-weight: 700;" onclick="openQuickAdminEmailDispatch('surat')">
+                    <i class="fa-solid fa-paper-plane"></i> Kirim Salinan Email ke Komite &amp; Sekretaris
+                  </button>
+                </div>
               </div>
             </div>
             <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewSuratHVS'); openModalUploadSurat();">
@@ -2036,6 +2095,14 @@
           <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-info"></i> Penting:</span> Surat Permohonan <strong>TIDAK MEMERLUKAN persetujuan pengurus komite keperawatan</strong> pada tahap ini. Setelah mengunggah berkas ini, Anda dapat langsung melanjutkan ke <strong>Langkah 3: Pengisian RKK Online</strong>.
         </div>
 
+        <!-- Banner Notifikasi Administrasi Unggah Berkas -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-left: 4px solid #10b981; padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.78rem; line-height: 1.45; color: var(--text-main);">
+          <div style="font-weight: 800; color: #047857; display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+            <i class="fa-solid fa-envelope-circle-check"></i> Notifikasi Administrasi Terkoneksi
+          </div>
+          <span>Berkas yang diunggah otomatis tersimpan dan notifikasi diteruskan ke email Komite (<strong>komitekeperawatanrsds2023@gmail.com</strong>) dan Sekretaris (<strong>yadhie28@gmail.com</strong>).</span>
+        </div>
+
         <form id="formUploadBerkas" onsubmit="simpanUploadSurat(event)">
           <div class="form-group">
             <label class="form-label">Nama Tenaga Keperawatan / Bidan Pemohon <span class="req">*</span></label>
@@ -2086,6 +2153,260 @@
   </div>
 
   <!-- ========================================================================
+       MODAL: NOTIFIKASI ADMINISTRASI TERKONEKSI KE EMAIL
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalAdminEmailNotice">
+    <div class="modal-container" style="max-width: 640px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(20, 148, 142, 0.08)); border-bottom: 1.5px solid rgba(16, 185, 129, 0.3);">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: #10b981; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);">
+            <i class="fa-solid fa-paper-plane"></i>
+          </div>
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: var(--text-main);" id="adminNoticeTitle">
+              Notifikasi Administrasi Terkoneksi ke Email
+            </div>
+            <div style="font-size: 0.75rem; color: #047857; font-weight: 600;">
+              Komite Keperawatan &amp; Sekretaris RSUD dr. Soedarso
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalAdminEmailNotice')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+        <!-- Recipient Channel Badges -->
+        <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.95rem 1.1rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.74rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.65rem;">
+            <i class="fa-solid fa-envelope-circle-check" style="color: #10b981; margin-right: 4px;"></i>
+            Saluran Tujuan Notifikasi Resmi (2 Terhubung):
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(16, 185, 129, 0.08); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.25);">
+              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem;">
+                <i class="fa-solid fa-hospital-user" style="color: #047857;"></i>
+                <div>
+                  <strong>Komite Keperawatan:</strong> 
+                  <code style="color: #065f46; font-size: 0.78rem;">komitekeperawatanrsds2023@gmail.com</code>
+                </div>
+              </div>
+              <span class="badge" style="background: #10b981; color: #ffffff; font-size: 0.68rem; font-weight: 800;">AKTIF</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(245, 158, 11, 0.08); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.25);">
+              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem;">
+                <i class="fa-solid fa-user-pen" style="color: #b45309;"></i>
+                <div>
+                  <strong>Sekretaris Komite:</strong> 
+                  <code style="color: #92400e; font-size: 0.78rem;">yadhie28@gmail.com</code>
+                </div>
+              </div>
+              <span class="badge" style="background: #f59e0b; color: #ffffff; font-size: 0.68rem; font-weight: 800;">AKTIF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Activity Box -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Jenis Kegiatan:</span>
+            <span class="badge" id="adminNoticeEvent" style="background: rgba(20, 148, 142, 0.15); color: var(--primary-700); font-weight: 700; font-size: 0.74rem;">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Pemohon:</span>
+            <span style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);" id="adminNoticeApplicant">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Subjek:</span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: var(--primary-700); font-family: var(--font-mono); text-align: right; max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="adminNoticeSubject">-</span>
+          </div>
+          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem; max-height: 160px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.55; white-space: pre-wrap; color: var(--text-main);" id="adminNoticeBody">
+            <!-- Filled via JS -->
+          </div>
+        </div>
+
+        <!-- Instant Actions -->
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Aksi Cepat Saluran Email:</div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn-primary" id="btnAdminNoticeGmail" style="flex: 1; background: #ea4335; border-color: #ea4335; font-size: 0.82rem; padding: 0.55rem 0.95rem; justify-content: center; box-shadow: 0 2px 6px rgba(234, 67, 53, 0.3);">
+              <i class="fa-brands fa-google"></i> Buka / Kirim di Gmail
+            </button>
+            <a href="#" class="btn-secondary" id="btnAdminNoticeMailto" style="flex: 1; font-size: 0.82rem; padding: 0.55rem 0.95rem; justify-content: center; text-decoration: none;">
+              <i class="fa-solid fa-envelope"></i> Buka di Aplikasi Mail
+            </a>
+            <button type="button" class="btn-secondary" id="btnAdminNoticeCopy" style="font-size: 0.82rem; padding: 0.55rem 0.85rem;" title="Salin Teks ke Clipboard">
+              <i class="fa-regular fa-copy"></i> Salin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 0.85rem 1.5rem; background: var(--bg-app); border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.74rem; color: var(--text-muted);">
+          <i class="fa-solid fa-check"></i> Dicatat ke Log Buku Register Administrasi
+        </span>
+        <button type="button" class="btn-secondary" onclick="closeModal('modalAdminEmailNotice')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: PUSAT KONEKSI NOTIFIKASI EMAIL ADMINISTRASI (ADMIN CENTER)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalAdminEmailCenter">
+    <div class="modal-container modal-container-lg" style="max-width: 960px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+            <i class="fa-solid fa-network-wired"></i>
+          </div>
+          <div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">
+              Pusat Koneksi Notifikasi Email Administrasi Komite Keperawatan
+            </div>
+            <div style="font-size: 0.76rem; color: var(--text-muted);">
+              RSUD dr. Soedarso Pontianak &bull; Saluran Notifikasi Otomatis Terpadu
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalAdminEmailCenter')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem; max-height: 75vh; overflow-y: auto;">
+        <!-- Two Target Channel Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <!-- Card 1: Komite Keperawatan -->
+          <div style="background: var(--bg-card); border: 2px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                  <i class="fa-solid fa-hospital-user"></i>
+                </div>
+                <div>
+                  <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">Komite Keperawatan</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Pimpinan &amp; Sekretariat Utama</div>
+                </div>
+              </div>
+              <span class="badge" style="background: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 800;">
+                <i class="fa-solid fa-circle" style="font-size: 6px; margin-right: 4px; color: #16a34a;"></i> TERKONEKSI
+              </span>
+            </div>
+            <div style="font-size: 0.82rem; margin-bottom: 0.75rem;">
+              <span style="color: var(--text-muted); font-size: 0.74rem; font-weight: 700; text-transform: uppercase;">Alamat Email Resmi:</span><br>
+              <a href="mailto:komitekeperawatanrsds2023@gmail.com" style="font-weight: 700; color: #047857; text-decoration: none; word-break: break-all;">
+                komitekeperawatanrsds2023@gmail.com
+              </a>
+            </div>
+            <div style="display: flex; gap: 0.4rem;">
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=komitekeperawatanrsds2023@gmail.com" target="_blank" class="btn-secondary" style="flex: 1; padding: 0.35rem 0.65rem; font-size: 0.76rem; justify-content: center; text-decoration: none;">
+                <i class="fa-brands fa-google"></i> Gmail
+              </a>
+              <a href="mailto:komitekeperawatanrsds2023@gmail.com" class="btn-secondary" style="flex: 1; padding: 0.35rem 0.65rem; font-size: 0.76rem; justify-content: center; text-decoration: none;">
+                <i class="fa-solid fa-envelope"></i> Mail
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 2: Sekretaris Komite -->
+          <div style="background: var(--bg-card); border: 2px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                  <i class="fa-solid fa-user-pen"></i>
+                </div>
+                <div>
+                  <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">Ns. Rusmulyadi, S.Kep., MARS</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Sekretaris Komite Keperawatan</div>
+                </div>
+              </div>
+              <span class="badge" style="background: #fef3c7; color: #92400e; font-size: 0.7rem; font-weight: 800;">
+                <i class="fa-solid fa-circle" style="font-size: 6px; margin-right: 4px; color: #d97706;"></i> TERKONEKSI
+              </span>
+            </div>
+            <div style="font-size: 0.82rem; margin-bottom: 0.75rem;">
+              <span style="color: var(--text-muted); font-size: 0.74rem; font-weight: 700; text-transform: uppercase;">Alamat Email Sekretaris:</span><br>
+              <a href="mailto:yadhie28@gmail.com" style="font-weight: 700; color: #b45309; text-decoration: none; word-break: break-all;">
+                yadhie28@gmail.com
+              </a>
+            </div>
+            <div style="display: flex; gap: 0.4rem;">
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=yadhie28@gmail.com" target="_blank" class="btn-secondary" style="flex: 1; padding: 0.35rem 0.65rem; font-size: 0.76rem; justify-content: center; text-decoration: none;">
+                <i class="fa-brands fa-google"></i> Gmail
+              </a>
+              <a href="mailto:yadhie28@gmail.com" class="btn-secondary" style="flex: 1; padding: 0.35rem 0.65rem; font-size: 0.76rem; justify-content: center; text-decoration: none;">
+                <i class="fa-solid fa-envelope"></i> Mail
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scope & Automation Overview Banner -->
+        <div style="background: linear-gradient(135deg, rgba(20, 148, 142, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(20, 148, 142, 0.25); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.88rem; font-weight: 800; color: var(--primary-700); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-shield-halved"></i> Cakupan Kegiatan Administrasi Terkoneksi:
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; font-size: 0.8rem; color: var(--text-main);">
+            <div><i class="fa-solid fa-check" style="color: #10b981; margin-right: 4px;"></i> Formulir Permohonan Kredensial (Langkah 1)</div>
+            <div><i class="fa-solid fa-check" style="color: #10b981; margin-right: 4px;"></i> Unggah Portofolio &amp; Dokumen (Langkah 2)</div>
+            <div><i class="fa-solid fa-check" style="color: #10b981; margin-right: 4px;"></i> Asesmen Mandiri RKK Online (Langkah 3)</div>
+            <div><i class="fa-solid fa-check" style="color: #10b981; margin-right: 4px;"></i> Laporan &amp; Konsultasi Etika / Disiplin</div>
+            <div><i class="fa-solid fa-check" style="color: #10b981; margin-right: 4px;"></i> Rekomendasi SPK &amp; RKK Mitra Bestari</div>
+            <div><i class="fa-solid fa-check" style="color: #10b981; margin-right: 4px;"></i> Otomasi Google Apps Script (onFormSubmit)</div>
+          </div>
+        </div>
+
+        <!-- Log Riwayat Notifikasi Administrasi -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main);">
+              <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary-600); margin-right: 6px;"></i>
+              Buku Register &amp; Riwayat Notifikasi Administrasi
+            </div>
+            <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="testSendAdminEmailPing()">
+              <i class="fa-solid fa-paper-plane" style="color: #10b981;"></i> Uji Coba Kirim Ping Notifikasi
+            </button>
+          </div>
+
+          <div class="table-responsive" style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); overflow: hidden;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Jenis Kegiatan</th>
+                  <th>Pemohon / Unit</th>
+                  <th>Penerima</th>
+                  <th style="text-align: right;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="adminNotificationsTableBody">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn-secondary" onclick="downloadGoogleAppsScriptFile()">
+            <i class="fa-solid fa-download"></i> Unduh Skrip Google Apps Script
+          </button>
+          <button type="button" class="btn-secondary" onclick="testSendAdminEmailPing()">
+            <i class="fa-solid fa-vial"></i> Uji Koneksi Email
+          </button>
+        </div>
+        <button type="button" class="btn-primary" onclick="closeModal('modalAdminEmailCenter')">
+          Tutup Pusat Notifikasi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
        TOAST CONTAINER
        ======================================================================== -->
   <div class="toast-container" id="toastContainer"></div>
@@ -2103,8 +2424,8 @@
         <div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.82rem; flex-wrap: wrap;">
           <span class="badge-official"><i class="fa-solid fa-award"></i> Akreditasi Paripurna KARS</span>
           <span class="badge-official"><i class="fa-solid fa-hospital"></i> RS Kelas A Rujukan Utama</span>
-          <a href="https://regal-smakager-133704.netlify.app/" target="_blank" class="badge-official" style="background: rgba(20, 148, 142, 0.15); color: var(--primary-700); text-decoration: none; font-weight: 700;">
-            <i class="fa-solid fa-lock"></i> regal-smakager-133704.netlify.app
+          <a href="https://yadhie28.github.io/komite-keperawatan-soedarso/" target="_blank" class="badge-official" style="background: rgba(20, 148, 142, 0.15); color: var(--primary-700); text-decoration: none; font-weight: 700;">
+            <i class="fa-solid fa-globe"></i> Portal Resmi GitHub Pages
           </a>
         </div>
       </div>
@@ -2130,15 +2451,30 @@
       </div>
 
       <div>
-        <div class="footer-col-title">Sekretariat Komite</div>
+        <div class="footer-col-title">Sekretariat &amp; Administrasi</div>
         <p style="font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.75rem;">
           Gedung Manajemen Lantai 2, RSUD dr. Soedarso<br>
           Jl. DR. Soedarso No. 1 Pontianak 78124<br>
           Kalimantan Barat, Indonesia
         </p>
-        <p style="font-size: 0.82rem; color: var(--gold-600); font-weight: 700;">
-          <i class="fa-solid fa-phone"></i> (0561) 737701 / Ext. 214
-        </p>
+        <div style="font-size: 0.82rem; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem;">
+          <div>
+            <i class="fa-solid fa-envelope" style="color: var(--primary-400); margin-right: 6px;"></i>
+            <strong>Komite:</strong> 
+            <a href="mailto:komitekeperawatanrsds2023@gmail.com" style="color: #cbd5e1; text-decoration: none; word-break: break-all;">komitekeperawatanrsds2023@gmail.com</a>
+          </div>
+          <div>
+            <i class="fa-solid fa-user-pen" style="color: #fbbf24; margin-right: 6px;"></i>
+            <strong>Sekretaris:</strong> 
+            <a href="mailto:yadhie28@gmail.com" style="color: #cbd5e1; text-decoration: none;">yadhie28@gmail.com</a>
+          </div>
+          <div style="color: var(--gold-600); font-weight: 700;">
+            <i class="fa-solid fa-phone" style="margin-right: 6px;"></i> (0561) 737701 / Ext. 214
+          </div>
+        </div>
+        <button type="button" class="btn-secondary" onclick="openAdminEmailCenter()" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.4); font-weight: 700;">
+          <i class="fa-solid fa-network-wired"></i> Buka Pusat Notifikasi Email
+        </button>
       </div>
     </div>
 
@@ -2147,8 +2483,8 @@
         &copy; 2026 Komite Keperawatan RSUD dr. Soedarso Pontianak &bull; Pemerintah Provinsi Kalimantan Barat. Hak Cipta Dilindungi Undang-Undang.
       </div>
       <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <a href="https://regal-smakager-133704.netlify.app/" target="_blank" style="color: var(--primary-700); text-decoration: none; font-weight: 700;">
-          <i class="fa-solid fa-globe"></i> https://regal-smakager-133704.netlify.app/
+        <a href="https://yadhie28.github.io/komite-keperawatan-soedarso/" target="_blank" style="color: var(--primary-700); text-decoration: none; font-weight: 700;">
+          <i class="fa-solid fa-globe"></i> https://yadhie28.github.io/komite-keperawatan-soedarso/
         </a>
         <span>&bull;</span>
         <span>Standar PMK RI No. 49/2013</span>

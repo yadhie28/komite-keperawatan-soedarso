@@ -7,9 +7,15 @@
  * 1. Mengambil data isian respon Google Form.
  * 2. Meng-generate Formulir Surat Permohonan Kredensial 3 Halaman A4 fisik resmi.
  * 3. Mengonversi ke file PDF dan menyimpannya di Google Drive.
- * 4. (Opsional) Mengirimkan PDF surat ke email perawat dan Subkomite Kredensial.
+ * 4. Mengirimkan PDF surat otomatis ke email Komite Keperawatan (komitekeperawatanrsds2023@gmail.com)
+ *    dan email Sekretaris Komite (yadhie28@gmail.com) serta salinan ke perawat pemohon.
  * ==============================================================================
  */
+
+// Konfigurasi Email Resmi Administrasi Komite Keperawatan RSUD dr. Soedarso
+const EMAIL_KOMITE = "komitekeperawatanrsds2023@gmail.com";
+const EMAIL_SEKRETARIS = "yadhie28@gmail.com";
+const ADMIN_EMAILS = "komitekeperawatanrsds2023@gmail.com, yadhie28@gmail.com";
 
 function onFormSubmit(e) {
   try {
@@ -207,12 +213,43 @@ function onFormSubmit(e) {
     const pdfFile = DriveApp.createFile(blob.getAs("application/pdf"));
     pdfFile.setName(`Surat_Permohonan_Kredensial_${nama.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
 
-    // 4. Kirim PDF ke email pemohon jika email valid
+    // 4. Kirim PDF & Notifikasi Administrasi Resmi ke Komite & Sekretaris
+    const subjectAdmin = `[NOTIFIKASI ADMINISTRASI] Permohonan Kredensial Baru: ${nama} (${unit} - ${pkDiusulkan})`;
+    const bodyAdminText = 
+      `PEMBERITAHUAN ADMINISTRASI KOMITE KEPERAWATAN RSUD dr. SOEDARSO\n\n` +
+      `Telah masuk berkas permohonan kredensialing baru dari tenaga keperawatan dengan rincian sebagai berikut:\n\n` +
+      `• Nama Lengkap    : ${nama}\n` +
+      `• NIP / NIPPPK / NIK: ${nipFull}\n` +
+      `• Unit Kerja      : ${unit}\n` +
+      `• Jabatan         : ${jabatan}\n` +
+      `• Level PK Saat Ini : ${pkSaatIni}\n` +
+      `• Level PK Diusulkan: ${pkDiusulkan}\n` +
+      `• Nomor STR       : ${str} (Berlaku s/d: ${strExp})\n` +
+      `• Nomor SIPP/SIPB : ${sipp} (Berlaku s/d: ${sippExp})\n` +
+      `• Pendidikan      : ${pendidikan} - ${institusi} (${tahunLulus})\n` +
+      `• Kontak Pemohon  : HP: ${hp} | Email: ${email}\n` +
+      `• Tanggal Submit  : ${tglSurat}\n\n` +
+      `Terlampir berkas PDF Surat Permohonan Kredensial Resmi 3 Halaman Format Baku RSUD dr. Soedarso.\n\n` +
+      `Saluran Notifikasi Terhubung:\n` +
+      `1. Komite Keperawatan: ${EMAIL_KOMITE}\n` +
+      `2. Sekretaris Komite  : ${EMAIL_SEKRETARIS}\n\n` +
+      `Sistem Informasi E-Kredensialing & Administrasi Komite Keperawatan RSUD dr. Soedarso Pontianak`;
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAILS,
+      subject: subjectAdmin,
+      body: bodyAdminText,
+      attachments: [pdfFile.getAs(MimeType.PDF)]
+    });
+
+    // 5. Kirim salinan ke email pemohon jika email valid
     if (email && email.includes('@')) {
       MailApp.sendEmail({
         to: email,
+        replyTo: EMAIL_KOMITE,
+        cc: ADMIN_EMAILS,
         subject: `[RSUD dr. Soedarso] Surat Permohonan Kredensial Resmi - ${nama}`,
-        body: `Yth. Sejawat ${nama},\n\nTerima kasih telah mengisi formulir pendaftaran kredensialing. Terlampir berkas Surat Permohonan Kredensial resmi 3 halaman format baku RSUD dr. Soedarso.\n\nSilakan cetak, tanda tangani bersama Kepala Ruangan, lalu unggah kembali ke sistem e-kredensialing pada Langkah 2.\n\nSalam,\nKomite Keperawatan RSUD dr. Soedarso Pontianak`,
+        body: `Yth. Sejawat ${nama},\n\nTerima kasih telah mengisi formulir pendaftaran kredensialing RSUD dr. Soedarso.\n\nTerlampir berkas Surat Permohonan Kredensial resmi 3 halaman format baku RSUD dr. Soedarso.\nSalinan berkas ini telah otomatis diteruskan ke Sekretariat Komite Keperawatan (${EMAIL_KOMITE}) dan Sekretaris Komite (${EMAIL_SEKRETARIS}).\n\nSilakan cetak, tanda tangani secara mandiri, lalu unggah kembali ke sistem e-kredensialing pada Langkah 2.\n\nSalam hormat,\nKomite Keperawatan RSUD dr. Soedarso Pontianak`,
         attachments: [pdfFile.getAs(MimeType.PDF)]
       });
     }
