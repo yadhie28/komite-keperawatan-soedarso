@@ -852,38 +852,85 @@
   <script src="firebase-config.js"></script>
   <script src="data.js"></script>
 
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  <script>
+    function applyAdminProfile(p) {
+      const loading = document.getElementById('authLoading');
+      if (loading) loading.classList.add('hidden');
 
-    const app  = initializeApp(window.FIREBASE_CONFIG);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+      const nama = p.nama || 'Ns. Rusmulyadi, S.Kep., MARS';
+      if (document.getElementById('adminName')) document.getElementById('adminName').textContent = nama.split(',')[0];
+      if (document.getElementById('adminRole')) document.getElementById('adminRole').textContent = (p.jabatan || p.role || 'SEKRETARIAT KOMITE').toUpperCase();
+      if (document.getElementById('avatarLetter')) document.getElementById('avatarLetter').textContent = nama.charAt(0) || 'R';
+      window.__profile = p;
+    }
 
-    onAuthStateChanged(auth, async (user) => {
-      document.getElementById('authLoading').classList.add('hidden');
-      if (user) {
+    function checkLocalSession() {
+      const raw = localStorage.getItem('komite_active_session') || localStorage.getItem('komite_auth_user');
+      if (raw) {
         try {
-          const snap = await getDoc(doc(db, 'users', user.uid));
-          if (snap.exists()) {
-            const p = snap.data();
-            document.getElementById('adminName').textContent = p.nama.split(',')[0];
-            document.getElementById('adminRole').textContent = p.role.toUpperCase();
-            document.getElementById('avatarLetter').textContent = p.nama.charAt(0);
+          const p = JSON.parse(raw);
+          if (p.role !== 'admin' && p.role !== 'ketua') {
+            const d = { perawat: 'dashboard-perawat.html', subkomite: 'dashboard-subkomite.html', ketua: 'dashboard-ketua.html' };
+            window.location.href = d[p.role] || 'login.html';
+            return true;
           }
+          applyAdminProfile(p);
+          return true;
         } catch(e) {
-          console.warn('Firebase user read error:', e);
+          console.warn('Session parse error:', e);
         }
       }
-    });
+      return false;
+    }
+
+    const hasLocalSession = checkLocalSession();
 
     window.doLogout = async function() {
+      localStorage.removeItem('komite_active_session');
+      localStorage.removeItem('komite_auth_user');
       try {
-        await signOut(auth);
+        if (window.__adminAuth) {
+          const { signOut } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+          await signOut(window.__adminAuth);
+        }
       } catch(e){}
       window.location.href = 'login.html';
     };
+  </script>
+
+  <script type="module">
+    try {
+      if (window.FIREBASE_CONFIG && !window.FIREBASE_CONFIG.apiKey.startsWith('GANTI')) {
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { getAuth, onAuthStateChanged, signOut } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+        const app  = initializeApp(window.FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+        window.__adminAuth = auth;
+
+        onAuthStateChanged(auth, async (user) => {
+          document.getElementById('authLoading')?.classList.add('hidden');
+          if (user) {
+            try {
+              const snap = await getDoc(doc(db, 'users', user.uid));
+              if (snap.exists()) {
+                const p = snap.data();
+                applyAdminProfile(p);
+              }
+            } catch(e) {
+              console.warn('Firebase user read error:', e);
+            }
+          }
+        });
+      } else {
+        document.getElementById('authLoading')?.classList.add('hidden');
+      }
+    } catch(err) {
+      console.warn('Admin Firebase error:', err);
+      document.getElementById('authLoading')?.classList.add('hidden');
+    }
   </script>
 
   <script>

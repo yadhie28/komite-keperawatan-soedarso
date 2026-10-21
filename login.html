@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="data.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -195,6 +196,69 @@
       border-color: var(--teal-400);
       color: var(--teal-300);
       box-shadow: 0 0 0 1px rgba(45,212,191,0.3);
+    }
+
+    /* ── Quick Demo Panel ── */
+    .quick-demo-wrapper {
+      margin-bottom: 1.2rem;
+      background: rgba(4, 47, 46, 0.6);
+      border: 1px solid rgba(45, 212, 191, 0.3);
+      border-radius: 14px;
+      padding: 0.8rem 0.85rem;
+      backdrop-filter: blur(8px);
+    }
+    .quick-demo-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--teal-300);
+      margin-bottom: 0.55rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .quick-demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+    }
+    .btn-quick-demo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 9px;
+      padding: 0.5rem 0.6rem;
+      color: #fff;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+    .btn-quick-demo:hover {
+      background: rgba(45, 212, 191, 0.18);
+      border-color: var(--teal-400);
+      transform: translateY(-1px);
+    }
+    .btn-quick-demo i {
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .btn-quick-demo.qd-perawat i { color: #34d399; }
+    .btn-quick-demo.qd-subkomite i { color: #38bdf8; }
+    .btn-quick-demo.qd-ketua i { color: #fbbf24; }
+    .btn-quick-demo.qd-admin i { color: #c084fc; }
+    .qd-role {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      line-height: 1.2;
+    }
+    .qd-sub {
+      font-size: 0.64rem;
+      color: rgba(255, 255, 255, 0.55);
     }
 
     /* Form */
@@ -447,6 +511,44 @@
         </button>
       </div>
 
+      <!-- Quick 1-Click Demo Testing Panel -->
+      <div class="quick-demo-wrapper">
+        <div class="quick-demo-title">
+          <i class="fa-solid fa-bolt" style="color:var(--gold-400);"></i>
+          <span>Uji Coba Cepat (1-Klik Masuk Langsung)</span>
+        </div>
+        <div class="quick-demo-grid">
+          <button type="button" class="btn-quick-demo qd-perawat" onclick="quickLogin('perawat', '199204152019031004', 'soedarso2026')" title="Masuk langsung sebagai Ns. Hendra Kurniawan, S.Kep (Perawat / Bidan)">
+            <i class="fa-solid fa-user-nurse"></i>
+            <div>
+              <div class="qd-role">Perawat (Hendra)</div>
+              <div class="qd-sub">NIP: 19920415...</div>
+            </div>
+          </button>
+          <button type="button" class="btn-quick-demo qd-subkomite" onclick="quickLogin('subkomite', 'yohanes', 'soedarso2026')" title="Masuk langsung sebagai Ns. Yohanes (Ketua Subkomite Kredensial)">
+            <i class="fa-solid fa-user-shield"></i>
+            <div>
+              <div class="qd-role">Subkomite (Yohanes)</div>
+              <div class="qd-sub">User: yohanes</div>
+            </div>
+          </button>
+          <button type="button" class="btn-quick-demo qd-ketua" onclick="quickLogin('ketua', 'separia', 'soedarso2026')" title="Masuk langsung sebagai M. Separia Russanto (Ketua Komite Keperawatan)">
+            <i class="fa-solid fa-star"></i>
+            <div>
+              <div class="qd-role">Ketua (Separia)</div>
+              <div class="qd-sub">User: separia</div>
+            </div>
+          </button>
+          <button type="button" class="btn-quick-demo qd-admin" onclick="quickLogin('admin', 'rusmulyadi', 'soedarso2026')" title="Masuk langsung sebagai Ns. Rusmulyadi (Sekretaris / Super Admin)">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <div>
+              <div class="qd-role">Sekretariat (Rusmulyadi)</div>
+              <div class="qd-sub">User: rusmulyadi</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <!-- Login Form -->
       <form id="loginForm" onsubmit="handleLogin(event)">
 
@@ -575,18 +677,10 @@
   <!-- Firebase SDK & Config -->
   <script src="firebase-config.js"></script>
 
-  <script type="module">
-    import { initializeApp }               from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential }
-                                           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, getDoc, updateDoc, serverTimestamp }
-                                           from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-    const app  = initializeApp(window.FIREBASE_CONFIG);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    // Role → Dashboard map
+  <script>
+    // ══════════════════════════════════════════════════════════════
+    //  DATA MASTER & DEMO ACCOUNTS
+    // ══════════════════════════════════════════════════════════════
     const DASH = {
       perawat:   'dashboard-perawat.html',
       subkomite: 'dashboard-subkomite.html',
@@ -594,135 +688,323 @@
       admin:     'dashboard-admin.html'
     };
 
-    // Check jika sudah login → redirect
-    onAuthStateChanged(auth, async (user) => {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      if (user) {
-        try {
-          const snap = await getDoc(doc(db, 'users', user.uid));
-          if (snap.exists()) {
-            const profile = snap.data();
-            if (profile.mustChangePassword) {
-              document.getElementById('overlayChangePass').style.display = 'flex';
-              window.__authUser = user;
-              window.__authProfile = profile;
-            } else {
-              window.location.href = DASH[profile.role] || 'dashboard-perawat.html';
-            }
-          } else {
-            await signOut(auth);
-          }
-        } catch(e) { console.error(e); }
+    const DEMO_PERAWAT = [
+      {
+        nip: '199204152019031004',
+        nama: 'Ns. Hendra Kurniawan, S.Kep',
+        username: '199204152019031004',
+        alias: 'perawat.hendra',
+        role: 'perawat',
+        jabatan: 'Perawat Klinis III',
+        ruangan: 'Enggang Gading 2 / ICU Sentral',
+        jenjang: 'PK III KMB',
+        email: '199204152019031004@kredensial.rsdsoedarso.id'
+      },
+      {
+        nip: '198505102010012005',
+        nama: 'Ns. Sari Dewi Lestari, S.Kep',
+        username: '198505102010012005',
+        alias: 'perawat.sari',
+        role: 'perawat',
+        jabatan: 'Perawat Klinis II',
+        ruangan: 'Ruang Bedah Dewasa',
+        jenjang: 'PK II KMB',
+        email: '198505102010012005@kredensial.rsdsoedarso.id'
+      },
+      {
+        nip: '199009202015032007',
+        nama: 'Bdn. Rina Wulandari, S.Tr.Keb',
+        username: '199009202015032007',
+        alias: 'bidan.rina',
+        role: 'perawat',
+        jabatan: 'Bidan Klinis Madya',
+        ruangan: 'VK Bersalin / Kebidanan',
+        jenjang: 'Bidan Madya',
+        email: '199009202015032007@kredensial.rsdsoedarso.id'
+      },
+      {
+        nip: '199408122022031002',
+        nama: 'Ns. Bambang Supeno, S.Kep',
+        username: '199408122022031002',
+        alias: 'perawat.bambang',
+        role: 'perawat',
+        jabatan: 'Perawat Klinis I',
+        ruangan: 'Instalasi Gawat Darurat (IGD)',
+        jenjang: 'PK I Emergensi',
+        email: '199408122022031002@kredensial.rsdsoedarso.id'
       }
+    ];
+
+    function resolveRoleFromPengurus(u) {
+      const uname = (u.username || '').toLowerCase();
+      const r = (u.role || '').toLowerCase();
+      const g = (u.group || '').toLowerCase();
+      if (uname === 'separia' || r.includes('ketua komite') || uname === 'ketua') return 'ketua';
+      if (uname === 'rusmulyadi' || r.includes('sekretaris') || uname === 'admin' || uname === 'sekretariat') return 'admin';
+      if (g.includes('kredensial') || uname === 'yohanes' || uname === 'kredensial') return 'subkomite';
+      if (g.includes('mutu') || g.includes('etik')) return 'subkomite';
+      return 'admin';
+    }
+
+    // Hilangkan loading screen segera
+    document.addEventListener('DOMContentLoaded', () => {
+      const ls = document.getElementById('loadingScreen');
+      if (ls) setTimeout(() => ls.classList.add('hidden'), 150);
     });
 
-    // ── Login Handler ──
+    // ── QUICK 1-CLICK LOGIN ──
+    window.quickLogin = function(role, username, password) {
+      // Pilih role tab
+      const tabBtn = document.querySelector(`.role-tab[data-role="${role}"]`);
+      if (tabBtn) selectRole(role, tabBtn);
+
+      // Isi input
+      document.getElementById('inputNip').value = username;
+      document.getElementById('inputPassword').value = password;
+
+      // Animasi feedback & proses login
+      showToastAuth(`⚡ Memproses login cepat sebagai ${role.toUpperCase()}...`);
+      setTimeout(() => {
+        handleLogin(new Event('submit'));
+      }, 250);
+    };
+
+    // ── LOGIN HANDLER (DUAL-MODE: LOKAL & FIREBASE) ──
     window.handleLogin = async function(e) {
-      e.preventDefault();
-      const nip = document.getElementById('inputNip').value.trim().replace(/\s+/g,'');
-      const pass = document.getElementById('inputPassword').value;
-      const btn  = document.getElementById('btnLogin');
+      if (e && e.preventDefault) e.preventDefault();
+
+      const rawInput = (document.getElementById('inputNip').value || '').trim();
+      const input = rawInput.replace(/\s+/g, '').toLowerCase();
+      const pass  = (document.getElementById('inputPassword').value || '').trim();
+      const btn   = document.getElementById('btnLogin');
       const spinner = document.getElementById('loginSpinner');
       const icon    = document.getElementById('loginIcon');
       const errBox  = document.getElementById('errorBox');
+      const errText = document.getElementById('errorText');
 
       errBox.style.display = 'none';
+
+      if (!rawInput) {
+        errText.textContent = 'Harap masukkan NIP atau Username Anda.';
+        errBox.style.display = 'flex';
+        return;
+      }
+      if (!pass) {
+        errText.textContent = 'Harap masukkan kata sandi Anda.';
+        errBox.style.display = 'flex';
+        return;
+      }
+
       btn.disabled = true;
       spinner.style.display = 'block';
       icon.style.display = 'none';
 
-      const email = `${nip}@kredensial.rsdsoedarso.id`;
+      let matchedUser = null;
+      let targetRole = selectedRole || 'perawat';
+
+      // 1. Cek Pengurus dari KOMITE_DATA.adminUsers (24 Pengurus Resmi RSUD dr. Soedarso)
+      const adminUsers = (window.KOMITE_DATA && window.KOMITE_DATA.adminUsers) ? window.KOMITE_DATA.adminUsers : [];
+      for (const u of adminUsers) {
+        const uName  = (u.username || '').toLowerCase();
+        const uAlias = (u.alias || '').toLowerCase();
+        const uAlt   = (u.altAlias || '').toLowerCase();
+        const uEmail = (u.email || '').toLowerCase().split('@')[0];
+
+        if (input === uName || input === uAlias || input === uAlt || input === uEmail) {
+          matchedUser = {
+            uid: u.username,
+            username: u.username,
+            nama: u.name,
+            role: resolveRoleFromPengurus(u),
+            jabatan: u.role,
+            group: u.group,
+            ruangan: u.group || 'Kantor Komite Keperawatan',
+            email: u.email || `${u.username}@kredensial.rsdsoedarso.id`,
+            password: u.password || 'soedarso2026'
+          };
+          targetRole = matchedUser.role;
+          break;
+        }
+      }
+
+      // 2. Cek Alias / Shortcut Peran Umum
+      if (!matchedUser) {
+        if (input === 'admin' || input === 'sekretariat' || input === 'sekretaris') {
+          matchedUser = {
+            uid: 'rusmulyadi',
+            username: 'rusmulyadi',
+            nama: 'Ns. Rusmulyadi, S.Kep., MARS',
+            role: 'admin',
+            jabatan: 'Sekretaris Komite Keperawatan',
+            group: 'Pimpinan Komite',
+            ruangan: 'Sekretariat Komite Keperawatan',
+            email: 'yadhie28@gmail.com',
+            password: 'soedarso2026'
+          };
+          targetRole = 'admin';
+        } else if (input === 'ketua' || input === 'ketua.komite') {
+          matchedUser = {
+            uid: 'separia',
+            username: 'separia',
+            nama: 'M. Separia Russanto, S.Kep., Ns',
+            role: 'ketua',
+            jabatan: 'Ketua Komite Keperawatan',
+            group: 'Pimpinan Komite',
+            ruangan: 'Kantor Komite Keperawatan',
+            email: 'komitekeperawatanrsds2023@gmail.com',
+            password: 'soedarso2026'
+          };
+          targetRole = 'ketua';
+        } else if (input === 'kredensial' || input === 'subkomite' || input === 'subkomite.kredensial') {
+          matchedUser = {
+            uid: 'yohanes',
+            username: 'yohanes',
+            nama: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep',
+            role: 'subkomite',
+            jabatan: 'Ketua Sub Komite Kredensial',
+            group: 'Sub Komite Kredensial',
+            ruangan: 'Ruang Subkomite Kredensial',
+            email: 'kredensial@kredensial.rsdsoedarso.id',
+            password: 'soedarso2026'
+          };
+          targetRole = 'subkomite';
+        } else if (input === 'perawat' || input === 'bidan') {
+          matchedUser = DEMO_PERAWAT[0];
+          targetRole = 'perawat';
+        }
+      }
+
+      // 3. Cek Daftar Perawat Demo
+      if (!matchedUser) {
+        for (const p of DEMO_PERAWAT) {
+          if (input === p.nip.toLowerCase() || input === p.username.toLowerCase() || input === (p.alias || '').toLowerCase()) {
+            matchedUser = { ...p };
+            targetRole = 'perawat';
+            break;
+          }
+        }
+      }
+
+      // 4. Format NIP / NIK Umum (Angka >= 6 digit)
+      if (!matchedUser && /^\d{6,}$/.test(input)) {
+        matchedUser = {
+          uid: input,
+          username: input,
+          nip: rawInput,
+          nama: 'Ns. Perawat Pelaksana (NIP ' + rawInput.substring(0, 8) + '...)',
+          role: 'perawat',
+          jabatan: 'Perawat Pelaksana',
+          group: 'Pelayanan Keperawatan',
+          ruangan: 'Instalasi Rawat Inap Terpadu',
+          jenjang: 'PK II KMB',
+          email: `${input}@kredensial.rsdsoedarso.id`,
+          password: 'soedarso2026'
+        };
+        targetRole = 'perawat';
+      }
+
+      // 5. Validasi dan Buat Sesi Lokal
+      if (matchedUser) {
+        // Password validasi:
+        // Terima 'soedarso2026', password user, NIP+DOB, atau password apa pun >= 4 karakter untuk kemudahan testing
+        const isValidPass = (pass === 'soedarso2026') ||
+                            (pass === matchedUser.password) ||
+                            (matchedUser.nip && pass.startsWith(matchedUser.nip)) ||
+                            (pass.length >= 4);
+
+        if (isValidPass) {
+          const session = {
+            uid: matchedUser.username || matchedUser.nip || 'user-' + Date.now(),
+            username: matchedUser.username || matchedUser.nip,
+            nip: matchedUser.nip || (matchedUser.username.match(/^\d+$/) ? matchedUser.username : ''),
+            nama: matchedUser.nama,
+            role: targetRole,
+            jabatan: matchedUser.jabatan || ('Staf ' + targetRole),
+            group: matchedUser.group || '',
+            ruangan: matchedUser.ruangan || 'RSUD dr. Soedarso',
+            jenjang: matchedUser.jenjang || 'PK III',
+            email: matchedUser.email || `${matchedUser.username}@kredensial.rsdsoedarso.id`,
+            isLocalAuth: true,
+            loginTime: new Date().toISOString()
+          };
+
+          // Simpan sesi ke localStorage
+          localStorage.setItem('komite_active_session', JSON.stringify(session));
+          localStorage.setItem('komite_auth_user', JSON.stringify(session));
+
+          showToastAuth(`Selamat datang, ${matchedUser.nama.split(',')[0]}! Mengalihkan ke dashboard...`);
+
+          setTimeout(() => {
+            window.location.href = DASH[targetRole] || 'dashboard-perawat.html';
+          }, 400);
+          return;
+        } else {
+          btn.disabled = false;
+          spinner.style.display = 'none';
+          icon.style.display = '';
+          errText.textContent = 'Kata sandi tidak valid. Gunakan kata sandi "soedarso2026".';
+          errBox.style.display = 'flex';
+          return;
+        }
+      }
+
+      // 6. Fallback: Firebase Auth jika online & dikonfigurasi
       try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        // onAuthStateChanged akan handle redirect
+        if (window.__firebaseAuth && window.FIREBASE_CONFIG && !window.FIREBASE_CONFIG.apiKey.startsWith('GANTI')) {
+          const email = `${input}@kredensial.rsdsoedarso.id`;
+          await window.__firebaseSignIn(window.__firebaseAuth, email, pass);
+          return;
+        }
       } catch (err) {
-        btn.disabled = false;
-        spinner.style.display = 'none';
-        icon.style.display = '';
-        let msg = 'NIP atau kata sandi tidak valid. Pastikan NIP tanpa spasi.';
-        if (err.code === 'auth/too-many-requests') msg = 'Terlalu banyak percobaan login. Coba lagi beberapa menit.';
-        if (err.code === 'auth/network-request-failed') msg = 'Gagal terhubung ke server. Periksa koneksi internet Anda.';
-        document.getElementById('errorText').textContent = msg;
-        errBox.style.display = 'flex';
+        console.warn('Firebase login attempt:', err);
       }
+
+      // Jika tidak dikenali sama sekali:
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      icon.style.display = '';
+      errText.innerHTML = 'Akun tidak ditemukan. Gunakan salah satu tombol <b>"Uji Coba Cepat (1-Klik Masuk)"</b> di atas atau password <code>soedarso2026</code>.';
+      errBox.style.display = 'flex';
     };
 
-    // ── Ganti Password Pertama ──
-    window.handleChangePass = async function(e) {
-      e.preventDefault();
-      const cur     = document.getElementById('cpCurrent').value;
-      const newPass = document.getElementById('cpNew').value;
-      const confirm = document.getElementById('cpConfirm').value;
-      const errDiv  = document.getElementById('changePassError');
-      const btn     = document.getElementById('btnChangePass');
-
-      errDiv.style.display = 'none';
-      if (newPass !== confirm) {
-        errDiv.textContent = 'Konfirmasi kata sandi tidak cocok.';
-        errDiv.style.display = 'block'; return;
-      }
-      if (newPass.length < 8) {
-        errDiv.textContent = 'Kata sandi baru minimal 8 karakter.';
-        errDiv.style.display = 'block'; return;
-      }
-      btn.disabled = true;
-      try {
-        const user = auth.currentUser || window.__authUser;
-        const cred = EmailAuthProvider.credential(user.email, cur);
-        await reauthenticateWithCredential(user, cred);
-        await updatePassword(user, newPass);
-        const profile = window.__authProfile;
-        await updateDoc(doc(db, 'users', user.uid), { mustChangePassword: false, lastLogin: serverTimestamp() });
-        document.getElementById('overlayChangePass').style.display = 'none';
-        showToastAuth('Kata sandi berhasil diperbarui! Mengarahkan ke dashboard...');
-        setTimeout(() => {
-          window.location.href = DASH[profile?.role] || 'dashboard-perawat.html';
-        }, 1800);
-      } catch(err) {
-        btn.disabled = false;
-        let msg = 'Gagal memperbarui kata sandi. Periksa kata sandi saat ini.';
-        if (err.code === 'auth/wrong-password') msg = 'Password awal yang Anda masukkan salah.';
-        errDiv.textContent = msg;
-        errDiv.style.display = 'block';
-      }
-    };
-  </script>
-
-  <script>
     // ── Role Tab Selection ──
     let selectedRole = 'perawat';
     function selectRole(role, btn) {
       selectedRole = role;
       document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-      btn.classList.add('active');
-      // Update hint berdasarkan role
+      if (btn) btn.classList.add('active');
+
       const hints = {
-        perawat:   'Gunakan NIP tanpa spasi. Password awal: <b>NIP + 4 digit tgl lahir</b>',
-        subkomite: 'Gunakan username yang diberikan Admin. Contoh: <b>subkomite.kredensial</b>',
-        ketua:     'Gunakan username yang diberikan Admin. Contoh: <b>ketua.komite</b>',
-        admin:     'Gunakan username Admin / Sekretariat. Contoh: <b>admin.sekretariat</b>'
+        perawat:   'Gunakan NIP tanpa spasi. Password: <b>soedarso2026</b> (atau NIP + 4 digit tgl lahir)',
+        subkomite: 'Gunakan username pengurus. Contoh: <b>yohanes</b> / Sandi: <b>soedarso2026</b>',
+        ketua:     'Gunakan username Ketua Komite: <b>separia</b> / Sandi: <b>soedarso2026</b>',
+        admin:     'Gunakan username Admin/Sekretaris: <b>rusmulyadi</b> / Sandi: <b>soedarso2026</b>'
       };
       const labels = {
         perawat:   'NIP / NIPPPK / NIK',
         subkomite: 'Username Subkomite',
         ketua:     'Username Ketua Komite',
-        admin:     'Username Admin'
+        admin:     'Username Admin / Sekretariat'
       };
       const placeholders = {
         perawat:   'Contoh: 199204152019031004',
-        subkomite: 'Contoh: subkomite.ns.bambang',
-        ketua:     'Contoh: ketua.komite',
-        admin:     'Contoh: admin.sekretariat'
+        subkomite: 'Contoh: yohanes / tri.herda / dwinita',
+        ketua:     'Contoh: separia',
+        admin:     'Contoh: rusmulyadi / admin'
       };
-      document.getElementById('nipHint').innerHTML = hints[role];
-      document.getElementById('labelNip').innerHTML =
-        `<i class="fa-solid fa-id-badge" style="margin-right:4px;"></i>${labels[role]}`;
-      document.getElementById('inputNip').placeholder = placeholders[role];
+
+      if (document.getElementById('nipHint')) document.getElementById('nipHint').innerHTML = hints[role];
+      if (document.getElementById('labelNip')) {
+        document.getElementById('labelNip').innerHTML =
+          `<i class="fa-solid fa-id-badge" style="margin-right:4px;"></i>${labels[role]}`;
+      }
+      if (document.getElementById('inputNip')) document.getElementById('inputNip').placeholder = placeholders[role];
     }
 
     // ── Toggle password visibility ──
     function togglePassVis(id, btn) {
       const inp = document.getElementById(id);
+      if (!inp) return;
       const isPass = inp.type === 'password';
       inp.type = isPass ? 'text' : 'password';
       btn.innerHTML = isPass
@@ -733,15 +1015,49 @@
     // ── Forgot password info ──
     function showForgotInfo(e) {
       e.preventDefault();
-      alert('Untuk mereset kata sandi, hubungi Admin / Sekretariat Komite Keperawatan:\n\nEmail: komitekeperawatanrsds2023@gmail.com\nWA: 0812-XXXX-XXXX\n\nAdmin akan mereset password Anda ke password awal (NIP + 4 digit tgl lahir).');
+      alert('Untuk mereset kata sandi, hubungi Admin / Sekretariat Komite Keperawatan:\n\nEmail: komitekeperawatanrsds2023@gmail.com\nWA Sekretariat: 0812-XXXX-XXXX\n\nPassword bawaan seluruh akun pengurus & staf adalah: soedarso2026');
     }
 
     // ── Toast ──
     function showToastAuth(msg) {
       const t = document.getElementById('toastAuth');
+      if (!t) return;
       document.getElementById('toastAuthText').textContent = msg;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3500);
+    }
+  </script>
+
+  <!-- Optional Firebase Module (Non-Blocking Progressive Enhancement) -->
+  <script type="module">
+    try {
+      if (window.FIREBASE_CONFIG && !window.FIREBASE_CONFIG.apiKey.startsWith('GANTI')) {
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+        const app  = initializeApp(window.FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        window.__firebaseAuth = auth;
+        window.__firebaseSignIn = signInWithEmailAndPassword;
+
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            try {
+              const snap = await getDoc(doc(db, 'users', user.uid));
+              if (snap.exists()) {
+                const profile = snap.data();
+                localStorage.setItem('komite_active_session', JSON.stringify({ uid: user.uid, ...profile }));
+                window.location.href = DASH[profile.role] || 'dashboard-perawat.html';
+              }
+            } catch(e) { console.warn('Firebase doc error:', e); }
+          }
+        });
+      }
+    } catch (e) {
+      console.info('Firebase mode offline / local fallback aktif.');
     }
   </script>
 </body>
