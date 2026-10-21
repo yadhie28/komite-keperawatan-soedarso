@@ -1282,6 +1282,9 @@ function openNewKredensialModal() {
     onJenjangChange(jenjangVal);
   }
 
+  const checkIntegritas = document.getElementById('checkPernyataanIntegritas');
+  if (checkIntegritas) checkIntegritas.checked = false;
+
   updateWizardUI();
   openModal('modalNewKredensial');
 }
@@ -1831,6 +1834,13 @@ function generateWizardSummary() {
 
 function handleKredensialSubmit(e) {
   e.preventDefault();
+
+  const checkIntegritas = document.getElementById('checkPernyataanIntegritas');
+  if (checkIntegritas && !checkIntegritas.checked) {
+    showToast('Harap beri tanda centang pada Pernyataan Integritas sebelum mengirim permohonan.', 'warning');
+    checkIntegritas.focus();
+    return;
+  }
 
   const nama = document.getElementById('formNama').value.trim();
   const nip = document.getElementById('formNip').value.trim();
