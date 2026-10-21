@@ -927,6 +927,60 @@ window.KOMITE_DATA = {
     }
   },
 
+  // Preset Format Baku Buku Catatan Kinerja Klinis Harian (Logbook) (2 Halaman RSUD dr. Soedarso)
+  sampleLogbook: {
+    perawat: {
+      nama: "Ns. Hendra Kurniawan, S.Kep",
+      nip: "19920415 201903 1 004",
+      jenjang: "Perawat Klinis III (PK III)",
+      unit: "Ruang Enggang Gading 2 (Bedah Terpadu)",
+      periode: "Januari 2025 s.d Desember 2025 (1 Tahun Terakhir)",
+      items: [
+        { tgl: "12/01/2025", rm: "RM: 482910", tindakan: "Melakukan pengkajian awal keperawatan rawat inap", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "15/01/2025", rm: "RM: 482955", tindakan: "Memasang jalur intravena (infus) & pengambilan sampel darah", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "20/02/2025", rm: "RM: 483102", tindakan: "Melakukan perekaman dan interpretasi awal Elektrokardiogram (EKG)", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "04/03/2025", rm: "RM: 483520", tindakan: "Melakukan perawatan luka bedah/kotor tingkat sedang", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "18/04/2025", rm: "RM: 484012", tindakan: "Pemberian obat high-alert melalui syringer pump / infus pump", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "02/06/2025", rm: "RM: 484890", tindakan: "Melakukan resusitasi jantung paru (RJP) dasar / bantuan hidup dasar", mandiri: false, supervisi: true, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "14/07/2025", rm: "RM: 485412", tindakan: "Melakukan suctioning pada pasien dengan penurunan kesadaran", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "22/08/2025", rm: "RM: 486021", tindakan: "Memasang kateter urine menetap dengan prinsip steril", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "10/09/2025", rm: "RM: 486780", tindakan: "Melakukan dokumentasi asuhan keperawatan berbasis 3S (SDKI/SLKI/SIKI)", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "25/11/2025", rm: "Ref: Logbook Ruangan", tindakan: "Diskusi klinis / Preseptorship harian bersama mentor ruangan", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" }
+      ],
+      kaRuNama: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep",
+      kaRuNip: "19850612 201001 1 011",
+      kaRuRuangan: "Ruang Enggang Gading 2",
+      kota: "Pontianak",
+      tanggal: "21 Oktober",
+      tahun: "2026"
+    },
+    bidan: {
+      nama: "Bdn. Siti Nurhaliza, S.Tr.Keb",
+      nip: "19940822 202012 2 006",
+      jenjang: "Bidan Klinis III (BK III)",
+      unit: "Ruang Bersalin (VK Sentral) / Maternitas",
+      periode: "Januari 2025 s.d Desember 2025 (1 Tahun Terakhir)",
+      items: [
+        { tgl: "08/01/2025", rm: "RM: 510201", tindakan: "Melakukan pengkajian awal kebidanan pada ibu inpartu kala I", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "14/02/2025", rm: "RM: 510255", tindakan: "Memantau kemajuan persalinan dengan lembar partograf WHO", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "20/03/2025", rm: "RM: 510312", tindakan: "Pertolongan persalinan fisiologis normal (APN) 60 langkah", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "05/04/2025", rm: "RM: 510340", tindakan: "Melakukan manajemen aktif kala III persalinan (MAK III)", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "19/05/2025", rm: "RM: 510410", tindakan: "Penjahitan luka robekan jalan lahir / perineum derajat I & II", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "12/06/2025", rm: "RM: 510488", tindakan: "Asuhan bayi baru lahir normal & inisiasi menyusu dini (IMD)", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "28/07/2025", rm: "RM: 510530", tindakan: "Tata laksana awal kegawatdaruratan perdarahan pasca salin (HPP)", mandiri: false, supervisi: true, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "15/08/2025", rm: "RM: 510599", tindakan: "Resusitasi asfiksia pada bayi baru lahir (ventilasi tekanan positif)", mandiri: false, supervisi: true, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "10/10/2025", rm: "RM: 510670", tindakan: "Pemberian konseling & pemasangan alat kontrasepsi pasca persalinan", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" },
+        { tgl: "18/11/2025", rm: "Ref: VK Sentral", tindakan: "Dokumentasi asuhan kebidanan metode SOAP terintegrasi", mandiri: true, supervisi: false, paraf: "paraf", catatan: "Valid / Terverifikasi" }
+      ],
+      kaRuNama: "Bdn. Ely Lidiawati, S.Tr.Keb",
+      kaRuNip: "19880420 201212 2 004",
+      kaRuRuangan: "Kamar Bersalin (VK Sentral)",
+      kota: "Pontianak",
+      tanggal: "21 Oktober",
+      tahun: "2026"
+    }
+  },
+
   // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)
   administrativeNotification: {
     enabled: true,

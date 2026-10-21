@@ -19,6 +19,9 @@ const state = {
   kredensialCvGenerated: localStorage.getItem('komite_cv_generated') === 'true',
   cvData: null,
   cvPreviewMode: 'filled',
+  kredensialLogbookGenerated: localStorage.getItem('komite_logbook_generated') === 'true',
+  logbookData: null,
+  logbookPreviewMode: 'filled',
   kredensialSuratGenerated: localStorage.getItem('komite_surat_generated') === 'true',
   kredensialBerkasUploaded: localStorage.getItem('komite_berkas_uploaded') === 'true',
   trackerQueryNip: ''
@@ -291,6 +294,18 @@ function loadData() {
     }
   } else {
     state.cvData = master.sampleCv?.perawat || null;
+  }
+
+  // Load Logbook Data Kinerja Klinis (2 Halaman Soedarso)
+  const savedLogbook = localStorage.getItem('komite_logbook_data');
+  if (savedLogbook) {
+    try {
+      state.logbookData = JSON.parse(savedLogbook);
+    } catch (e) {
+      state.logbookData = master.sampleLogbook?.perawat || null;
+    }
+  } else {
+    state.logbookData = master.sampleLogbook?.perawat || null;
   }
 
   // Load Administrative Notifications (Email Komite & Sekretaris)
@@ -1579,9 +1594,10 @@ function updateAlurStepStatus() {
   const b2 = document.getElementById('badgeStep2Status');
   const b3 = document.getElementById('badgeStep3Status');
   const b4 = document.getElementById('badgeStep4Status');
-  const card4 = document.getElementById('cardStep4Rkk');
+  const b5 = document.getElementById('badgeStep5Status');
+  const card5 = document.getElementById('cardStep5Rkk');
 
-  // Langkah 1: CV Portofolio Klinis
+  // Langkah 1: CV Portofolio Klinis (badgeStep1Status)
   if (state.kredensialCvGenerated && b1) {
     b1.style.background = '#dcfce7';
     b1.style.color = '#15803d';
@@ -1589,28 +1605,36 @@ function updateAlurStepStatus() {
     b1.innerHTML = `<i class="fa-solid fa-circle-check"></i> CV Diunduh${cvName}`;
   }
 
-  // Langkah 2: Surat Permohonan Kredensial
-  if (state.kredensialSuratGenerated && b2) {
+  // Langkah 2: Logbook Kinerja Klinis Harian (badgeStep2Status)
+  if (state.kredensialLogbookGenerated && b2) {
     b2.style.background = '#dcfce7';
     b2.style.color = '#15803d';
-    const appName = state.currentApplicant?.nama ? ` (${state.currentApplicant.nama.split(' ')[0]})` : '';
-    b2.innerHTML = `<i class="fa-solid fa-circle-check"></i> Surat Diunduh${appName}`;
+    const logName = state.logbookData?.nama ? ` (${state.logbookData.nama.split(' ')[0]})` : '';
+    b2.innerHTML = `<i class="fa-solid fa-circle-check"></i> Logbook Diunduh${logName}`;
   }
 
-  // Langkah 3: Unggah Berkas Portofolio (CV + Surat + Dokumen)
+  // Langkah 3: Surat Permohonan Kredensial (badgeStep3Status)
+  if (state.kredensialSuratGenerated && b3) {
+    b3.style.background = '#dcfce7';
+    b3.style.color = '#15803d';
+    const appName = state.currentApplicant?.nama ? ` (${state.currentApplicant.nama.split(' ')[0]})` : '';
+    b3.innerHTML = `<i class="fa-solid fa-circle-check"></i> Surat Diunduh${appName}`;
+  }
+
+  // Langkah 4: Unggah Berkas Portofolio (CV + Logbook + Surat + Dokumen) (badgeStep4Status)
   if (state.kredensialBerkasUploaded) {
-    if (b3) {
-      b3.style.background = '#dcfce7';
-      b3.style.color = '#15803d';
-      b3.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Siap RKK)';
-    }
-    // Langkah 4: Asesmen RKK Online
     if (b4) {
-      b4.style.background = 'rgba(5, 150, 105, 0.15)';
-      b4.style.color = '#047857';
-      b4.innerHTML = '<i class="fa-solid fa-circle-play"></i> Siap Asesmen Mandiri';
+      b4.style.background = '#dcfce7';
+      b4.style.color = '#15803d';
+      b4.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Siap RKK)';
     }
-    if (card4) card4.classList.remove('locked');
+    // Langkah 5: Asesmen RKK Online (badgeStep5Status)
+    if (b5) {
+      b5.style.background = 'rgba(5, 150, 105, 0.15)';
+      b5.style.color = '#047857';
+      b5.innerHTML = '<i class="fa-solid fa-circle-play"></i> Siap Asesmen Mandiri';
+    }
+    if (card5) card5.classList.remove('locked');
   }
 }
 
@@ -1862,7 +1886,8 @@ function handleCvSubmit(e) {
   localStorage.setItem('komite_cv_data', JSON.stringify(cvData));
   localStorage.setItem('komite_cv_generated', 'true');
 
-  // Sinkronkan ke Surat Permohonan (Langkah 2) dan Upload Modal (Langkah 3)
+  // Sinkronkan ke Logbook (Langkah 2), Surat Permohonan (Langkah 3) dan Upload Modal (Langkah 4)
+  transferCvToLogbook(cvData);
   transferCvToSurat(cvData);
 
   updateAlurStepStatus();
@@ -2443,7 +2468,717 @@ function exportCvWord(mode) {
 }
 
 /* ==========================================================================
-   ALUR LANGKAH 2: FORMULIR SURAT PERMOHONAN KREDENSIAL / RE-KREDENSIAL
+   ALUR LANGKAH 2: FORMULIR & BLANGKO RESMI BUKU CATATAN KINERJA KLINIS HARIAN
+   (LOGBOOK) 2 HALAMAN STANDAR KOMITE KEPERAWATAN RSUD DR. SOEDARSO PONTIANAK
+   ========================================================================== */
+
+function openLogbookModal() {
+  const logbook = state.logbookData || window.KOMITE_DATA?.sampleLogbook?.perawat;
+  if (logbook) {
+    fillLogbookFormWithData(logbook);
+  } else {
+    renderLogbookItemRows([]);
+  }
+  openModal('modalLogbookKredensial');
+}
+
+function fillLogbookFormWithData(data) {
+  if (!data) return;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val !== undefined ? val : '';
+  };
+
+  setVal('logbookNama', data.nama);
+  setVal('logbookNip', data.nip);
+  setVal('logbookJenjang', data.jenjang);
+  setVal('logbookUnit', data.unit);
+  setVal('logbookPeriode', data.periode || 'Januari 2025 s.d Desember 2025 (1 Tahun Terakhir)');
+
+  renderLogbookItemRows(data.items || []);
+
+  setVal('logbookKaRuNama', data.kaRuNama);
+  setVal('logbookKaRuNip', data.kaRuNip);
+  setVal('logbookKaRuRuangan', data.kaRuRuangan || data.unit);
+  setVal('logbookKota', data.kota || 'Pontianak');
+  setVal('logbookTanggal', data.tanggal || '21 Oktober');
+  setVal('logbookTahun', data.tahun || '2026');
+}
+
+function fillLogbookPreset(type) {
+  const preset = window.KOMITE_DATA?.sampleLogbook?.[type];
+  if (preset) {
+    fillLogbookFormWithData(preset);
+    showToast(`Data logbook contoh untuk ${type === 'bidan' ? 'Bdn. Siti Nurhaliza (BK III - VK)' : 'Ns. Hendra Kurniawan (PK III - Bedah)'} berhasil dimuat!`, 'info');
+  }
+}
+
+function resetLogbookForm() {
+  const ids = [
+    'logbookNama', 'logbookNip', 'logbookJenjang', 'logbookUnit', 'logbookPeriode',
+    'logbookKaRuNama', 'logbookKaRuNip', 'logbookKaRuRuangan'
+  ];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  renderLogbookItemRows([]);
+  showToast('Formulir logbook berhasil dikosongkan untuk entri baru.', 'info');
+}
+
+function renderLogbookItemRows(items = []) {
+  const tbody = document.getElementById('logbookItemsTbody');
+  if (!tbody) return;
+
+  const defaultItems = [
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' }
+  ];
+
+  const list = (items && items.length > 0) ? items : defaultItems;
+  tbody.innerHTML = '';
+
+  list.forEach((item, idx) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--border-subtle)';
+    tr.style.background = idx % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)';
+
+    const isMandiri = item.mandiri !== false;
+    const tglVal = item.tgl || '';
+    const rmVal = item.rm || '';
+    const tglRmCombined = rmVal ? `${tglVal} (${rmVal})` : tglVal;
+
+    tr.innerHTML = `
+      <td style="padding: 6px 4px; text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.8rem;">
+        <span class="logbook-row-num">${idx + 1}</span>
+      </td>
+      <td style="padding: 6px 4px;">
+        <input type="text" class="form-input logbook-item-tglrm" value="${tglRmCombined}" placeholder="Contoh: 12/01/2025 (RM: 482910)" style="font-size: 0.78rem; padding: 4px 6px;">
+      </td>
+      <td style="padding: 6px 4px;">
+        <input type="text" class="form-input logbook-item-tindakan" value="${item.tindakan || ''}" placeholder="Deskripsi rincian prosedur tindakan asuhan..." style="font-size: 0.78rem; padding: 4px 6px;">
+      </td>
+      <td style="padding: 6px 4px; text-align: center;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 0.76rem;">
+          <label style="cursor: pointer; display: flex; align-items: center; gap: 2px;">
+            <input type="radio" name="logbookKemandirian_${idx}" value="M" ${isMandiri ? 'checked' : ''} class="logbook-item-radio-m"> <strong>M</strong>
+          </label>
+          <label style="cursor: pointer; display: flex; align-items: center; gap: 2px;">
+            <input type="radio" name="logbookKemandirian_${idx}" value="S" ${!isMandiri ? 'checked' : ''} class="logbook-item-radio-s"> <strong>S</strong>
+          </label>
+        </div>
+      </td>
+      <td style="padding: 6px 4px;">
+        <input type="text" class="form-input logbook-item-catatan" value="${item.catatan || 'Valid / Terverifikasi'}" placeholder="Valid / Terverifikasi" style="font-size: 0.78rem; padding: 4px 6px;">
+      </td>
+      <td style="padding: 6px 4px; text-align: center;">
+        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 3px 6px; color: #dc2626;" onclick="removeLogbookItemRow(this)" title="Hapus Tindakan">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addLogbookItemRow(data = {}) {
+  const current = getLogbookItemsFromForm();
+  current.push({
+    tgl: data.tgl || '',
+    rm: data.rm || '',
+    tindakan: data.tindakan || '',
+    mandiri: data.mandiri !== false,
+    supervisi: data.mandiri === false,
+    catatan: data.catatan || 'Valid / Terverifikasi'
+  });
+  renderLogbookItemRows(current);
+}
+
+function removeLogbookItemRow(btn) {
+  const tr = btn?.closest('tr');
+  if (tr) {
+    tr.remove();
+    // Re-index row numbers and radio names
+    const tbody = document.getElementById('logbookItemsTbody');
+    if (tbody) {
+      const rows = tbody.querySelectorAll('tr');
+      rows.forEach((r, idx) => {
+        const numSpan = r.querySelector('.logbook-row-num');
+        if (numSpan) numSpan.textContent = idx + 1;
+        const radios = r.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => {
+          radio.name = `logbookKemandirian_${idx}`;
+        });
+      });
+      if (rows.length === 0) {
+        renderLogbookItemRows([]);
+      }
+    }
+  }
+}
+
+function getLogbookItemsFromForm() {
+  const tbody = document.getElementById('logbookItemsTbody');
+  if (!tbody) return [];
+  const rows = tbody.querySelectorAll('tr');
+  const result = [];
+
+  rows.forEach((r, idx) => {
+    const tglrm = r.querySelector('.logbook-item-tglrm')?.value?.trim() || '';
+    const tindakan = r.querySelector('.logbook-item-tindakan')?.value?.trim() || '';
+    const radioM = r.querySelector('.logbook-item-radio-m');
+    const isMandiri = radioM ? radioM.checked : true;
+    const catatan = r.querySelector('.logbook-item-catatan')?.value?.trim() || 'Valid / Terverifikasi';
+
+    if (tglrm || tindakan) {
+      let tgl = tglrm;
+      let rm = '';
+      if (tglrm.includes('(') && tglrm.includes(')')) {
+        const match = tglrm.match(/^(.*?)\((.*?)\)$/);
+        if (match) {
+          tgl = match[1].trim();
+          rm = match[2].trim();
+        }
+      }
+      result.push({
+        tgl: tgl || '—',
+        rm: rm || '',
+        tindakan: tindakan || 'Prosedur asuhan keperawatan / kebidanan',
+        mandiri: isMandiri,
+        supervisi: !isMandiri,
+        paraf: 'paraf',
+        catatan: catatan
+      });
+    }
+  });
+
+  return result;
+}
+
+function transferCvToLogbook(cv) {
+  if (!cv) return;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+
+  setVal('logbookNama', cv.nama);
+  if (cv.nip) {
+    setVal('logbookNip', cv.nip);
+  }
+  if (cv.pkDiusulkan || cv.pkSaatIni) {
+    setVal('logbookJenjang', cv.pkDiusulkan || cv.pkSaatIni);
+  }
+  if (cv.unit) {
+    setVal('logbookUnit', cv.unit);
+    setVal('logbookKaRuRuangan', cv.unit);
+  }
+}
+
+function transferLogbookData(logbook) {
+  if (!logbook) return;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+
+  setVal('suratNama', logbook.nama);
+  if (logbook.nip) {
+    const cleanNip = logbook.nip.replace(/[^0-9]/g, '');
+    setVal('suratNip', cleanNip || logbook.nip);
+  }
+  if (logbook.unit) {
+    setVal('suratUnit', logbook.unit);
+  }
+  if (logbook.jenjang) {
+    if (logbook.jenjang.includes('PK I') || logbook.jenjang.includes('Level I')) setVal('suratJenjang', 'PK I');
+    else if (logbook.jenjang.includes('PK II')) setVal('suratJenjang', 'PK II');
+    else if (logbook.jenjang.includes('PK III')) setVal('suratJenjang', 'PK III');
+    else if (logbook.jenjang.includes('PK IV')) setVal('suratJenjang', 'PK IV');
+    else if (logbook.jenjang.includes('PK V')) setVal('suratJenjang', 'PK V');
+  }
+
+  // Sync ke Upload Modal (Langkah 4)
+  setVal('uploadNamaPemohon', logbook.nama);
+
+  state.currentApplicant = {
+    nama: logbook.nama,
+    nip: logbook.nip,
+    rawNip: logbook.nip,
+    unit: logbook.unit,
+    jenjang: logbook.jenjang,
+    timestamp: new Date().toISOString()
+  };
+}
+
+function handleLogbookSubmit(e) {
+  if (e) e.preventDefault();
+  const getVal = id => document.getElementById(id)?.value?.trim() || '';
+
+  const nama = getVal('logbookNama') || 'Ns. Pemohon';
+  const nip = getVal('logbookNip');
+  const jenjang = getVal('logbookJenjang') || 'Perawat Klinis III (PK III)';
+  const unit = getVal('logbookUnit') || 'Ruang Perawatan';
+  const periode = getVal('logbookPeriode') || 'Januari 2025 s.d Desember 2025 (1 Tahun Terakhir)';
+
+  const items = getLogbookItemsFromForm();
+  const kaRuNama = getVal('logbookKaRuNama') || 'Ns. Kepala Ruangan, S.Kep';
+  const kaRuNip = getVal('logbookKaRuNip') || '19xxxxxxxxxxxxxx';
+  const kaRuRuangan = getVal('logbookKaRuRuangan') || unit;
+  const kota = getVal('logbookKota') || 'Pontianak';
+  const tanggal = getVal('logbookTanggal') || '21 Oktober';
+  const tahun = getVal('logbookTahun') || '2026';
+
+  const logbookData = {
+    nama,
+    nip,
+    jenjang,
+    unit,
+    periode,
+    items,
+    kaRuNama,
+    kaRuNip,
+    kaRuRuangan,
+    kota,
+    tanggal,
+    tahun,
+    timestamp: new Date().toISOString()
+  };
+
+  state.logbookData = logbookData;
+  state.kredensialLogbookGenerated = true;
+  localStorage.setItem('komite_logbook_data', JSON.stringify(logbookData));
+  localStorage.setItem('komite_logbook_generated', 'true');
+
+  // Sinkronkan data ke Surat Permohonan (Langkah 3) & Upload Modal (Langkah 4)
+  transferLogbookData(logbookData);
+
+  updateAlurStepStatus();
+  closeModal('modalLogbookKredensial');
+
+  // Buka pratinjau lembar Logbook 2 Halaman
+  previewLogbookHVS('filled');
+
+  // Rekam Notifikasi Administrasi Resmi
+  const adminSubject = `[LOGBOOK RESMI DITERBITKAN] ${nama} (${jenjang} - ${unit})`;
+  const adminBody =
+    `Kepada Yth.\n` +
+    `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `Pemberitahuan Penerbitan Buku Catatan Kinerja Klinis Harian (Logbook) Resmi (Langkah 2):\n\n` +
+    `• Nama Lengkap    : ${nama}\n` +
+    `• NIP/NIPPPK/NIK  : ${nip}\n` +
+    `• Jenjang Klinis  : ${jenjang}\n` +
+    `• Unit / Ruangan  : ${unit}\n` +
+    `• Periode         : ${periode}\n` +
+    `• Kepala Ruangan  : ${kaRuNama} (NIP: ${kaRuNip})\n` +
+    `• Prosedur Catatan: ${items.length} Rincian Prosedur Asuhan Klinis Terverifikasi\n` +
+    `• Waktu Terbit    : ${new Date().toLocaleString('id-ID')}\n` +
+    `• Format Dokumen  : Format Baku Resmi 2 Halaman A4 RSUD dr. Soedarso.\n\n` +
+    `Dokumen Logbook siap dicetak, disahkan oleh Kepala Ruangan pada Lembar 2, lalu pemohon melanjutkan ke Langkah 3 (Surat Permohonan).\n\n` +
+    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  recordAdminNotification({
+    eventType: 'Penerbitan Logbook Kinerja Klinis (Langkah 2)',
+    subject: adminSubject,
+    applicantName: nama,
+    applicantNip: nip,
+    unit: unit,
+    bodyText: adminBody
+  });
+
+  const banner = document.getElementById('previewLogbookSuccessBanner');
+  const badge = document.getElementById('previewLogbookApplicantBadge');
+  if (banner) banner.style.display = 'block';
+  if (badge) badge.textContent = nama;
+
+  showToast(`Buku Catatan Kinerja Klinis (Logbook) resmi untuk ${nama} berhasil diterbitkan (2 Halaman A4)! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
+}
+
+function generateLogbookHVS(mode) {
+  const previewMode = mode || state.logbookPreviewMode || 'filled';
+  const isBlank = (previewMode === 'blank');
+  const d = isBlank ? {} : (state.logbookData || window.KOMITE_DATA?.sampleLogbook?.perawat || {});
+
+  const nama = isBlank ? '....................................................................' : (d.nama || 'Ns. Pemohon');
+  const nip = isBlank ? '....................................................................' : (d.nip || '-');
+  const jenjang = isBlank ? '....................................................................' : (d.jenjang || 'Perawat Klinis III (PK III)');
+  const unit = isBlank ? '....................................................................' : (d.unit || 'Ruang Perawatan');
+  const periode = isBlank ? '....................................................................' : (d.periode || 'Januari 2025 s.d Desember 2025');
+
+  const items = isBlank ? [] : (d.items || window.KOMITE_DATA?.sampleLogbook?.perawat?.items || []);
+  const kaRuNama = isBlank ? '....................................................................' : (d.kaRuNama || 'Ns. Kepala Ruangan, S.Kep');
+  const kaRuNip = isBlank ? '....................................................................' : (d.kaRuNip || '19xxxxxxxxxxxxxx');
+  const kaRuRuangan = isBlank ? '....................................................................' : (d.kaRuRuangan || unit);
+  const kota = isBlank ? 'Pontianak' : (d.kota || 'Pontianak');
+  const tanggal = isBlank ? '...... ....................' : (d.tanggal || '21 Oktober');
+  const tahun = isBlank ? '2026' : (d.tahun || '2026');
+
+  const logoSrc = 'logo_kalbar.png';
+
+  const kopSoedarso = `
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
+      <tr>
+        <td style="width: 75px; vertical-align: middle; text-align: center; padding-right: 10px;">
+          <img src="${logoSrc}" alt="Logo Pemprov Kalbar" style="width: 68px; height: auto;">
+        </td>
+        <td style="text-align: center; vertical-align: middle; font-family: Arial, Helvetica, sans-serif; color: #000;">
+          <div style="font-size: 10.5pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">PEMERINTAH PROVINSI KALIMANTAN BARAT</div>
+          <div style="font-size: 12pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">RUMAH SAKIT UMUM DAERAH DOKTER SOEDARSO</div>
+          <div style="font-size: 11pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">KOMITE KEPERAWATAN</div>
+          <div style="font-size: 8pt; line-height: 1.3; margin-top: 2px;">
+            Jalan Dokter Soedarso No.1 Pontianak Tenggara, Kota Pontianak, Kalimantan Barat 78124<br>
+            Telp. (0561) 737701, (0561) 746152, Fax. (0561) 736528<br>
+            Laman : <span style="color: #0000ee; text-decoration: underline;">https://rsuddrsoedarso.kalbarprov.go.id</span>, Pos-el : <span style="color: #0000ee; text-decoration: underline;">rsud@kalbarprov.go.id</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <div style="border-top: 2.5px solid #000000; border-bottom: 0.8px solid #000000; height: 2px; margin-top: 5px; margin-bottom: 12px;"></div>
+  `;
+
+  // Render Rows for Table Page 1 (Items 0 to 4)
+  const renderItemRow = (item, idx) => {
+    if (isBlank || !item) {
+      return `
+        <tr>
+          <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8.5pt;">${idx + 1}</td>
+          <td style="border: 1px solid #000; padding: 6px 6px; font-size: 8.5pt;">&nbsp;</td>
+          <td style="border: 1px solid #000; padding: 6px 8px; font-size: 8.5pt;">&nbsp;</td>
+          <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8.5pt;">&nbsp;</td>
+          <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8.5pt;">&nbsp;</td>
+          <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8.5pt;">&nbsp;</td>
+          <td style="border: 1px solid #000; padding: 6px 6px; font-size: 8.5pt;">&nbsp;</td>
+        </tr>
+      `;
+    }
+    const tglRmStr = item.rm ? `${item.tgl}<br><span style="font-size: 7.5pt; color: #333;">${item.rm}</span>` : item.tgl;
+    const mCheck = item.mandiri ? '<strong>&check;</strong>' : '&nbsp;';
+    const sCheck = item.supervisi ? '<strong>&check;</strong>' : '&nbsp;';
+
+    return `
+      <tr>
+        <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8.5pt; vertical-align: top;">${idx + 1}</td>
+        <td style="border: 1px solid #000; padding: 6px 6px; font-size: 8.5pt; vertical-align: top; line-height: 1.3;">${tglRmStr}</td>
+        <td style="border: 1px solid #000; padding: 6px 8px; font-size: 8.5pt; vertical-align: top; line-height: 1.35;">${item.tindakan}</td>
+        <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 9pt; vertical-align: top;">${mCheck}</td>
+        <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 9pt; vertical-align: top;">${sCheck}</td>
+        <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8pt; vertical-align: top; color: #047857;">
+          <span style="border: 1px solid #10b981; border-radius: 3px; padding: 1px 4px; font-size: 7pt; font-weight: bold; background: #ecfdf5;">Paraf &check;</span>
+        </td>
+        <td style="border: 1px solid #000; padding: 6px 6px; font-size: 8pt; vertical-align: top; color: #1e293b;">${item.catatan || 'Valid / Terverifikasi'}</td>
+      </tr>
+    `;
+  };
+
+  const rowsPage1 = [];
+  for (let i = 0; i < 5; i++) {
+    rowsPage1.push(renderItemRow(items[i], i));
+  }
+
+  const rowsPage2 = [];
+  for (let i = 5; i < 10; i++) {
+    rowsPage2.push(renderItemRow(items[i], i));
+  }
+
+  const tableHeader = `
+    <thead>
+      <tr style="background-color: #0e3860; color: #ffffff; font-weight: bold; font-size: 8.5pt; text-align: center;">
+        <th rowspan="2" style="border: 1px solid #000; padding: 5px 3px; width: 4%;">No</th>
+        <th rowspan="2" style="border: 1px solid #000; padding: 5px 6px; width: 17%;">Tanggal &amp; No. RM</th>
+        <th rowspan="2" style="border: 1px solid #000; padding: 5px 8px; width: 44%;">Rincian Deskripsi Tindakan Klinis<br>(Asuhan Keperawatan / Kebidanan)</th>
+        <th colspan="2" style="border: 1px solid #000; padding: 3px 4px; width: 12%;">Kemandirian</th>
+        <th rowspan="2" style="border: 1px solid #000; padding: 5px 4px; width: 10%;">Paraf<br>Ka. Ru</th>
+        <th rowspan="2" style="border: 1px solid #000; padding: 5px 6px; width: 13%;">Catatan<br>Verifikator</th>
+      </tr>
+      <tr style="background-color: #0e3860; color: #ffffff; font-weight: bold; font-size: 8pt; text-align: center;">
+        <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">M</th>
+        <th style="border: 1px solid #000; padding: 3px 2px; width: 6%;">S</th>
+      </tr>
+    </thead>
+  `;
+
+  return `
+    <!-- ==========================================
+         HALAMAN 1: KOP, PROFIL & TINDAKAN 1 S.D 5
+         ========================================== -->
+    <div class="soedarso-page page-1" style="page-break-after: always; break-after: page; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 12mm 15mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 9pt; line-height: 1.35;">
+      ${kopSoedarso}
+
+      <div style="text-align: center; font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 11pt; line-height: 1.35; margin-bottom: 12px; color: #000;">
+        BUKU CATATAN KINERJA KLINIS HARIAN (LOGBOOK)<br>
+        TENAGA KEPERAWATAN / KEBIDANAN
+      </div>
+
+      <!-- Tabel Profil Personal -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9pt; font-family: Arial, sans-serif; border: 1.2px solid #000;">
+        <tr style="background: rgba(14, 56, 96, 0.04);">
+          <td colspan="3" style="border: 1px solid #000; padding: 5px 8px; font-weight: bold; font-size: 9pt; text-transform: uppercase; color: #0e3860;">
+            I. IDENTITAS PERSONAL TENAGA KEPERAWATAN / KEBIDANAN
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 4px 8px; width: 34%;">1. Nama Lengkap (beserta Gelar)</td>
+          <td style="border: 1px solid #000; padding: 4px 6px; width: 2%; text-align: center;">:</td>
+          <td style="border: 1px solid #000; padding: 4px 8px; width: 64%; font-weight: bold;">${nama}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 4px 8px;">2. Nomor Induk Pegawai (NIP/NIPPPK/NIK)</td>
+          <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">:</td>
+          <td style="border: 1px solid #000; padding: 4px 8px;">${nip}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 4px 8px;">3. Jenjang Klinis Saat Ini / Diusulkan</td>
+          <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">:</td>
+          <td style="border: 1px solid #000; padding: 4px 8px;">${jenjang}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 4px 8px;">4. Unit Kerja / Ruang Rawat</td>
+          <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">:</td>
+          <td style="border: 1px solid #000; padding: 4px 8px;">${unit}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 4px 8px;">5. Periode Pencatatan Kinerja Klinis</td>
+          <td style="border: 1px solid #000; padding: 4px 6px; text-align: center;">:</td>
+          <td style="border: 1px solid #000; padding: 4px 8px;">${periode}</td>
+        </tr>
+      </table>
+
+      <!-- Subheader Tabel Tindakan Klinis -->
+      <div style="font-weight: bold; font-size: 9.5pt; color: #0e3860; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.2px;">
+        II. LEMBAR CATATAN DAN VERIFIKASI TINDAKAN KLINIS HARIAN (BAGIAN 1)
+      </div>
+
+      <!-- Tabel Tindakan Baris 1 s.d 5 -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-family: Arial, sans-serif; border: 1.2px solid #000;">
+        ${tableHeader}
+        <tbody>
+          ${rowsPage1.join('')}
+        </tbody>
+      </table>
+
+      <div style="font-size: 7.8pt; color: #555; text-align: right; margin-top: 6px; font-style: italic;">
+        Bersambung ke Lembar 2 (Tindakan 6 s.d 10 &amp; Lembar Pengesahan Kepala Ruangan) &bull; RSUD dr. Soedarso
+      </div>
+    </div>
+
+    <!-- ==========================================
+         HALAMAN 2: TINDAKAN 6 S.D 10 & PENGESAHAN KA. RU
+         ========================================== -->
+    <div class="soedarso-page page-2" style="page-break-after: avoid; break-after: avoid; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 12mm 15mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 9pt; line-height: 1.35;">
+      <!-- Running Header Halaman 2 -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #94a3b8; padding-bottom: 5px; margin-bottom: 14px; font-size: 8pt; color: #475569;">
+        <span><strong>RSUD dr. Soedarso Pontianak</strong> &bull; Komite Keperawatan</span>
+        <span>Buku Catatan Kinerja Klinis (Logbook) &bull; <strong>Halaman 2 dari 2</strong></span>
+      </div>
+
+      <!-- Subheader Lanjutan Tindakan Klinis -->
+      <div style="font-weight: bold; font-size: 9.5pt; color: #0e3860; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.2px;">
+        II. LEMBAR CATATAN DAN VERIFIKASI TINDAKAN KLINIS HARIAN (LANJUTAN BAGIAN 2)
+      </div>
+
+      <!-- Tabel Tindakan Baris 6 s.d 10 -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 6px; font-family: Arial, sans-serif; border: 1.2px solid #000;">
+        ${tableHeader}
+        <tbody>
+          ${rowsPage2.join('')}
+        </tbody>
+      </table>
+
+      <!-- Keterangan Kemandirian -->
+      <div style="font-size: 7.8pt; line-height: 1.4; color: #333; margin-bottom: 14px; padding: 4px 6px; background: rgba(0,0,0,0.02); border: 1px solid #cbd5e1; border-radius: 2px;">
+        * <strong>Keterangan Kemandirian:</strong><br>
+        &bull; <strong>M (Mandiri)</strong>: Tindakan asuhan keperawatan/kebidanan dilakukan sendiri secara mandiri tanpa pendampingan/bimbingan.<br>
+        &bull; <strong>S (Supervisi)</strong>: Tindakan asuhan keperawatan/kebidanan dilakukan dengan pendampingan, asistensi, atau bimbingan preseptor/Ka.Ru.
+      </div>
+
+      <!-- Lembar Rekapitulasi & Validasi Akhir Ka. Ru -->
+      <div style="border: 1.2px solid #000; padding: 10px 12px; margin-bottom: 16px; background: #fff;">
+        <div style="font-weight: bold; font-size: 9pt; color: #0e3860; text-transform: uppercase; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">
+          III. LEMBAR REKAPITULASI &amp; VALIDASI AKHIR KEPALA RUANGAN
+        </div>
+        <div style="font-size: 8.5pt; line-height: 1.5; color: #1e293b; text-align: justify;">
+          Berdasarkan hasil verifikasi harian portofolio kinerja klinis di atas, menyatakan bahwa staf keperawatan/kebidanan tersebut di atas telah mengumpulkan kumulatif asuhan klinis harian dengan tingkat capaian prosedur mandiri/supervisi yang sesuai dengan standar kualifikasi pelayanan RSUD dr. Soedarso, untuk diajukan dalam proses Kredensial / Re-Kredensial Komite Keperawatan.
+        </div>
+      </div>
+
+      <!-- Tanda Tangan Dual: Ka. Ruangan & Staf Pemohon -->
+      <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9pt; margin-top: 8px;">
+        <tr>
+          <td style="width: 50%; vertical-align: top; text-align: left; padding-right: 15px;">
+            Mengetahui &amp; Menyetujui,<br>
+            <strong>Kepala Ruangan ${kaRuRuangan}</strong><br>
+            <div style="height: 65px; display: flex; align-items: flex-end; padding-bottom: 2px;">
+              <span style="font-size: 8pt; color: #64748b; font-style: italic;">(Tanda Tangan &amp; Cap Ruangan)</span>
+            </div>
+            <u><strong>${kaRuNama}</strong></u><br>
+            NIP. ${kaRuNip}
+          </td>
+          <td style="width: 50%; vertical-align: top; text-align: left; padding-left: 25px;">
+            ${kota}, ${tanggal} ${tahun}<br>
+            Staf Keperawatan / Kebidanan Pemohon,<br>
+            <div style="height: 65px; display: flex; align-items: flex-end; padding-bottom: 2px;">
+              <span style="font-size: 8pt; color: #64748b; font-style: italic;">(Tanda Tangan Pemohon)</span>
+            </div>
+            <u><strong>${nama}</strong></u><br>
+            NIP. ${nip}
+          </td>
+        </tr>
+      </table>
+
+      <!-- Footer Info -->
+      <div style="margin-top: 25px; padding-top: 6px; border-top: 1px solid #cbd5e1; font-size: 7.5pt; color: #64748b; display: flex; justify-content: space-between;">
+        <span>Dokumen Resmi Portofolio Kinerja Klinis RSUD dr. Soedarso</span>
+        <span>Format Cetak Kertas HVS A4 (2 Halaman)</span>
+      </div>
+    </div>
+  `;
+}
+
+function previewLogbookHVS(mode) {
+  state.logbookPreviewMode = mode || 'filled';
+  const container = document.getElementById('logbookHvsPrintArea');
+  if (container) {
+    container.innerHTML = generateLogbookHVS(state.logbookPreviewMode);
+  }
+
+  const toggleBtn = document.getElementById('btnTogglePreviewLogbookMode');
+  if (toggleBtn) {
+    if (state.logbookPreviewMode === 'blank') {
+      toggleBtn.innerHTML = '<i class="fa-solid fa-file-lines"></i> Tampilkan Contoh Data Terisi';
+    } else {
+      toggleBtn.innerHTML = '<i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong';
+    }
+  }
+
+  const modal = document.getElementById('modalPreviewLogbookHVS');
+  if (modal) {
+    openModal('modalPreviewLogbookHVS');
+  }
+}
+
+function togglePreviewLogbookMode() {
+  const nextMode = (state.logbookPreviewMode === 'blank') ? 'filled' : 'blank';
+  previewLogbookHVS(nextMode);
+}
+
+function printLogbookHVS() {
+  const content = generateLogbookHVS(state.logbookPreviewMode || 'filled');
+  const printWindow = window.open('', '_blank', 'width=900,height=800');
+  if (!printWindow) {
+    alert('Popup diblokir oleh browser. Izinkan popup untuk mencetak dokumen.');
+    return;
+  }
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>Logbook_Kinerja_Klinis_${(state.logbookData?.nama || 'Staf').replace(/[^a-zA-Z0-9]/g, '_')}_RSUD_dr_Soedarso</title>
+      <style>
+        @page {
+          size: A4 portrait;
+          margin: 12mm 15mm;
+        }
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, Helvetica, sans-serif;
+          color: #000;
+          background: #fff;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .soedarso-page {
+          box-sizing: border-box;
+          width: 100%;
+        }
+        .page-1 {
+          page-break-after: always;
+          break-after: page;
+        }
+        .page-2 {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        @media screen {
+          body {
+            background: #e2e8f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          .soedarso-page {
+            background: #fff;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 15mm;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+          }
+        }
+      </style>
+    </head>
+    <body>
+      ${content}
+      <script>
+        window.onload = function() {
+          window.focus();
+          setTimeout(function() {
+            window.print();
+          }, 300);
+        };
+      </script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function exportLogbookWord() {
+  const exportMode = state.logbookPreviewMode || 'filled';
+  const isBlank = (exportMode === 'blank');
+  const content = generateLogbookHVS(exportMode);
+  const rawNama = document.getElementById('logbookNama')?.value || (state.logbookData?.nama || 'Pemohon');
+  const nama = isBlank ? 'Blangko_Kosong_Logbook_Soedarso' : rawNama.replace(/[^a-zA-Z0-9]/g, '_');
+  const header = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>Logbook Kinerja Klinis - ${nama}</title>
+    <style>
+      @page Section1 { size: 595.3pt 841.9pt; margin: 0.6in 0.7in 0.6in 0.7in; mso-header-margin: 35.4pt; mso-footer-margin: 35.4pt; mso-paper-source: 0; }
+      div.Section1 { page: Section1; }
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; line-height: 1.35; color: #000; }
+      table { border-collapse: collapse; width: 100%; }
+      .page-1 { page-break-after: always; }
+      .page-2 { page-break-after: avoid; }
+    </style>
+    </head>
+    <body>
+    <div class="Section1">
+  `;
+  const footer = `</div></body></html>`;
+  const sourceHTML = header + content + footer;
+  const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+  const fileDownload = document.createElement("a");
+  document.body.appendChild(fileDownload);
+  fileDownload.href = source;
+  fileDownload.download = `Logbook_Kinerja_Klinis_${nama}_RSUD_dr_Soedarso.doc`;
+  fileDownload.click();
+  document.body.removeChild(fileDownload);
+  showToast(`Logbook Kinerja Klinis ${rawNama} berhasil diunduh dalam format Word (.doc)!`, 'success');
+}
+
+/* ==========================================================================
+   ALUR LANGKAH 3: FORMULIR SURAT PERMOHONAN KREDENSIAL / RE-KREDENSIAL
    ========================================================================== */
 
 function openSuratPermohonanModal() {
@@ -3221,37 +3956,37 @@ function simpanUploadSurat(e) {
   const unit = state.currentApplicant ? state.currentApplicant.unit : 'Ruang Pelayanan';
 
   // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
-  const adminSubject = `[PORTOFOLIO DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 3)`;
+  const adminSubject = `[PORTOFOLIO DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 4)`;
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
     `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
-    `Pemberitahuan Unggah Dokumen Kredensial & Portofolio (Langkah 3):\n\n` +
+    `Pemberitahuan Unggah Dokumen Kredensial & Portofolio (Langkah 4):\n\n` +
     `• Nama Pemohon    : ${pemohon}\n` +
     `• Unit Kerja      : ${unit}\n` +
-    `• Tahapan         : Langkah 3 (Unggah Berkas Mandiri)\n` +
-    `• Status Berkas   : Dokumen CV 3 Halaman, Surat Permohonan bertanda tangan mandiri, dan dokumen portofolio (STR, SIPP, Logbook, Sertifikat) telah tersimpan di sistem.\n` +
+    `• Tahapan         : Langkah 4 (Unggah Berkas Mandiri CV, Logbook & Surat Permohonan)\n` +
+    `• Status Berkas   : Dokumen CV 3 Halaman, Logbook Kinerja Klinis 2 Halaman (sah Ka.Ru), Surat Permohonan bertanda tangan mandiri, dan dokumen portofolio (STR, SIPP, Sertifikat) telah tersimpan di sistem.\n` +
     `• Waktu Unggah    : ${new Date().toLocaleString('id-ID')}\n\n` +
-    `Pemohon telah diizinkan langsung melanjutkan ke Langkah 4 (Pengisian Asesmen Mandiri RKK Online).\n\n` +
+    `Pemohon telah diizinkan langsung melanjutkan ke Langkah 5 (Pengisian Asesmen Mandiri RKK Online).\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Unggah Berkas CV, Surat & Portofolio (Langkah 3)',
+    eventType: 'Unggah Berkas CV, Logbook, Surat & Portofolio (Langkah 4)',
     subject: adminSubject,
     applicantName: pemohon,
     unit: unit,
     bodyText: adminBody
   });
 
-  showToast(`Berkas CV, Surat Permohonan & portofolio berhasil diunggah! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
+  showToast(`Berkas CV, Logbook, Surat Permohonan & portofolio berhasil diunggah! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
 
   // Opsi membuka langsung RKK Online tanpa hambatan
   setTimeout(() => {
     const bukaRkk = confirm(
       "Alur E-Kredensialing RSUD dr. Soedarso:\n\n" +
-      "Dokumen CV, Surat Permohonan bertanda tangan mandiri dan portofolio berkas telah tersimpan ke sistem tanpa hambatan.\n\n" +
-      "Apakah Anda ingin langsung melanjutkan ke LANGKAH 4 (Pengisian Asesmen Mandiri RKK Online) sekarang?"
+      "Dokumen CV, Logbook Kinerja Klinis, Surat Permohonan bertanda tangan mandiri dan portofolio berkas telah tersimpan ke sistem tanpa hambatan.\n\n" +
+      "Apakah Anda ingin langsung melanjutkan ke LANGKAH 5 (Pengisian Asesmen Mandiri RKK Online) sekarang?"
     );
     if (bukaRkk) {
       cekBukaRkkOnline();
@@ -3263,7 +3998,7 @@ function cekBukaRkkOnline() {
   if (!state.kredensialBerkasUploaded) {
     const lanjut = confirm(
       "Pemberitahuan Sistem:\n\n" +
-      "Anda belum menyelesaikan Langkah 2 (Unggah Surat Permohonan Bertanda Tangan & Portofolio Berkas).\n\n" +
+      "Anda belum menyelesaikan Langkah 4 (Unggah Berkas CV, Logbook, Surat Permohonan & Portofolio).\n\n" +
       "Apakah Anda ingin tetap membuka formulir Asesmen Mandiri RKK sekarang?"
     );
     if (!lanjut) {
@@ -4021,3 +4756,20 @@ window.togglePreviewCvMode = togglePreviewCvMode;
 window.printCvHVS = printCvHVS;
 window.exportCvWord = exportCvWord;
 window.transferCvToSurat = transferCvToSurat;
+window.transferCvToLogbook = transferCvToLogbook;
+window.openLogbookModal = openLogbookModal;
+window.fillLogbookPreset = fillLogbookPreset;
+window.fillLogbookFormWithData = fillLogbookFormWithData;
+window.resetLogbookForm = resetLogbookForm;
+window.renderLogbookItemRows = renderLogbookItemRows;
+window.addLogbookItemRow = addLogbookItemRow;
+window.removeLogbookItemRow = removeLogbookItemRow;
+window.getLogbookItemsFromForm = getLogbookItemsFromForm;
+window.handleLogbookSubmit = handleLogbookSubmit;
+window.transferLogbookData = transferLogbookData;
+window.generateLogbookHVS = generateLogbookHVS;
+window.previewLogbookHVS = previewLogbookHVS;
+window.togglePreviewLogbookMode = togglePreviewLogbookMode;
+window.printLogbookHVS = printLogbookHVS;
+window.exportLogbookWord = exportLogbookWord;
+
