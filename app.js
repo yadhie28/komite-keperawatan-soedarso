@@ -1370,6 +1370,253 @@ function onJenjangChange(pkLevel) {
   populateAreaKlinisDropdown(pkLevel);
 }
 
+function getClusterFromAreaKey(areaKey) {
+  if (!areaKey) return 'kmb';
+  const k = areaKey.toLowerCase();
+  if (k.includes('anak') || k.includes('picu') || k.includes('nicu')) return 'anak';
+  if (k.includes('maternitas') || k.includes('obgyn') || k.includes('fertilitas')) return 'maternitas';
+  if (k.includes('jiwa')) return 'jiwa';
+  if (k.includes('perioperatif') || k.includes('ibs') || k.includes('bedah_sentral')) return 'perioperatif';
+  if (k.includes('emergensi') || k.includes('igd') || k.includes('trauma')) return 'emergensi';
+  if (k.includes('intensif') || k.includes('icu') || k.includes('iccu')) return 'intensif';
+  if (k.includes('kardiovaskuler') || k.includes('cathlab') || k.includes('perfusi')) return 'kardiovaskuler';
+  if (k.includes('neurosains') || k.includes('saraf')) return 'neurosains';
+  if (k.includes('geriatri')) return 'geriatri';
+  if (k.includes('onkologi') || k.includes('kanker')) return 'onkologi';
+  if (k.includes('anestesi')) return 'anestesi';
+  if (k.includes('nefrologi') || k.includes('dialisis')) return 'nefrologi';
+  if (k.includes('gastro_hepato') || k.includes('endoskopi')) return 'gastro_hepato';
+  if (k.includes('respirologi') || k.includes('paru')) return 'respirologi';
+  if (k.includes('mata')) return 'mata';
+  if (k.includes('radiologi')) return 'radiologi';
+  return 'kmb';
+}
+
+function getClusterDisplayName(cluster) {
+  const map = {
+    'kmb': 'Medikal Bedah (KMB)',
+    'perioperatif': 'Perioperatif (Kamar Bedah Sentral)',
+    'emergensi': 'Gawat Darurat / Emergensi (IGD)',
+    'intensif': 'Intensive Care (ICU / ICCU)',
+    'kardiovaskuler': 'Kardiovaskuler (Pusat Jantung Terpadu)',
+    'anak': 'Keperawatan Anak',
+    'maternitas': 'Keperawatan Maternitas',
+    'jiwa': 'Keperawatan Jiwa',
+    'nefrologi': 'Nefrologi & Dialisis',
+    'onkologi': 'Onkologi & Kemoterapi',
+    'neurosains': 'Neurosains (Bedah Saraf & Neurologi)',
+    'geriatri': 'Geriatri (Lanjut Usia)',
+    'anestesi': 'Keperawatan Anestesi',
+    'gastro_hepato': 'Gastro-Hepatologi (Endoskopi)',
+    'respirologi': 'Respirologi (Paru)',
+    'mata': 'Keperawatan Mata',
+    'radiologi': 'Radiologi & Kedokteran Nuklir'
+  };
+  return map[cluster] || 'Medikal Bedah (KMB)';
+}
+
+function getAreaDisplayName(areaKey, pkLevel) {
+  if (!areaKey) return 'Generalis';
+  if (pkLevel && window.KOMITE_DATA?.whiteBookAreas?.[pkLevel]) {
+    const found = window.KOMITE_DATA.whiteBookAreas[pkLevel].find(a => a.key === areaKey);
+    if (found) return found.name;
+  }
+  for (const lvl in window.KOMITE_DATA?.whiteBookAreas || {}) {
+    const item = window.KOMITE_DATA.whiteBookAreas[lvl].find(a => a.key === areaKey);
+    if (item) return item.name;
+  }
+  return areaKey;
+}
+
+function getCumulativeRkkActions(pkLevel, areaKey) {
+  const cluster = getClusterFromAreaKey(areaKey);
+  const clusterName = getClusterDisplayName(cluster);
+  const areaName = getAreaDisplayName(areaKey, pkLevel);
+
+  // Jika Praktik Bidan Klinis (PMB)
+  if (pkLevel === 'PMB') {
+    const pmbRaw = window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan'] || [];
+    return pmbRaw.map((a, idx) => ({
+      ...a,
+      no: idx + 1,
+      jenjangLevel: 'PMB',
+      isMandatory: false,
+      kategori: 'A. PELAYANAN PRAKTIK BIDAN KLINIS (PMB I - PMB IV MATERNAL & NEONATAL)',
+      badgeText: 'DIAJUKAN PMB',
+      defaultKode: a.defaultKode || 1
+    }));
+  }
+
+  const result = [];
+  let currentNo = 1;
+
+  // =========================================================================
+  // TIER 1: MANDATORY PK I (DASAR GENERALIS)
+  // Aturan User: Jika perawat mengajukan PK III KMB maka mandatory PK I & PK II.
+  // Jika tidak ada PK I KMB berikan mandatory PK I Generalis.
+  // =========================================================================
+  const isPk1Target = (pkLevel === 'PK I');
+  const baseActions = (window.KOMITE_DATA?.mandatoryBaseActions || []).map(a => Object.assign({}, a));
+  const pk1Specific = window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk1`];
+  const pk1Generalis = window.KOMITE_DATA?.whiteBookActions?.['generalis'] || [];
+  const pk1Source = pk1Specific || pk1Generalis;
+
+  const catTitlePk1 = isPk1Target
+    ? 'A. KEWENANGAN KLINIS DIAJUKAN PK I (GENERALIS / ASUHAN DASAR)'
+    : 'A. KEWENANGAN KLINIS MANDATORY PK I (DASAR GENERALIS)';
+
+  baseActions.forEach(act => {
+    result.push({
+      ...act,
+      no: currentNo++,
+      jenjangLevel: 'PK I',
+      isMandatory: !isPk1Target,
+      kategori: catTitlePk1,
+      badgeText: isPk1Target ? 'DIAJUKAN PK I' : 'MANDATORY PK I',
+      defaultKode: act.defaultKode || 1
+    });
+  });
+
+  pk1Source.forEach(act => {
+    result.push({
+      ...act,
+      no: currentNo++,
+      jenjangLevel: 'PK I',
+      isMandatory: !isPk1Target,
+      kategori: catTitlePk1,
+      badgeText: isPk1Target ? 'DIAJUKAN PK I' : 'MANDATORY PK I',
+      defaultKode: act.defaultKode || 1
+    });
+  });
+
+  if (isPk1Target) {
+    return result;
+  }
+
+  // =========================================================================
+  // TIER 2: PK II (MANDATORY jika mengajukan PK III / IV / V, atau DIAJUKAN jika PK II)
+  // =========================================================================
+  const isPk2Target = (pkLevel === 'PK II');
+  let pk2Key = `${cluster}_pk2`;
+  if (cluster === 'kmb') pk2Key = 'kmb_dewasa_pk2';
+  if (!window.KOMITE_DATA?.whiteBookActions?.[pk2Key]) {
+    pk2Key = 'kmb_dewasa_pk2';
+  }
+  const pk2Source = window.KOMITE_DATA?.whiteBookActions?.[pk2Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_dewasa_pk2'] || [];
+  const catTitlePk2 = isPk2Target
+    ? `B. KEWENANGAN KLINIS DIAJUKAN PK II (${clusterName.toUpperCase()})`
+    : `B. KEWENANGAN KLINIS MANDATORY PK II (${clusterName.toUpperCase()})`;
+
+  pk2Source.forEach(act => {
+    result.push({
+      ...act,
+      no: currentNo++,
+      jenjangLevel: 'PK II',
+      isMandatory: !isPk2Target,
+      kategori: catTitlePk2,
+      badgeText: isPk2Target ? 'DIAJUKAN PK II' : 'MANDATORY PK II',
+      defaultKode: act.defaultKode || 1
+    });
+  });
+
+  if (isPk2Target) {
+    return result;
+  }
+
+  // =========================================================================
+  // TIER 3: PK III (MANDATORY jika mengajukan PK IV / V, atau DIAJUKAN jika PK III)
+  // =========================================================================
+  const isPk3Target = (pkLevel === 'PK III');
+  let pk3Key = areaKey;
+  if (!isPk3Target) {
+    if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk3`]) {
+      pk3Key = `${cluster}_medikal_pk3`;
+    } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk3`]) {
+      pk3Key = `${cluster}_pk3`;
+    } else {
+      pk3Key = 'kmb_medikal_pk3';
+    }
+  }
+  const pk3Source = window.KOMITE_DATA?.whiteBookActions?.[pk3Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk3'] || [];
+  const pk3Title = isPk3Target ? areaName : getAreaDisplayName(pk3Key, 'PK III');
+  const catTitlePk3 = isPk3Target
+    ? `C. KEWENANGAN KLINIS DIAJUKAN PK III (${pk3Title.toUpperCase()})`
+    : `C. KEWENANGAN KLINIS MANDATORY PK III (${pk3Title.toUpperCase()})`;
+
+  pk3Source.forEach(act => {
+    result.push({
+      ...act,
+      no: currentNo++,
+      jenjangLevel: 'PK III',
+      isMandatory: !isPk3Target,
+      kategori: catTitlePk3,
+      badgeText: isPk3Target ? 'DIAJUKAN PK III' : 'MANDATORY PK III',
+      defaultKode: act.defaultKode || 1
+    });
+  });
+
+  if (isPk3Target) {
+    return result;
+  }
+
+  // =========================================================================
+  // TIER 4: PK IV (MANDATORY jika mengajukan PK V, atau DIAJUKAN jika PK IV)
+  // =========================================================================
+  const isPk4Target = (pkLevel === 'PK IV');
+  let pk4Key = areaKey;
+  if (!isPk4Target) {
+    if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk4`]) {
+      pk4Key = `${cluster}_pk4`;
+    } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk4`]) {
+      pk4Key = `${cluster}_medikal_pk4`;
+    } else {
+      pk4Key = 'kmb_medikal_pk4';
+    }
+  }
+  const pk4Source = window.KOMITE_DATA?.whiteBookActions?.[pk4Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk4'] || [];
+  const pk4Title = isPk4Target ? areaName : getAreaDisplayName(pk4Key, 'PK IV');
+  const catTitlePk4 = isPk4Target
+    ? `D. KEWENANGAN KLINIS DIAJUKAN PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`
+    : `D. KEWENANGAN KLINIS MANDATORY PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`;
+
+  pk4Source.forEach(act => {
+    result.push({
+      ...act,
+      no: currentNo++,
+      jenjangLevel: 'PK IV',
+      isMandatory: !isPk4Target,
+      kategori: catTitlePk4,
+      badgeText: isPk4Target ? 'DIAJUKAN PK IV' : 'MANDATORY PK IV',
+      defaultKode: act.defaultKode || 1
+    });
+  });
+
+  if (isPk4Target) {
+    return result;
+  }
+
+  // =========================================================================
+  // TIER 5: PK V (DIAJUKAN jika PK V)
+  // =========================================================================
+  const pk5Key = areaKey;
+  const pk5Source = window.KOMITE_DATA?.whiteBookActions?.[pk5Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk5'] || [];
+  const catTitlePk5 = `E. KEWENANGAN KLINIS DIAJUKAN PK V (${areaName.toUpperCase()} - EXPERT/PAKAR)`;
+
+  pk5Source.forEach(act => {
+    result.push({
+      ...act,
+      no: currentNo++,
+      jenjangLevel: 'PK V',
+      isMandatory: false,
+      kategori: catTitlePk5,
+      badgeText: 'DIAJUKAN PK V',
+      defaultKode: act.defaultKode || 1
+    });
+  });
+
+  return result;
+}
+
 function populateAreaKlinisDropdown(pkLevel) {
   const selectArea = document.getElementById('formAreaKlinis');
   if (!selectArea) return;
@@ -1392,34 +1639,32 @@ function onAreaKlinisChange(areaKey) {
   const pkLevel = document.getElementById('formJenjang')?.value || 'PK I';
   if (!container) return;
 
-  const areas = window.KOMITE_DATA?.whiteBookAreas?.[pkLevel] || [];
-  const curArea = areas.find(a => a.key === areaKey) || { name: 'Asuhan Keperawatan Spesifik Area' };
+  const curAreaName = getAreaDisplayName(areaKey, pkLevel);
   if (descEl) {
-    descEl.textContent = `Area Terpilih: ${curArea.name} (Buku Pedoman 2026).`;
+    descEl.textContent = `Area Terpilih: ${curAreaName} (Buku Pedoman 2026).`;
   }
 
-  const baseActions = (window.KOMITE_DATA?.mandatoryBaseActions || []).map(a => Object.assign({}, a));
-  const specificActions = (window.KOMITE_DATA?.whiteBookActions?.[areaKey] || window.KOMITE_DATA?.whiteBookActions?.['generalis'] || []).map(a => Object.assign({}, a));
+  state.currentWizardRkkList = getCumulativeRkkActions(pkLevel, areaKey);
 
-  specificActions.forEach(a => {
-    a.kategori = `B. ASUHAN KEPERAWATAN ADVANCED / INTERVENSI KHUSUS (${curArea.name.toUpperCase()})`;
-  });
-
-  state.currentWizardRkkList = [...baseActions, ...specificActions];
+  const totalCount = state.currentWizardRkkList.length;
+  const mandatoryCount = state.currentWizardRkkList.filter(a => a.isMandatory).length;
+  const targetCount = totalCount - mandatoryCount;
 
   let html = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; background: var(--bg-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
-      <div style="font-size: 0.76rem; color: var(--text-muted);">
-        Format Baku RKK RSUD dr. Soedarso: 
+      <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+        <strong>Kode RKK:</strong>
         <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">1: Mandiri Penuh</span>
         <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">2: Supervisi</span>
         <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">3: Tidak Diminta</span>
       </div>
-      <div style="font-size: 0.75rem; font-weight: 700; color: #0e3860;">
-        Total: ${state.currentWizardRkkList.length} Tindakan Asuhan
+      <div style="font-size: 0.75rem; font-weight: 700; color: #0e3860; display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+        <span class="badge" style="background: #0e3860; color: #fff;">Total: ${totalCount} Tindakan</span>
+        ${mandatoryCount > 0 ? `<span class="badge" style="background: #e0f2fe; color: #0369a1;"><i class="fa-solid fa-lock"></i> Mandatory: ${mandatoryCount}</span>` : ''}
+        <span class="badge" style="background: #fef3c7; color: #92400e;"><i class="fa-solid fa-star"></i> Diajukan ${pkLevel}: ${targetCount}</span>
       </div>
     </div>
-    <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
       <table class="soedarso-table" style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
         <thead>
           <tr style="background: #0e3860; color: #ffffff;">
@@ -1445,9 +1690,15 @@ function onAreaKlinisChange(areaKey) {
   state.currentWizardRkkList.forEach((item, idx) => {
     if (item.kategori !== currentCat) {
       currentCat = item.kategori;
+      const isMandatoryCat = item.isMandatory;
+      const catBg = isMandatoryCat ? '#f0f9ff' : '#0e3860';
+      const catColor = isMandatoryCat ? '#0369a1' : '#ffffff';
+      const catBorder = isMandatoryCat ? '4px solid #0284c7' : '4px solid #d97706';
+
       html += `
-        <tr style="background: #f1f5f9; font-weight: 800; color: #0e3860;">
-          <td colspan="9" style="padding: 6px 10px; font-size: 0.82rem; border: 1px solid #cbd5e1; text-transform: uppercase;">
+        <tr style="background: ${catBg}; font-weight: 800; color: ${catColor}; border-left: ${catBorder};">
+          <td colspan="9" style="padding: 7px 10px; font-size: 0.81rem; border: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.2px;">
+            ${isMandatoryCat ? '<i class="fa-solid fa-lock" style="margin-right: 4px;"></i>' : '<i class="fa-solid fa-star" style="margin-right: 4px; color: #fbbf24;"></i>'}
             ${currentCat}
           </td>
         </tr>
@@ -1456,11 +1707,14 @@ function onAreaKlinisChange(areaKey) {
 
     const kode = item.defaultKode || 1;
     html += `
-      <tr style="border-bottom: 1px solid #e2e8f0;">
+      <tr style="border-bottom: 1px solid #e2e8f0; ${item.isMandatory ? 'background: #fafcff;' : ''}">
         <td style="text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.78rem; border: 1px solid #e2e8f0;">${item.no || (idx + 1)}</td>
         <td style="border: 1px solid #e2e8f0; padding: 6px 8px;">
           <div style="font-weight: 600; color: var(--text-main); font-size: 0.83rem;">${item.name}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 2px;">
+          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 3px; flex-wrap: wrap;">
+            <span class="badge" style="background: ${item.isMandatory ? '#e0f2fe; color: #0369a1;' : '#fef3c7; color: #92400e;'} font-weight: 700; font-size: 0.69rem;">
+              <i class="fa-solid ${item.isMandatory ? 'fa-lock' : 'fa-star'}"></i> ${item.badgeText}
+            </span>
             <span class="badge" style="background: #f1f5f9; padding: 1px 6px;">${item.domain || 'Asuhan'}</span>
             <span class="badge" style="background: #eef2ff; color: #4338ca; padding: 1px 6px;">Sifat: ${item.jenisTindakan || 'Mandiri'}</span>
           </div>
@@ -1549,6 +1803,10 @@ function generateWizardSummary() {
     else if (r.value === '3') count3++;
   });
   const totalCount = state.currentWizardRkkList.length || radios.length;
+  const mandatoryCount = (state.currentWizardRkkList || []).filter(a => a.isMandatory).length;
+  const targetCount = totalCount - mandatoryCount;
+  const cluster = getClusterFromAreaKey(areaSelect?.value);
+  const clusterName = getClusterDisplayName(cluster);
 
   summaryBox.innerHTML = `
     <div><strong>Nama Pegawai:</strong> ${nama}</div>
@@ -1557,8 +1815,13 @@ function generateWizardSummary() {
     <div><strong>Jenjang Karir Diajukan:</strong> <span class="badge-pk badge-pk3">${jenjang}</span></div>
     <div><strong>Rumpun / Area Buku Putih:</strong> <strong style="color:#0e3860;">${areaName}</strong></div>
     <div><strong>Unit Pelayanan:</strong> ${unit}</div>
-    <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-subtle);">
-      <strong>Hasil Asesmen Mandiri (${totalCount} Tindakan Asuhan Sesuai Template Resmi):</strong><br>
+    <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-subtle); line-height: 1.5;">
+      <strong>Struktur Kewenangan Klinis Kumulatif (${totalCount} Tindakan Total):</strong><br>
+      <div style="font-size: 0.78rem; margin: 3px 0 6px 0;">
+        ${mandatoryCount > 0 ? `<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;"><i class="fa-solid fa-lock"></i> Mandatory Dasar: ${mandatoryCount} Tindakan (PK I + PK II ${clusterName})</span>` : ''}
+        <span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700; margin-left:4px;"><i class="fa-solid fa-star"></i> Diajukan ${jenjang}: ${targetCount} Tindakan</span>
+      </div>
+      <strong>Hasil Asesmen Mandiri:</strong><br>
       <span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">Kode 1 (Mandiri Penuh): ${count1}</span>
       <span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700; margin-left:4px;">Kode 2 (Supervisi): ${count2}</span>
       <span class="badge" style="background:#f1f5f9; color:#475569; font-weight:700; margin-left:4px;">Kode 3 (Tidak Diminta): ${count3}</span>
@@ -4856,13 +5119,26 @@ function generateRkkHVS(mode) {
   const strExp = isBlank ? '........................' : (document.getElementById('formStrExpiry')?.value || '2028-11-20');
   
   const areaSelect = document.getElementById('formAreaKlinis');
-  const areaName = isBlank ? '....................................................................' : (areaSelect?.options[areaSelect.selectedIndex]?.text || 'Keperawatan Medikal Bedah (KMB)');
   const areaKey = areaSelect?.value || 'kmb_medikal_pk3';
+  const areaName = isBlank ? '....................................................................' : (areaSelect?.options[areaSelect.selectedIndex]?.text || getAreaDisplayName(areaKey, jenjang));
+  const cluster = getClusterFromAreaKey(areaKey);
+  const clusterName = getClusterDisplayName(cluster);
 
-  const baseActions = window.KOMITE_DATA?.mandatoryBaseActions || [];
-  const specificActions = (state.currentWizardRkkList && state.currentWizardRkkList.length > 0)
-    ? state.currentWizardRkkList.filter(a => !a.id?.startsWith('RKK-BASE'))
-    : (window.KOMITE_DATA?.whiteBookActions?.[areaKey] || window.KOMITE_DATA?.whiteBookActions?.['generalis'] || []);
+  const allActions = (state.currentWizardRkkList && state.currentWizardRkkList.length > 0)
+    ? state.currentWizardRkkList
+    : getCumulativeRkkActions(jenjang, areaKey);
+
+  const tier1Actions = allActions.filter(a => a.jenjangLevel === 'PK I');
+  const tier2Actions = allActions.filter(a => a.jenjangLevel === 'PK II');
+  const tier3Actions = allActions.filter(a => a.jenjangLevel === 'PK III');
+  const tier4Actions = allActions.filter(a => a.jenjangLevel === 'PK IV');
+  const tier5Actions = allActions.filter(a => a.jenjangLevel === 'PK V');
+  const pmbActions   = allActions.filter(a => a.jenjangLevel === 'PMB');
+
+  // Hitung total halaman dokumen
+  let totalPages = 3;
+  if (jenjang === 'PMB') totalPages = 2;
+  else if (tier4Actions.length > 0 || tier5Actions.length > 0) totalPages = 4;
 
   const logoSrc = 'logo_kalbar.png';
 
@@ -4887,6 +5163,13 @@ function generateRkkHVS(mode) {
     <div style="border-top: 2.5px solid #000000; border-bottom: 0.8px solid #000000; height: 2px; margin-top: 5px; margin-bottom: 12px;"></div>
   `;
 
+  const runningHeader = (sheetNum, sheetTitle) => `
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 10px;">
+      <span style="font-size: 8pt; font-weight: bold; color: #475569;">KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK &bull; RINCIAN KEWENANGAN KLINIS</span>
+      <span style="font-size: 8pt; color: #64748b;">Lembar ${sheetNum} &bull; ${sheetTitle}</span>
+    </div>
+  `;
+
   const renderRkkRow = (item, idx) => {
     let mandiri1 = '&nbsp;', mandiri2 = '&nbsp;', mandiri3 = '&nbsp;';
     let mb1 = '&nbsp;', mb2 = '&nbsp;', mb3 = '&nbsp;';
@@ -4899,13 +5182,13 @@ function generateRkkHVS(mode) {
       else if (val === '2') mandiri2 = '<strong>&check;</strong>';
       else mandiri3 = '<strong>&check;</strong>';
 
-      // Mitra Bestari recommendation
+      // Rekomendasi Mitra Bestari
       if (val === '1') {
         mb1 = '<strong style="color:#047857;">&check;</strong>';
         catatan = 'Kompeten Penuh';
       } else if (val === '2') {
         mb2 = '<strong style="color:#b45309;">&check;</strong>';
-        catatan = 'Supervisi Berlanjut';
+        catatan = 'Supervisi';
       } else {
         mb3 = '<strong style="color:#64748b;">&check;</strong>';
         catatan = 'Tidak Diberikan';
@@ -4914,161 +5197,204 @@ function generateRkkHVS(mode) {
 
     return `
       <tr>
-        <td style="border: 1px solid #000; padding: 4px 3px; text-align: center; font-size: 8pt; vertical-align: middle;">${item.no || (idx + 1)}</td>
-        <td style="border: 1px solid #000; padding: 4px 6px; font-size: 8pt; vertical-align: middle; line-height: 1.25;">
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 7.8pt; vertical-align: middle;">${item.no || (idx + 1)}</td>
+        <td style="border: 1px solid #000; padding: 3px 5px; font-size: 7.8pt; vertical-align: middle; line-height: 1.25;">
           ${item.name}
-          ${item.jenisTindakan ? `<span style="font-size: 7pt; color: #555; display: block;">Sifat: ${item.jenisTindakan}</span>` : ''}
+          <div style="font-size: 6.8pt; color: #555; display: flex; gap: 4px; margin-top: 1px;">
+            ${item.isMandatory ? '<span style="color:#0369a1; font-weight:bold;">[MANDATORY]</span>' : '<span style="color:#b45309; font-weight:bold;">[DIAJUKAN]</span>'}
+            <span>Sifat: ${item.jenisTindakan || 'Mandiri'}</span>
+          </div>
         </td>
-        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri1}</td>
-        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri2}</td>
-        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri3}</td>
-        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb1}</td>
-        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb2}</td>
-        <td style="border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb3}</td>
-        <td style="border: 1px solid #000; padding: 4px 5px; font-size: 7.5pt; vertical-align: middle; color: #1e293b;">${catatan}</td>
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri1}</td>
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri2}</td>
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mandiri3}</td>
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb1}</td>
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb2}</td>
+        <td style="border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 8pt; vertical-align: middle;">${mb3}</td>
+        <td style="border: 1px solid #000; padding: 3px 4px; font-size: 7.3pt; vertical-align: middle; color: #1e293b;">${catatan}</td>
       </tr>
     `;
   };
 
   const tableHeader = `
-    <table class="soedarso-table" style="width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 1px solid #000;">
+    <table class="soedarso-table" style="width: 100%; border-collapse: collapse; margin-bottom: 6px; border: 1px solid #000;">
       <thead>
         <tr style="background: #e2e8f0; color: #000;">
-          <th rowspan="2" style="border: 1px solid #000; width: 28px; text-align: center; font-size: 7.5pt; padding: 4px 2px;">NO</th>
-          <th rowspan="2" style="border: 1px solid #000; text-align: left; font-size: 8pt; padding: 4px 6px;">RINCIAN KOMPETENSI / TINDAKAN ASUHAN KEPERAWATAN</th>
-          <th colspan="3" style="border: 1px solid #000; width: 75px; text-align: center; font-size: 7.5pt; padding: 3px 2px;">PERMOHONAN<br>PEMOHON</th>
-          <th colspan="3" style="border: 1px solid #000; width: 75px; text-align: center; font-size: 7.5pt; padding: 3px 2px;">REKOMENDASI<br>MITRA BESTARI</th>
-          <th rowspan="2" style="border: 1px solid #000; width: 95px; text-align: center; font-size: 7.5pt; padding: 4px 4px;">CATATAN / TINJAUAN BUKTI</th>
+          <th rowspan="2" style="border: 1px solid #000; width: 26px; text-align: center; font-size: 7.2pt; padding: 3px 2px;">NO</th>
+          <th rowspan="2" style="border: 1px solid #000; text-align: left; font-size: 7.5pt; padding: 3px 5px;">RINCIAN KOMPETENSI / TINDAKAN ASUHAN KEPERAWATAN</th>
+          <th colspan="3" style="border: 1px solid #000; width: 68px; text-align: center; font-size: 7pt; padding: 2px;">PERMOHONAN<br>PEMOHON</th>
+          <th colspan="3" style="border: 1px solid #000; width: 68px; text-align: center; font-size: 7pt; padding: 2px;">REKOMENDASI<br>MITRA BESTARI</th>
+          <th rowspan="2" style="border: 1px solid #000; width: 90px; text-align: center; font-size: 7pt; padding: 3px 3px;">CATATAN / REVIEW</th>
         </tr>
         <tr style="background: #e2e8f0; color: #000;">
-          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">1</th>
-          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">2</th>
-          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">3</th>
-          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">1</th>
-          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">2</th>
-          <th style="border: 1px solid #000; width: 25px; text-align: center; font-size: 7.5pt; padding: 2px;">3</th>
+          <th style="border: 1px solid #000; width: 22px; text-align: center; font-size: 7.2pt; padding: 2px;">1</th>
+          <th style="border: 1px solid #000; width: 22px; text-align: center; font-size: 7.2pt; padding: 2px;">2</th>
+          <th style="border: 1px solid #000; width: 22px; text-align: center; font-size: 7.2pt; padding: 2px;">3</th>
+          <th style="border: 1px solid #000; width: 22px; text-align: center; font-size: 7.2pt; padding: 2px;">1</th>
+          <th style="border: 1px solid #000; width: 22px; text-align: center; font-size: 7.2pt; padding: 2px;">2</th>
+          <th style="border: 1px solid #000; width: 22px; text-align: center; font-size: 7.2pt; padding: 2px;">3</th>
         </tr>
       </thead>
       <tbody>
   `;
 
-  // Page 1: Kop + Identitas + Keterangan Kode + Bagian A (Base Actions)
-  const rowsBagianA = baseActions.map((item, idx) => renderRkkRow(item, idx)).join('');
+  let htmlDoc = '';
 
-  // Page 2: Bagian B (Specific Actions)
-  const rowsBagianB = specificActions.map((item, idx) => renderRkkRow(item, idx)).join('');
-
-  return `
-    <!-- ==========================================
-         LEMBAR 1: IDENTITAS + BAGIAN A DASAR
-         ========================================== -->
-    <div class="soedarso-page page-1" style="background:#fff; width:210mm; min-height:297mm; padding:12mm 15mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+  // =========================================================================
+  // LEMBAR 1: KOP + IDENTITAS + PANDUAN + BAGIAN A (MANDATORY PK I / DASAR)
+  // =========================================================================
+  htmlDoc += `
+    <div class="soedarso-page page-1" style="background:#fff; width:210mm; min-height:297mm; padding:10mm 14mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
       ${kopSoedarso}
 
-      <div style="text-align: center; margin-bottom: 12px;">
-        <div style="font-size: 11pt; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase;">
+      <div style="text-align: center; margin-bottom: 8px;">
+        <div style="font-size: 10.5pt; font-weight: bold; letter-spacing: 0.3px; text-transform: uppercase;">
           RINCIAN KEWENANGAN KLINIS (RKK) TENAGA KEPERAWATAN
         </div>
-        <div style="font-size: 9.5pt; font-weight: bold; color: #1e3a8a; margin-top: 2px;">
+        <div style="font-size: 9pt; font-weight: bold; color: #1e3a8a; margin-top: 1px;">
           LAMPIRAN REKOMENDASI SURAT PENUGASAN KLINIS (SPK)
         </div>
-        <div style="font-size: 8.5pt; color: #475569; margin-top: 1px;">
-          Nomor Register Komite: 800/RKK/KOM-KEP/RSUD-DS/2026
+        <div style="font-size: 7.8pt; color: #475569;">
+          Nomor Register Komite: 800/RKK/KOM-KEP/RSUD-DS/2026 &bull; Standar Buku Putih (White Book 2026)
         </div>
       </div>
 
-      <!-- Identitas Pemohon -->
-      <table class="soedarso-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt;">
+      <table class="soedarso-table" style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 8pt;">
         <tr>
-          <td style="width: 25%; font-weight: bold; padding: 3px 4px;">Nama Tenaga Keperawatan</td>
-          <td style="width: 2%; padding: 3px 2px;">:</td>
-          <td style="width: 38%; font-weight: bold; padding: 3px 4px; color: #0f172a;">${nama}</td>
-          <td style="width: 15%; font-weight: bold; padding: 3px 4px;">Jenjang Diusulkan</td>
-          <td style="width: 2%; padding: 3px 2px;">:</td>
-          <td style="width: 18%; font-weight: bold; padding: 3px 4px; color: #1e3a8a;">${jenjang}</td>
+          <td style="width: 25%; font-weight: bold; padding: 2px 4px;">Nama Tenaga Keperawatan</td>
+          <td style="width: 2%; padding: 2px 1px;">:</td>
+          <td style="width: 38%; font-weight: bold; padding: 2px 4px; color: #0f172a;">${nama}</td>
+          <td style="width: 15%; font-weight: bold; padding: 2px 4px;">Jenjang Diajukan</td>
+          <td style="width: 2%; padding: 2px 1px;">:</td>
+          <td style="width: 18%; font-weight: bold; padding: 2px 4px; color: #1e3a8a;">${jenjang}</td>
         </tr>
         <tr>
-          <td style="font-weight: bold; padding: 3px 4px;">NIP / NIPPPK / NIK</td>
-          <td style="padding: 3px 2px;">:</td>
-          <td style="padding: 3px 4px;">${nip}</td>
-          <td style="font-weight: bold; padding: 3px 4px;">Unit Pelayanan</td>
-          <td style="padding: 3px 2px;">:</td>
-          <td style="padding: 3px 4px;">${unit}</td>
+          <td style="font-weight: bold; padding: 2px 4px;">NIP / NIPPPK / NIK</td>
+          <td style="padding: 2px 1px;">:</td>
+          <td style="padding: 2px 4px;">${nip}</td>
+          <td style="font-weight: bold; padding: 2px 4px;">Unit Pelayanan</td>
+          <td style="padding: 2px 1px;">:</td>
+          <td style="padding: 2px 4px;">${unit}</td>
         </tr>
         <tr>
-          <td style="font-weight: bold; padding: 3px 4px;">Nomor STR &amp; Masa Berlaku</td>
-          <td style="padding: 3px 2px;">:</td>
-          <td style="padding: 3px 4px;">${str} (s/d ${strExp})</td>
-          <td style="font-weight: bold; padding: 3px 4px;">Area Buku Putih</td>
-          <td style="padding: 3px 2px;">:</td>
-          <td style="padding: 3px 4px; font-weight: 600;">${areaName}</td>
+          <td style="font-weight: bold; padding: 2px 4px;">Nomor STR &amp; Berlaku</td>
+          <td style="padding: 2px 1px;">:</td>
+          <td style="padding: 2px 4px;">${str} (s/d ${strExp})</td>
+          <td style="font-weight: bold; padding: 2px 4px;">Area Buku Putih</td>
+          <td style="padding: 2px 1px;">:</td>
+          <td style="padding: 2px 4px; font-weight: 600;">${areaName}</td>
         </tr>
       </table>
 
-      <!-- Petunjuk Kode Kewenangan -->
-      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px; margin-bottom: 8px; font-size: 7.8pt; line-height: 1.35;">
-        <strong>Keterangan Kode Kewenangan Klinis:</strong><br>
-        <strong>Kode 1</strong>: Mandiri Penuh (M) &bull; 
-        <strong>Kode 2</strong>: Di bawah Supervisi (S) &bull; 
-        <strong>Kode 3</strong>: Tidak Diminta / Tidak Diberikan Kewenangan (T)
+      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 6px; margin-bottom: 6px; font-size: 7.3pt; line-height: 1.3;">
+        <strong>Keterangan Kode Kewenangan:</strong>
+        <strong>1</strong>: Mandiri Penuh (M) &bull; 
+        <strong>2</strong>: Di bawah Supervisi (S) &bull; 
+        <strong>3</strong>: Tidak Diminta / Tidak Diberikan Kewenangan (T).
+        <span style="color:#0369a1; margin-left: 6px;"><em>(Prinsip Kumulatif: Jenjang ${jenjang} memuat seluruh kewenangan mandatory di bawahnya).</em></span>
       </div>
 
-      <!-- Bagian A: Umum & Dasar -->
-      <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 4px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
-        A. KEWENANGAN KLINIS UMUM &amp; ASUHAN KEPERAWATAN DASAR (MANDATORY)
+      <!-- Bagian A: PK I / Dasar -->
+      <div style="font-weight: bold; font-size: 8pt; color: #0e3860; margin-bottom: 3px; background: #e0f2fe; padding: 2px 5px; border-left: 3px solid #0284c7;">
+        ${jenjang === 'PMB' ? 'A. PELAYANAN PRAKTIK BIDAN KLINIS (PMB I - IV)' : (jenjang === 'PK I' ? 'A. KEWENANGAN KLINIS DIAJUKAN PK I (GENERALIS / ASUHAN DASAR)' : 'A. KEWENANGAN KLINIS MANDATORY PK I (DASAR GENERALIS)')}
       </div>
       ${tableHeader}
-      ${rowsBagianA}
+      ${(jenjang === 'PMB' ? pmbActions : tier1Actions).map(renderRkkRow).join('')}
       </tbody></table>
 
-      <div style="text-align: right; font-size: 7.5pt; color: #64748b; margin-top: 10px;">
-        Dokumen RKK RSUD dr. Soedarso &bull; Lembar 1 dari 3
+      <div style="text-align: right; font-size: 7.2pt; color: #64748b; margin-top: 6px;">
+        Dokumen RKK RSUD dr. Soedarso &bull; Lembar 1 dari ${totalPages}
       </div>
     </div>
+  `;
 
-    <!-- ==========================================
-         LEMBAR 2: BAGIAN B AREA SPESIFIK BUKU PUTIH
-         ========================================== -->
-    <div class="soedarso-page page-2" style="background:#fff; width:210mm; min-height:297mm; padding:12mm 15mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 10px;">
-        <span style="font-size: 8pt; font-weight: bold; color: #475569;">KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK</span>
-        <span style="font-size: 8pt; color: #64748b;">Lembar 2 &bull; Bagian B Spesifik Area</span>
-      </div>
+  // =========================================================================
+  // LEMBAR 2: BAGIAN B (MANDATORY PK II) + BAGIAN C (DIAJUKAN PK III / SPESIALISASI)
+  // =========================================================================
+  if (totalPages >= 3) {
+    htmlDoc += `
+      <div class="soedarso-page page-2" style="background:#fff; width:210mm; min-height:297mm; padding:10mm 14mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+        ${runningHeader(2, 'Bagian B &amp; C: Kewenangan Klinis Menengah &amp; Spesifik')}
 
-      <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 4px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
-        B. KEWENANGAN KLINIS LANJUTAN &amp; INTERVENSI KHUSUS AREA KLINIS: ${areaName.toUpperCase()}
-      </div>
-      ${tableHeader}
-      ${rowsBagianB}
-      </tbody></table>
+        ${tier2Actions.length > 0 ? `
+          <div style="font-weight: bold; font-size: 8pt; color: #0e3860; margin-bottom: 3px; background: #e0f2fe; padding: 2px 5px; border-left: 3px solid #0284c7;">
+            B. KEWENANGAN KLINIS ${tier2Actions[0]?.isMandatory ? 'MANDATORY' : 'DIAJUKAN'} PK II (${clusterName.toUpperCase()})
+          </div>
+          ${tableHeader}
+          ${tier2Actions.map(renderRkkRow).join('')}
+          </tbody></table>
+        ` : ''}
 
-      <div style="text-align: right; font-size: 7.5pt; color: #64748b; margin-top: 12px;">
-        Dokumen RKK RSUD dr. Soedarso &bull; Lembar 2 dari 3
-      </div>
-    </div>
+        ${tier3Actions.length > 0 ? `
+          <div style="font-weight: bold; font-size: 8pt; color: #0e3860; margin-top: 6px; margin-bottom: 3px; background: #fef3c7; padding: 2px 5px; border-left: 3px solid #d97706;">
+            C. KEWENANGAN KLINIS ${tier3Actions[0]?.isMandatory ? 'MANDATORY' : 'DIAJUKAN'} PK III (${areaName.toUpperCase()})
+          </div>
+          ${tableHeader}
+          ${tier3Actions.map(renderRkkRow).join('')}
+          </tbody></table>
+        ` : ''}
 
-    <!-- ==========================================
-         LEMBAR 3: CATATAN REKOMENDASI & PENGESAHAN 4 PIHAK
-         ========================================== -->
-    <div class="soedarso-page page-3" style="background:#fff; width:210mm; min-height:297mm; padding:12mm 15mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #94a3b8; padding-bottom: 4px; margin-bottom: 12px;">
-        <span style="font-size: 8pt; font-weight: bold; color: #475569;">KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK</span>
-        <span style="font-size: 8pt; color: #64748b;">Lembar 3 &bull; Pengesahan &amp; Rekomendasi</span>
+        <div style="text-align: right; font-size: 7.2pt; color: #64748b; margin-top: 8px;">
+          Dokumen RKK RSUD dr. Soedarso &bull; Lembar 2 dari ${totalPages}
+        </div>
       </div>
+    `;
+  }
+
+  // =========================================================================
+  // LEMBAR 3 (JIKA 4 HALAMAN, UNTUK PK IV / PK V)
+  // =========================================================================
+  if (totalPages === 4) {
+    htmlDoc += `
+      <div class="soedarso-page page-3" style="background:#fff; width:210mm; min-height:297mm; padding:10mm 14mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+        ${runningHeader(3, 'Bagian D &amp; E: Kewenangan Konsultan &amp; Pakar')}
+
+        ${tier4Actions.length > 0 ? `
+          <div style="font-weight: bold; font-size: 8pt; color: #0e3860; margin-bottom: 3px; background: #ede9fe; padding: 2px 5px; border-left: 3px solid #7c3aed;">
+            D. KEWENANGAN KLINIS ${tier4Actions[0]?.isMandatory ? 'MANDATORY' : 'DIAJUKAN'} PK IV (${areaName.toUpperCase()} - PROFICIENT)
+          </div>
+          ${tableHeader}
+          ${tier4Actions.map(renderRkkRow).join('')}
+          </tbody></table>
+        ` : ''}
+
+        ${tier5Actions.length > 0 ? `
+          <div style="font-weight: bold; font-size: 8pt; color: #0e3860; margin-top: 6px; margin-bottom: 3px; background: #fef2f2; padding: 2px 5px; border-left: 3px solid #dc2626;">
+            E. KEWENANGAN KLINIS DIAJUKAN PK V (${areaName.toUpperCase()} - EXPERT/PAKAR)
+          </div>
+          ${tableHeader}
+          ${tier5Actions.map(renderRkkRow).join('')}
+          </tbody></table>
+        ` : ''}
+
+        <div style="text-align: right; font-size: 7.2pt; color: #64748b; margin-top: 8px;">
+          Dokumen RKK RSUD dr. Soedarso &bull; Lembar 3 dari 4
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // LEMBAR TERAKHIR: CATATAN REKOMENDASI & LEMBAR PENGESAHAN 4 PIHAK
+  // =========================================================================
+  const lastPageNum = totalPages;
+  htmlDoc += `
+    <div class="soedarso-page page-${lastPageNum}" style="background:#fff; width:210mm; min-height:297mm; padding:10mm 14mm; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.15); box-sizing:border-box;">
+      ${runningHeader(lastPageNum, 'Pengesahan &amp; Rekomendasi Subkomite Kredensial')}
 
       <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 6px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
-        C. CATATAN &amp; KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL
+        ${totalPages === 4 ? 'F' : 'D'}. CATATAN &amp; KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL
       </div>
-      <div style="border: 1px solid #000; padding: 8px 10px; font-size: 8.3pt; line-height: 1.5; margin-bottom: 18px; background: #fff;">
+      <div style="border: 1px solid #000; padding: 8px 10px; font-size: 8.2pt; line-height: 1.5; margin-bottom: 16px; background: #fff;">
         ${isBlank ? `
           <div style="height: 60px;">&nbsp;</div>
         ` : `
-          Berdasarkan hasil asesmen mandiri, verifikasi portofolio klinis, bukti logbook harian, serta penelaahan kompetensi oleh Mitra Bestari, tenaga keperawatan atas nama <strong>${nama}</strong> (NIP: ${nip}) direkomendasikan untuk diberikan <strong>Surat Penugasan Klinis (SPK)</strong> dengan Rincian Kewenangan Klinis sebagaimana tercantum pada Bagian A dan Bagian B dokumen ini pada jenjang <strong>${jenjang}</strong> di lingkungan RSUD dr. Soedarso Pontianak.
+          Berdasarkan hasil asesmen mandiri berjenjang, penelaahan kelengkapan portofolio klinis, serta verifikasi penguasaan kewenangan kumulatif (Mandatory PK I Generalis, ${tier2Actions.length > 0 ? `Mandatory PK II ${clusterName}, ` : ''}dan Kewenangan Klinis ${jenjang} ${areaName}), tenaga keperawatan atas nama <strong>${nama}</strong> (NIP: ${nip}) dinyatakan <strong>KOMPETEN</strong> dan direkomendasikan untuk diberikan <strong>Surat Penugasan Klinis (SPK)</strong> pada jenjang <strong>${jenjang}</strong> di lingkungan RSUD dr. Soedarso Pontianak.
         `}
       </div>
 
       <div style="font-weight: bold; font-size: 8.5pt; color: #0e3860; margin-bottom: 8px; background: #e0f2fe; padding: 3px 6px; border-left: 3px solid #0284c7;">
-        D. LEMBAR PENGESAHAN DOKUMEN REKOMENDASI RINCIAN KEWENANGAN KLINIS
+        ${totalPages === 4 ? 'G' : 'E'}. LEMBAR PENGESAHAN DOKUMEN REKOMENDASI RINCIAN KEWENANGAN KLINIS
       </div>
 
       <table style="width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 8.5pt;">
@@ -5105,12 +5431,14 @@ function generateRkkHVS(mode) {
         </tr>
       </table>
 
-      <div style="margin-top: 25px; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-size: 7.5pt; color: #64748b; display: flex; justify-content: space-between;">
+      <div style="margin-top: 25px; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-size: 7.2pt; color: #64748b; display: flex; justify-content: space-between;">
         <span>Sistem Informasi Terintegrasi Komite Keperawatan RSUD dr. Soedarso Pontianak</span>
-        <span>Dokumen RKK RSUD dr. Soedarso &bull; Lembar 3 dari 3</span>
+        <span>Dokumen RKK RSUD dr. Soedarso &bull; Lembar ${lastPageNum} dari ${totalPages}</span>
       </div>
     </div>
   `;
+
+  return htmlDoc;
 }
 
 function printRkkHVS() {
