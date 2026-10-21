@@ -9,8 +9,11 @@ window.KOMITE_DATA = {
     subName: "RUMAH SAKIT UMUM DAERAH KELAS A PENDIDIKAN & RUJUKAN UTAMA PROVINSI KALIMANTAN BARAT",
     address: "Jalan Dokter Soedarso Nomor 1 Pontianak, Kalimantan Barat 78124",
     phone: "(0561) 737701, Faksimile: (0561) 736528",
-    email: "rsud@kalbarprov.go.id",
-    website: "https://rsuddrsoedarso.kalbarprov.go.id",
+    email: "komitekeperawatanrsds2023@gmail.com",
+    committeeEmail: "komitekeperawatanrsds2023@gmail.com",
+    secretaryEmail: "yadhie28@gmail.com",
+    adminNotificationEmails: ["komitekeperawatanrsds2023@gmail.com", "yadhie28@gmail.com"],
+    website: "https://yadhie28.github.io/komite-keperawatan-soedarso/",
     director: "dr. Hary Agung Tjahyadi",
     directorNIP: "19710312 199903 1 005",
     nursingChief: "M. Separia Russanto, S.Kep., Ns",
@@ -628,6 +631,7 @@ window.KOMITE_DATA = {
       password: "soedarso2026",
       name: "M. Separia Russanto, S.Kep., Ns",
       role: "Ketua Komite Keperawatan",
+      email: "komitekeperawatanrsds2023@gmail.com",
       badge: "Super Admin",
       group: "Pimpinan Komite",
       access: ["kredensial", "mutu", "etik", "regulasi", "approval", "administrasi"]
@@ -639,6 +643,7 @@ window.KOMITE_DATA = {
       password: "soedarso2026",
       name: "Ns. Rusmulyadi, S.Kep., MARS",
       role: "Sekretaris Komite Keperawatan",
+      email: "yadhie28@gmail.com",
       badge: "Super Admin",
       group: "Pimpinan Komite",
       access: ["kredensial", "mutu", "etik", "regulasi", "approval", "administrasi"]
@@ -850,5 +855,23 @@ window.KOMITE_DATA = {
       group: "Sub Komite Mutu Keperawatan",
       access: ["mutu"]
     }
-  ]
+  ],
+
+  // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)
+  administrativeNotification: {
+    enabled: true,
+    recipients: [
+      { name: "Komite Keperawatan RSUD dr. Soedarso", email: "komitekeperawatanrsds2023@gmail.com", role: "Pimpinan & Sekretariat" },
+      { name: "Ns. Rusmulyadi, S.Kep., MARS", email: "yadhie28@gmail.com", role: "Sekretaris Komite Keperawatan" }
+    ],
+    primaryEmails: ["komitekeperawatanrsds2023@gmail.com", "yadhie28@gmail.com"],
+    events: [
+      "Pengajuan Formulir Surat Permohonan Kredensial",
+      "Pendaftaran Asesmen Mandiri RKK",
+      "Unggah Berkas Portofolio Kredensial",
+      "Laporan & Konsultasi Etika / Disiplin Profesi",
+      "Rekomendasi SPK & RKK Mitra Bestari"
+    ]
+  }
 };
+

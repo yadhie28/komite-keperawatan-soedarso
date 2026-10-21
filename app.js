@@ -12,6 +12,7 @@ const state = {
   clinicalAudits: [],
   regulations: [],
   ethicsTickets: [],
+  adminNotifications: [],
   wizardStep: 1,
   selectedNurse: null,
   currentWizardRkkList: [],
@@ -276,6 +277,44 @@ function loadData() {
     state.ethicsTickets = master.sampleTickets || [];
     saveEthicsTickets();
   }
+
+  // Load Administrative Notifications (Email Komite & Sekretaris)
+  const savedNotifs = localStorage.getItem('komite_admin_notifications');
+  if (savedNotifs) {
+    try {
+      state.adminNotifications = JSON.parse(savedNotifs);
+    } catch (e) {
+      state.adminNotifications = [];
+    }
+  } else {
+    state.adminNotifications = [
+      {
+        id: 'NOTIF-2026-001',
+        timestamp: '21 Oktober 2026, 11:20 WIB',
+        eventType: 'Formulir Surat Permohonan Kredensial (Langkah 1)',
+        applicantName: 'Ns. Hendra Kurniawan, S.Kep',
+        applicantNip: '19920415 201903 1 004',
+        unit: 'Ruang Enggang Gading 2 (Penyakit Dalam)',
+        subject: '[PERMOHONAN KREDENSIAL] Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Enggang Gading 2)',
+        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Hendra Kurniawan, S.Kep (NIP: 19920415 201903 1 004) dari Ruang Enggang Gading 2. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 2.',
+        recipients: ['komitekeperawatanrsds2023@gmail.com', 'yadhie28@gmail.com'],
+        status: 'Terkoneksi'
+      },
+      {
+        id: 'NOTIF-2026-002',
+        timestamp: '20 Oktober 2026, 14:05 WIB',
+        eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 3)',
+        applicantName: 'Bd. Siti Nurhaliza, S.Tr.Keb',
+        applicantNip: '19940822 202012 2 003',
+        unit: 'Ruang VK (Bersalin)',
+        subject: '[ASESMEN MANDIRI RKK] Bd. Siti Nurhaliza, S.Tr.Keb (PMB II - Ruang VK Bersalin)',
+        bodyText: 'Asesmen Mandiri Rincian Kewenangan Klinis (RKK) Bd. Siti Nurhaliza, S.Tr.Keb telah berhasil disubmit. Berkas dialokasikan untuk telaah Mitra Bestari.',
+        recipients: ['komitekeperawatanrsds2023@gmail.com', 'yadhie28@gmail.com'],
+        status: 'Terkoneksi'
+      }
+    ];
+    saveAdminNotifications();
+  }
 }
 
 function saveNurses() {
@@ -288,6 +327,10 @@ function saveAudits() {
 
 function saveEthicsTickets() {
   localStorage.setItem('komite_ethics_tickets', JSON.stringify(state.ethicsTickets));
+}
+
+function saveAdminNotifications() {
+  localStorage.setItem('komite_admin_notifications', JSON.stringify(state.adminNotifications));
 }
 
 /* ==========================================================================
@@ -661,7 +704,18 @@ function changeNurseStatus(nurseId, newStatus) {
   updateHeroStats();
   renderNursesTable();
   renderAnalyticsCharts();
-  showToast(`Status kredensial ${nurse.name} berhasil diubah dari "${oldStatus}" menjadi "${newStatus}".`, 'success');
+
+  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
+  recordAdminNotification({
+    eventType: `Pembaruan Status Kredensial (${newStatus})`,
+    subject: `[STATUS KREDENSIAL DIUBAH] ${nurse.name} (${nurse.pkLevel}) -> ${newStatus}`,
+    applicantName: nurse.name,
+    applicantNip: nurse.nip,
+    unit: nurse.unit,
+    bodyText: `Pemberitahuan perubahan status kredensial:\nNama: ${nurse.name}\nNIP: ${nurse.nip}\nUnit: ${nurse.unit}\nJenjang: ${nurse.pkLevel}\nStatus Baru: ${newStatus} (Sebelumnya: ${oldStatus})\nDiperbarui oleh: ${state.currentUser ? state.currentUser.name : 'Administrator'}`
+  });
+
+  showToast(`Status kredensial ${nurse.name} diubah ke "${newStatus}". Notifikasi tercatat untuk Komite & Sekretaris.`, 'success');
 }
 
 function deleteNurseRecord(nurseId) {
@@ -849,11 +903,12 @@ function handleEthicsSubmit(e) {
   const category = document.getElementById('ethicsCategory').value;
   const unit = document.getElementById('ethicsUnit').value;
   const desc = document.getElementById('ethicsDescription').value;
+  const contact = document.getElementById('ethicsContact')?.value?.trim() || 'Anonim / Rahasia';
 
   const randomNum = Math.floor(1000 + Math.random() * 9000);
   const newTicket = {
     ticketCode: `ETIK-2026-${randomNum}`,
-    date: '20 Oktober 2026',
+    date: '21 Oktober 2026',
     category: category,
     unit: unit,
     status: 'Menunggu Telaah Subkomite',
@@ -865,8 +920,41 @@ function handleEthicsSubmit(e) {
   saveEthicsTickets();
   renderEthicsTickets();
 
+  // Format Notifikasi Administrasi Resmi (Komite & Sekretaris)
+  const adminSubject = `[RAHASIA - ETIK & DISIPLIN] Laporan Konsultasi Baru: ${newTicket.ticketCode}`;
+  const adminBody = 
+    `Kepada Yth.\n` +
+    `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `PEMBERITAHUAN PENERIMAAN LAPORAN / KONSULTASI ETIK & DISIPLIN PROFESI (KONFIDENSIAL):\n\n` +
+    `• Nomor Tiket     : ${newTicket.ticketCode}\n` +
+    `• Kategori        : ${category}\n` +
+    `• Ruang / Unit    : ${unit}\n` +
+    `• Tanggal Masuk   : 21 Oktober 2026\n` +
+    `• Status Awal     : Menunggu Telaah Subkomite\n` +
+    `• Kontak Pelapor  : ${contact}\n` +
+    `• Uraian Ringkas  : ${desc}\n\n` +
+    `Catatan Kerahasiaan: Laporan ini bersifat konfidensial berdasarkan Regulasi Subkomite Etik & Disiplin Profesi Komite Keperawatan RSUD dr. Soedarso.\n\n` +
+    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  recordAdminNotification({
+    eventType: 'Laporan / Konsultasi Etika & Disiplin',
+    subject: adminSubject,
+    applicantName: `Pelapor (${newTicket.ticketCode})`,
+    unit: unit,
+    bodyText: adminBody
+  });
+
   document.getElementById('formEthicsReport').reset();
-  showToast(`Laporan etik berhasil dikirim! Nomor Tiket Anda: ${newTicket.ticketCode}`, 'success');
+  showToast(`Laporan etik berhasil dikirim! Nomor Tiket Anda: ${newTicket.ticketCode}. Notifikasi diteruskan ke email Komite & Sekretaris.`, 'success');
+
+  showAdminEmailNoticeModal({
+    eventType: 'Laporan / Konsultasi Etika & Disiplin Profesi (Rahasia)',
+    subject: adminSubject,
+    applicantName: `Pelapor (${newTicket.ticketCode})`,
+    bodyText: adminBody
+  });
 }
 
 function openTicketActionModal(ticketCode) {
@@ -890,13 +978,23 @@ function handleTicketActionSave(e) {
 
   const ticket = state.ethicsTickets.find(t => t.ticketCode === code);
   if (ticket) {
+    const oldStatus = ticket.status;
     ticket.status = status;
     ticket.note = notes;
-    ticket.responseDate = '20 Oktober 2026';
+    ticket.responseDate = '21 Oktober 2026';
     saveEthicsTickets();
     closeModal('modalTicketAction');
     renderEthicsTickets();
-    showToast(`Status tindak lanjut tiket ${code} berhasil diperbarui!`, 'success');
+
+    recordAdminNotification({
+      eventType: `Pembaruan Tindak Lanjut Tiket Etik (${code})`,
+      subject: `[UPDATE TIKET ETIK] ${code} -> ${status}`,
+      applicantName: code,
+      unit: ticket.unit,
+      bodyText: `Status tiket etik ${code} diperbarui dari "${oldStatus}" menjadi "${status}".\nCatatan Tindak Lanjut: ${notes || '-'}\nOleh: ${state.currentUser ? state.currentUser.name : 'Sekretariat Komite Keperawatan'}`
+    });
+
+    showToast(`Status tindak lanjut tiket ${code} berhasil diperbarui! Notifikasi tercatat untuk Komite & Sekretaris.`, 'success');
   }
 }
 
@@ -1376,8 +1474,45 @@ function handleKredensialSubmit(e) {
 
   renderKredensialTrackerVisual(nip);
 
+  // Rekam & format notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
+  const adminSubject = `[ASESMEN MANDIRI RKK TERKIRIM] ${nama} (${jenjang} - ${unit})`;
+  const adminBody = 
+    `Kepada Yth.\n` +
+    `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `Pemberitahuan Pendaftaran Asesmen Mandiri Rincian Kewenangan Klinis (RKK):\n\n` +
+    `• Nama Lengkap    : ${nama}\n` +
+    `• NIP / NIK       : ${nip}\n` +
+    `• Unit Kerja      : ${unit}\n` +
+    `• Jenjang Klinis  : ${jenjang}\n` +
+    `• Nomor STR       : ${str} (Masa Berlaku s/d: ${formatDate(strExp)})\n` +
+    `• Hasil Asesmen   : ${countM} Kewenangan Mandiri (M) dari ${totalCount} kompetensi yang diajukan\n` +
+    `• Mitra Bestari   : Ns. Yohanes Rindo Ari Wijoyo, S.Kep\n` +
+    `• Status Berkas   : Proses Review Subkomite Kredensial & Mitra Bestari\n` +
+    `• Tanggal Submit  : ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}\n\n` +
+    `Berkas telah masuk dalam antrean review mitra bestari untuk penerbitan Rekomendasi SPK & RKK.\n\n` +
+    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  recordAdminNotification({
+    eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 3)',
+    subject: adminSubject,
+    applicantName: nama,
+    applicantNip: nip,
+    unit: unit,
+    bodyText: adminBody
+  });
+
   closeModal('modalNewKredensial');
-  showToast(`Permohonan kredensialing atas nama ${nama} berhasil didaftarkan! Status: Proses Review Subkomite & Mitra Bestari.`, 'success');
+  showToast(`Permohonan kredensialing atas nama ${nama} berhasil didaftarkan! Notifikasi terkirim ke email Komite & Sekretaris.`, 'success');
+
+  showAdminEmailNoticeModal({
+    eventType: 'Pendaftaran Asesmen Mandiri RKK Online (Langkah 3)',
+    subject: adminSubject,
+    applicantName: nama,
+    bodyText: adminBody
+  });
+
   switchTab('kredensial');
 }
 
@@ -1499,13 +1634,42 @@ function handleSuratPermohonanSubmit(e) {
   // Buka pratinjau surat hasil isian
   previewSuratKredensialHVS('filled');
 
+  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
+  const adminSubject = `[PERMOHONAN KREDENSIAL] ${nama} (${jenjang} - ${unit})`;
+  const adminBody = 
+    `Kepada Yth.\n` +
+    `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `Dengan hormat,\n` +
+    `Telah diterbitkan Formulir Surat Permohonan Kredensialing Mandiri dengan data sbb:\n\n` +
+    `• Nama Pemohon    : ${nama}\n` +
+    `• NIP / NIK       : ${jenisNip !== 'NIP' ? jenisNip + '. ' : ''}${nip}\n` +
+    `• Unit Kerja      : ${unit}\n` +
+    `• Jenjang Klinis  : ${jenjang}\n` +
+    `• Tanggal         : ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}\n` +
+    `• Status Berkas   : Lembar Surat Permohonan 3 Halaman telah siap untuk diunduh dan ditandatangani mandiri.\n\n` +
+    `Saluran Notifikasi Terhubung:\n` +
+    `1. Komite: komitekeperawatanrsds2023@gmail.com\n` +
+    `2. Sekretaris: yadhie28@gmail.com\n\n` +
+    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  recordAdminNotification({
+    eventType: 'Formulir Surat Permohonan Kredensial (Langkah 1)',
+    subject: adminSubject,
+    applicantName: nama,
+    applicantNip: nip,
+    unit: unit,
+    bodyText: adminBody
+  });
+
   // Perbarui banner status sukses di modal pratinjau
   const banner = document.getElementById('previewSuratSuccessBanner');
   const badge = document.getElementById('previewSuratApplicantBadge');
   if (banner) banner.style.display = 'block';
   if (badge) badge.textContent = nama;
 
-  showToast(`Surat Permohonan resmi untuk ${nama} berhasil diterbitkan sesuai template baku RSUD dr. Soedarso!`, 'success');
+  showToast(`Surat Permohonan untuk ${nama} berhasil diterbitkan! Notifikasi terhubung ke email Komite & Sekretaris.`, 'success');
 }
 
 function generateSuratKredensialHVS(mode) {
@@ -2193,7 +2357,35 @@ function simpanUploadSurat(e) {
   updateAlurStepStatus();
   closeModal('modalUploadBerkasKredensial');
   renderKredensialTrackerVisual();
-  showToast('Surat Permohonan bertanda tangan pemohon & portofolio berhasil diunggah! Langkah 3 (RKK Online) kini aktif.', 'success');
+
+  const pemohon = state.currentApplicant ? state.currentApplicant.nama : (document.getElementById('uploadNamaPemohon')?.value || 'Tenaga Keperawatan');
+  const unit = state.currentApplicant ? state.currentApplicant.unit : 'Ruang Pelayanan';
+
+  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
+  const adminSubject = `[PORTOFOLIO DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 2)`;
+  const adminBody = 
+    `Kepada Yth.\n` +
+    `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `Pemberitahuan Unggah Surat Permohonan & Portofolio Kredensial:\n\n` +
+    `• Nama Pemohon    : ${pemohon}\n` +
+    `• Unit Kerja      : ${unit}\n` +
+    `• Tahapan         : Langkah 2 (Unggah Berkas Mandiri)\n` +
+    `• Status Berkas   : Surat Permohonan bertanda tangan mandiri dan dokumen portofolio (STR, SIPP, Logbook, Sertifikat) telah tersimpan di sistem.\n` +
+    `• Waktu Unggah    : ${new Date().toLocaleString('id-ID')}\n\n` +
+    `Pemohon telah diizinkan langsung melanjutkan ke Langkah 3 (Asesmen Mandiri RKK Online).\n\n` +
+    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  recordAdminNotification({
+    eventType: 'Unggah Portofolio & Surat Permohonan (Langkah 2)',
+    subject: adminSubject,
+    applicantName: pemohon,
+    unit: unit,
+    bodyText: adminBody
+  });
+
+  showToast(`Surat Permohonan bertanda tangan pemohon & portofolio berhasil diunggah! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
 
   // Opsi membuka langsung RKK Online tanpa hambatan
   setTimeout(() => {
@@ -2645,6 +2837,255 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
+/* ==========================================================================
+   SISTEM NOTIFIKASI & KONEKSI EMAIL ADMINISTRASI RESMI RSUD DR. SOEDARSO
+   Email Komite    : komitekeperawatanrsds2023@gmail.com
+   Email Sekretaris: yadhie28@gmail.com
+   ========================================================================== */
+
+const ADMIN_EMAIL_CONFIG = {
+  committeeEmail: "komitekeperawatanrsds2023@gmail.com",
+  committeeName: "Komite Keperawatan RSUD dr. Soedarso",
+  secretaryEmail: "yadhie28@gmail.com",
+  secretaryName: "Ns. Rusmulyadi, S.Kep., MARS (Sekretaris)",
+  combinedRecipients: "komitekeperawatanrsds2023@gmail.com, yadhie28@gmail.com",
+  allEmails: ["komitekeperawatanrsds2023@gmail.com", "yadhie28@gmail.com"]
+};
+
+/**
+ * Catat aktivitas administrasi dan hubungkan ke email komite & sekretaris
+ */
+function recordAdminNotification({ eventType, subject, applicantName, applicantNip, unit, details, bodyText }) {
+  const notifId = 'NOTIF-' + Date.now();
+  const dateStr = new Date().toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+  const newRecord = {
+    id: notifId,
+    timestamp: dateStr,
+    eventType: eventType || 'Aktivitas Administrasi',
+    applicantName: applicantName || 'Tenaga Keperawatan',
+    applicantNip: applicantNip || '-',
+    unit: unit || '-',
+    subject: subject || `[ADMIN KOMITE] ${eventType}`,
+    details: details || '',
+    bodyText: bodyText || '',
+    recipients: [...ADMIN_EMAIL_CONFIG.allEmails],
+    status: 'Terkoneksi'
+  };
+
+  if (!state.adminNotifications) state.adminNotifications = [];
+  state.adminNotifications.unshift(newRecord);
+  saveAdminNotifications();
+
+  return newRecord;
+}
+
+/**
+ * Generate Mailto & Gmail links addressed to both emails
+ */
+function generateAdminMailLinks(subject, bodyText) {
+  const cleanSubject = encodeURIComponent(subject || '');
+  const cleanBody = encodeURIComponent(bodyText || '');
+  return {
+    mailto: `mailto:${ADMIN_EMAIL_CONFIG.combinedRecipients}?subject=${cleanSubject}&body=${cleanBody}`,
+    gmail: `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(ADMIN_EMAIL_CONFIG.combinedRecipients)}&su=${cleanSubject}&body=${cleanBody}`
+  };
+}
+
+/**
+ * Tampilkan Modal Dialog Notifikasi Administrasi Terkoneksi
+ */
+function showAdminEmailNoticeModal({ eventType, subject, applicantName, bodyText }) {
+  const modal = document.getElementById('modalAdminEmailNotice');
+  if (!modal) return;
+
+  const links = generateAdminMailLinks(subject, bodyText);
+
+  const titleEl = document.getElementById('adminNoticeTitle');
+  const eventEl = document.getElementById('adminNoticeEvent');
+  const applicantEl = document.getElementById('adminNoticeApplicant');
+  const subjectEl = document.getElementById('adminNoticeSubject');
+  const bodyEl = document.getElementById('adminNoticeBody');
+  const btnGmail = document.getElementById('btnAdminNoticeGmail');
+  const btnMailto = document.getElementById('btnAdminNoticeMailto');
+  const btnCopy = document.getElementById('btnAdminNoticeCopy');
+
+  if (titleEl) titleEl.textContent = 'Notifikasi Administrasi Terkoneksi ke Email';
+  if (eventEl) eventEl.textContent = eventType || 'Pemberitahuan Sistem';
+  if (applicantEl) applicantEl.textContent = applicantName || 'Tenaga Keperawatan';
+  if (subjectEl) subjectEl.textContent = subject || '-';
+  if (bodyEl) bodyEl.textContent = bodyText || '';
+
+  if (btnGmail) {
+    btnGmail.onclick = () => window.open(links.gmail, '_blank');
+  }
+  if (btnMailto) {
+    btnMailto.href = links.mailto;
+  }
+  if (btnCopy) {
+    btnCopy.onclick = () => {
+      navigator.clipboard.writeText(`Kepada: ${ADMIN_EMAIL_CONFIG.combinedRecipients}\nSubjek: ${subject}\n\n${bodyText}`).then(() => {
+        showToast('Format notifikasi administrasi berhasil disalin ke clipboard!', 'success');
+      }).catch(() => {
+        showToast('Gagal menyalin teks.', 'info');
+      });
+    };
+  }
+
+  openModal('modalAdminEmailNotice');
+}
+
+/**
+ * Buka Pusat Notifikasi Email Administrasi (Admin & Komite Center)
+ */
+function openAdminEmailCenter() {
+  renderAdminNotificationsTable();
+  openModal('modalAdminEmailCenter');
+}
+
+/**
+ * Render Tabel Aktivitas Notifikasi Email di Modal Center
+ */
+function renderAdminNotificationsTable() {
+  const tbody = document.getElementById('adminNotificationsTableBody');
+  if (!tbody) return;
+
+  const list = state.adminNotifications || [];
+  if (list.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          Belum ada riwayat aktivitas notifikasi administrasi.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = list.map(item => `
+    <tr>
+      <td style="font-size: 0.78rem; color: var(--text-muted); white-space: nowrap;">
+        ${item.timestamp}
+      </td>
+      <td style="font-size: 0.82rem; font-weight: 700; color: var(--text-main);">
+        <i class="fa-solid fa-file-signature" style="color: var(--primary-600); margin-right: 4px;"></i>
+        ${item.eventType}
+      </td>
+      <td style="font-size: 0.82rem;">
+        <strong>${item.applicantName}</strong><br>
+        <span style="font-size: 0.74rem; color: var(--text-muted);">${item.unit || item.applicantNip}</span>
+      </td>
+      <td style="font-size: 0.76rem;">
+        <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; margin-bottom: 2px; display: inline-block;">
+          <i class="fa-solid fa-check-double"></i> 2 Penerima Terhubung
+        </span><br>
+        <code style="font-size: 0.7rem; color: var(--text-muted);">komitekeperawatanrsds2023@gmail.com</code><br>
+        <code style="font-size: 0.7rem; color: var(--text-muted);">yadhie28@gmail.com</code>
+      </td>
+      <td style="text-align: right; white-space: nowrap;">
+        <button class="btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="viewAdminNotifDetail('${item.id}')" title="Lihat Draf Notifikasi">
+          <i class="fa-regular fa-envelope"></i> Lihat
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function viewAdminNotifDetail(notifId) {
+  const item = (state.adminNotifications || []).find(n => n.id === notifId);
+  if (!item) return;
+  showAdminEmailNoticeModal({
+    eventType: item.eventType,
+    subject: item.subject,
+    applicantName: item.applicantName,
+    bodyText: item.bodyText || `${item.eventType} - ${item.applicantName}\nUnit: ${item.unit}\nNIP: ${item.applicantNip}`
+  });
+}
+
+/**
+ * Uji coba kirim ping notifikasi ke kedua email
+ */
+function testSendAdminEmailPing() {
+  const testSubject = `[UJI KONEKSI SISTEM] Notifikasi Administrasi Komite Keperawatan RSUD dr. Soedarso`;
+  const testBody = 
+    `Kepada Yth.\n` +
+    `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `UJI KONEKSI SISTEM NOTIFIKASI ADMINISTRASI:\n\n` +
+    `Koneksi saluran email administrasi Komite Keperawatan RSUD dr. Soedarso Pontianak dinyatakan BERFUNGSI DENGAN BAIK.\n\n` +
+    `Seluruh berkas administrasi meliputi:\n` +
+    `1. Formulir Permohonan Kredensialing (Langkah 1)\n` +
+    `2. Unggah Surat Permohonan Mandiri & Portofolio (Langkah 2)\n` +
+    `3. Pengisian Asesmen Mandiri RKK Online (Langkah 3)\n` +
+    `4. Pelaporan & Konsultasi Etika / Disiplin Profesi\n` +
+    `5. Penerbitan Rekomendasi SPK/RKK Mitra Bestari\n\n` +
+    `Kini otomatis terhubung ke email komitekeperawatanrsds2023@gmail.com dan email sekretaris yadhie28@gmail.com.\n\n` +
+    `Waktu Pengujian: ${new Date().toLocaleString('id-ID')}\n` +
+    `Sistem Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  const record = recordAdminNotification({
+    eventType: 'Uji Koneksi Notifikasi Email Administrasi',
+    subject: testSubject,
+    applicantName: 'Sistem Portal Komite Keperawatan',
+    applicantNip: 'ADMIN-TEST-SYS',
+    unit: 'Sekretariat Komite Keperawatan',
+    bodyText: testBody
+  });
+
+  renderAdminNotificationsTable();
+
+  showAdminEmailNoticeModal({
+    eventType: record.eventType,
+    subject: testSubject,
+    applicantName: 'Administrator Sistem',
+    bodyText: testBody
+  });
+
+  showToast('Uji koneksi dibuat! Notifikasi tercatat untuk komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com', 'success');
+}
+
+/**
+ * Buka pengiriman cepat email administrasi dari modal preview surat
+ */
+function openQuickAdminEmailDispatch(type) {
+  const applicant = state.currentApplicant || {
+    nama: 'Ns. Hendra Kurniawan, S.Kep',
+    nip: '19920415 201903 1 004',
+    unit: 'Ruang Enggang Gading 2 (Penyakit Dalam)',
+    jenjang: 'PK III'
+  };
+
+  const subject = `[PERMOHONAN KREDENSIAL] ${applicant.nama} (${applicant.jenjang} - ${applicant.unit})`;
+  const bodyText = 
+    `Kepada Yth.\n` +
+    `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `Dengan hormat,\n` +
+    `Berikut adalah pemberitahuan resmi pengajuan permohonan kredensialing tenaga keperawatan:\n\n` +
+    `• Nama Lengkap    : ${applicant.nama}\n` +
+    `• NIP / NIK       : ${applicant.nip}\n` +
+    `• Unit Kerja      : ${applicant.unit}\n` +
+    `• Jenjang PK      : ${applicant.jenjang}\n` +
+    `• Tanggal Pengajuan: ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}\n` +
+    `• Status Berkas   : Surat Permohonan 3 Halaman telah diterbitkan dan siap ditandatangani mandiri.\n\n` +
+    `Mohon untuk dicatat pada buku register administrasi Sekretariat Komite Keperawatan.\n\n` +
+    `Salam hormat,\n` +
+    `Pemohon Kredensialing & Sistem Portal RSUD dr. Soedarso\n` +
+    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
+
+  showAdminEmailNoticeModal({
+    eventType: 'Pengajuan Formulir Permohonan Kredensial',
+    subject: subject,
+    applicantName: applicant.nama,
+    bodyText: bodyText
+  });
+}
+
 // Expose functions globally for inline onclick handlers
 window.switchTab = switchTab;
 window.toggleTheme = toggleTheme;
@@ -2699,3 +3140,11 @@ window.importGoogleFormResponse = importGoogleFormResponse;
 window.resetSuratFormToBlank = resetSuratFormToBlank;
 window.togglePreviewSuratMode = togglePreviewSuratMode;
 window.downloadGoogleAppsScriptFile = downloadGoogleAppsScriptFile;
+window.recordAdminNotification = recordAdminNotification;
+window.generateAdminMailLinks = generateAdminMailLinks;
+window.showAdminEmailNoticeModal = showAdminEmailNoticeModal;
+window.openAdminEmailCenter = openAdminEmailCenter;
+window.renderAdminNotificationsTable = renderAdminNotificationsTable;
+window.viewAdminNotifDetail = viewAdminNotifDetail;
+window.testSendAdminEmailPing = testSendAdminEmailPing;
+window.openQuickAdminEmailDispatch = openQuickAdminEmailDispatch;
