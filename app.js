@@ -591,7 +591,11 @@ function renderNursesTable() {
       n.name.toLowerCase().includes(q) || 
       n.nip.toLowerCase().includes(q) || 
       n.strNumber.toLowerCase().includes(q);
-    const matchUnit = !unitFilter || n.unit.includes(unitFilter);
+    const matchUnit = !unitFilter || 
+      n.unit.toLowerCase().includes(unitFilter.toLowerCase()) || 
+      unitFilter.toLowerCase().includes(n.unit.toLowerCase()) ||
+      (unitFilter === 'ICU' && n.unit.includes('ICU')) ||
+      (unitFilter === 'IGD' && n.unit.includes('IGD'));
     const matchPk = !pkFilter || n.pkLevel === pkFilter;
     const matchStatus = !statusFilter || n.credentialStatus === statusFilter;
     return matchQ && matchUnit && matchPk && matchStatus;
@@ -1262,7 +1266,20 @@ function openNewKredensialModal() {
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val) el.value = val;
+    if (!el || !val) return;
+    el.value = val;
+    if (el.tagName === 'SELECT' && el.value !== val) {
+      const lowerVal = String(val).toLowerCase();
+      for (let i = 0; i < el.options.length; i++) {
+        const opt = el.options[i];
+        const optVal = opt.value.toLowerCase();
+        const optText = opt.textContent.toLowerCase();
+        if (optVal && (lowerVal.includes(optVal) || optVal.includes(lowerVal) || lowerVal.includes(optText) || optText.includes(lowerVal))) {
+          el.selectedIndex = i;
+          break;
+        }
+      }
+    }
   };
 
   setVal('formNama', namaVal);
@@ -3701,7 +3718,7 @@ function generateSuratKredensialHVS(mode) {
   const alamat = isBlank ? '' : getVal('suratAlamat', 'Jl. Danau Sentarum No. 42, Kota Pontianak');
   const hp = isBlank ? '' : getVal('suratHp', '0812-5678-9012');
   const email = isBlank ? '' : getVal('suratEmail', 'hendra.kurniawan@soedarso.kalbarprov.go.id');
-  const unit = isBlank ? '' : getVal('suratUnit', 'Ruang Enggang Gading 2 (Penyakit Dalam)');
+  const unit = isBlank ? '' : getVal('suratUnit', 'Enggang Gading 2');
   const jabatan = isBlank ? '' : getVal('suratJabatanFungsional', 'Perawat Ahli Pertama');
   const pkSaatIni = isBlank ? '' : getVal('suratPkSaatIni', 'PK II');
   const pkDiusulkan = isBlank ? '' : getVal('suratJenjang', 'PK III');
@@ -4202,7 +4219,7 @@ function fillGoogleFormPreset(presetKey) {
       alamat: 'Jl. Danau Sentarum No. 42, Kota Pontianak',
       hp: '0812-5678-9012',
       email: 'hendra.kurniawan@soedarso.kalbarprov.go.id',
-      unit: 'Ruang Enggang Gading 2 (Penyakit Dalam)',
+      unit: 'Enggang Gading 2',
       jabatan: 'Perawat Ahli Pertama',
       pkSaatIni: 'PK II',
       jenjang: 'PK III',
@@ -4224,7 +4241,7 @@ function fillGoogleFormPreset(presetKey) {
       alamat: 'Jl. Ampera No. 15, Pontianak Kota',
       hp: '0813-9876-5432',
       email: 'siti.aminah@soedarso.kalbarprov.go.id',
-      unit: 'Ruang Bersalin (VK) & Maternal',
+      unit: 'IGD Kebidanan',
       jabatan: 'Bidan Terampil',
       pkSaatIni: 'PMB',
       jenjang: 'PMB',
@@ -4243,7 +4260,20 @@ function fillGoogleFormPreset(presetKey) {
 
   const setIf = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val !== undefined) el.value = val;
+    if (!el || val === undefined) return;
+    el.value = val;
+    if (el.tagName === 'SELECT' && el.value !== val) {
+      const lowerVal = String(val).toLowerCase();
+      for (let i = 0; i < el.options.length; i++) {
+        const opt = el.options[i];
+        const optVal = opt.value.toLowerCase();
+        const optText = opt.textContent.toLowerCase();
+        if (optVal && (lowerVal.includes(optVal) || optVal.includes(lowerVal) || lowerVal.includes(optText) || optText.includes(lowerVal))) {
+          el.selectedIndex = i;
+          break;
+        }
+      }
+    }
   };
 
   if (p.jenis === 'baru') document.getElementById('optJenisBaru')?.click();
@@ -5124,7 +5154,7 @@ function generateRkkHVS(mode) {
   const nama = isBlank ? '....................................................................' : (document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
   const nip = isBlank ? '....................................................................' : (document.getElementById('formNip')?.value.trim() || state.currentApplicant?.nip || '19920415 201903 1 004');
   const jenjang = isBlank ? '....................................................................' : (document.getElementById('formJenjang')?.value || state.currentApplicant?.jenjang || 'PK III');
-  const unit = isBlank ? '....................................................................' : (document.getElementById('formUnit')?.value || state.currentApplicant?.unit || 'Ruang Enggang Gading 2 (Penyakit Dalam)');
+  const unit = isBlank ? '....................................................................' : (document.getElementById('formUnit')?.value || state.currentApplicant?.unit || 'Enggang Gading 2');
   const str = isBlank ? '....................................................................' : (document.getElementById('formStr')?.value.trim() || state.currentApplicant?.str || '140152119-3284910');
   const strExp = isBlank ? '........................' : (document.getElementById('formStrExpiry')?.value || '2028-11-20');
   
