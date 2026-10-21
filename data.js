@@ -95,13 +95,33 @@ window.KOMITE_DATA = {
   // Rumpun / Area Kekhususan Klinis Sesuai Buku Pedoman (White Book 2026) RSUD dr. Soedarso
   whiteBookAreas: {
     "PK I": [
-      { key: "generalis", name: "Pelayanan Keperawatan Generalis (19 Elemen Asuhan Dasar)" }
+      { key: "generalis", name: "Pelayanan Keperawatan Generalis (19 Elemen Asuhan Dasar)" },
+      { key: "generalis_kmb", name: "Generalis - Keperawatan Medikal Bedah (KMB Dasar)" },
+      { key: "generalis_ibs", name: "Generalis - Kamar Bedah Sentral (Perioperatif Dasar)" },
+      { key: "generalis_igd", name: "Generalis - Gawat Darurat (Emergensi Dasar)" },
+      { key: "generalis_icu", name: "Generalis - Intensive Care (Kritis Dasar)" },
+      { key: "generalis_kardio", name: "Generalis - Kardiovaskuler (PJT Dasar)" },
+      { key: "generalis_anak", name: "Generalis - Keperawatan Anak (Pediatrik Dasar)" },
+      { key: "generalis_maternitas", name: "Generalis - Keperawatan Maternitas (Kebidanan Dasar)" },
+      { key: "generalis_jiwa", name: "Generalis - Keperawatan Jiwa Dasar" },
+      { key: "generalis_dialisis", name: "Generalis - Nefrologi & Hemodialisis Dasar" },
+      { key: "generalis_onkologi", name: "Generalis - Onkologi & Kemoterapi Dasar" },
+      { key: "generalis_anestesi", name: "Generalis - Keperawatan Anestesi Dasar" }
     ],
     "PK II": [
-      { key: "kmb_dewasa_pk2", name: "Keperawatan Medikal Bedah Dewasa (19 Elemen)" },
+      { key: "kmb_dewasa_pk2", name: "Keperawatan Medikal Bedah Dewasa (KMB Dewasa)" },
+      { key: "perioperatif_pk2", name: "Keperawatan Perioperatif (Kamar Bedah Sentral / IBS)" },
+      { key: "emergensi_pk2", name: "Keperawatan Gawat Darurat / Emergensi (IGD)" },
+      { key: "intensif_pk2", name: "Keperawatan Intensive Care (ICU / ICCU / HCU)" },
+      { key: "kardiovaskuler_pk2", name: "Keperawatan Kardiovaskuler (Pusat Jantung Terpadu)" },
       { key: "anak_pk2", name: "Rumpun Keperawatan Anak (Pediatrik & Neonatus)" },
       { key: "maternitas_pk2", name: "Rumpun Keperawatan Maternitas & Kebidanan" },
-      { key: "jiwa_pk2", name: "Rumpun Keperawatan Jiwa" }
+      { key: "jiwa_pk2", name: "Rumpun Keperawatan Jiwa" },
+      { key: "nefrologi_pk2", name: "Keperawatan Nefrologi & Dialisis (Hemodialisis)" },
+      { key: "onkologi_pk2", name: "Keperawatan Onkologi (Kemoterapi & Paliatif)" },
+      { key: "neurosains_pk2", name: "Keperawatan Neurosains (Neurologi & Bedah Saraf)" },
+      { key: "geriatri_pk2", name: "Keperawatan Geriatri (Lanjut Usia)" },
+      { key: "anestesi_pk2", name: "Keperawatan Anestesi" }
     ],
     "PK III": [
       { key: "kmb_medikal_pk3", name: "KMB - Medikal (Penyakit Dalam Dewasa)" },
@@ -509,6 +529,265 @@ window.KOMITE_DATA = {
       { id: "RKK-PK5-02", no: 2, name: "Melakukan journal appraisal untuk rekomendasi praktik klinis berbasis bukti (EBN)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "EBN Appraisal" },
       { id: "RKK-PK5-03", no: 3, name: "Melakukan penelitian klinis terapan keperawatan & publikasi ilmiah", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Terapan" },
       { id: "RKK-PK5-04", no: 4, name: "Memimpin proyek inovasi pelayanan dan perumusan kebijakan asuhan keperawatan rumah sakit", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Mutu" }
+    ],
+
+    
+    "perioperatif_pk2": [
+      { id: "RKK-OK2-01", no: 1, name: "Pengkajian pra-operasi dasar dan verifikasi identitas pasien (Sign In WHO)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Surgical Safety" },
+      { id: "RKK-OK2-02", no: 2, name: "Persiapan instrumen dasar operasi minor & mayor serta BMHP steril", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Sterilitas OK" },
+      { id: "RKK-OK2-03", no: 3, name: "Cuci tangan bedah (surgical scrub) dan pemakaian jas & sarung tangan steril", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Aseptik Bedah" },
+      { id: "RKK-OK2-04", no: 4, name: "Penataan meja instrumen steril Mayo dan meja linen bedah", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Meja Steril" },
+      { id: "RKK-OK2-05", no: 5, name: "Peran instrumentator (Scrub Nurse) pada operasi bedah minor", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Scrub Nurse" },
+      { id: "RKK-OK2-06", no: 6, name: "Peran sirkulator (Circulating Nurse) pada operasi elektif dasar", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Circulating" },
+      { id: "RKK-OK2-07", no: 7, name: "Penghitungan kassa, jarum, dan instrumen sebelum dan sesudah insisi (Surgical Count)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Patient Safety" },
+      { id: "RKK-OK2-08", no: 8, name: "Serah terima pasien pasca bedah di Recovery Room (RR) dengan SBAR", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Handover RR" }
+    ],
+
+    "emergensi_pk2": [
+      { id: "RKK-IGD2-01", no: 1, name: "Melakukan triage awal kegawatdaruratan dasar (skala triase ATS/ESI)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Triage IGD" },
+      { id: "RKK-IGD2-02", no: 2, name: "Melakukan Bantuan Hidup Dasar (BHD) resusitasi jantung paru dan penggunaan AED", defaultKode: 1, jenisTindakan: "Mandiri", domain: "BHD Darurat" },
+      { id: "RKK-IGD2-03", no: 3, name: "Imobilisasi servikal dengan collar neck, log roll, dan pembidaian fraktur ekstremitas", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Trauma Care" },
+      { id: "RKK-IGD2-04", no: 4, name: "Pemberian terapi oksigen darurat (nasal kanul, NRM) dan nebulisasi bronkodilator", defaultKode: 1, jenisTindakan: "Mandat", domain: "Oksigen Darurat" },
+      { id: "RKK-IGD2-05", no: 5, name: "Bilas lambung darurat pada kasus keracunan atau hematemesis tanpa penyulit", defaultKode: 1, jenisTindakan: "Mandat", domain: "Gastric Lavage" },
+      { id: "RKK-IGD2-06", no: 6, name: "Penjahitan luka robek sederhana (hecting) dan perawatan luka laserasi/ekskoriasi", defaultKode: 1, jenisTindakan: "Mandat", domain: "Luka Trauma" },
+      { id: "RKK-IGD2-07", no: 7, name: "Perekaman EKG darurat 12 lead dan lapor temuan nilai kritis aritmia/ST-elevasi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Diagnostik IGD" },
+      { id: "RKK-IGD2-08", no: 8, name: "Transfer pasien gawat darurat terkontrol ke unit rawat inap atau intensif", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Transfer Pasien" }
+    ],
+
+    "intensif_pk2": [
+      { id: "RKK-ICU2-01", no: 1, name: "Pengkajian tanda vital pasien kritis via bedside monitor multifungsi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Monitoring ICU" },
+      { id: "RKK-ICU2-02", no: 2, name: "Pengukuran dan pencatatan Central Venous Pressure (CVP) non-invasif/manometer", defaultKode: 1, jenisTindakan: "Mandiri", domain: "CVP Care" },
+      { id: "RKK-ICU2-03", no: 3, name: "Suctioning jalan napas steril via pipa endotrakeal (ETT) / trakeostomi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Airway Care" },
+      { id: "RKK-ICU2-04", no: 4, name: "Pemeliharaan fiksasi ETT dan perawatan mulut (oral hygiene chlorhexidine 0.2%)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "VAP Bundle" },
+      { id: "RKK-ICU2-05", no: 5, name: "Pemberian dan titrasi obat vasoaktif/inotropik dasar via syringe pump terkalibrasi", defaultKode: 1, jenisTindakan: "Mandat", domain: "Titrasi Obat" },
+      { id: "RKK-ICU2-06", no: 6, name: "Pemantauan balans cairan ketat per jam dan perhitungan diuresis urine", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Balans Cairan" },
+      { id: "RKK-ICU2-07", no: 7, name: "Pencegahan cedera tekan imobilisasi kritis dengan kasur dekubitus dan reposisi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pencegahan HAIs" },
+      { id: "RKK-ICU2-08", no: 8, name: "Perawatan kateter urin menetap terintegrasi bundle pencegahan ISK/CAUTI", defaultKode: 1, jenisTindakan: "Mandiri", domain: "CAUTI Bundle" }
+    ],
+
+    "kardiovaskuler_pk2": [
+      { id: "RKK-KRD2-01", no: 1, name: "Pemeriksaan fisik kardiovaskuler dasar dan pemantauan tanda gagal jantung", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Asesmen Jantung" },
+      { id: "RKK-KRD2-02", no: 2, name: "Perekaman EKG 12 lead presisi tinggi dan deteksi dini aritmia letal", defaultKode: 1, jenisTindakan: "Mandiri", domain: "EKG Diagnostik" },
+      { id: "RKK-KRD2-03", no: 3, name: "Pemberian terapi obat anti-angina (nitrat sublingual/drip) dan antiplatelet", defaultKode: 1, jenisTindakan: "Mandat", domain: "Farmakoterapi Jantung" },
+      { id: "RKK-KRD2-04", no: 4, name: "Pengukuran ankle-brachial index (ABI) dan pulsasi perifer ekstremitas", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Vaskuler Perifer" },
+      { id: "RKK-KRD2-05", no: 5, name: "Pemantauan intake-output ketat dan edukasi diet rendah garam pasien gagal jantung", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Edukasi Jantung" },
+      { id: "RKK-KRD2-06", no: 6, name: "Perawatan luka tusukan femoral / radial pasca kateterisasi jantung elektif", defaultKode: 1, jenisTindakan: "Mandat", domain: "Pasca Kateterisasi" },
+      { id: "RKK-KRD2-07", no: 7, name: "Resusitasi jantung paru dan aktivasi Code Blue pada henti jantung rawat jalan/inap", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Emergensi Kardio" }
+    ],
+
+    "nefrologi_pk2": [
+      { id: "RKK-NEF2-01", no: 1, name: "Pengkajian pre-dialisis (tanda overload cairan, edema perifer, ronkhi paru)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Asesmen HD" },
+      { id: "RKK-NEF2-02", no: 2, name: "Setting, priming, dan uji kelayakan sirkuit mesin hemodialisis", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Mesin HD" },
+      { id: "RKK-NEF2-03", no: 3, name: "Kanulasi AV fistula (Cimino) matur tanpa penyulit", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kanulasi AVF" },
+      { id: "RKK-NEF2-04", no: 4, name: "Monitoring hemodinamik, blood flow (QB), dan dialysate flow (QD) selama HD", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Monitoring HD" },
+      { id: "RKK-NEF2-05", no: 5, name: "Penanganan komplikasi intradialitik ringan (kram otot, hipotensi ringan)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Komplikasi HD" },
+      { id: "RKK-NEF2-06", no: 6, name: "Terminasi dialisis, pengembalian darah (rinseback), dan hemostasis area punksi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Terminasi HD" },
+      { id: "RKK-NEF2-07", no: 7, name: "Perawatan exit site kateter double lumen (CDL) non-infeksi", defaultKode: 1, jenisTindakan: "Mandat", domain: "Rawat CDL" }
+    ],
+
+    "onkologi_pk2": [
+      { id: "RKK-ONK2-01", no: 1, name: "Pengkajian performa fisik (skor ECOG / Karnofsky) dan derajat nyeri kanker", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Asesmen Onkologi" },
+      { id: "RKK-ONK2-02", no: 2, name: "Pemberian premedikasi kemoterapi (antiemetik, antihistamin, kortikosteroid)", defaultKode: 1, jenisTindakan: "Mandat", domain: "Premedikasi Kemo" },
+      { id: "RKK-ONK2-03", no: 3, name: "Monitoring hidrasi sebelum dan sesudah kemoterapi intravena", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Hidrasi Kemo" },
+      { id: "RKK-ONK2-04", no: 4, name: "Penerapan keselamatan sitostatika dan penggunaan APD kemoterapi terstandar", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Sitotoksik Safety" },
+      { id: "RKK-ONK2-05", no: 5, name: "Perawatan luka kanker dengan eksudat minimal-sedang dan pengendalian bau", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Luka Kanker" },
+      { id: "RKK-ONK2-06", no: 6, name: "Edukasi manajemen efek samping alopesia, stomatitis, dan mual pasca kemoterapi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Edukasi Onkologi" }
+    ],
+
+    "neurosains_pk2": [
+      { id: "RKK-NEU2-01", no: 1, name: "Penilaian tingkat kesadaran GCS dan evaluasi refleks pupil berkala", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Asesmen Neuro" },
+      { id: "RKK-NEU2-02", no: 2, name: "Skrining fungsi menelan awal (water swallow test) pada pasien stroke akut", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Skrining Disfagia" },
+      { id: "RKK-NEU2-03", no: 3, name: "Pemantauan tanda peningkatan tekanan intrakranial (TIK) dan posisi head-up 30°", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Manajemen TIK" },
+      { id: "RKK-NEU2-04", no: 4, name: "Pencegahan komplikasi imobilisasi stroke (latihan ROM pasif & reposisi miring)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Mobilisasi Neuro" },
+      { id: "RKK-NEU2-05", no: 5, name: "Perawatan kateter urin dan bowel training pasca stroke / trauma saraf", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Eliminasi Neuro" },
+      { id: "RKK-NEU2-06", no: 6, name: "Edukasi keluarga mengenai pencegahan kekambuhan stroke dan rehabilitasi dasar", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Edukasi Stroke" }
+    ],
+
+    "geriatri_pk2": [
+      { id: "RKK-GER2-01", no: 1, name: "Pengkajian komprehensif geriatri dasar (risiko jatuh Morse, inkontinensia, dekubitus)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Asesmen Geriatri" },
+      { id: "RKK-GER2-02", no: 2, name: "Komunikasi efektif pada lansia dengan penurunan daya dengar atau gangguan kognitif", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Komunikasi Lansia" },
+      { id: "RKK-GER2-03", no: 3, name: "Pencegahan jatuh lansia dengan penataan lingkungan kamar dan alas anti-selip", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Safety Lansia" },
+      { id: "RKK-GER2-04", no: 4, name: "Pemantauan intake nutrisi dan deteksi dini dehidrasi tersembunyi pada lansia", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Nutrisi Lansia" },
+      { id: "RKK-GER2-05", no: 5, name: "Perawatan kulit lansia yang kering dan pencegahan luka robek (skin tears)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kulit Geriatri" },
+      { id: "RKK-GER2-06", no: 6, name: "Pendampingan mobilisasi bertahap dan latihan aktivitas harian mandiri lansia", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Rehabilitasi Lansia" }
+    ],
+
+    "anestesi_pk2": [
+      { id: "RKK-ANS2-01", no: 1, name: "Pemeriksaan pra-anestesi dasar (tanda vital, riwayat alergi, status puasa)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pra-Anestesi" },
+      { id: "RKK-ANS2-02", no: 2, name: "Penyiapan mesin anestesi, sirkuit napas, dan suction unit berfungsi baik", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Mesin Anestesi" },
+      { id: "RKK-ANS2-03", no: 3, name: "Pemasangan monitor hemodinamik elektif pra-induksi (EKG, NIBP, SpO2)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Monitoring Anestesi" },
+      { id: "RKK-ANS2-04", no: 4, name: "Asistensi dokter anestesi pada induksi anestesi umum dan intubasi elektif", defaultKode: 1, jenisTindakan: "Mandat", domain: "Asistensi Induksi" },
+      { id: "RKK-ANS2-05", no: 5, name: "Pemantauan pemulihan kesadaran di Recovery Room dengan skor Aldrete", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Skor Aldrete" },
+      { id: "RKK-ANS2-06", no: 6, name: "Pemeliharaan kepatenan jalan napas pasca ekstubasi dan pemberian oksigen", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Jalan Napas RR" }
+    ],
+
+    // PK IV (Proficient / Konsultan Ruangan Semua Area)
+    "perioperatif_pk4": [
+      { id: "RKK-OK4-01", no: 1, name: "Memvalidasi kelengkapan instrumen khusus operasi kompleks (bedah saraf, jantung, onkologi)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan IBS" },
+      { id: "RKK-OK4-02", no: 2, name: "Konsultan sterilitas kamar bedah dan investigasi kejadian insiden keselamatan bedah", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Mutu OK" },
+      { id: "RKK-OK4-03", no: 3, name: "Supervisi dan mentoring perawat scrub & circulating pemula dalam tim bedah", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Preseptor Bedah" },
+      { id: "RKK-OK4-04", no: 4, name: "Penyusunan dan revisi SPO pencegahan Infeksi Daerah Operasi (IDO) berbasis EBN", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Revisi SPO IBS" }
+    ],
+
+    "emergensi_pk4": [
+      { id: "RKK-IGD4-01", no: 1, name: "Memimpin koordinasi triase IGD pada situasi Disaster Mass Casualty Incident (MCI)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Disaster Triage" },
+      { id: "RKK-IGD4-02", no: 2, name: "Konsultan resusitasi trauma multipel dan audit response time pelayanan gawat darurat", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Mutu IGD" },
+      { id: "RKK-IGD4-03", no: 3, name: "Evaluasi penerapan clinical pathway henti jantung dan stroke darurat di IGD", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Resusitasi" },
+      { id: "RKK-IGD4-04", no: 4, name: "Penyusunan panduan keselamatan transfer pasien antar rumah sakit dan rujukan", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Panduan Transfer" }
+    ],
+
+    "intensif_pk4": [
+      { id: "RKK-ICU4-01", no: 1, name: "Konsultan setting lanjutan dan troubleshooting ventilator mekanik mode kompleks", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Ventilator Expert" },
+      { id: "RKK-ICU4-02", no: 2, name: "Memvalidasi weaning protocol dan ekstubasi terencana pasien sulit lepas ventilator", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Weaning Protocol" },
+      { id: "RKK-ICU4-03", no: 3, name: "Supervisi operasional Continuous Renal Replacement Therapy (CRRT) di ICU", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Supervisi CRRT" },
+      { id: "RKK-ICU4-04", no: 4, name: "Audit kepatuhan bundle pencegahan VAP & CLABSI serta investigasi RCA insiden kritis", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Mutu ICU" }
+    ],
+
+    "kardiovaskuler_pk4": [
+      { id: "RKK-KRD4-01", no: 1, name: "Konsultan interpretasi aritmia kompleks dan pemantauan hemodinamik invasif PJT", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Kardio" },
+      { id: "RKK-KRD4-02", no: 2, name: "Audit mutu keselamatan tindakan intervensional di laboratorium kateterisasi (Cathlab)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Mutu Cathlab" },
+      { id: "RKK-KRD4-03", no: 3, name: "Pengembangan protokol rehabilitasi jantung fase I dan fase II rawat inap", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Rehabilitasi Kardio" },
+      { id: "RKK-KRD4-04", no: 4, name: "Riset keperawatan kardiovaskuler terapan dan publikasi ilmiah berkala", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Kardio" }
+    ],
+
+    "neurosains_pk4": [
+      { id: "RKK-NEU4-01", no: 1, name: "Konsultan asuhan keperawatan pasien pasca bedah saraf mayor dan cedera kepala berat", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Neuro" },
+      { id: "RKK-NEU4-02", no: 2, name: "Audit waktu respon trombolisis intravena (Door to Needle) pada Code Stroke", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Stroke" },
+      { id: "RKK-NEU4-03", no: 3, name: "Pengembangan clinical pathway rehabilitasi neuro-vaskuler komprehensif", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pathway Neuro" }
+    ],
+
+    "geriatri_pk4": [
+      { id: "RKK-GER4-01", no: 1, name: "Konsultan sindrom geriatri multipel dan polifarmasi kompleks pada lanjut usia", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Geriatri" },
+      { id: "RKK-GER4-02", no: 2, name: "Memimpin konferensi multidisiplin tim terpadu pelayanan geriatri rumah sakit", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Tim Geriatri Terpadu" },
+      { id: "RKK-GER4-03", no: 3, name: "Audit mutu program bebas jatuh dan pencegahan luka tekan geriatri", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Mutu Geriatri" }
+    ],
+
+    "onkologi_pk4": [
+      { id: "RKK-ONK4-01", no: 1, name: "Konsultan manajemen ekstravasasi kemoterapi vesicant dan komplikasi onkologi berat", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Kanker" },
+      { id: "RKK-ONK4-02", no: 2, name: "Audit kepatuhan SOP penanganan tumpahan sitotoksik dan keselamatan petugas", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Sitostatika" },
+      { id: "RKK-ONK4-03", no: 3, name: "Pengembangan panduan asuhan keperawatan paliatif end-of-life terintegrasi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Panduan Paliatif" }
+    ],
+
+    "anestesi_pk4": [
+      { id: "RKK-ANS4-01", no: 1, name: "Konsultan manajemen jalan napas sulit (Difficult Airway) dan krisis pra-anestesi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Difficult Airway" },
+      { id: "RKK-ANS4-02", no: 2, name: "Audit keselamatan sedasi moderat/dalam di luar kamar bedah (Endoskopi, Cathlab)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Sedasi" },
+      { id: "RKK-ANS4-03", no: 3, name: "Revisi SPO penanganan hipertermia maligna dan toksisitas obat anestesi lokal", defaultKode: 1, jenisTindakan: "Mandiri", domain: "SPO Krisis Anestesi" }
+    ],
+
+    "nefrologi_pk4": [
+      { id: "RKK-NEF4-01", no: 1, name: "Konsultan penanganan akses vaskuler bermasalah dan adekuasi dialisis sub-optimal", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Dialisis" },
+      { id: "RKK-NEF4-02", no: 2, name: "Audit mutu mikrobiologi air Reverse Osmosis (RO) dan keselamatan pasien HD", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Mutu RO" },
+      { id: "RKK-NEF4-03", no: 3, name: "Pengembangan panduan pencegahan infeksi kateter vena sentral dan exit site CAPD", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Panduan Infeksi HD" }
+    ],
+
+    "gastro_hepato_pk4": [
+      { id: "RKK-GST4-01", no: 1, name: "Konsultan penanganan perdarahan saluran cerna masif dan ligasi varises kompleks", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Gastro" },
+      { id: "RKK-GST4-02", no: 2, name: "Audit sterilisasi instrumen endoskopi fleksibel dan pencegahan transmisi HAIs", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Sterilisasi Endoskopi" }
+    ],
+
+    "respirologi_pk4": [
+      { id: "RKK-RSP4-01", no: 1, name: "Konsultan asuhan keperawatan pasien bronkoskopi intervensi dan krisis pernapasan", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Paru" },
+      { id: "RKK-RSP4-02", no: 2, name: "Audit kepatuhan bundle ruang isolasi infeksi airborne disease bertekanan negatif", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Isolasi Paru" }
+    ],
+
+    "radiologi_pk4": [
+      { id: "RKK-RAD4-01", no: 1, name: "Konsultan keselamatan radiasi klinis dan manajemen reaksi anafilaktik kontras berat", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Radiologi" },
+      { id: "RKK-RAD4-02", no: 2, name: "Audit keselamatan MRI dan kepatuhan skrining logam ferro-magnetik", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit MRI Safety" }
+    ],
+
+    "anak_pk4": [
+      { id: "RKK-ANK4-01", no: 1, name: "Konsultan asuhan keperawatan anak kritis kompleks (PICU/NICU) dan kasus kongenital", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Anak" },
+      { id: "RKK-ANK4-02", no: 2, name: "Audit mutu penerapan Pediatric Early Warning Score (PEWS) rumah sakit", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit PEWS" },
+      { id: "RKK-ANK4-03", no: 3, name: "Penyusunan standar asuhan keperawatan Atraumatic Care terintegrasi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Atraumatic Care" }
+    ],
+
+    "maternitas_pk4": [
+      { id: "RKK-MAT4-01", no: 1, name: "Konsultan kegawatdaruratan maternal kompleks (PEB/Eklampsia berat & HPP masif)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Maternal" },
+      { id: "RKK-MAT4-02", no: 2, name: "Audit mutu respon emergency obstetri dan penerapan MEOWS rumah sakit", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit MEOWS" },
+      { id: "RKK-MAT4-03", no: 3, name: "Pengembangan panduan asuhan sayang ibu dan inisiasi menyusu dini komprehensif", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Panduan Maternitas" }
+    ],
+
+    "jiwa_pk4": [
+      { id: "RKK-JWA4-01", no: 1, name: "Konsultan de-eskalasi verbal dan tatalaksana pasien krisis kekerasan/bunuh diri", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Konsultan Jiwa" },
+      { id: "RKK-JWA4-02", no: 2, name: "Audit etika dan keselamatan tindakan fiksasi fisik (restraint) pasien jiwa", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Audit Restraint" },
+      { id: "RKK-JWA4-03", no: 3, name: "Pengembangan program rehabilitasi psikososial dan terapi aktivitas kelompok lanjut", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Rehabilitasi Jiwa" }
+    ],
+
+    // PK V (Expert / Pakar Rumah Sakit & Konsultan Utama Regional)
+    "perioperatif_pk5": [
+      { id: "RKK-OK5-01", no: 1, name: "Konsultan utama teknologi bedah maju rumah sakit dan regional Kalimantan Barat", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Bedah" },
+      { id: "RKK-OK5-02", no: 2, name: "Memimpin perumusan kebijakan mutu dan standar akreditasi kamar bedah sentral", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan IBS" },
+      { id: "RKK-OK5-03", no: 3, name: "Riset terapan perioperatif dan publikasi ilmiah nasional / internasional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Bedah" }
+    ],
+
+    "emergensi_pk5": [
+      { id: "RKK-IGD5-01", no: 1, name: "Pakar penanggulangan bencana dan sistem komando kegawatdaruratan regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Disaster" },
+      { id: "RKK-IGD5-02", no: 2, name: "Perumusan kebijakan keselamatan gawat darurat dan jejaring rujukan provinsi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan IGD" },
+      { id: "RKK-IGD5-03", no: 3, name: "Penelitian klinis kegawatdaruratan dan publikasi inovasi pelayanan resusitasi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Emergensi" }
+    ],
+
+    "intensif_pk5": [
+      { id: "RKK-ICU5-01", no: 1, name: "Konsultan utama tata kelola pelayanan intensive care rumah sakit & rujukan provinsi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar ICU" },
+      { id: "RKK-ICU5-02", no: 2, name: "Menetapkan standar protokol respiratory failure dan multi-organ dysfunction syndrome", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Kritis" },
+      { id: "RKK-ICU5-03", no: 3, name: "Penelitian terapan sepsis dan disfungsi hemodinamik di intensive care", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Kritis" }
+    ],
+
+    "kardiovaskuler_pk5": [
+      { id: "RKK-KRD5-01", no: 1, name: "Pakar asuhan keperawatan kardiovaskuler lanjut Pusat Jantung Terpadu Kalimantan Barat", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Kardiovaskuler" },
+      { id: "RKK-KRD5-02", no: 2, name: "Merumuskan kebijakan jejaring pelayanan intervensi koroner perkutan (Primary PCI)", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Kardio" },
+      { id: "RKK-KRD5-03", no: 3, name: "Penelitian klinis penyakit jantung koroner dan inovasi asuhan kardiovaskuler", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Kardiovaskuler" }
+    ],
+
+    "neurosains_pk5": [
+      { id: "RKK-NEU5-01", no: 1, name: "Pakar keperawatan neuro-vaskuler dan konsultan jejaring stroke komprehensif regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Neurosains" },
+      { id: "RKK-NEU5-02", no: 2, name: "Perumusan kebijakan penanganan stroke akut dan pemantauan neuromonitoring canggih", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Neuro" }
+    ],
+
+    "geriatri_pk5": [
+      { id: "RKK-GER5-01", no: 1, name: "Pakar keperawatan gerontologi dan advokasi kebijakan pelayanan ramah lansia regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Geriatri" },
+      { id: "RKK-GER5-02", no: 2, name: "Penelitian terapan pencegahan frailty syndrome dan rehabilitasi demensia lansia", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Riset Geriatri" }
+    ],
+
+    "onkologi_pk5": [
+      { id: "RKK-ONK5-01", no: 1, name: "Konsultan utama jejaring penanggulangan kanker terpadu rumah sakit dan regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Onkologi" },
+      { id: "RKK-ONK5-02", no: 2, name: "Perumusan kebijakan keselamatan farmakoterapi onkologi dan asuhan paliatif terpadu", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Onkologi" }
+    ],
+
+    "anestesi_pk5": [
+      { id: "RKK-ANS5-01", no: 1, name: "Pakar keperawatan anestesi dan konsultan keselamatan anestesiologi rumah sakit", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Anestesi" },
+      { id: "RKK-ANS5-02", no: 2, name: "Perumusan panduan manajemen krisis intra-operatif dan protokol sedasi provinsi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Anestesi" }
+    ],
+
+    "nefrologi_pk5": [
+      { id: "RKK-NEF5-01", no: 1, name: "Pakar keperawatan nefrologi & konsultan utama pelayanan terapi pengganti ginjal regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Dialisis" },
+      { id: "RKK-NEF5-02", no: 2, name: "Perumusan kebijakan mutu dialisis dan audit kelayakan instalasi hemodialisis", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Dialisis" }
+    ],
+
+    "gastro_hepato_pk5": [
+      { id: "RKK-GST5-01", no: 1, name: "Pakar keperawatan endoskopi gastro-hepatobilier dan konsultan ruang tindakan canggih", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Gastro" }
+    ],
+
+    "respirologi_pk5": [
+      { id: "RKK-RSP5-01", no: 1, name: "Pakar asuhan keperawatan respirasi dan konsultan pusat rujukan penyakit paru menular", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Respirologi" }
+    ],
+
+    "radiologi_pk5": [
+      { id: "RKK-RAD5-01", no: 1, name: "Pakar keselamatan radiasi keperawatan dan konsultan kedokteran nuklir regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Radiologi" }
+    ],
+
+    "anak_pk5": [
+      { id: "RKK-ANK5-01", no: 1, name: "Pakar asuhan keperawatan pediatrik dan konsultan utama jejaring perawatan anak regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Anak" },
+      { id: "RKK-ANK5-02", no: 2, name: "Perumusan kebijakan keselamatan neonatus kritis dan rujukan perinatal provinsi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Anak" }
+    ],
+
+    "maternitas_pk5": [
+      { id: "RKK-MAT5-01", no: 1, name: "Pakar keperawatan maternitas dan konsultan utama penurunan AKI/AKB regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Maternitas" },
+      { id: "RKK-MAT5-02", no: 2, name: "Perumusan kebijakan asuhan obstetri berkesinambungan (Continuity of Care) provinsi", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Maternitas" }
+    ],
+
+    "jiwa_pk5": [
+      { id: "RKK-JWA5-01", no: 1, name: "Pakar keperawatan jiwa masyarakat dan konsultan utama sistem kesehatan mental regional", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Pakar Jiwa" },
+      { id: "RKK-JWA5-02", no: 2, name: "Perumusan kebijakan pencegahan stigma dan advokasi hak-hak pasien gangguan jiwa", defaultKode: 1, jenisTindakan: "Mandiri", domain: "Kebijakan Jiwa" }
     ],
 
     "pmb_kebidanan": [
