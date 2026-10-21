@@ -469,8 +469,11 @@
             <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openSuratPermohonanModal()">
               <i class="fa-solid fa-file-pen"></i> Buat Surat Permohonan
             </button>
-            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openCvModal()">
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openCvModal()">
               <i class="fa-solid fa-address-card"></i> Buat CV Portofolio (PDF)
+            </button>
+            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #0e3860; border-color: #0e3860;" onclick="openPreviewRkkModal()">
+              <i class="fa-solid fa-file-contract"></i> Cetak RKK Resmi (PDF)
             </button>
           </div>
         </div>
@@ -573,26 +576,31 @@
             </div>
           </div>
 
-          <!-- Step 5 Card: Asesmen RKK Online -->
+          <!-- Step 5 Card: Asesmen RKK Online & Cetak Dokumen Resmi -->
           <div class="alur-card" id="cardStep5Rkk" onclick="cekBukaRkkOnline()">
             <div class="alur-card-badge step-5">
               <i class="fa-solid fa-circle-dot"></i> LANGKAH 5
             </div>
-            <div class="alur-card-icon" style="color: #059669;">
-              <i class="fa-solid fa-clipboard-check"></i>
+            <div class="alur-card-icon" style="color: #0e3860;">
+              <i class="fa-solid fa-file-contract"></i>
             </div>
-            <div class="alur-card-title">5. Pengisian RKK Online</div>
+            <div class="alur-card-title">5. Pengisian &amp; Cetak RKK Online (PDF)</div>
             <div class="alur-card-desc">
-              Setelah berkas diunggah, pemohon langsung melakukan asesmen mandiri rincian kewenangan klinis (Mandiri, Delegasi, Mandat, Supervisi) tanpa menunggu persetujuan pengurus komite.
+              Pilih kewenangan klinis sesuai jenjang PK usulan dan area spesialisasi Buku Pedoman (White Book 2026), lakukan asesmen mandiri (Kode 1, 2, 3), serta langsung cetak/unduh dokumen <strong>RKK Resmi 3 Halaman A4 format baku RSUD dr. Soedarso</strong>.
             </div>
             <div class="alur-card-action">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="badge" id="badgeStep5Status" style="background: #f1f5f9; color: var(--text-muted); font-weight: 700; font-size: 0.72rem;">
-                  <i class="fa-solid fa-circle-play"></i> Buka Instrumen RKK
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="badge" id="badgeStep5Status" style="background: rgba(14, 56, 96, 0.12); color: #0e3860; font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-file-circle-check"></i> Sesuai Buku Putih 2026
                 </span>
-                <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">
-                  Asesmen RKK <i class="fa-solid fa-arrow-right"></i>
-                </span>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="event.stopPropagation(); openPreviewRkkModal();">
+                    <i class="fa-solid fa-print"></i> Cetak PDF
+                  </button>
+                  <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem; background: #0e3860; border-color: #0e3860;" onclick="event.stopPropagation(); cekBukaRkkOnline();">
+                    Isi RKK <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1134,16 +1142,26 @@
                 <label class="form-label">Pilih Jenjang Karir Klinis Diajukan <span class="req">*</span></label>
                 <select class="form-select" id="formJenjang" onchange="onJenjangChange(this.value)" required>
                   <option value="">-- Pilih Jenjang Karir --</option>
-                  <option value="PK I">Perawat Klinis I (PK I - Pemula)</option>
-                  <option value="PK II">Perawat Klinis II (PK II - Mandiri Dasar)</option>
-                  <option value="PK III">Perawat Klinis III (PK III - Spesifik Area)</option>
-                  <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Konsultan)</option>
+                  <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                  <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
+                  <option value="PK III">Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                  <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
                   <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
                   <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
                 </select>
-                <span class="form-hint" id="jenjangDescText">Pilih jenjang karir untuk memuat daftar rincian kewenangan klinis (RKK).</span>
+                <span class="form-hint" id="jenjangDescText">Pilih jenjang karir klinis yang diusulkan.</span>
               </div>
 
+              <div class="form-group">
+                <label class="form-label">Rumpun / Area Kekhususan Klinis (Buku Putih 2026) <span class="req">*</span></label>
+                <select class="form-select" id="formAreaKlinis" onchange="onAreaKlinisChange(this.value)" required>
+                  <option value="">-- Pilih Area Kekhususan Klinis --</option>
+                </select>
+                <span class="form-hint" id="areaKlinisDescText">Pilih area spesialisasi sesuai Buku Pedoman (White Book).</span>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
               <div class="form-group">
                 <label class="form-label">Penempatan Ruang / Instalasi Pelayanan <span class="req">*</span></label>
                 <select class="form-select" id="formUnit" required>
@@ -1157,40 +1175,56 @@
                   <option value="Ruang Hemodialisa (HD)">Ruang Hemodialisa (HD)</option>
                   <option value="Ruang Perinatologi & NICU">Ruang Perinatologi & NICU</option>
                   <option value="Klinik Onkologi & Kemoterapi Terpadu">Klinik Onkologi & Kemoterapi Terpadu</option>
+                  <option value="Pusat Jantung Terpadu (PJT / ICCU / Cathlab)">Pusat Jantung Terpadu (PJT / ICCU / Cathlab)</option>
                   <option value="Ruang Merak (Penyakit Dalam Non-Infeksi)">Ruang Merak (Penyakit Dalam Non-Infeksi)</option>
                 </select>
               </div>
-            </div>
 
-            <div class="form-group">
-              <label class="form-label">Jenis Permohonan <span class="req">*</span></label>
-              <div style="display: flex; gap: 1.5rem; margin-top: 0.25rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                  <input type="radio" name="jenisPermohonan" value="Kredensialing Baru" checked>
-                  <span>Kredensialing Pertama Kali (Baru)</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                  <input type="radio" name="jenisPermohonan" value="Rekredensialing / Kenaikan Jenjang">
-                  <span>Rekredensialing / Kenaikan Jenjang Karir</span>
-                </label>
+              <div class="form-group">
+                <label class="form-label">Jenis Permohonan <span class="req">*</span></label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+                  <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
+                    <input type="radio" name="jenisPermohonan" value="Kredensialing Baru" checked>
+                    <span>Kredensialing Pertama Kali (Baru)</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
+                    <input type="radio" name="jenisPermohonan" value="Rekredensialing / Kenaikan Jenjang">
+                    <span>Rekredensialing / Kenaikan Jenjang</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- STEP 3: CHECKLIST RKK -->
           <div class="wizard-content-step" id="wizardStep3" style="display: none;">
-            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <span class="form-label">Rincian Kewenangan Klinis (RKK) yang Dimohonkan:</span>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">Centang kompetensi yang Anda kuasai untuk diverifikasi oleh Mitra Bestari.</p>
-              </div>
-              <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;" onclick="toggleAllRkk(true)">
-                Pilih Semua
-              </button>
+            <div style="background: #f0fdf4; border-left: 4px solid #16a34a; padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 0.75rem; font-size: 0.82rem; color: #14532d; line-height: 1.5;">
+              <strong>Petunjuk Asesmen Mandiri RKK (Sesuai Format Baku RSUD dr. Soedarso):</strong><br>
+              Pilih kode kewenangan pada kolom <strong>Penilaian Mandiri</strong>: <br>
+              <strong>Kode 1</strong>: Mandiri Penuh (Kompeten penuh tanpa supervisi) &bull; 
+              <strong>Kode 2</strong>: Di bawah Supervisi (Memerlukan pendampingan perawat yang lebih senior) &bull; 
+              <strong>Kode 3</strong>: Tidak Diminta / Tidak Diberikan Kewenangan.
             </div>
 
-            <div class="rkk-checklist-box" id="rkkChecklistContainer" style="max-height: 280px;">
-              <!-- Dynamically populated based on chosen PK Level -->
+            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <span class="form-label" style="margin-bottom: 0;">Rincian Tindakan Asuhan Keperawatan:</span>
+              </div>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="setAllRkkKode(1)">
+                  <i class="fa-solid fa-check-double"></i> Set Semua Kode 1 (Mandiri)
+                </button>
+                <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="setAllRkkKode(2)">
+                  <i class="fa-solid fa-user-group"></i> Set Semua Kode 2 (Supervisi)
+                </button>
+                <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="resetAllRkkKode()">
+                  <i class="fa-solid fa-rotate-left"></i> Reset Standar
+                </button>
+              </div>
+            </div>
+
+            <div class="rkk-checklist-box" id="rkkChecklistContainer" style="max-height: 360px; overflow-y: auto;">
+              <!-- Dynamically populated based on chosen PK Level & White Book Area -->
               <div style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
                 Silakan pilih jenjang karir klinis pada langkah sebelumnya untuk memuat instrumen RKK.
               </div>
@@ -1207,6 +1241,10 @@
                 <!-- Filled via JS -->
               </div>
             </div>
+
+            <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860; width: 100%; margin-bottom: 1rem; font-size: 0.88rem; padding: 0.65rem;" onclick="openPreviewRkkModal()">
+              <i class="fa-solid fa-file-pdf"></i> Pratinjau Dokumen RKK Resmi (Sesuai Template RSUD dr. Soedarso)
+            </button>
 
             <!-- Banner Notifikasi Administrasi E-Kredensialing -->
             <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-left: 4px solid #10b981; border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: var(--text-main);">
@@ -2743,6 +2781,71 @@
           </button>
           <button type="button" class="btn-primary" style="background: #2563eb; border-color: #2563eb;" onclick="closeModal('modalPreviewLogbookHVS'); openSuratPermohonanModal();">
             <i class="fa-solid fa-arrow-right"></i> Lanjut ke Langkah 3: Buat Surat Permohonan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: PRATINJAU KERTAS HVS STANDAR RKK RESMI (SESUAI TEMPLATE BAKU 3 HALAMAN A4)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalPreviewRkkResmiHVS">
+    <div class="modal-container modal-container-lg" style="max-width: 950px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-file-contract" style="color: #0e3860;"></i>
+          Pratinjau Dokumen Rincian Kewenangan Klinis (RKK) Resmi RSUD dr. Soedarso
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalPreviewRkkResmiHVS')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="background: #64748b; padding: 2rem 1rem; overflow-y: auto; max-height: 76vh;">
+        <!-- Success Alert Banner -->
+        <div id="previewRkkSuccessBanner" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-sm); padding: 0.85rem 1.15rem; margin: 0 auto 1.25rem auto; max-width: 210mm; box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="color: #065f46; font-size: 0.84rem; line-height: 1.55;">
+              <div style="font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 4px;">
+                <i class="fa-solid fa-circle-check fa-lg" style="color: #10b981;"></i>
+                Dokumen RKK Resmi Telah Terbit untuk <span id="previewRkkApplicantBadge" style="text-decoration: underline;"></span>!
+              </div>
+              <div>
+                <strong>Format Dokumen:</strong> Telah disesuaikan dengan <strong>Template Baku Lampiran Rekomendasi Komite Keperawatan RSUD dr. Soedarso</strong> dan <strong>Buku Pedoman (White Book) Tahun 2026</strong>.
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                  <div style="font-size: 0.78rem; color: #065f46;">
+                    <i class="fa-solid fa-envelope-circle-check"></i> Notifikasi Administrasi otomatis terhubung: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="printRkkHVS()">
+              <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Container HVS Sheet for RKK Pages -->
+        <div id="rkkHvsPrintArea" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewRkkResmiHVS')">Tutup Pratinjau</button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" id="btnTogglePreviewRkkMode" onclick="togglePreviewRkkMode()">
+            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
+          </button>
+          <button type="button" class="btn-secondary" onclick="exportRkkWord()">
+            <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
+          </button>
+          <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860;" onclick="printRkkHVS()">
+            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+          </button>
+          <button type="button" class="btn-primary" style="background: #15803d; border-color: #15803d;" onclick="closeModal('modalPreviewRkkResmiHVS'); toggleTrackerKredensial();">
+            <i class="fa-solid fa-route"></i> Lacak Status Berkas
           </button>
         </div>
       </div>
