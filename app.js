@@ -24,6 +24,7 @@ const state = {
   logbookPreviewMode: 'filled',
   kredensialSuratGenerated: localStorage.getItem('komite_surat_generated') === 'true',
   kredensialBerkasUploaded: localStorage.getItem('komite_berkas_uploaded') === 'true',
+  kredensialRkkSubmitted: localStorage.getItem('komite_rkk_submitted') === 'true',
   trackerQueryNip: ''
 };
 
@@ -321,12 +322,12 @@ function loadData() {
       {
         id: 'NOTIF-2026-001',
         timestamp: '21 Oktober 2026, 11:20 WIB',
-        eventType: 'Formulir Surat Permohonan Kredensial (Langkah 1)',
+        eventType: 'Formulir Surat Permohonan Kredensial (Langkah 3)',
         applicantName: 'Ns. Hendra Kurniawan, S.Kep',
         applicantNip: '19920415 201903 1 004',
         unit: 'Ruang Enggang Gading 2 (Penyakit Dalam)',
         subject: '[PERMOHONAN KREDENSIAL] Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Enggang Gading 2)',
-        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Hendra Kurniawan, S.Kep (NIP: 19920415 201903 1 004) dari Ruang Enggang Gading 2. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 2.',
+        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Hendra Kurniawan, S.Kep (NIP: 19920415 201903 1 004) dari Ruang Enggang Gading 2. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 4.',
         recipients: ['komitekeperawatanrsds2023@gmail.com', 'yadhie28@gmail.com'],
         status: 'Terkoneksi'
       },
@@ -1243,7 +1244,44 @@ function renderUnitDistributionChart() {
    ========================================================================= */
 function openNewKredensialModal() {
   state.wizardStep = 1;
-  document.getElementById('kredensialForm').reset();
+  const form = document.getElementById('kredensialForm');
+  if (form) form.reset();
+
+  // Auto-fill dari data CV / Surat Permohonan / Current Applicant
+  const cv = state.cvData || {};
+  const applicant = state.currentApplicant || {};
+  const current = state.currentUser || {};
+
+  const namaVal = cv.nama || applicant.nama || current.name || document.getElementById('suratNama')?.value || document.getElementById('cvNama')?.value || '';
+  const nipVal = cv.nip || applicant.nip || current.nip || document.getElementById('suratNip')?.value || document.getElementById('cvNip')?.value || '';
+  const strVal = cv.str || applicant.str || document.getElementById('suratStr')?.value || document.getElementById('cvStr')?.value || '';
+  const strExpVal = cv.strBerlaku || applicant.strExpiry || document.getElementById('suratStrExpiry')?.value || '';
+  const sippVal = cv.sipp || document.getElementById('suratSipp')?.value || '';
+  const unitVal = cv.unit || applicant.unit || document.getElementById('suratUnit')?.value || document.getElementById('cvUnit')?.value || '';
+  const jenjangVal = cv.pkDiusulkan || applicant.jenjang || document.getElementById('suratJenjang')?.value || document.getElementById('cvJenjang')?.value || 'PK III';
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+
+  setVal('formNama', namaVal);
+  setVal('formNip', nipVal);
+  setVal('formStr', strVal);
+  if (strExpVal) {
+    const elExp = document.getElementById('formStrExpiry');
+    if (elExp) {
+      if (strExpVal.includes('-')) elExp.value = strExpVal;
+      else elExp.value = '2028-11-20';
+    }
+  }
+  setVal('formSipp', sippVal);
+  if (unitVal) setVal('formUnit', unitVal);
+  if (jenjangVal) {
+    setVal('formJenjang', jenjangVal);
+    onJenjangChange(jenjangVal);
+  }
+
   updateWizardUI();
   openModal('modalNewKredensial');
 }
@@ -1568,13 +1606,10 @@ function handleKredensialSubmit(e) {
   renderNursesTable();
   renderAnalyticsCharts();
 
-  // Mark step 3 as submitted
-  const b3 = document.getElementById('badgeStep3Status');
-  if (b3) {
-    b3.style.background = '#dcfce7';
-    b3.style.color = '#15803d';
-    b3.innerHTML = '<i class="fa-solid fa-circle-check"></i> RKK Terkirim (Review)';
-  }
+  // Mark step 5 as submitted
+  state.kredensialRkkSubmitted = true;
+  localStorage.setItem('komite_rkk_submitted', 'true');
+  updateAlurStepStatus();
 
   renderKredensialTrackerVisual(nip);
 
@@ -1703,9 +1738,13 @@ function updateAlurStepStatus() {
       b4.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Siap RKK)';
     }
     // Langkah 5: Asesmen RKK Online (badgeStep5Status)
-    if (b5) {
-      b5.style.background = 'rgba(5, 150, 105, 0.15)';
-      b5.style.color = '#047857';
+    if (state.kredensialRkkSubmitted && b5) {
+      b5.style.background = '#dcfce7';
+      b5.style.color = '#15803d';
+      b5.innerHTML = '<i class="fa-solid fa-circle-check"></i> RKK Terkirim (Review)';
+    } else if (b5) {
+      b5.style.background = 'rgba(14, 56, 96, 0.12)';
+      b5.style.color = '#0e3860';
       b5.innerHTML = '<i class="fa-solid fa-circle-play"></i> Siap Asesmen Mandiri';
     }
     if (card5) card5.classList.remove('locked');
@@ -3323,7 +3362,7 @@ function handleSuratPermohonanSubmit(e) {
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Formulir Surat Permohonan Kredensial (Langkah 1)',
+    eventType: 'Formulir Surat Permohonan Kredensial (Langkah 3)',
     subject: adminSubject,
     applicantName: nama,
     applicantNip: nip,
