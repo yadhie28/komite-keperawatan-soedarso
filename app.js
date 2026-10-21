@@ -1606,7 +1606,7 @@ function handleKredensialSubmit(e) {
   renderNursesTable();
   renderAnalyticsCharts();
 
-  // Mark step 5 as submitted
+  // Mark step 4 as submitted
   state.kredensialRkkSubmitted = true;
   localStorage.setItem('komite_rkk_submitted', 'true');
   updateAlurStepStatus();
@@ -1634,7 +1634,7 @@ function handleKredensialSubmit(e) {
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 5)',
+    eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 4)',
     subject: adminSubject,
     applicantName: nama,
     applicantNip: nip,
@@ -1646,13 +1646,27 @@ function handleKredensialSubmit(e) {
   showToast(`Permohonan kredensialing atas nama ${nama} berhasil didaftarkan! Notifikasi terkirim ke email Komite & Sekretaris.`, 'success');
 
   showAdminEmailNoticeModal({
-    eventType: 'Pendaftaran Asesmen Mandiri RKK Online (Langkah 5)',
+    eventType: 'Pendaftaran Asesmen Mandiri RKK Online (Langkah 4)',
     subject: adminSubject,
     applicantName: nama,
     bodyText: adminBody
   });
 
   switchTab('kredensial');
+
+  // Lanjut ke Langkah 5: Unggah Berkas Lengkap
+  setTimeout(() => {
+    const lanjutUpload = confirm(
+      "Alur E-Kredensialing RSUD dr. Soedarso:\n\n" +
+      "Asesmen Mandiri RKK Online telah berhasil didaftarkan!\n\n" +
+      "Langkah selanjutnya adalah LANGKAH 5 (FINAL):\n" +
+      "Cetak dokumen RKK, tanda tangani bersama dokumen CV, Logbook, dan Surat Permohonan, lalu unggah berkas lengkap ke sistem.\n\n" +
+      "Apakah Anda ingin langsung membuka modal Unggah Berkas sekarang?"
+    );
+    if (lanjutUpload) {
+      openModalUploadSurat();
+    }
+  }, 450);
 }
 
 /* ==========================================================================
@@ -1730,24 +1744,30 @@ function updateAlurStepStatus() {
     b3.innerHTML = `<i class="fa-solid fa-circle-check"></i> Surat Diunduh${appName}`;
   }
 
-  // Langkah 4: Unggah Berkas Portofolio (CV + Logbook + Surat + Dokumen) (badgeStep4Status)
-  if (state.kredensialBerkasUploaded) {
-    if (b4) {
+  // Langkah 4: Asesmen RKK Online (badgeStep4Status)
+  if (b4) {
+    if (state.kredensialRkkSubmitted) {
       b4.style.background = '#dcfce7';
       b4.style.color = '#15803d';
-      b4.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Siap RKK)';
+      b4.innerHTML = '<i class="fa-solid fa-circle-check"></i> RKK Terkirim (Review)';
+    } else {
+      b4.style.background = 'rgba(14, 56, 96, 0.12)';
+      b4.style.color = '#0e3860';
+      b4.innerHTML = '<i class="fa-solid fa-file-circle-check"></i> Sesuai Buku Putih 2026';
     }
-    // Langkah 5: Asesmen RKK Online (badgeStep5Status)
-    if (state.kredensialRkkSubmitted && b5) {
+  }
+
+  // Langkah 5: Unggah Berkas Lengkap (CV + Logbook + Surat + RKK) (badgeStep5Status)
+  if (b5) {
+    if (state.kredensialBerkasUploaded) {
       b5.style.background = '#dcfce7';
       b5.style.color = '#15803d';
-      b5.innerHTML = '<i class="fa-solid fa-circle-check"></i> RKK Terkirim (Review)';
-    } else if (b5) {
-      b5.style.background = 'rgba(14, 56, 96, 0.12)';
-      b5.style.color = '#0e3860';
-      b5.innerHTML = '<i class="fa-solid fa-circle-play"></i> Siap Asesmen Mandiri';
+      b5.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Lolos Verifikasi)';
+    } else {
+      b5.style.background = '#fef3c7';
+      b5.style.color = '#92400e';
+      b5.innerHTML = '<i class="fa-solid fa-clock"></i> Belum Diunggah';
     }
-    if (card5) card5.classList.remove('locked');
   }
 }
 
@@ -4069,56 +4089,38 @@ function simpanUploadSurat(e) {
   const unit = state.currentApplicant ? state.currentApplicant.unit : 'Ruang Pelayanan';
 
   // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
-  const adminSubject = `[PORTOFOLIO DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 4)`;
+  const adminSubject = `[BERKAS LENGKAP DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 5 Selesai)`;
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
     `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
-    `Pemberitahuan Unggah Dokumen Kredensial & Portofolio (Langkah 4):\n\n` +
+    `Pemberitahuan Unggah Dokumen Kredensial Lengkap (Langkah 5 - Final):\n\n` +
     `• Nama Pemohon    : ${pemohon}\n` +
     `• Unit Kerja      : ${unit}\n` +
-    `• Tahapan         : Langkah 4 (Unggah Berkas Mandiri CV, Logbook & Surat Permohonan)\n` +
-    `• Status Berkas   : Dokumen CV 3 Halaman, Logbook Kinerja Klinis 2 Halaman (sah Ka.Ru), Surat Permohonan bertanda tangan mandiri, dan dokumen portofolio (STR, SIPP, Sertifikat) telah tersimpan di sistem.\n` +
+    `• Tahapan         : Langkah 5 Selesai (Unggah Berkas Lengkap Bertanda Tangan)\n` +
+    `• Status Berkas   : Dokumen CV (3 Hal), Logbook Kinerja Klinis (2 Hal sah Ka.Ru), Surat Permohonan (3 Hal), RKK Resmi (3 Hal), STR Aktif, dan Ijazah telah lengkap terunggah di sistem.\n` +
     `• Waktu Unggah    : ${new Date().toLocaleString('id-ID')}\n\n` +
-    `Pemohon telah diizinkan langsung melanjutkan ke Langkah 5 (Pengisian Asesmen Mandiri RKK Online).\n\n` +
+    `Seluruh 5 tahapan pengajuan mandiri pemohon telah lengkap dan resmi masuk ke antrean verifikasi Subkomite Kredensial & disposisi Mitra Bestari.\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Unggah Berkas CV, Logbook, Surat & Portofolio (Langkah 4)',
+    eventType: 'Unggah Berkas Kredensial Lengkap (Langkah 5 - Final)',
     subject: adminSubject,
     applicantName: pemohon,
     unit: unit,
     bodyText: adminBody
   });
 
-  showToast(`Berkas CV, Logbook, Surat Permohonan & portofolio berhasil diunggah! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
+  showToast(`Seluruh berkas lengkap kredensialing (Langkah 5) berhasil diunggah! Berkas masuk ke antrean verifikasi komite.`, 'success');
 
-  // Opsi membuka langsung RKK Online tanpa hambatan
+  // Buka tracker status berkas secara otomatis
   setTimeout(() => {
-    const bukaRkk = confirm(
-      "Alur E-Kredensialing RSUD dr. Soedarso:\n\n" +
-      "Dokumen CV, Logbook Kinerja Klinis, Surat Permohonan bertanda tangan mandiri dan portofolio berkas telah tersimpan ke sistem tanpa hambatan.\n\n" +
-      "Apakah Anda ingin langsung melanjutkan ke LANGKAH 5 (Pengisian Asesmen Mandiri RKK Online) sekarang?"
-    );
-    if (bukaRkk) {
-      cekBukaRkkOnline();
-    }
+    toggleTrackerKredensial();
   }, 350);
 }
 
 function cekBukaRkkOnline() {
-  if (!state.kredensialBerkasUploaded) {
-    const lanjut = confirm(
-      "Pemberitahuan Sistem:\n\n" +
-      "Anda belum menyelesaikan Langkah 4 (Unggah Berkas CV, Logbook, Surat Permohonan & Portofolio).\n\n" +
-      "Apakah Anda ingin tetap membuka formulir Asesmen Mandiri RKK sekarang?"
-    );
-    if (!lanjut) {
-      openModalUploadSurat();
-      return;
-    }
-  }
   openNewKredensialModal();
   const suratJenjang = document.getElementById('suratJenjang')?.value;
   if (suratJenjang) {
@@ -4171,21 +4173,25 @@ function renderKredensialTrackerVisual(query) {
   }
 
   let activeStep = 3;
-  let statusBadge = '<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">Tahap 3: Asesmen Mitra Bestari</span>';
-  let reviewerNote = 'Berkas administrasi dinyatakan lengkap. Jadwal peer review klinik telah diagendakan oleh Subkomite Kredensial.';
+  let statusBadge = '<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">Tahap 3: Menunggu Unggah Berkas Lengkap</span>';
+  let reviewerNote = 'Asesmen Mandiri RKK telah diisi. Silakan tanda tangani seluruh dokumen cetak dan unggah pada Langkah 5.';
 
   if (nurse && nurse.credentialStatus === 'Disetujui') {
     activeStep = 5;
     statusBadge = '<span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;">Tahap 5: SPK & RKK Terbit</span>';
     reviewerNote = `SK Penugasan Klinis telah ditandatangani Direktur RSUD dr. Soedarso (${nurse.spkNumber}) dan berlaku aktif.`;
   } else if (nurse && nurse.credentialStatus === 'Menunggu Mitra Bestari') {
-    activeStep = 3;
-    statusBadge = '<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">Tahap 3: Menunggu Mitra Bestari</span>';
-    reviewerNote = 'Berkas telah lolos verifikasi subkomite dan dialokasikan ke Tim Asesor Mitra Bestari spesialis.';
+    activeStep = 4;
+    statusBadge = '<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">Tahap 4: Telaah Mitra Bestari</span>';
+    reviewerNote = 'Berkas lengkap telah diverifikasi subkomite dan sedang dalam telaah Tim Asesor Mitra Bestari spesialis.';
   } else if (state.kredensialBerkasUploaded && !query) {
-    activeStep = 2;
-    statusBadge = '<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">Tahap 2: Berkas Terunggah (Siap RKK)</span>';
-    reviewerNote = 'Surat Permohonan bertanda tangan pemohon dan portofolio telah diunggah ke sistem tanpa memerlukan persetujuan pengurus komite di awal. Pemohon dapat langsung mengisi RKK Online.';
+    activeStep = 4;
+    statusBadge = '<span class="badge" style="background:#fef3c7; color:#92400e; font-weight:700;">Tahap 4: Berkas Lengkap (Antrean Verifikasi)</span>';
+    reviewerNote = 'Seluruh 5 berkas kredensialing (CV, Logbook sah Ka.Ru, Surat Permohonan, RKK, STR, Ijazah) telah diunggah ke sistem. Pengajuan Anda masuk antrean telaah Subkomite & Mitra Bestari.';
+  } else if (state.kredensialRkkSubmitted && !query) {
+    activeStep = 3;
+    statusBadge = '<span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;">Tahap 3: Asesmen RKK Selesai</span>';
+    reviewerNote = 'Dokumen RKK resmi telah diterbitkan. Lanjutkan ke Langkah 5 untuk mengunggah seluruh berkas bertanda tangan.';
   }
 
   const nName = nurse ? nurse.name : 'Ns. Hendra Kurniawan, S.Kep';
@@ -4202,32 +4208,32 @@ function renderKredensialTrackerVisual(query) {
         <div class="tracker-circle">
           ${activeStep > 1 ? '<i class="fa-solid fa-check"></i>' : '1'}
         </div>
-        <div class="tracker-step-label">1. Isi &amp; Unduh Surat</div>
-        <div class="tracker-step-date">Pengajuan Mandiri</div>
+        <div class="tracker-step-label">1. Dokumen Pemohon</div>
+        <div class="tracker-step-date">CV, Logbook &amp; Surat</div>
       </div>
 
       <div class="tracker-step-item ${activeStep > 2 ? 'completed' : ''} ${activeStep === 2 ? 'active' : ''}">
         <div class="tracker-circle">
           ${activeStep > 2 ? '<i class="fa-solid fa-check"></i>' : '2'}
         </div>
-        <div class="tracker-step-label">2. Unggah Surat &amp; Portofolio</div>
-        <div class="tracker-step-date">Unggah Mandiri</div>
+        <div class="tracker-step-label">2. Asesmen RKK</div>
+        <div class="tracker-step-date">Buku Putih 2026</div>
       </div>
 
       <div class="tracker-step-item ${activeStep > 3 ? 'completed' : ''} ${activeStep === 3 ? 'active' : ''}">
         <div class="tracker-circle">
           ${activeStep > 3 ? '<i class="fa-solid fa-check"></i>' : '3'}
         </div>
-        <div class="tracker-step-label">3. Asesmen Mitra Bestari</div>
-        <div class="tracker-step-date">Peer Review Subkomite</div>
+        <div class="tracker-step-label">3. Unggah Berkas Lengkap</div>
+        <div class="tracker-step-date">Tanda Tangan Mandiri</div>
       </div>
 
       <div class="tracker-step-item ${activeStep > 4 ? 'completed' : ''} ${activeStep === 4 ? 'active' : ''}">
         <div class="tracker-circle">
           ${activeStep > 4 ? '<i class="fa-solid fa-check"></i>' : '4'}
         </div>
-        <div class="tracker-step-label">4. Rekomendasi Ketua</div>
-        <div class="tracker-step-date">Komite Keperawatan</div>
+        <div class="tracker-step-label">4. Telaah Mitra Bestari</div>
+        <div class="tracker-step-date">Peer Review Subkomite</div>
       </div>
 
       <div class="tracker-step-item ${activeStep >= 5 ? 'completed' : ''} ${activeStep === 5 ? 'active' : ''}">
@@ -4235,7 +4241,7 @@ function renderKredensialTrackerVisual(query) {
           ${activeStep >= 5 ? '<i class="fa-solid fa-check"></i>' : '5'}
         </div>
         <div class="tracker-step-label">5. Terbit SPK Direktur</div>
-        <div class="tracker-step-date">Penerbitan SK</div>
+        <div class="tracker-step-date">Penerbitan SK Resmi</div>
       </div>
     </div>
 
