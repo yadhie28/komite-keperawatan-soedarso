@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin / Sekretariat – Portal E-Kredensial RSUD dr. Soedarso</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="logo_komite_256.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --slate-950: #020617;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-400: #94a3b8;
+      --slate-200: #e2e8f0;
+      --teal-600: #0d9488;
+      --teal-500: #14b8a6;
+      --teal-400: #2dd4bf;
+      --gold-600: #d97706;
+      --gold-500: #f59e0b;
+      --gold-400: #fbbf24;
+      --blue-500: #3b82f6;
+      --green-500: #10b981;
+      --red-500: #ef4444;
+      --purple-500: #8b5cf6;
+    }
+
+    body {
+      background: var(--slate-950);
+      color: var(--slate-200);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 64px;
+      background: linear-gradient(90deg, #091322, #0d1e35, #091322);
+      border-bottom: 1px solid rgba(45, 212, 191, 0.2);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-group img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .brand-title span {
+      color: var(--teal-400);
+    }
+    .badge-admin-role {
+      background: rgba(217, 119, 6, 0.2);
+      border: 1px solid rgba(217, 119, 6, 0.4);
+      color: var(--gold-400);
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+      letter-spacing: 0.5px;
+    }
+    .topbar-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .btn-portal-back {
+      color: var(--slate-400);
+      text-decoration: none;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .btn-portal-back:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      padding: 0.3rem 0.8rem 0.3rem 0.4rem;
+    }
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal-600), var(--blue-500));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .user-info-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .user-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+    }
+    .user-role {
+      font-size: 0.65rem;
+      color: var(--teal-400);
+    }
+    .btn-logout {
+      background: none;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* Layout */
+    .admin-layout {
+      display: flex;
+      flex: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: rgba(15, 23, 42, 0.6);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 1.25rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .sidebar-heading {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--slate-600);
+      padding: 0.5rem 0.75rem 0.25rem;
+      margin-top: 0.5rem;
+    }
+    .sidebar-heading:first-child {
+      margin-top: 0;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      color: var(--slate-400);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .nav-btn i {
+      width: 18px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    .nav-btn.active {
+      background: rgba(45, 212, 191, 0.12);
+      color: var(--teal-300);
+      border: 1px solid rgba(45, 212, 191, 0.25);
+    }
+    .nav-btn .badge-counter {
+      margin-left: auto;
+      background: var(--slate-800);
+      color: var(--teal-400);
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 99px;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    /* Header Bar */
+    .view-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .view-title-main {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .view-title-main i {
+      color: var(--teal-400);
+    }
+    .view-sub {
+      font-size: 0.82rem;
+      color: var(--slate-400);
+      margin-top: 0.25rem;
+    }
+
+    /* Quick Action Button */
+    .btn-action-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--teal-600), var(--teal-500));
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(20, 184, 166, 0.35);
+    }
+    .btn-action-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(20, 184, 166, 0.5);
+    }
+
+    /* Metrics Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+    .metric-card:hover {
+      border-color: rgba(45, 212, 191, 0.3);
+      transform: translateY(-2px);
+    }
+    .metric-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .metric-icon-box.teal { background: rgba(45, 212, 191, 0.12); color: var(--teal-400); }
+    .metric-icon-box.gold { background: rgba(251, 191, 36, 0.12); color: var(--gold-400); }
+    .metric-icon-box.blue { background: rgba(59, 130, 246, 0.12); color: var(--blue-500); }
+    .metric-icon-box.purple { background: rgba(139, 92, 246, 0.12); color: var(--purple-500); }
+    .metric-data .label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-data .value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .metric-data .detail {
+      font-size: 0.72rem;
+      color: var(--teal-400);
+    }
+
+    /* Tables & Panels */
+    .data-panel {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .data-panel-header {
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .data-panel-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .search-filter-box {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .search-input {
+      background: var(--slate-900);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      color: #fff;
+      font-size: 0.82rem;
+      outline: none;
+      min-width: 220px;
+    }
+    .search-input:focus {
+      border-color: var(--teal-400);
+    }
+    .select-filter {
+      background: var(--slate-900);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      color: #fff;
+      font-size: 0.82rem;
+      outline: none;
+    }
+
+    /* Table Styles */
+    .table-responsive {
+      overflow-x: auto;
+    }
+    table.admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    table.admin-table th {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.8rem 1.25rem;
+      text-align: left;
+      font-weight: 700;
+      color: var(--slate-400);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.5px;
+    }
+    table.admin-table td {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--slate-200);
+      vertical-align: middle;
+    }
+    table.admin-table tr:hover td {
+      background: rgba(45, 212, 191, 0.02);
+    }
+    .role-badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .role-badge.perawat { background: rgba(45, 212, 191, 0.12); color: var(--teal-300); border: 1px solid rgba(45, 212, 191, 0.3); }
+    .role-badge.subkomite { background: rgba(139, 92, 246, 0.12); color: var(--purple-500); border: 1px solid rgba(139, 92, 246, 0.3); }
+    .role-badge.ketua { background: rgba(251, 191, 36, 0.12); color: var(--gold-400); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .role-badge.admin { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .btn-tbl-action {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--slate-400);
+      padding: 0.25rem 0.55rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.2s;
+    }
+    .btn-tbl-action:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    /* Modal Form */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-dialog {
+      background: var(--slate-900);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 540px;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+    .modal-subtitle {
+      font-size: 0.8rem;
+      color: var(--slate-400);
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--slate-400);
+      margin-bottom: 0.35rem;
+    }
+    .form-control-admin {
+      width: 100%;
+      background: var(--slate-800);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .form-control-admin:focus {
+      border-color: var(--teal-400);
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1.75rem;
+    }
+
+    /* Loading Screen */
+    #authLoading {
+      position: fixed;
+      inset: 0;
+      background: var(--slate-950);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      z-index: 9999;
+    }
+    #authLoading.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="authLoading">
+    <img src="logo_komite_256.png" style="width: 64px; animation: pulse 1.5s infinite;" alt="Loading">
+    <div style="font-size: 0.85rem; color: var(--slate-400);">Memverifikasi akses Administrator...</div>
+  </div>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand-group">
+      <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar">
+      <div>
+        <div class="brand-title">Portal E-Kredensial <span>Sekretariat</span></div>
+      </div>
+      <span class="badge-admin-role"><i class="fa-solid fa-shield-halved"></i> ADMINISTRATOR</span>
+    </div>
+
+    <div class="topbar-actions">
+      <a href="index.html" class="btn-portal-back">
+        <i class="fa-solid fa-arrow-left"></i> Beranda Portal
+      </a>
+      <a href="admin-buat-akun.html" class="btn-portal-back" style="color: var(--teal-300);">
+        <i class="fa-solid fa-users-gear"></i> Impor Akun CSV
+      </a>
+      <div class="user-pill">
+        <div class="user-avatar" id="avatarLetter">A</div>
+        <div class="user-info-text">
+          <span class="user-name" id="adminName">Administrator</span>
+          <span class="user-role" id="adminRole">Sekretariat Komite</span>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Keluar
+      </button>
+    </div>
+  </header>
+
+  <!-- Admin Layout -->
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-heading">Menu Utama</div>
+      <button class="nav-btn active" onclick="switchAdminTab('users', this)">
+        <i class="fa-solid fa-users"></i> Kelola Pengguna
+        <span class="badge-counter" id="badgeUserCount">28</span>
+      </button>
+      <button class="nav-btn" onclick="switchAdminTab('kredensial', this)">
+        <i class="fa-solid fa-file-signature"></i> Monitoring Kredensial
+        <span class="badge-counter" id="badgeKredCount">12</span>
+      </button>
+      <button class="nav-btn" onclick="switchAdminTab('ruangan', this)">
+        <i class="fa-solid fa-hospital"></i> Master Data Ruangan
+      </button>
+      <button class="nav-btn" onclick="switchAdminTab('audit', this)">
+        <i class="fa-solid fa-clock-rotate-left"></i> Log Audit Sistem
+      </button>
+
+      <div class="sidebar-heading">Pusat Komunikasi</div>
+      <button class="nav-btn" onclick="switchAdminTab('email', this)">
+        <i class="fa-solid fa-envelope-open-text"></i> Koneksi Email RSUD
+      </button>
+      <a href="admin-buat-akun.html" class="nav-btn" style="text-decoration: none;">
+        <i class="fa-solid fa-file-csv"></i> Batch Impor Akun
+      </a>
+
+      <div class="sidebar-heading">Tautan Cepat Role</div>
+      <a href="dashboard-perawat.html" class="nav-btn" style="text-decoration: none;">
+        <i class="fa-solid fa-user-nurse"></i> View Dashboard Perawat
+      </a>
+      <a href="dashboard-subkomite.html" class="nav-btn" style="text-decoration: none;">
+        <i class="fa-solid fa-user-shield"></i> View Dashboard Subkomite
+      </a>
+      <a href="dashboard-ketua.html" class="nav-btn" style="text-decoration: none;">
+        <i class="fa-solid fa-star"></i> View Dashboard Ketua
+      </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content-area">
+
+      <!-- View Header -->
+      <div class="view-header">
+        <div>
+          <h1 class="view-title-main" id="viewTitle"><i class="fa-solid fa-users"></i> Manajemen Akun Pengguna</h1>
+          <p class="view-sub" id="viewSub">Kelola akun perawat, bidan, verifikator subkomite, dan pimpinan komite keperawatan.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="admin-buat-akun.html" class="btn-action-primary" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);">
+            <i class="fa-solid fa-file-csv"></i> Buat Akun Massal
+          </a>
+          <button class="btn-action-primary" onclick="openAddUserModal()">
+            <i class="fa-solid fa-user-plus"></i> + Tambah Akun Satuan
+          </button>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-box teal"><i class="fa-solid fa-users"></i></div>
+          <div class="metric-data">
+            <div class="label">Total Akun</div>
+            <div class="value" id="valTotalUsers">28</div>
+            <div class="detail">24 Pengurus + 4 Demo</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box gold"><i class="fa-solid fa-file-waveform"></i></div>
+          <div class="metric-data">
+            <div class="label">Pengajuan Aktif</div>
+            <div class="value" id="valActiveKred">12</div>
+            <div class="detail">Dalam alur verifikasi</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box blue"><i class="fa-solid fa-stamp"></i></div>
+          <div class="metric-data">
+            <div class="label">SPK Terbit</div>
+            <div class="value" id="valSpkIssued">5</div>
+            <div class="detail">Sah & aktif</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon-box purple"><i class="fa-solid fa-hospital-user"></i></div>
+          <div class="metric-data">
+            <div class="label">Unit Pelayanan</div>
+            <div class="value" id="valUnits">60</div>
+            <div class="detail">Sesuai SK Direktur</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Users Section -->
+      <div id="tabUsers" class="admin-tab-content">
+        <div class="data-panel">
+          <div class="data-panel-header">
+            <div class="data-panel-title">
+              <i class="fa-solid fa-address-book" style="color: var(--teal-400);"></i>
+              Daftar Seluruh Pengguna Sistem E-Kredensial
+            </div>
+            <div class="search-filter-box">
+              <input type="text" id="userSearch" class="search-input" placeholder="Cari nama, NIP, ruangan..." oninput="filterUserTable()">
+              <select id="userRoleFilter" class="select-filter" onchange="filterUserTable()">
+                <option value="all">Semua Peran</option>
+                <option value="perawat">Perawat / Bidan</option>
+                <option value="subkomite">Subkomite Kredensial</option>
+                <option value="ketua">Ketua Komite</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Lengkap</th>
+                  <th>NIP / Identitas</th>
+                  <th>Peran (Role)</th>
+                  <th>Ruangan / Unit</th>
+                  <th>Status Akun</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Monitoring Kredensial -->
+      <div id="tabKredensial" class="admin-tab-content" style="display: none;">
+        <div class="data-panel">
+          <div class="data-panel-header">
+            <div class="data-panel-title">
+              <i class="fa-solid fa-route" style="color: var(--gold-400);"></i>
+              Log Pemantauan Alur Kredensialing (Tahap 1 s/d 6)
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID Berkas</th>
+                  <th>Nama Pemohon</th>
+                  <th>Jenjang PK</th>
+                  <th>Ruangan</th>
+                  <th>Tahap Terakhir</th>
+                  <th>Status PSV</th>
+                  <th>Tanggal Update</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="kredTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Master Ruangan -->
+      <div id="tabRuangan" class="admin-tab-content" style="display: none;">
+        <div class="data-panel">
+          <div class="data-panel-header">
+            <div class="data-panel-title">
+              <i class="fa-solid fa-hospital" style="color: var(--blue-500);"></i>
+              Master Data 60 Ruang & Instalasi Pelayanan (SK Direktur)
+            </div>
+            <button class="btn-action-primary" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;" onclick="alert('Sinkronisasi data master ruangan dari data.js aktif!')">
+              <i class="fa-solid fa-arrows-rotate"></i> Sinkronisasi
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Ruangan / Instalasi</th>
+                  <th>Kelompok Pelayanan</th>
+                  <th>Kepala Ruangan</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="ruanganTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Audit Trail -->
+      <div id="tabAudit" class="admin-tab-content" style="display: none;">
+        <div class="data-panel">
+          <div class="data-panel-header">
+            <div class="data-panel-title">
+              <i class="fa-solid fa-clock-rotate-left" style="color: var(--purple-500);"></i>
+              Jejak Audit & Aktivitas Terakhir Sistem
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Pengguna</th>
+                  <th>Aktivitas</th>
+                  <th>Target Berkas</th>
+                  <th>IP / Perangkat</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Email Notif Center -->
+      <div id="tabEmail" class="admin-tab-content" style="display: none;">
+        <div class="data-panel" style="padding: 1.5rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem;">
+            <i class="fa-solid fa-envelope" style="color: var(--teal-400);"></i>
+            Koneksi Notifikasi Email Administrasi Komite
+          </h3>
+          <p style="font-size: 0.82rem; color: var(--slate-400); margin-bottom: 1.5rem;">
+            Sistem mengirimkan tembusan notifikasi otomatis untuk setiap pengajuan baru dan penerbitan rekomendasi ke dua alamat resmi:
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: var(--slate-900); border: 1px solid rgba(45,212,191,0.3); border-radius: 12px; padding: 1.25rem;">
+              <div style="font-size: 0.72rem; color: var(--teal-400); font-weight: 700; text-transform: uppercase;">Akun Email Utama</div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0.35rem 0;">komitekeperawatanrsds2023@gmail.com</div>
+              <div style="font-size: 0.75rem; color: #10b981;"><i class="fa-solid fa-circle-check"></i> Terhubung & Siap Menerima Notifikasi</div>
+            </div>
+            <div style="background: var(--slate-900); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px; padding: 1.25rem;">
+              <div style="font-size: 0.72rem; color: var(--gold-400); font-weight: 700; text-transform: uppercase;">Akun Email Administrator IT</div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0.35rem 0;">yadhie28@gmail.com</div>
+              <div style="font-size: 0.75rem; color: #10b981;"><i class="fa-solid fa-circle-check"></i> Terhubung & Backup Notifikasi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Tambah Akun Satuan -->
+  <div id="modalAddUser" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-title"><i class="fa-solid fa-user-plus" style="color: var(--teal-400);"></i> Tambah Akun Pengguna Baru</div>
+      <div class="modal-subtitle">Buat akun untuk staf atau pengurus Komite Keperawatan.</div>
+
+      <form id="formAddUser" onsubmit="handleAddUser(event)">
+        <div class="form-group">
+          <label>Nama Lengkap & Gelar</label>
+          <input type="text" id="newNama" class="form-control-admin" placeholder="Contoh: Ns. Rian Pratama, S.Kep" required>
+        </div>
+        <div class="form-group">
+          <label>NIP / NIPPPK / NIK (Username)</label>
+          <input type="text" id="newNip" class="form-control-admin" placeholder="Contoh: 199305102020011005" required>
+        </div>
+        <div class="form-group">
+          <label>Peran / Hak Akses (Role)</label>
+          <select id="newRole" class="form-control-admin" required>
+            <option value="perawat">Perawat / Bidan (Pemohon)</option>
+            <option value="subkomite">Subkomite Kredensial (Verifikator)</option>
+            <option value="ketua">Ketua Komite Keperawatan (Pemberi Persetujuan)</option>
+            <option value="admin">Administrator / Sekretariat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ruangan / Unit Penempatan</label>
+          <input type="text" id="newRuangan" class="form-control-admin" placeholder="Contoh: Enggang Gading 2 / ICU" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-portal-back" onclick="closeAddUserModal()">Batal</button>
+          <button type="submit" class="btn-action-primary">Simpan Akun</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="firebase-config.js"></script>
+  <script src="data.js"></script>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const app  = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      document.getElementById('authLoading').classList.add('hidden');
+      if (user) {
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (snap.exists()) {
+            const p = snap.data();
+            document.getElementById('adminName').textContent = p.nama.split(',')[0];
+            document.getElementById('adminRole').textContent = p.role.toUpperCase();
+            document.getElementById('avatarLetter').textContent = p.nama.charAt(0);
+          }
+        } catch(e) {
+          console.warn('Firebase user read error:', e);
+        }
+      }
+    });
+
+    window.doLogout = async function() {
+      try {
+        await signOut(auth);
+      } catch(e){}
+      window.location.href = 'login.html';
+    };
+  </script>
+
+  <script>
+    // State Demo
+    let usersList = [];
+    let auditList = [
+      { time: '21 Okt 2026 21:15', user: 'Ns. Rusmulyadi, M.Kep', action: 'Verifikasi PSV Disetujui Penuh', target: 'Ns. Hendra Kurniawan', ip: '192.168.1.45' },
+      { time: '21 Okt 2026 20:40', user: 'Ns. Bambang Sugiarto', action: 'Input Verifikasi STR KTKI', target: 'Ns. Sari Dewi Lestari', ip: '192.168.1.12' },
+      { time: '21 Okt 2026 19:25', user: 'Ns. Hendra Kurniawan', action: 'Unggah Berkas Kredensial', target: 'Formulir Kredensial', ip: '10.20.4.88' },
+      { time: '21 Okt 2026 18:10', user: 'Admin Sekretariat', action: 'Import Massal Akun Perawat (CSV)', target: '18 Akun Perawat', ip: '192.168.1.5' }
+    ];
+
+    let kredList = [
+      { id: 'KRED-2026-001', nama: 'Ns. Hendra Kurniawan, S.Kep', jenjang: 'PK III KMB', ruangan: 'Enggang Gading 2', step: 'Tahap 5: PSV', psv: 'Valid / Sah', date: '21 Okt 2026' },
+      { id: 'KRED-2026-002', nama: 'Ns. Sari Dewi Lestari, S.Kep', jenjang: 'PK II KMB', ruangan: 'ICU', step: 'Tahap 5: PSV', psv: 'Menunggu Provider', date: '20 Okt 2026' },
+      { id: 'KRED-2026-003', nama: 'Bdn. Rina Wulandari, S.Tr.Keb', jenjang: 'PK II Kebidanan', ruangan: 'Ruang Bersalin', step: 'Tahap 6: SPK Terbit', psv: 'Valid / Sah', date: '19 Okt 2026' },
+      { id: 'KRED-2026-004', nama: 'Ns. Bambang Supeno, S.Kep', jenjang: 'PK I Generalis', ruangan: 'IGD', step: 'Tahap 4: RKK Cetak', psv: 'Belum PSV', date: '18 Okt 2026' }
+    ];
+
+    function initData() {
+      const adminUsers = window.KOMITE_DATA?.adminUsers || [];
+      usersList = adminUsers.map((u, i) => ({
+        id: i + 1,
+        nama: u.name,
+        nip: u.nip || u.username,
+        role: u.badge.toLowerCase().includes('ketua') ? 'ketua' : (u.badge.toLowerCase().includes('kredensial') ? 'subkomite' : 'admin'),
+        ruangan: 'Komite Keperawatan',
+        status: 'Aktif'
+      }));
+
+      // Tambahkan perawat demo
+      usersList.push(
+        { id: 25, nama: 'Ns. Hendra Kurniawan, S.Kep', nip: '199204152019031004', role: 'perawat', ruangan: 'Enggang Gading 2', status: 'Aktif' },
+        { id: 26, nama: 'Ns. Sari Dewi Lestari, S.Kep', nip: '198505102010012005', role: 'perawat', ruangan: 'ICU', status: 'Aktif' },
+        { id: 27, nama: 'Bdn. Rina Wulandari, S.Tr.Keb', nip: '199009202015032007', role: 'perawat', ruangan: 'Ruang Bersalin', status: 'Aktif' },
+        { id: 28, nama: 'Ns. Bambang Supeno, S.Kep', nip: '199408122022031002', role: 'perawat', ruangan: 'IGD', status: 'Aktif' }
+      );
+
+      renderUserTable(usersList);
+      renderKredTable();
+      renderRuanganTable();
+      renderAuditTable();
+    }
+
+    function renderUserTable(data) {
+      const tbody = document.getElementById('userTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = data.map((u, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td><strong>${u.nama}</strong></td>
+          <td><code>${u.nip}</code></td>
+          <td><span class="role-badge ${u.role}">${u.role.toUpperCase()}</span></td>
+          <td>${u.ruangan}</td>
+          <td><span style="color:#10b981;font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${u.status}</span></td>
+          <td>
+            <button class="btn-tbl-action" onclick="resetUserPassword('${u.nip}')" title="Reset Password ke default"><i class="fa-solid fa-key"></i> Reset</button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('valTotalUsers').textContent = data.length;
+      document.getElementById('badgeUserCount').textContent = data.length;
+    }
+
+    function filterUserTable() {
+      const q = (document.getElementById('userSearch')?.value || '').toLowerCase();
+      const role = document.getElementById('userRoleFilter')?.value || 'all';
+
+      const filtered = usersList.filter(u => {
+        const matchesQuery = u.nama.toLowerCase().includes(q) || u.nip.includes(q) || u.ruangan.toLowerCase().includes(q);
+        const matchesRole = (role === 'all') || (u.role === role);
+        return matchesQuery && matchesRole;
+      });
+      renderUserTable(filtered);
+    }
+
+    function renderKredTable() {
+      const tbody = document.getElementById('kredTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = kredList.map(k => `
+        <tr>
+          <td><strong>${k.id}</strong></td>
+          <td>${k.nama}</td>
+          <td><span style="background:rgba(45,212,191,0.15);padding:2px 8px;border-radius:6px;color:#2dd4bf;font-weight:700;">${k.jenjang}</span></td>
+          <td>${k.ruangan}</td>
+          <td><strong>${k.step}</strong></td>
+          <td><span style="color: ${k.psv.includes('Valid') ? '#10b981' : '#fbbf24'}; font-weight:700;">${k.psv}</span></td>
+          <td>${k.date}</td>
+          <td>
+            <a href="dashboard-subkomite.html" class="btn-tbl-action" style="text-decoration:none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Periksa</a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderRuanganTable() {
+      const tbody = document.getElementById('ruanganTableBody');
+      if (!tbody) return;
+      const masterRuangan = window.KOMITE_DATA?.masterRuangan || [];
+      tbody.innerHTML = masterRuangan.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${r.nama || r}</strong></td>
+          <td>${r.kelompok || 'Pelayanan Rawat & Khusus'}</td>
+          <td>${r.karu || 'Kepala Ruangan Terverifikasi'}</td>
+          <td><span style="color:#10b981;font-weight:700;">Aktif</span></td>
+        </tr>
+      `).join('');
+      document.getElementById('valUnits').textContent = masterRuangan.length;
+    }
+
+    function renderAuditTable() {
+      const tbody = document.getElementById('auditTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = auditList.map(a => `
+        <tr>
+          <td><code>${a.time}</code></td>
+          <td><strong>${a.user}</strong></td>
+          <td>${a.action}</td>
+          <td>${a.target}</td>
+          <td><code>${a.ip}</code></td>
+        </tr>
+      `).join('');
+    }
+
+    function switchAdminTab(tabKey, btn) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.style.display = 'none');
+
+      const titleMap = {
+        users: { title: '<i class="fa-solid fa-users"></i> Manajemen Akun Pengguna', sub: 'Kelola akun perawat, bidan, verifikator subkomite, dan pimpinan komite keperawatan.' },
+        kredensial: { title: '<i class="fa-solid fa-file-signature"></i> Monitoring Kredensial', sub: 'Pantau status dan alur pengajuan berkas e-kredensial staf secara real-time.' },
+        ruangan: { title: '<i class="fa-solid fa-hospital"></i> Master Data Ruangan', sub: 'Data 60 ruang & instalasi pelayanan RSUD dr. Soedarso sesuai SK Direktur.' },
+        audit: { title: '<i class="fa-solid fa-clock-rotate-left"></i> Log Audit Sistem', sub: 'Rekam jejak setiap perubahan data, verifikasi, dan penerbitan SPK.' },
+        email: { title: '<i class="fa-solid fa-envelope-open-text"></i> Koneksi Email Administrasi', sub: 'Pusat integrasi pengiriman tembusan berkas ke email resmi komite.' }
+      };
+
+      if (titleMap[tabKey]) {
+        document.getElementById('viewTitle').innerHTML = titleMap[tabKey].title;
+        document.getElementById('viewSub').textContent = titleMap[tabKey].sub;
+      }
+
+      if (tabKey === 'users') document.getElementById('tabUsers').style.display = 'block';
+      if (tabKey === 'kredensial') document.getElementById('tabKredensial').style.display = 'block';
+      if (tabKey === 'ruangan') document.getElementById('tabRuangan').style.display = 'block';
+      if (tabKey === 'audit') document.getElementById('tabAudit').style.display = 'block';
+      if (tabKey === 'email') document.getElementById('tabEmail').style.display = 'block';
+    }
+
+    function resetUserPassword(nip) {
+      alert(`Password untuk NIP: ${nip} telah direset ke default: NIP + 4 digit tanggal lahir.`);
+    }
+
+    function openAddUserModal() {
+      document.getElementById('modalAddUser').style.display = 'flex';
+    }
+    function closeAddUserModal() {
+      document.getElementById('modalAddUser').style.display = 'none';
+    }
+
+    function handleAddUser(e) {
+      e.preventDefault();
+      const nama = document.getElementById('newNama').value.trim();
+      const nip = document.getElementById('newNip').value.trim();
+      const role = document.getElementById('newRole').value;
+      const ruangan = document.getElementById('newRuangan').value.trim();
+
+      usersList.unshift({
+        id: usersList.length + 1,
+        nama,
+        nip,
+        role,
+        ruangan,
+        status: 'Aktif'
+      });
+
+      renderUserTable(usersList);
+      closeAddUserModal();
+      alert(`Akun untuk ${nama} (${role.toUpperCase()}) berhasil dibuat!`);
+      e.target.reset();
+    }
+
+    // Auto-init
+    window.addEventListener('DOMContentLoaded', initData);
+  </script>
+</body>
+</html>
