@@ -1210,22 +1210,122 @@ window.KOMITE_DATA = {
     }
   ],
 
-  // Unit Kerja Resmi RSUD Dokter Soedarso
+  // Unit Kerja & Penempatan Ruang Resmi RSUD Dokter Soedarso Sesuai SK Direktur No: SK/031103/RSUD/2025 (Total 704 Tempat Tidur)
   hospitalUnits: [
+    // A. INSTALASI RAWAT INAP A
+    "Singkut Buluh",
+    "PPT",
+    "A (Anak)",
+    "B (Perinatologi)",
+    "Ruai (Syaraf)",
+    "Camar (Kemoterapi)",
+    "Murai (Penyakit Dalam Pria dan Wanita)",
+    "Meranti",
+    "Mahoni",
+    "Ramin",
+    "ICU",
+    "HCU Umum",
+    "PICU",
+    "HCU Anak",
+    "NICU",
+    "Rawat Inap Isolasi Paru",
+    "Rawat Inap Isolasi ICU",
+    "Enggang Gading 1",
+    "Enggang Gading 2",
+
+    // B. INSTALASI JANTUNG TERPADU
+    "Instalasi Jantung Terpadu - ICVCU",
+    "Instalasi Jantung Terpadu - HCU",
+    "Instalasi Jantung Terpadu - VIP",
+    "Instalasi Jantung Terpadu - Kelas 1",
+    "Instalasi Jantung Terpadu - Non Kelas",
+
+    // C. RUANG TINDAKAN
+    "Cendana",
     "Instalasi Gawat Darurat (IGD)",
-    "ICU Sentral (Intensive Care Unit)",
-    "Instalasi Bedah Sentral (Kamar Operasi IBS)",
-    "Ruang Enggang Gading 2 (Penyakit Dalam)",
-    "Ruang Merak (Penyakit Dalam Non-Infeksi)",
-    "Ruang Cendrawasih (Bedah Orthopedi & Umum)",
-    "Ruang Bersalin (VK) & Maternal",
-    "Ruang Perinatologi & NICU / PICU",
-    "Ruang Hemodialisa (HD)",
-    "Klinik Onkologi & Kemoterapi Terpadu",
-    "Instalasi Rawat Jalan Terpadu",
-    "Unit Stroke & Neurologi",
-    "Unit Pelayanan Jantung & Vaskular"
+    "IGD Kebidanan",
+    "OK Sentral",
+    "OK IGD",
+
+    // D. RUANG RAWAT KHUSUS
+    "Thalassemia",
+    "HD Rawat Jalan",
+    "HD Rawat Inap",
+    "Kemoterapi (ODC)"
   ],
+
+  // Metadata Master Ruangan Resmi Berdasarkan SK Direktur No: SK/031103/RSUD/2025
+  hospitalRoomsSK: {
+    nomorSK: "SK/031103/RSUD/2025",
+    perubahanAtas: "SK/020106/RSUD/2025",
+    judul: "Penetapan Jumlah Tempat Tidur Pada RSUD Dokter Soedarso Provinsi Kalimantan Barat Tahun 2025",
+    tanggalSK: "3 November 2025",
+    direktur: "Hary Agung Tjahyadi",
+    totalTempatTidur: 704,
+    categories: [
+      {
+        kode: "A",
+        nama: "INSTALASI RAWAT INAP A",
+        totalTT: 545,
+        rooms: [
+          { nama: "Singkut Buluh", tt: 13, rincian: "Utama III (1), VIP Utama IV (12)" },
+          { nama: "PPT", tt: 43, rincian: "Utama III (1), Kls I (34), Kls II (8)" },
+          { nama: "A (Anak)", tt: 95, rincian: "VIP Utama IV (5), Kls I (14), Non Kls (76)" },
+          { nama: "B (Perinatologi)", tt: 25, rincian: "Non Kls (25)" },
+          { nama: "Ruai (Syaraf)", tt: 33, rincian: "Kls III (33)" },
+          { nama: "Camar (Kemoterapi)", tt: 34, rincian: "Kls III (34)" },
+          { nama: "Murai (Penyakit Dalam Pria dan Wanita)", tt: 37, rincian: "Kls III (37)" },
+          { nama: "Meranti", tt: 40, rincian: "Kls III (40)" },
+          { nama: "Mahoni", tt: 41, rincian: "Kls III (41)" },
+          { nama: "Ramin", tt: 25, rincian: "Non Kls (25)" },
+          { nama: "ICU", tt: 18, rincian: "Non Kls (18)" },
+          { nama: "HCU Umum", tt: 19, rincian: "Non Kls (19)" },
+          { nama: "PICU", tt: 7, rincian: "Non Kls (7)" },
+          { nama: "HCU Anak", tt: 6, rincian: "Non Kls (6)" },
+          { nama: "NICU", tt: 9, rincian: "Non Kls (9)" },
+          { nama: "Rawat Inap Isolasi Paru", tt: 38, rincian: "Kls III (38)" },
+          { nama: "Rawat Inap Isolasi ICU", tt: 4, rincian: "Non Kls (4)" },
+          { nama: "Enggang Gading 1", tt: 10, rincian: "Non Kls (10)" },
+          { nama: "Enggang Gading 2", tt: 48, rincian: "Non Kls (48)" }
+        ]
+      },
+      {
+        kode: "B",
+        nama: "INSTALASI JANTUNG TERPADU",
+        totalTT: 50,
+        rooms: [
+          { nama: "Instalasi Jantung Terpadu - ICVCU", tt: 14, rincian: "Non Kls (14)" },
+          { nama: "Instalasi Jantung Terpadu - HCU", tt: 4, rincian: "Non Kls (4)" },
+          { nama: "Instalasi Jantung Terpadu - VIP", tt: 4, rincian: "VIP Utama IV (4)" },
+          { nama: "Instalasi Jantung Terpadu - Kelas 1", tt: 8, rincian: "Kls I (8)" },
+          { nama: "Instalasi Jantung Terpadu - Non Kelas", tt: 20, rincian: "Kls III (20)" }
+        ]
+      },
+      {
+        kode: "C",
+        nama: "RUANG TINDAKAN",
+        totalTT: 43,
+        rooms: [
+          { nama: "Cendana", tt: 16, rincian: "Non Kls (16)" },
+          { nama: "Instalasi Gawat Darurat (IGD)", tt: 15, rincian: "Non Kls (15)" },
+          { nama: "IGD Kebidanan", tt: 2, rincian: "Non Kls (2)" },
+          { nama: "OK Sentral", tt: 8, rincian: "Non Kls (8)" },
+          { nama: "OK IGD", tt: 2, rincian: "Non Kls (2)" }
+        ]
+      },
+      {
+        kode: "D",
+        nama: "RUANG RAWAT KHUSUS",
+        totalTT: 66,
+        rooms: [
+          { nama: "Thalassemia", tt: 13, rincian: "Non Kls (13)" },
+          { nama: "HD Rawat Jalan", tt: 27, rincian: "Non Kls (27)" },
+          { nama: "HD Rawat Inap", tt: 6, rincian: "Non Kls (6)" },
+          { nama: "Kemoterapi (ODC)", tt: 20, rincian: "Non Kls (20)" }
+        ]
+      }
+    ]
+  },
 
   // Jenjang Pendidikan Formal Keperawatan & Kebidanan
   educationDegrees: [

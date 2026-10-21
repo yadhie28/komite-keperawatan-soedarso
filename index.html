@@ -648,17 +648,52 @@
 
             <!-- Filter Unit -->
             <select id="filterUnit" class="select-filter">
-              <option value="">Semua Ruangan / Unit</option>
-              <option value="Ruang Enggang Gading 2">Ruang Enggang Gading 2</option>
-              <option value="ICU Sentral">ICU Sentral</option>
-              <option value="Instalasi Gawat Darurat">IGD</option>
-              <option value="Ruang Cendrawasih">Ruang Cendrawasih</option>
-              <option value="Ruang Bersalin">Ruang Bersalin (VK)</option>
-              <option value="Kamar Bedah Sentral">Kamar Bedah Sentral (IBS)</option>
-              <option value="Ruang Hemodialisa">Ruang Hemodialisa</option>
-              <option value="Ruang Perinatologi">Ruang Perinatologi & NICU</option>
-              <option value="Klinik Onkologi">Klinik Onkologi</option>
-              <option value="Ruang Merak">Ruang Merak</option>
+              <option value="">Semua Ruangan / Unit (Sesuai SK Direktur 2025)</option>
+              
+              <optgroup label="A. INSTALASI RAWAT INAP A">
+                <option value="Singkut Buluh">Singkut Buluh</option>
+                <option value="PPT">PPT</option>
+                <option value="A (Anak)">A (Anak)</option>
+                <option value="B (Perinatologi)">B (Perinatologi)</option>
+                <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
+                <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
+                <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
+                <option value="Meranti">Meranti</option>
+                <option value="Mahoni">Mahoni</option>
+                <option value="Ramin">Ramin</option>
+                <option value="ICU">ICU</option>
+                <option value="HCU Umum">HCU Umum</option>
+                <option value="PICU">PICU</option>
+                <option value="HCU Anak">HCU Anak</option>
+                <option value="NICU">NICU</option>
+                <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
+                <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
+                <option value="Enggang Gading 1">Enggang Gading 1</option>
+                <option value="Enggang Gading 2">Enggang Gading 2</option>
+              </optgroup>
+
+              <optgroup label="B. INSTALASI JANTUNG TERPADU">
+                <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
+                <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
+                <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
+                <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
+                <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+              </optgroup>
+
+              <optgroup label="C. RUANG TINDAKAN">
+                <option value="Cendana">Cendana</option>
+                <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                <option value="IGD Kebidanan">IGD Kebidanan</option>
+                <option value="OK Sentral">OK Sentral</option>
+                <option value="OK IGD">OK IGD</option>
+              </optgroup>
+
+              <optgroup label="D. RUANG RAWAT KHUSUS">
+                <option value="Thalassemia">Thalassemia</option>
+                <option value="HD Rawat Jalan">HD Rawat Jalan</option>
+                <option value="HD Rawat Inap">HD Rawat Inap</option>
+                <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+              </optgroup>
             </select>
 
             <!-- Filter Jenjang Karir -->
@@ -1168,18 +1203,52 @@
               <div class="form-group">
                 <label class="form-label">Penempatan Ruang / Instalasi Pelayanan <span class="req">*</span></label>
                 <select class="form-select" id="formUnit" required>
-                  <option value="">-- Pilih Ruang Perawatan --</option>
-                  <option value="Ruang Enggang Gading 2 (Penyakit Dalam)">Ruang Enggang Gading 2 (Penyakit Dalam)</option>
-                  <option value="ICU Sentral (Intensive Care Unit)">ICU Sentral (Intensive Care Unit)</option>
-                  <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
-                  <option value="Ruang Cendrawasih (Bedah Orthopedi)">Ruang Cendrawasih (Bedah Orthopedi)</option>
-                  <option value="Ruang Bersalin (VK) & Maternal">Ruang Bersalin (VK) & Maternal</option>
-                  <option value="Kamar Bedah Sentral (IBS)">Kamar Bedah Sentral (IBS)</option>
-                  <option value="Ruang Hemodialisa (HD)">Ruang Hemodialisa (HD)</option>
-                  <option value="Ruang Perinatologi & NICU">Ruang Perinatologi & NICU</option>
-                  <option value="Klinik Onkologi & Kemoterapi Terpadu">Klinik Onkologi & Kemoterapi Terpadu</option>
-                  <option value="Pusat Jantung Terpadu (PJT / ICCU / Cathlab)">Pusat Jantung Terpadu (PJT / ICCU / Cathlab)</option>
-                  <option value="Ruang Merak (Penyakit Dalam Non-Infeksi)">Ruang Merak (Penyakit Dalam Non-Infeksi)</option>
+                  <option value="">-- Pilih Penempatan Ruang / Instalasi Pelayanan (Sesuai SK Direktur 2025) --</option>
+                  
+                  <optgroup label="A. INSTALASI RAWAT INAP A">
+                    <option value="Singkut Buluh">Singkut Buluh</option>
+                    <option value="PPT">PPT</option>
+                    <option value="A (Anak)">A (Anak)</option>
+                    <option value="B (Perinatologi)">B (Perinatologi)</option>
+                    <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
+                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
+                    <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
+                    <option value="Meranti">Meranti</option>
+                    <option value="Mahoni">Mahoni</option>
+                    <option value="Ramin">Ramin</option>
+                    <option value="ICU">ICU</option>
+                    <option value="HCU Umum">HCU Umum</option>
+                    <option value="PICU">PICU</option>
+                    <option value="HCU Anak">HCU Anak</option>
+                    <option value="NICU">NICU</option>
+                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
+                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
+                    <option value="Enggang Gading 1">Enggang Gading 1</option>
+                    <option value="Enggang Gading 2">Enggang Gading 2</option>
+                  </optgroup>
+
+                  <optgroup label="B. INSTALASI JANTUNG TERPADU">
+                    <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
+                    <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
+                    <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
+                    <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
+                    <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+                  </optgroup>
+
+                  <optgroup label="C. RUANG TINDAKAN">
+                    <option value="Cendana">Cendana</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                    <option value="IGD Kebidanan">IGD Kebidanan</option>
+                    <option value="OK Sentral">OK Sentral</option>
+                    <option value="OK IGD">OK IGD</option>
+                  </optgroup>
+
+                  <optgroup label="D. RUANG RAWAT KHUSUS">
+                    <option value="Thalassemia">Thalassemia</option>
+                    <option value="HD Rawat Jalan">HD Rawat Jalan</option>
+                    <option value="HD Rawat Inap">HD Rawat Inap</option>
+                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -2343,16 +2412,52 @@
                 <div class="form-group">
                   <label class="form-label">8. Unit Kerja / Ruang Rawat Saat Ini <span class="req">*</span></label>
                   <select class="form-select" id="suratUnit" required>
-                    <option value="Ruang Enggang Gading 2 (Penyakit Dalam)" selected>Ruang Enggang Gading 2 (Penyakit Dalam)</option>
-                    <option value="ICU Sentral (Intensive Care Unit)">ICU Sentral (Intensive Care Unit)</option>
-                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
-                    <option value="Ruang Cendrawasih (Bedah Orthopedi)">Ruang Cendrawasih (Bedah Orthopedi)</option>
-                    <option value="Ruang Bersalin (VK) & Maternal">Ruang Bersalin (VK) & Maternal</option>
-                    <option value="Kamar Bedah Sentral (IBS)">Kamar Bedah Sentral (IBS)</option>
-                    <option value="Ruang Hemodialisa (HD)">Ruang Hemodialisa (HD)</option>
-                    <option value="Ruang Perinatologi & NICU">Ruang Perinatologi & NICU</option>
-                    <option value="Klinik Onkologi & Kemoterapi Terpadu">Klinik Onkologi & Kemoterapi Terpadu</option>
-                    <option value="Ruang Merak (Penyakit Dalam Non-Infeksi)">Ruang Merak (Penyakit Dalam Non-Infeksi)</option>
+                    <option value="">-- Pilih Unit Kerja / Ruang Rawat (Sesuai SK Direktur 2025) --</option>
+                    
+                    <optgroup label="A. INSTALASI RAWAT INAP A">
+                      <option value="Singkut Buluh">Singkut Buluh</option>
+                      <option value="PPT">PPT</option>
+                      <option value="A (Anak)">A (Anak)</option>
+                      <option value="B (Perinatologi)">B (Perinatologi)</option>
+                      <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
+                      <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
+                      <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
+                      <option value="Meranti">Meranti</option>
+                      <option value="Mahoni">Mahoni</option>
+                      <option value="Ramin">Ramin</option>
+                      <option value="ICU">ICU</option>
+                      <option value="HCU Umum">HCU Umum</option>
+                      <option value="PICU">PICU</option>
+                      <option value="HCU Anak">HCU Anak</option>
+                      <option value="NICU">NICU</option>
+                      <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
+                      <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
+                      <option value="Enggang Gading 1">Enggang Gading 1</option>
+                      <option value="Enggang Gading 2" selected>Enggang Gading 2</option>
+                    </optgroup>
+
+                    <optgroup label="B. INSTALASI JANTUNG TERPADU">
+                      <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
+                      <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
+                      <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
+                      <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
+                      <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+                    </optgroup>
+
+                    <optgroup label="C. RUANG TINDAKAN">
+                      <option value="Cendana">Cendana</option>
+                      <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                      <option value="IGD Kebidanan">IGD Kebidanan</option>
+                      <option value="OK Sentral">OK Sentral</option>
+                      <option value="OK IGD">OK IGD</option>
+                    </optgroup>
+
+                    <optgroup label="D. RUANG RAWAT KHUSUS">
+                      <option value="Thalassemia">Thalassemia</option>
+                      <option value="HD Rawat Jalan">HD Rawat Jalan</option>
+                      <option value="HD Rawat Inap">HD Rawat Inap</option>
+                      <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div class="form-group">
