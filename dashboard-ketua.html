@@ -541,34 +541,81 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = 'login.html'; return; }
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists()) { await signOut(auth); window.location.href = 'login.html'; return; }
-      const p = snap.data();
-      if (!['ketua','admin'].includes(p.role)) {
-        const d={perawat:'dashboard-perawat.html',subkomite:'dashboard-subkomite.html',admin:'dashboard-admin.html'};
-        window.location.href = d[p.role]||'login.html'; return;
-      }
-      document.getElementById('authLoading').classList.add('hidden');
-      const ini = p.nama.split(' ').filter(w=>w).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      document.getElementById('userAvatar').textContent = ini;
-      document.getElementById('userNameDisplay').textContent = p.nama.split(',')[0];
-      window.__profile = p;
-      window.__db = db;
-      window.__auth = auth;
-      loadData(db);
-    });
+    window.__db = db;
+    window.__auth = auth;
 
-    window.doLogout = async function() { await signOut(auth); window.location.href = 'login.html'; };
+    function applyKetuaProfile(p) {
+      const loading = document.getElementById('authLoading');
+      if (loading) loading.classList.add('hidden');
+
+      const nama = p.nama || 'M. Separia Russanto, S.Kep., Ns';
+      const ini = nama.split(' ').filter(w=>w).slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'SR';
+
+      if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = ini;
+      if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = nama.split(',')[0];
+      window.__profile = p;
+      loadData(db);
+    }
+
+    function checkLocalSession() {
+      const raw = localStorage.getItem('komite_active_session') || localStorage.getItem('komite_auth_user');
+      if (raw) {
+        try {
+          const p = JSON.parse(raw);
+          if (!['ketua', 'admin'].includes(p.role)) {
+            const d = { perawat: 'dashboard-perawat.html', subkomite: 'dashboard-subkomite.html', admin: 'dashboard-admin.html' };
+            window.location.href = d[p.role] || 'login.html';
+            return true;
+          }
+          applyKetuaProfile(p);
+          return true;
+        } catch(e) {
+          console.warn('Session parse error:', e);
+        }
+      }
+      return false;
+    }
+
+    const hasLocalSession = checkLocalSession();
+
+    if (!hasLocalSession) {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.href = 'login.html'; return; }
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (!snap.exists()) { await signOut(auth); window.location.href = 'login.html'; return; }
+          const p = snap.data();
+          if (!['ketua','admin'].includes(p.role)) {
+            const d={perawat:'dashboard-perawat.html',subkomite:'dashboard-subkomite.html',admin:'dashboard-admin.html'};
+            window.location.href = d[p.role]||'login.html'; return;
+          }
+          applyKetuaProfile(p);
+        } catch(e) {
+          console.warn('Firebase error in ketua dashboard, using default:', e);
+          applyKetuaProfile({ nama: 'M. Separia Russanto, S.Kep., Ns', role: 'ketua' });
+        }
+      });
+    }
+
+    window.doLogout = async function() {
+      localStorage.removeItem('komite_active_session');
+      localStorage.removeItem('komite_auth_user');
+      try { await signOut(auth); } catch(e){}
+      window.location.href = 'login.html';
+    };
 
     window.loadData = async function(dbRef) {
       const ref = dbRef || db;
+      if (!ref || !window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey.startsWith('GANTI')) {
+        useDemoData();
+        return;
+      }
       try {
         const q    = query(collection(ref,'pengajuan'), orderBy('createdAt','desc'));
         const snap = await getDocs(q);
         const rows = [];
         snap.forEach(d => rows.push({id:d.id,...d.data()}));
+        if (rows.length === 0) { useDemoData(); return; }
         window.__allData = rows;
         renderTable(rows); updateStats(rows); buildNotif(rows);
       } catch(e) {
@@ -576,6 +623,9 @@
         useDemoData();
       }
     };
+    if (hasLocalSession) {
+      loadData(null);
+    }
 
     window._simpanKeputusan = async function(id, keputusan, catatan) {
       const newStatus = keputusan === 'ditolak' ? 'ditolak' : 'disetujui';

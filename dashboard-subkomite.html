@@ -774,33 +774,82 @@
     window.__db = db;
     window.__auth = auth;
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = 'login.html'; return; }
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists()) { await signOut(auth); window.location.href = 'login.html'; return; }
-      const profile = snap.data();
-      if (!['subkomite', 'admin'].includes(profile.role)) {
-        const dash = { perawat:'dashboard-perawat.html', ketua:'dashboard-ketua.html', admin:'dashboard-admin.html' };
-        window.location.href = dash[profile.role] || 'login.html'; return;
-      }
-      document.getElementById('authLoading').classList.add('hidden');
-      const inisial = profile.nama.split(' ').filter(w=>w).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      document.getElementById('userAvatar').textContent = inisial;
-      document.getElementById('userNameDisplay').textContent = profile.nama.split(',')[0];
+    function applySubkomiteProfile(profile) {
+      const loading = document.getElementById('authLoading');
+      if (loading) loading.classList.add('hidden');
+
+      const nama = profile.nama || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep';
+      const inisial = nama.split(' ').filter(w=>w).slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'YR';
+
+      if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = inisial;
+      if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = nama.split(',')[0];
       window.__profile = profile;
       loadPengajuan(db);
-    });
+    }
 
-    window.doLogout = async function() { await signOut(auth); window.location.href = 'login.html'; };
+    function checkLocalSession() {
+      const raw = localStorage.getItem('komite_active_session') || localStorage.getItem('komite_auth_user');
+      if (raw) {
+        try {
+          const profile = JSON.parse(raw);
+          if (!['subkomite', 'admin'].includes(profile.role)) {
+            const dash = { perawat:'dashboard-perawat.html', ketua:'dashboard-ketua.html', admin:'dashboard-admin.html' };
+            window.location.href = dash[profile.role] || 'login.html';
+            return true;
+          }
+          applySubkomiteProfile(profile);
+          return true;
+        } catch(e) {
+          console.warn('Session parse error:', e);
+        }
+      }
+      return false;
+    }
 
-    // ── Load Pengajuan dari Firestore ──────────────────────────────────────
+    const hasLocalSession = checkLocalSession();
+
+    if (!hasLocalSession) {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) { window.location.href = 'login.html'; return; }
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (!snap.exists()) { await signOut(auth); window.location.href = 'login.html'; return; }
+          const profile = snap.data();
+          if (!['subkomite', 'admin'].includes(profile.role)) {
+            const dash = { perawat:'dashboard-perawat.html', ketua:'dashboard-ketua.html', admin:'dashboard-admin.html' };
+            window.location.href = dash[profile.role] || 'login.html'; return;
+          }
+          applySubkomiteProfile(profile);
+        } catch(e) {
+          console.warn('Firebase user fetch error, fallback to demo subkomite:', e);
+          applySubkomiteProfile({ nama: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep', role: 'subkomite' });
+        }
+      });
+    }
+
+    window.doLogout = async function() {
+      localStorage.removeItem('komite_active_session');
+      localStorage.removeItem('komite_auth_user');
+      try { await signOut(auth); } catch(e){}
+      window.location.href = 'login.html';
+    };
+
+    // ── Load Pengajuan dari Firestore / Demo Data ──────────────────────────────
     window.loadPengajuan = async function(dbRef) {
       const ref = dbRef || db;
+      if (!ref || !window.FIREBASE_CONFIG || window.FIREBASE_CONFIG.apiKey.startsWith('GANTI')) {
+        useDemoData();
+        return;
+      }
       try {
         const q = query(collection(ref, 'pengajuan'), orderBy('createdAt', 'desc'));
         const snap = await getDocs(q);
         const rows = [];
         snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+        if (rows.length === 0) {
+          useDemoData();
+          return;
+        }
         window.__allPengajuan = rows;
         renderTable(rows);
         updateStats(rows);
@@ -810,7 +859,9 @@
         useDemoData();
       }
     };
-    window.loadPengajuan(db);
+    if (hasLocalSession) {
+      loadPengajuan(null);
+    }
 
     // ── Kirim Rekomendasi (Firestore) ──────────────────────────────────────
     window._kirimReko = async function(pengajuanId, rekomendasi, catatan) {

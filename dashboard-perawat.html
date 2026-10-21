@@ -320,51 +320,100 @@
 
   <!-- Firebase + Auth Guard -->
   <script src="firebase-config.js"></script>
-  <script type="module">
-    import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  <script>
+    // ── Local Auth Check ──
+    function applyUserProfile(profile) {
+      const loading = document.getElementById('authLoading');
+      if (loading) loading.classList.add('hidden');
 
-    const app  = initializeApp(window.FIREBASE_CONFIG);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+      const nama = profile.nama || 'Ns. Hendra Kurniawan, S.Kep';
+      const inisial = nama.split(' ').filter(w=>w).slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'HK';
+      const ruangan = profile.ruangan || 'Enggang Gading 2';
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html'; return;
+      if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = inisial;
+      if (document.getElementById('userNameDisplay')) document.getElementById('userNameDisplay').textContent = nama.split(',')[0];
+      if (document.getElementById('userRoleDisplay')) document.getElementById('userRoleDisplay').textContent = profile.jabatan || 'Perawat / Bidan';
+      if (document.getElementById('welcomeName')) document.getElementById('welcomeName').textContent = nama.split(' ').slice(0,2).join(' ');
+      if (document.getElementById('welcomeRuangan')) {
+        document.getElementById('welcomeRuangan').innerHTML =
+          `Ruangan: <b>${ruangan}</b> &nbsp;|&nbsp; ${new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
       }
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists()) { await signOut(auth); window.location.href = 'login.html'; return; }
-
-      const profile = snap.data();
-      // Hanya role perawat yang boleh di halaman ini
-      if (profile.role !== 'perawat') {
-        const dash = {subkomite:'dashboard-subkomite.html',ketua:'dashboard-ketua.html',admin:'dashboard-admin.html'};
-        window.location.href = dash[profile.role] || 'login.html'; return;
-      }
-
-      // Sembunyikan loading, render UI
-      document.getElementById('authLoading').classList.add('hidden');
-
-      const inisial = profile.nama.split(' ').filter(w=>w).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      document.getElementById('userAvatar').textContent = inisial;
-      document.getElementById('userNameDisplay').textContent = profile.nama.split(',')[0];
-      document.getElementById('userRoleDisplay').textContent = 'Perawat / Bidan';
-      document.getElementById('welcomeName').textContent = profile.nama.split(' ').slice(0,2).join(' ');
-      document.getElementById('welcomeRuangan').innerHTML = `Ruangan: <b>${profile.ruangan||'—'}</b> &nbsp;|&nbsp; ${new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
 
       window.__profile = profile;
-      window.__auth = auth;
-    });
+    }
+
+    function checkLocalSession() {
+      const raw = localStorage.getItem('komite_active_session') || localStorage.getItem('komite_auth_user');
+      if (raw) {
+        try {
+          const profile = JSON.parse(raw);
+          if (profile.role !== 'perawat' && profile.role !== 'admin') {
+            const dash = { subkomite: 'dashboard-subkomite.html', ketua: 'dashboard-ketua.html', admin: 'dashboard-admin.html' };
+            window.location.href = dash[profile.role] || 'login.html';
+            return true;
+          }
+          applyUserProfile(profile);
+          return true;
+        } catch(e) {
+          console.warn('Session parse error:', e);
+        }
+      }
+      return false;
+    }
+
+    const hasLocalSession = checkLocalSession();
 
     window.doLogout = async function() {
-      await signOut(auth);
+      localStorage.removeItem('komite_active_session');
+      localStorage.removeItem('komite_auth_user');
+      try {
+        if (window.__auth) {
+          const { signOut } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+          await signOut(window.__auth);
+        }
+      } catch(e){}
       window.location.href = 'login.html';
     };
 
     window.goToPortal = function(section) {
       window.location.href = `index.html#${section}`;
     };
+  </script>
+
+  <script type="module">
+    try {
+      if (!hasLocalSession && window.FIREBASE_CONFIG && !window.FIREBASE_CONFIG.apiKey.startsWith('GANTI')) {
+        const { initializeApp }   = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+        const { getAuth, onAuthStateChanged, signOut } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+        const app  = initializeApp(window.FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+        window.__auth = auth;
+
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            window.location.href = 'login.html'; return;
+          }
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          if (!snap.exists()) { await signOut(auth); window.location.href = 'login.html'; return; }
+
+          const profile = snap.data();
+          if (profile.role !== 'perawat' && profile.role !== 'admin') {
+            const dash = {subkomite:'dashboard-subkomite.html',ketua:'dashboard-ketua.html',admin:'dashboard-admin.html'};
+            window.location.href = dash[profile.role] || 'login.html'; return;
+          }
+          applyUserProfile(profile);
+        });
+      } else if (!hasLocalSession) {
+        // Jika tidak ada sesi sama sekali, alihkan ke login
+        window.location.href = 'login.html';
+      }
+    } catch(err) {
+      console.warn('Firebase error in perawat dashboard:', err);
+      if (!hasLocalSession) window.location.href = 'login.html';
+    }
   </script>
 </body>
 </html>
