@@ -1745,6 +1745,38 @@ window.KOMITE_DATA = {
       tanggal: "21 Oktober",
       tahun: "2026"
     }
+  // Preset Format Baku Formulir Verifikasi Sumber Asli (Primary Source Verification - PSV) Dokumen Klinis (2 Halaman RSUD dr. Soedarso)
+  samplePsv: {
+    nama: "Ns. Hendra Kurniawan, S.Kep",
+    nip: "19920415 201903 1 004",
+    pendidikan: "S1 Keperawatan & Profesi Ners (Universitas Tanjungpura)",
+    unit: "Enggang Gading 2",
+    ijazahInstitusi: "Universitas Tanjungpura Pontianak",
+    ijazahMetode: "online",
+    ijazahHasil: "valid",
+    ijazahNomor: "1401/UNTAN/NERS/2018",
+    ijazahTahun: "2018",
+    strInstitusi: "Majelis Tenaga Kesehatan / KTKI / KKI",
+    strMetode: "ktki_web",
+    strHasil: "valid",
+    strNomor: "140152123-2893812",
+    strBerlaku: "17 Agustus 2028",
+    sippInstitusi: "Dinas Kesehatan / DPMPTSP Asal",
+    sippMetode: "sicantik",
+    sippHasil: "valid",
+    sippNomor: "503/412/Dinkes-PP/SIPP/2023",
+    sippBerlaku: "17 Agustus 2028",
+    pelatihanInstitusi: "Pusdiklat Kemenkes / Organisasi Profesi (PPNI)",
+    pelatihanMetode: "barcode",
+    pelatihanHasil: "valid",
+    pelatihanNama: "Basic Trauma Cardiac Life Support (BTCLS) & KMB Terpadu",
+    pelatihanTanggal: "14 - 18 Mei 2024",
+    kesimpulan: "disetujui_penuh",
+    verifikatorNama: "Ns. Bambang Sugiarto, S.Kep",
+    verifikatorNip: "19880315 201402 1 002",
+    tanggalPsv: "18 Oktober 2026",
+    ketuaSubkomiteNama: "Ns. Rusmulyadi, M.Kep., Sp.Kep.MB",
+    ketuaSubkomiteNip: "19800728 200501 1 005"
   },
 
   // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)

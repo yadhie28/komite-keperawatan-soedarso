@@ -453,7 +453,7 @@
               <i class="fa-solid fa-certificate"></i> Tata Kelola Kredensial Tenaga Keperawatan &amp; Kebidanan
             </div>
             <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-top: 2px;">
-              Alur Pengajuan Kredensialing &amp; Rekredensialing (5 Tahap Terintegrasi)
+              Alur Pengajuan Kredensialing &amp; Rekredensialing (6 Tahap Terintegrasi)
             </div>
             <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
               Berdasarkan PMK No. 49 Tahun 2013 &amp; Format Baku Portofolio RSUD dr. Soedarso Pontianak
@@ -472,8 +472,11 @@
             <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #0e3860; border-color: #0e3860;" onclick="openPreviewRkkModal()">
               <i class="fa-solid fa-file-contract"></i> 4. Cetak RKK Resmi (PDF)
             </button>
+            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: rgba(13, 148, 136, 0.12); color: #0f766e; border-color: #0d9488; font-weight: 700;" onclick="openPsvModal()">
+              <i class="fa-solid fa-stamp" style="color: #0d9488;"></i> 5. Verifikasi Sumber Asli (PSV)
+            </button>
             <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #fef3c7; color: #92400e; border-color: #f59e0b;" onclick="openModalUploadSurat()">
-              <i class="fa-solid fa-cloud-arrow-up"></i> 5. Unggah Berkas Lengkap
+              <i class="fa-solid fa-cloud-arrow-up"></i> 6. Unggah Berkas Lengkap
             </button>
             <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="toggleTrackerKredensial()">
               <i class="fa-solid fa-route"></i> Lacak Status Berkas
@@ -584,21 +587,50 @@
             </div>
           </div>
 
-          <!-- Step 5 Card: Tanda Tangani & Unggah Berkas Lengkap (CV + Logbook + Surat + RKK) -->
-          <div class="alur-card" id="cardStep5Upload" onclick="openModalUploadSurat()">
+          <!-- Step 5 Card: Verifikasi Sumber Asli / Primary Source Verification (PSV) -->
+          <div class="alur-card" id="cardStep5Psv" onclick="openPsvModal()">
             <div class="alur-card-badge step-5">
-              <i class="fa-solid fa-circle-dot"></i> LANGKAH 5 (FINAL)
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 5
+            </div>
+            <div class="alur-card-icon" style="color: #0d9488;">
+              <i class="fa-solid fa-stamp"></i>
+            </div>
+            <div class="alur-card-title">5. Verifikasi Sumber Asli (PSV) Dokumen Klinis</div>
+            <div class="alur-card-desc">
+              Formulir Verifikasi Sumber Asli / Utama (<em>Primary Source Verification - PSV</em>) untuk memvalidasi keabsahan Ijazah, STR Aktif (KTKI/KKI), SIPP Dinkes, dan Sertifikat Pelatihan langsung ke institusi penerbit resmi sesuai standar akreditasi KARS / PMK 49.
+            </div>
+            <div class="alur-card-action">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span class="badge" id="badgeStep5PsvStatus" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; font-weight: 700; font-size: 0.72rem;">
+                  <i class="fa-solid fa-shield-halved"></i> Standar KARS / PMK 49
+                </span>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="event.stopPropagation(); previewPsvHVS('filled'); openModal('modalPreviewPsvHVS');">
+                    <i class="fa-solid fa-print"></i> Cetak PDF
+                  </button>
+                  <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem; background: #0d9488; border-color: #0d9488;" onclick="event.stopPropagation(); openPsvModal();">
+                    Buka PSV <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6 Card: Tanda Tangani & Unggah Berkas Lengkap (CV + Logbook + Surat + RKK + PSV) -->
+          <div class="alur-card" id="cardStep6Upload" onclick="openModalUploadSurat()">
+            <div class="alur-card-badge step-6">
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 6 (FINAL)
             </div>
             <div class="alur-card-icon" style="color: #d97706;">
               <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
-            <div class="alur-card-title">5. Tanda Tangani &amp; Unggah Berkas Lengkap</div>
+            <div class="alur-card-title">6. Tanda Tangani &amp; Unggah Berkas Lengkap</div>
             <div class="alur-card-desc">
-              Scan seluruh dokumen hasil cetak yang telah Anda tanda tangani mandiri (CV, Logbook diverifikasi Kepala Ruangan, Surat Permohonan, dan RKK asesmen mandiri) diunggah bersama STR aktif, ijazah, dan sertifikat pelatihan untuk verifikasi Subkomite Kredensial.
+              Scan seluruh dokumen hasil cetak yang telah Anda tanda tangani mandiri (CV, Logbook diverifikasi Kepala Ruangan, Surat Permohonan, RKK asesmen mandiri, dan Formulir PSV) diunggah bersama STR aktif, ijazah, dan sertifikat pelatihan untuk verifikasi Subkomite Kredensial.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="badge" id="badgeStep5Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
+                <span class="badge" id="badgeStep6Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
                   <i class="fa-solid fa-clock"></i> Belum Diunggah
                 </span>
                 <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
@@ -2915,7 +2947,7 @@
                 Dokumen RKK Resmi Telah Terbit untuk <span id="previewRkkApplicantBadge" style="text-decoration: underline;"></span>!
               </div>
               <div>
-                <strong>Langkah Selanjutnya:</strong> Cetak atau simpan dokumen RKK 3 halaman di bawah ini, tanda tangani pada Lembar 3 (Bagian D), lalu lanjutkan ke <strong>Langkah 5 (Final): Tanda Tangani &amp; Unggah Berkas Lengkap</strong>.<br>
+                <strong>Langkah Selanjutnya:</strong> Cetak atau simpan dokumen RKK 3 halaman di bawah ini, tanda tangani pada Lembar 3 (Bagian D), lalu lanjutkan ke <strong>Langkah 5: Verifikasi Sumber Asli (PSV)</strong>.<br>
                 <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                   <div style="font-size: 0.78rem; color: #065f46;">
                     <i class="fa-solid fa-envelope-circle-check"></i> Notifikasi Administrasi otomatis terhubung: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
@@ -2923,8 +2955,8 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewRkkResmiHVS'); openModalUploadSurat();">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 5: Unggah Berkas
+            <button type="button" class="btn-primary" style="background: #0d9488; border-color: #0d9488; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewRkkResmiHVS'); openPsvModal();">
+              <i class="fa-solid fa-stamp"></i> Lanjut ke Langkah 5: Formulir PSV
             </button>
           </div>
         </div>
@@ -2947,8 +2979,8 @@
           <button type="button" class="btn-primary" style="background: #0e3860; border-color: #0e3860;" onclick="printRkkHVS()">
             <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
           </button>
-          <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706;" onclick="closeModal('modalPreviewRkkResmiHVS'); openModalUploadSurat();">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 5: Unggah Berkas Lengkap
+          <button type="button" class="btn-primary" style="background: #0d9488; border-color: #0d9488;" onclick="closeModal('modalPreviewRkkResmiHVS'); openPsvModal();">
+            <i class="fa-solid fa-stamp"></i> Lanjut ke Langkah 5: Formulir PSV
           </button>
         </div>
       </div>
@@ -2956,14 +2988,373 @@
   </div>
 
   <!-- ========================================================================
-       MODAL: UNGGAH BERKAS KREDENSIAL LENGKAP (CV + LOGBOOK + SURAT + RKK) (LANGKAH 5 - FINAL)
+       MODAL: FORMULIR VERIFIKASI SUMBER ASLI / UTAMA (PSV) DOKUMEN KLINIS (LANGKAH 5)
+       (SESUAI FORMAT BAKU RESMI KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalPsvKredensial">
+    <div class="modal-container modal-container-lg" style="max-width: 960px;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+          <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" style="width: 28px; height: auto;">
+          <div>
+            <div style="font-size: 1rem; font-weight: 800; color: var(--text-main);">
+              Formulir Verifikasi Sumber Asli / Utama (PSV) Dokumen Klinis
+            </div>
+            <div style="font-size: 0.76rem; font-weight: 500; color: var(--text-muted);">
+              Primary Source Verification (PSV) &bull; Komite Keperawatan RSUD dr. Soedarso Pontianak
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalPsvKredensial')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 1.25rem 1.5rem;">
+        <!-- Banner Info Resmi Soedarso -->
+        <div style="background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(13, 148, 136, 0.25); border-left: 4px solid #0d9488; padding: 0.85rem 1.1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.5; color: var(--text-main);">
+          <strong>Petunjuk Verifikasi Sumber Asli (Primary Source Verification - PSV):</strong> Formulir ini digunakan oleh Subkomite Kredensial untuk melakukan penelusuran dan validasi langsung keabsahan dokumen utama pemohon (Ijazah, STR Aktif, SIPP, dan Sertifikat Pelatihan) ke institusi penerbit resmi sesuai standar akreditasi KARS &amp; PMK 49/2013.<br>
+          <span style="color: #0f766e; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Terintegrasi Otomatis:</span> Data pemohon otomatis disinkronkan dari CV &amp; Surat Permohonan yang telah Anda isi pada langkah sebelumnya.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-bottom: 1rem;">
+          <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" onclick="syncPsvFromApplicant()">
+            <i class="fa-solid fa-arrows-rotate"></i> Sinkronkan dari Data Pemohon
+          </button>
+          <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" onclick="fillPsvPreset('hendra')">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Muat Contoh Data Sah
+          </button>
+        </div>
+
+        <form id="formPsvDokumen" onsubmit="handlePsvSubmit(event)">
+          <!-- BAGIAN I: IDENTITAS TENAGA KEPERAWATAN -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">I</span>
+              IDENTITAS TENAGA KEPERAWATAN
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nama Lengkap Staf Keperawatan (beserta Gelar) <span class="req">*</span></label>
+                <input type="text" class="form-input" id="psvNama" placeholder="Nama Lengkap Staf Keperawatan" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
+                <input type="text" class="form-input" id="psvNip" placeholder="Nomor Induk Pegawai" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pendidikan Terakhir / Lulusan <span class="req">*</span></label>
+                <input type="text" class="form-input" id="psvPendidikan" placeholder="Misal: S1 Keperawatan & Profesi Ners / Universitas Tanjungpura" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Unit Kerja / Ruang Penempatan <span class="req">*</span></label>
+                <input type="text" class="form-input" id="psvUnit" placeholder="Misal: Enggang Gading 2" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN II: MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA) -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">II</span>
+              MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA)
+            </div>
+
+            <!-- Item 1: Ijazah Keperawatan -->
+            <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; background: #fff;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
+                1. Ijazah Keperawatan (D-III / S1 / Ners / Spesialis)
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Institusi Sumber Penerbit (Primary Source)</label>
+                  <input type="text" class="form-input" id="psvIjazahInstitusi" placeholder="Universitas / Poltekkes asal">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nomor Ijazah</label>
+                  <input type="text" class="form-input" id="psvIjazahNomor" placeholder="Nomor Ijazah">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tahun Kelulusan</label>
+                  <input type="text" class="form-input" id="psvIjazahTahun" placeholder="Misal: 2018">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Metode Verifikasi</label>
+                  <select class="form-select" id="psvIjazahMetode">
+                    <option value="online">Online / Web (Pangkalan Data PDDIKTI Kemendikbud)</option>
+                    <option value="surat">Surat Resmi Konfirmasi Perguruan Tinggi</option>
+                    <option value="kontak">Kontak Langsung ke Lembaga Penerbit</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Hasil Verifikasi Dokumen</label>
+                  <select class="form-select" id="psvIjazahHasil">
+                    <option value="valid">Valid / Sah (Terverifikasi di Pangkalan Data Resmi)</option>
+                    <option value="invalid">Tidak Valid (Tidak Ditemukan / Ada Ketidaksesuaian)</option>
+                    <option value="proses">Proses Terbuka (Menunggu Jawaban Tertulis)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 2: Surat Tanda Registrasi (STR) -->
+            <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; background: #fff;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
+                2. Surat Tanda Registrasi (STR) Perawat Aktif
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Institusi Sumber Penerbit</label>
+                  <input type="text" class="form-input" id="psvStrInstitusi" value="Majelis Tenaga Kesehatan / KTKI / KKI">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nomor STR</label>
+                  <input type="text" class="form-input" id="psvStrNomor" placeholder="Nomor STR">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Masa Berlaku s/d</label>
+                  <input type="text" class="form-input" id="psvStrBerlaku" placeholder="Tanggal STR / Seumur Hidup">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Metode Verifikasi</label>
+                  <select class="form-select" id="psvStrMetode">
+                    <option value="ktki_web">Aplikasi KTKI / SatuSehat SDMK Web</option>
+                    <option value="qr_scan">QR Code Scan Resmi Balai Sertifikasi</option>
+                    <option value="surat">Surat Resmi Majelis Tenaga Kesehatan</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Hasil Verifikasi Dokumen</label>
+                  <select class="form-select" id="psvStrHasil">
+                    <option value="valid">Valid / Sah (STR Aktif Terdaftar di KTKI/KKI)</option>
+                    <option value="invalid">Tidak Valid</option>
+                    <option value="kadaluarsa">Kadaluarsa (Perlu Perpanjangan STR Segera)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 3: Surat Izin Praktik Perawat (SIPP) -->
+            <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; background: #fff;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
+                3. Surat Izin Praktik Perawat (SIPP / SIPB) Lama
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Institusi Sumber Penerbit</label>
+                  <input type="text" class="form-input" id="psvSippInstitusi" value="Dinas Kesehatan / DPMPTSP Asal">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nomor SIPP / SIPB</label>
+                  <input type="text" class="form-input" id="psvSippNomor" placeholder="Nomor Surat Izin Praktik">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Masa Berlaku s/d</label>
+                  <input type="text" class="form-input" id="psvSippBerlaku" placeholder="Masa berlaku izin praktik">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Metode Verifikasi</label>
+                  <select class="form-select" id="psvSippMetode">
+                    <option value="sicantik">Cek Sistem SiCantik / DPMPTSP Online</option>
+                    <option value="konfirmasi_dinkes">Konfirmasi Langsung Dinas Kesehatan</option>
+                    <option value="berkas_fisik">Pemeriksaan Berkas Fisik Asli Sesuai</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Hasil Verifikasi Dokumen</label>
+                  <select class="form-select" id="psvSippHasil">
+                    <option value="valid">Valid / Sah</option>
+                    <option value="invalid">Tidak Valid</option>
+                    <option value="rekomendasi">Diberikan Rekomendasi Pengurusan Baru</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 4: Sertifikat Pelatihan Kekhususan -->
+            <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; background: #fff;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
+                4. Sertifikat Pelatihan Kekhususan (BTCLS / KMB / ICU / Kamar Bedah / dll)
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label">Institusi Sumber Penerbit</label>
+                  <input type="text" class="form-input" id="psvPelatihanInstitusi" value="Pusdiklat Kemenkes / Organisasi Profesi (PPNI)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Nama Kursus / Pelatihan</label>
+                  <input type="text" class="form-input" id="psvPelatihanNama" placeholder="Nama Pelatihan">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tanggal Pelatihan</label>
+                  <input type="text" class="form-input" id="psvPelatihanTanggal" placeholder="Misal: 14 - 18 Mei 2024">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Metode Verifikasi</label>
+                  <select class="form-select" id="psvPelatihanMetode">
+                    <option value="barcode">Cek Barcode / Nomor Registrasi Pusdiklat</option>
+                    <option value="provider">Konfirmasi Provider / Lembaga Penyelenggara</option>
+                    <option value="portofolio">Pemeriksaan Portofolio Buku Logbook</option>
+                  </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Hasil Verifikasi Dokumen</label>
+                  <select class="form-select" id="psvPelatihanHasil">
+                    <option value="valid">Valid / Sah (Sertifikasi Diakui &amp; Terakreditasi Kemenkes)</option>
+                    <option value="invalid">Tidak Valid</option>
+                    <option value="diakui">Sertifikasi Internal Diakui</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BAGIAN III: KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">III</span>
+              KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.85rem;">
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;">
+                <input type="radio" name="psvKesimpulan" value="disetujui_penuh" checked style="margin-top: 3px;">
+                <div>
+                  <strong>DISETUJUI PENUH:</strong> Seluruh dokumen absah, valid, dan legal sesuai aturan perundangan.
+                </div>
+              </label>
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;">
+                <input type="radio" name="psvKesimpulan" value="disetujui_syarat" style="margin-top: 3px;">
+                <div>
+                  <strong>DISETUJUI DENGAN SYARAT:</strong> Terdapat dokumen yang memerlukan pembaruan susulan (Keterangan tertulis terlampir).
+                </div>
+              </label>
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;">
+                <input type="radio" name="psvKesimpulan" value="ditolak" style="margin-top: 3px;">
+                <div>
+                  <strong>DITOLAK:</strong> Ditemukan ketidaksesuaian kritis pada validitas dokumen utama staf keperawatan.
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- BAGIAN IV: OTENTIKASI DAN VALIDASI TIM KREDENSIAL -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">IV</span>
+              OTENTIKASI DAN VALIDASI TIM KREDENSIAL
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nama Staf / Verifikator Komite</label>
+                <input type="text" class="form-input" id="psvVerifikatorNama" value="Ns. Bambang Sugiarto, S.Kep">
+              </div>
+              <div class="form-group">
+                <label class="form-label">NIP Verifikator</label>
+                <input type="text" class="form-input" id="psvVerifikatorNip" value="19880315 201402 1 002">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tanggal Pelaksanaan Verifikasi</label>
+                <input type="text" class="form-input" id="psvTanggal" value="18 Oktober 2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ketua Subkomite Kredensial</label>
+                <input type="text" class="form-input" id="psvKetuaNama" value="Ns. Rusmulyadi, M.Kep., Sp.Kep.MB">
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label">NIP Ketua Subkomite Kredensial</label>
+                <input type="text" class="form-input" id="psvKetuaNip" value="19800728 200501 1 005">
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modalPsvKredensial')">Batal</button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="btn-secondary" onclick="previewPsvHVS('blank'); openModal('modalPreviewPsvHVS');">
+                <i class="fa-regular fa-file"></i> Pratinjau Format Blangko
+              </button>
+              <button type="submit" class="btn-primary" style="background: #0d9488; border-color: #0d9488;">
+                <i class="fa-solid fa-print"></i> Simpan &amp; Pratinjau Dokumen PSV (2 Halaman)
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: PRATINJAU DOKUMEN CETAK HVS RESMI PSV 2 HALAMAN (A4)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalPreviewPsvHVS">
+    <div class="modal-container modal-container-lg" style="max-width: 950px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-stamp" style="color: #0d9488;"></i>
+          Pratinjau Formulir Verifikasi Sumber Asli (PSV) Dokumen Klinis Resmi RSUD dr. Soedarso
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalPreviewPsvHVS')">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="background: #64748b; padding: 2rem 1rem; overflow-y: auto; max-height: 76vh;">
+        <!-- Success Alert Banner -->
+        <div id="previewPsvSuccessBanner" style="display: none; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-sm); padding: 0.85rem 1.15rem; margin: 0 auto 1.25rem auto; max-width: 210mm; box-sizing: border-box; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="color: #065f46; font-size: 0.84rem; line-height: 1.55;">
+              <div style="font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 4px;">
+                <i class="fa-solid fa-circle-check fa-lg" style="color: #10b981;"></i>
+                Dokumen Verifikasi Sumber Asli (PSV) Telah Siap untuk <span id="previewPsvApplicantBadge" style="text-decoration: underline;"></span>!
+              </div>
+              <div>
+                <strong>Langkah Selanjutnya:</strong> Cetak atau simpan dokumen PSV 2 halaman di bawah ini, lalu lanjutkan ke <strong>Langkah 6 (Final): Tanda Tangani &amp; Unggah Berkas Lengkap</strong>.<br>
+              </div>
+            </div>
+            <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706; font-size: 0.82rem; padding: 0.5rem 0.95rem; white-space: nowrap;" onclick="closeModal('modalPreviewPsvHVS'); openModalUploadSurat();">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 6: Unggah Berkas
+            </button>
+          </div>
+        </div>
+
+        <!-- Container HVS Sheet for PSV Pages -->
+        <div id="psvHvsPrintArea" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewPsvHVS')">Tutup Pratinjau</button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewPsvHVS'); openModal('modalPsvKredensial');">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Data PSV
+          </button>
+          <button type="button" class="btn-secondary" id="btnTogglePreviewPsvMode" onclick="togglePreviewPsvMode()">
+            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
+          </button>
+          <button type="button" class="btn-secondary" onclick="exportPsvWord()">
+            <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
+          </button>
+          <button type="button" class="btn-primary" style="background: #0d9488; border-color: #0d9488;" onclick="printPsvHVS()">
+            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+          </button>
+          <button type="button" class="btn-primary" style="background: #d97706; border-color: #d97706;" onclick="closeModal('modalPreviewPsvHVS'); openModalUploadSurat();">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Lanjut ke Langkah 6: Unggah Berkas Lengkap
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: UNGGAH BERKAS KREDENSIAL LENGKAP (CV + LOGBOOK + SURAT + RKK + PSV) (LANGKAH 6 - FINAL)
        ======================================================================== -->
   <div class="modal-overlay" id="modalUploadBerkasKredensial">
     <div class="modal-container" style="max-width: 650px;">
       <div class="modal-header">
         <div class="modal-title">
           <i class="fa-solid fa-cloud-arrow-up" style="color: #d97706;"></i>
-          Langkah 5 (Final): Tanda Tangani &amp; Unggah Berkas Kredensial Lengkap
+          Langkah 6 (Final): Tanda Tangani &amp; Unggah Berkas Kredensial Lengkap
         </div>
         <button class="btn-close-modal" onclick="closeModal('modalUploadBerkasKredensial')">
           <i class="fa-solid fa-xmark fa-lg"></i>
@@ -2972,7 +3363,7 @@
 
       <div class="modal-body">
         <div style="background: #fef3c7; border-left: 4px solid #d97706; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: #78350f;">
-          <strong>Instruksi Langkah 5 (Tahap Akhir):</strong> Unggah scan seluruh dokumen yang telah Anda cetak dan tanda tangani mandiri: CV Portofolio Klinis (Langkah 1), Logbook Kinerja Klinis tervalidasi Kepala Ruangan (Langkah 2), Surat Permohonan (Langkah 3), dan Rincian Kewenangan Klinis/RKK (Langkah 4), beserta salinan STR aktif dan ijazah.<br>
+          <strong>Instruksi Langkah 6 (Tahap Akhir):</strong> Unggah scan seluruh dokumen yang telah Anda cetak dan tanda tangani mandiri: CV Portofolio Klinis (Langkah 1), Logbook Kinerja Klinis tervalidasi Kepala Ruangan (Langkah 2), Surat Permohonan (Langkah 3), Rincian Kewenangan Klinis/RKK (Langkah 4), dan Formulir PSV (Langkah 5), beserta salinan STR aktif dan ijazah.<br>
           <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-check"></i> Tahap Pengesahan:</span> Setelah mengunggah berkas lengkap ini, pengajuan Anda resmi masuk ke antrean verifikasi Subkomite Kredensial dan disposisi Mitra Bestari.
         </div>
 
@@ -3015,17 +3406,23 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">5. Unggah Salinan STR Aktif <span class="req">*</span></label>
+            <label class="form-label">5. Unggah Scan Formulir PSV (Verifikasi Sumber Asli) yang Telah Diverifikasi (PDF 2 Halaman)</label>
+            <input type="file" class="form-input" id="uploadFilePsv" accept=".pdf,.jpg,.jpeg,.png">
+            <span class="form-hint">Format PDF 2 halaman hasil unduh dari Langkah 5 yang memuat matriks verifikasi keabsahan dokumen klinis.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">6. Unggah Salinan STR Aktif <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileStr" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label">6. Unggah Ijazah &amp; Transkrip Terakhir <span class="req">*</span></label>
+            <label class="form-label">7. Unggah Ijazah &amp; Transkrip Terakhir <span class="req">*</span></label>
             <input type="file" class="form-input" id="uploadFileIjazah" accept=".pdf,.jpg,.jpeg,.png" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label">7. Unggah Gabungan Sertifikat Pelatihan CPD (Opsional)</label>
+            <label class="form-label">8. Unggah Gabungan Sertifikat Pelatihan CPD (Opsional)</label>
             <input type="file" class="form-input" id="uploadFileCpd" accept=".pdf,.zip,.rar">
             <span class="form-hint">Maksimal 15 MB format PDF atau ZIP arsip sertifikat.</span>
           </div>

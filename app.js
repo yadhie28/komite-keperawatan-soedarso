@@ -23,8 +23,11 @@ const state = {
   logbookData: null,
   logbookPreviewMode: 'filled',
   kredensialSuratGenerated: localStorage.getItem('komite_surat_generated') === 'true',
-  kredensialBerkasUploaded: localStorage.getItem('komite_berkas_uploaded') === 'true',
   kredensialRkkSubmitted: localStorage.getItem('komite_rkk_submitted') === 'true',
+  kredensialPsvGenerated: localStorage.getItem('komite_psv_generated') === 'true',
+  psvData: null,
+  psvPreviewMode: 'filled',
+  kredensialBerkasUploaded: localStorage.getItem('komite_berkas_uploaded') === 'true',
   trackerQueryNip: ''
 };
 
@@ -2007,8 +2010,8 @@ function updateAlurStepStatus() {
   const b2 = document.getElementById('badgeStep2Status');
   const b3 = document.getElementById('badgeStep3Status');
   const b4 = document.getElementById('badgeStep4Status');
-  const b5 = document.getElementById('badgeStep5Status');
-  const card5 = document.getElementById('cardStep5Rkk');
+  const b5 = document.getElementById('badgeStep5PsvStatus') || document.getElementById('badgeStep5Status');
+  const b6 = document.getElementById('badgeStep6Status');
 
   // Langkah 1: CV Portofolio Klinis (badgeStep1Status)
   if (state.kredensialCvGenerated && b1) {
@@ -2047,16 +2050,29 @@ function updateAlurStepStatus() {
     }
   }
 
-  // Langkah 5: Unggah Berkas Lengkap (CV + Logbook + Surat + RKK) (badgeStep5Status)
+  // Langkah 5: Verifikasi Sumber Asli (PSV) (badgeStep5PsvStatus)
   if (b5) {
-    if (state.kredensialBerkasUploaded) {
+    if (state.kredensialPsvGenerated) {
       b5.style.background = '#dcfce7';
       b5.style.color = '#15803d';
-      b5.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Lolos Verifikasi)';
+      b5.innerHTML = '<i class="fa-solid fa-circle-check"></i> PSV Tervalidasi';
     } else {
-      b5.style.background = '#fef3c7';
-      b5.style.color = '#92400e';
-      b5.innerHTML = '<i class="fa-solid fa-clock"></i> Belum Diunggah';
+      b5.style.background = 'rgba(13, 148, 136, 0.12)';
+      b5.style.color = '#0f766e';
+      b5.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Standar KARS / PMK 49';
+    }
+  }
+
+  // Langkah 6: Unggah Berkas Lengkap (badgeStep6Status)
+  if (b6) {
+    if (state.kredensialBerkasUploaded) {
+      b6.style.background = '#dcfce7';
+      b6.style.color = '#15803d';
+      b6.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Lolos Verifikasi)';
+    } else {
+      b6.style.background = '#fef3c7';
+      b6.style.color = '#92400e';
+      b6.innerHTML = '<i class="fa-solid fa-clock"></i> Belum Diunggah';
     }
   }
 }
@@ -5590,6 +5606,661 @@ function exportRkkWord() {
   showToast(`Dokumen RKK Resmi ${rawNama} berhasil diunduh dalam format Word (.doc)!`, 'success');
 }
 
+/* ==========================================================================
+   ALUR LANGKAH 5: FORMULIR & BLANGKO RESMI VERIFIKASI SUMBER ASLI / UTAMA (PSV)
+   PRIMARY SOURCE VERIFICATION (PSV) DOKUMEN KLINIS 2 HALAMAN A4
+   STANDAR KOMITE KEPERAWATAN RSUD DOKTER SOEDARSO PONTIANAK (KARS / PMK 49)
+   ========================================================================== */
+
+function openPsvModal() {
+  syncPsvFromApplicant();
+  openModal('modalPsvKredensial');
+}
+
+function syncPsvFromApplicant() {
+  const applicant = state.currentApplicant || {};
+  const cv = state.cvData || window.KOMITE_DATA?.sampleCv?.perawat || {};
+  const samplePsv = window.KOMITE_DATA?.samplePsv || {};
+
+  const nama = applicant.nama || cv.nama || document.getElementById('suratNama')?.value || document.getElementById('formNama')?.value || samplePsv.nama;
+  const nip = applicant.nip || cv.nip || document.getElementById('suratNip')?.value || document.getElementById('formNip')?.value || samplePsv.nip;
+  const unit = applicant.unit || cv.unit || document.getElementById('suratUnit')?.value || document.getElementById('formUnit')?.value || samplePsv.unit;
+  
+  let pendidikan = samplePsv.pendidikan;
+  if (cv.pendidikan && cv.pendidikan.length > 0) {
+    const lastEdu = cv.pendidikan.filter(e => e.institusi).pop();
+    if (lastEdu) pendidikan = `${lastEdu.jenjang} / ${lastEdu.institusi}`;
+  } else if (applicant.education) {
+    pendidikan = applicant.education;
+  }
+
+  const ijazahNo = cv.pendidikan && cv.pendidikan[2]?.noIjazah ? cv.pendidikan[2].noIjazah : samplePsv.ijazahNomor;
+  const ijazahTahun = cv.pendidikan && cv.pendidikan[2]?.tahun ? cv.pendidikan[2].tahun : samplePsv.ijazahTahun;
+  const ijazahInst = cv.pendidikan && cv.pendidikan[2]?.institusi ? cv.pendidikan[2].institusi : samplePsv.ijazahInstitusi;
+
+  const strNo = cv.str || applicant.str || samplePsv.strNomor;
+  const strExp = cv.strBerlaku || applicant.strExpiry || samplePsv.strBerlaku;
+  const sippNo = cv.sipp || samplePsv.sippNomor;
+  const sippExp = cv.sippBerlaku || samplePsv.sippBerlaku;
+
+  const trainName = (cv.pelatihan && cv.pelatihan[0]?.jenis) ? cv.pelatihan[0].jenis : samplePsv.pelatihanNama;
+  const trainDate = (cv.pelatihan && cv.pelatihan[0]?.tahun) ? `Tahun ${cv.pelatihan[0].tahun}` : samplePsv.pelatihanTanggal;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined) el.value = val;
+  };
+
+  setVal('psvNama', nama);
+  setVal('psvNip', nip);
+  setVal('psvPendidikan', pendidikan);
+  setVal('psvUnit', unit);
+
+  setVal('psvIjazahInstitusi', ijazahInst);
+  setVal('psvIjazahNomor', ijazahNo);
+  setVal('psvIjazahTahun', ijazahTahun);
+  setVal('psvIjazahMetode', 'online');
+  setVal('psvIjazahHasil', 'valid');
+
+  setVal('psvStrInstitusi', samplePsv.strInstitusi);
+  setVal('psvStrNomor', strNo);
+  setVal('psvStrBerlaku', strExp);
+  setVal('psvStrMetode', 'ktki_web');
+  setVal('psvStrHasil', 'valid');
+
+  setVal('psvSippInstitusi', samplePsv.sippInstitusi);
+  setVal('psvSippNomor', sippNo);
+  setVal('psvSippBerlaku', sippExp);
+  setVal('psvSippMetode', 'sicantik');
+  setVal('psvSippHasil', 'valid');
+
+  setVal('psvPelatihanInstitusi', samplePsv.pelatihanInstitusi);
+  setVal('psvPelatihanNama', trainName);
+  setVal('psvPelatihanTanggal', trainDate);
+  setVal('psvPelatihanMetode', 'barcode');
+  setVal('psvPelatihanHasil', 'valid');
+
+  const rSetuju = document.querySelector('input[name="psvKesimpulan"][value="disetujui_penuh"]');
+  if (rSetuju) rSetuju.checked = true;
+
+  setVal('psvVerifikatorNama', samplePsv.verifikatorNama);
+  setVal('psvVerifikatorNip', samplePsv.verifikatorNip);
+  setVal('psvTanggal', samplePsv.tanggalPsv);
+  setVal('psvKetuaNama', samplePsv.ketuaSubkomiteNama);
+  setVal('psvKetuaNip', samplePsv.ketuaSubkomiteNip);
+}
+
+function fillPsvPreset(key) {
+  const psv = window.KOMITE_DATA?.samplePsv;
+  if (!psv) return;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined) el.value = val;
+  };
+
+  setVal('psvNama', psv.nama);
+  setVal('psvNip', psv.nip);
+  setVal('psvPendidikan', psv.pendidikan);
+  setVal('psvUnit', psv.unit);
+
+  setVal('psvIjazahInstitusi', psv.ijazahInstitusi);
+  setVal('psvIjazahNomor', psv.ijazahNomor);
+  setVal('psvIjazahTahun', psv.ijazahTahun);
+  setVal('psvIjazahMetode', psv.ijazahMetode);
+  setVal('psvIjazahHasil', psv.ijazahHasil);
+
+  setVal('psvStrInstitusi', psv.strInstitusi);
+  setVal('psvStrNomor', psv.strNomor);
+  setVal('psvStrBerlaku', psv.strBerlaku);
+  setVal('psvStrMetode', psv.strMetode);
+  setVal('psvStrHasil', psv.strHasil);
+
+  setVal('psvSippInstitusi', psv.sippInstitusi);
+  setVal('psvSippNomor', psv.sippNomor);
+  setVal('psvSippBerlaku', psv.sippBerlaku);
+  setVal('psvSippMetode', psv.sippMetode);
+  setVal('psvSippHasil', psv.sippHasil);
+
+  setVal('psvPelatihanInstitusi', psv.pelatihanInstitusi);
+  setVal('psvPelatihanNama', psv.pelatihanNama);
+  setVal('psvPelatihanTanggal', psv.pelatihanTanggal);
+  setVal('psvPelatihanMetode', psv.pelatihanMetode);
+  setVal('psvPelatihanHasil', psv.pelatihanHasil);
+
+  const r = document.querySelector(`input[name="psvKesimpulan"][value="${psv.kesimpulan}"]`);
+  if (r) r.checked = true;
+
+  setVal('psvVerifikatorNama', psv.verifikatorNama);
+  setVal('psvVerifikatorNip', psv.verifikatorNip);
+  setVal('psvTanggal', psv.tanggalPsv);
+  setVal('psvKetuaNama', psv.ketuaSubkomiteNama);
+  setVal('psvKetuaNip', psv.ketuaSubkomiteNip);
+
+  showToast('Contoh data verifikasi sah PSV berhasil dimuat!', 'success');
+}
+
+function handlePsvSubmit(e) {
+  if (e) e.preventDefault();
+
+  const getVal = (id, def = '') => document.getElementById(id)?.value?.trim() || def;
+  const kesimpulanRadio = document.querySelector('input[name="psvKesimpulan"]:checked');
+
+  state.psvData = {
+    nama: getVal('psvNama', 'Ns. Hendra Kurniawan, S.Kep'),
+    nip: getVal('psvNip', '19920415 201903 1 004'),
+    pendidikan: getVal('psvPendidikan', 'S1 Keperawatan & Profesi Ners / Universitas Tanjungpura'),
+    unit: getVal('psvUnit', 'Enggang Gading 2'),
+    ijazahInstitusi: getVal('psvIjazahInstitusi', 'Universitas Tanjungpura'),
+    ijazahNomor: getVal('psvIjazahNomor', '1401/UNTAN/NERS/2018'),
+    ijazahTahun: getVal('psvIjazahTahun', '2018'),
+    ijazahMetode: getVal('psvIjazahMetode', 'online'),
+    ijazahHasil: getVal('psvIjazahHasil', 'valid'),
+    strInstitusi: getVal('psvStrInstitusi', 'Majelis Tenaga Kesehatan / KTKI / KKI'),
+    strNomor: getVal('psvStrNomor', '140152123-2893812'),
+    strBerlaku: getVal('psvStrBerlaku', '17 Agustus 2028'),
+    strMetode: getVal('psvStrMetode', 'ktki_web'),
+    strHasil: getVal('psvStrHasil', 'valid'),
+    sippInstitusi: getVal('psvSippInstitusi', 'Dinas Kesehatan / DPMPTSP Asal'),
+    sippNomor: getVal('psvSippNomor', '503/412/Dinkes-PP/SIPP/2023'),
+    sippBerlaku: getVal('psvSippBerlaku', '17 Agustus 2028'),
+    sippMetode: getVal('psvSippMetode', 'sicantik'),
+    sippHasil: getVal('psvSippHasil', 'valid'),
+    pelatihanInstitusi: getVal('psvPelatihanInstitusi', 'Pusdiklat Kemenkes / Organisasi Profesi (PPNI)'),
+    pelatihanNama: getVal('psvPelatihanNama', 'Basic Trauma Cardiac Life Support (BTCLS) & KMB Terpadu'),
+    pelatihanTanggal: getVal('psvPelatihanTanggal', '14 - 18 Mei 2024'),
+    pelatihanMetode: getVal('psvPelatihanMetode', 'barcode'),
+    pelatihanHasil: getVal('psvPelatihanHasil', 'valid'),
+    kesimpulan: kesimpulanRadio ? kesimpulanRadio.value : 'disetujui_penuh',
+    verifikatorNama: getVal('psvVerifikatorNama', 'Ns. Bambang Sugiarto, S.Kep'),
+    verifikatorNip: getVal('psvVerifikatorNip', '19880315 201402 1 002'),
+    tanggalPsv: getVal('psvTanggal', '18 Oktober 2026'),
+    ketuaSubkomiteNama: getVal('psvKetuaNama', 'Ns. Rusmulyadi, M.Kep., Sp.Kep.MB'),
+    ketuaSubkomiteNip: getVal('psvKetuaNip', '19800728 200501 1 005')
+  };
+
+  state.kredensialPsvGenerated = true;
+  localStorage.setItem('komite_psv_generated', 'true');
+  updateAlurStepStatus();
+
+  closeModal('modalPsvKredensial');
+  previewPsvHVS('filled');
+  openModal('modalPreviewPsvHVS');
+
+  const badge = document.getElementById('previewPsvApplicantBadge');
+  const banner = document.getElementById('previewPsvSuccessBanner');
+  if (badge) badge.textContent = state.psvData.nama;
+  if (banner) banner.style.display = 'block';
+
+  showToast(`Formulir Verifikasi Sumber Asli (PSV) ${state.psvData.nama} berhasil disimpan & siap dicetak (2 Halaman)!`, 'success');
+}
+
+function previewPsvHVS(mode) {
+  state.psvPreviewMode = mode || state.psvPreviewMode || 'filled';
+  const container = document.getElementById('psvHvsPrintArea');
+  if (container) {
+    container.innerHTML = generatePsvHVS(state.psvPreviewMode);
+  }
+
+  const btnToggle = document.getElementById('btnTogglePreviewPsvMode');
+  if (btnToggle) {
+    if (state.psvPreviewMode === 'blank') {
+      btnToggle.innerHTML = '<i class="fa-solid fa-file-signature"></i> Tampilkan Data Terisi';
+      btnToggle.style.background = '#0d9488';
+      btnToggle.style.color = '#fff';
+    } else {
+      btnToggle.innerHTML = '<i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong';
+      btnToggle.style.background = 'var(--bg-app)';
+      btnToggle.style.color = 'var(--text-main)';
+    }
+  }
+
+  const badge = document.getElementById('previewPsvApplicantBadge');
+  const banner = document.getElementById('previewPsvSuccessBanner');
+  const currentNama = document.getElementById('psvNama')?.value.trim() || state.psvData?.nama || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (badge) badge.textContent = currentNama;
+  if (banner) banner.style.display = 'block';
+}
+
+function togglePreviewPsvMode() {
+  const nextMode = (state.psvPreviewMode === 'blank') ? 'filled' : 'blank';
+  previewPsvHVS(nextMode);
+}
+
+function generatePsvHVS(mode) {
+  const isBlank = (mode === 'blank');
+  const d = state.psvData || {};
+
+  const nama = isBlank ? '[ Nama dan Gelar Lengkap ]' : (d.nama || document.getElementById('psvNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
+  const nip = isBlank ? '[ NIP / NIPPPK / NIK ]' : (d.nip || document.getElementById('psvNip')?.value.trim() || state.currentApplicant?.nip || '19920415 201903 1 004');
+  const pendidikan = isBlank ? '[ Universitas / Poltekkes / Sekolah Tinggi Asal ]' : (d.pendidikan || document.getElementById('psvPendidikan')?.value.trim() || 'S1 Keperawatan & Profesi Ners / Universitas Tanjungpura');
+  const unit = isBlank ? '[ Misal: Instalasi Gawat Darurat / ICU / Rawat Inap ]' : (d.unit || document.getElementById('psvUnit')?.value.trim() || state.currentApplicant?.unit || 'Enggang Gading 2');
+
+  const ijazahInst = isBlank ? '[ Tulis Perguruan Tinggi Asal / Universitas ]' : (d.ijazahInstitusi || document.getElementById('psvIjazahInstitusi')?.value.trim() || 'Universitas Tanjungpura');
+  const ijazahNo = isBlank ? '____________' : (d.ijazahNomor || document.getElementById('psvIjazahNomor')?.value.trim() || '1401/UNTAN/NERS/2018');
+  const ijazahThn = isBlank ? '____' : (d.ijazahTahun || document.getElementById('psvIjazahTahun')?.value.trim() || '2018');
+
+  const strInst = isBlank ? 'Majelis Tenaga Kesehatan / KTKI / KKI' : (d.strInstitusi || document.getElementById('psvStrInstitusi')?.value.trim() || 'Majelis Tenaga Kesehatan / KTKI / KKI');
+  const strNo = isBlank ? '____________' : (d.strNomor || document.getElementById('psvStrNomor')?.value.trim() || '140152123-2893812');
+  const strExp = isBlank ? '____' : (d.strBerlaku || document.getElementById('psvStrBerlaku')?.value.trim() || '17 Agustus 2028');
+
+  const sippInst = isBlank ? 'Dinas Kesehatan / DPMPTSP Asal' : (d.sippInstitusi || document.getElementById('psvSippInstitusi')?.value.trim() || 'Dinas Kesehatan / DPMPTSP Asal');
+  const sippNo = isBlank ? '____________' : (d.sippNomor || document.getElementById('psvSippNomor')?.value.trim() || '503/412/Dinkes-PP/SIPP/2023');
+  const sippExp = isBlank ? '____' : (d.sippBerlaku || document.getElementById('psvSippBerlaku')?.value.trim() || '17 Agustus 2028');
+
+  const trainInst = isBlank ? 'Pusdiklat Kemenkes / Organisasi Profesi (PPNI)' : (d.pelatihanInstitusi || document.getElementById('psvPelatihanInstitusi')?.value.trim() || 'Pusdiklat Kemenkes / Organisasi Profesi (PPNI)');
+  const trainName = isBlank ? '____________' : (d.pelatihanNama || document.getElementById('psvPelatihanNama')?.value.trim() || 'Basic Trauma Cardiac Life Support (BTCLS)');
+  const trainDate = isBlank ? '______' : (d.pelatihanTanggal || document.getElementById('psvPelatihanTanggal')?.value.trim() || '14 - 18 Mei 2024');
+
+  const getBox = (checked) => (!isBlank && checked) ? '[ &#10003; ]' : '[ &nbsp; ]';
+
+  // Checkboxes
+  const chkIjazahOnline = getBox(d.ijazahMetode === 'online' || !d.ijazahMetode);
+  const chkIjazahSurat = getBox(d.ijazahMetode === 'surat');
+  const chkIjazahKontak = getBox(d.ijazahMetode === 'kontak');
+  const chkIjazahValid = getBox(d.ijazahHasil === 'valid' || !d.ijazahHasil);
+  const chkIjazahInvalid = getBox(d.ijazahHasil === 'invalid');
+  const chkIjazahProses = getBox(d.ijazahHasil === 'proses');
+
+  const chkStrKtki = getBox(d.strMetode === 'ktki_web' || !d.strMetode);
+  const chkStrQr = getBox(d.strMetode === 'qr_scan');
+  const chkStrSurat = getBox(d.strMetode === 'surat');
+  const chkStrValid = getBox(d.strHasil === 'valid' || !d.strHasil);
+  const chkStrInvalid = getBox(d.strHasil === 'invalid');
+  const chkStrExpired = getBox(d.strHasil === 'kadaluarsa');
+
+  const chkSippSicantik = getBox(d.sippMetode === 'sicantik' || !d.sippMetode);
+  const chkSippDinkes = getBox(d.sippMetode === 'konfirmasi_dinkes');
+  const chkSippFisik = getBox(d.sippMetode === 'berkas_fisik');
+  const chkSippValid = getBox(d.sippHasil === 'valid' || !d.sippHasil);
+  const chkSippInvalid = getBox(d.sippHasil === 'invalid');
+  const chkSippRekom = getBox(d.sippHasil === 'rekomendasi');
+
+  const chkTrainBarcode = getBox(d.pelatihanMetode === 'barcode' || !d.pelatihanMetode);
+  const chkTrainProvider = getBox(d.pelatihanMetode === 'provider');
+  const chkTrainBuku = getBox(d.pelatihanMetode === 'portofolio');
+  const chkTrainValid = getBox(d.pelatihanHasil === 'valid' || !d.pelatihanHasil);
+  const chkTrainInvalid = getBox(d.pelatihanHasil === 'invalid');
+  const chkTrainDiakui = getBox(d.pelatihanHasil === 'diakui');
+
+  const chkSetujuPenuh = getBox(d.kesimpulan === 'disetujui_penuh' || !d.kesimpulan);
+  const chkSetujuSyarat = getBox(d.kesimpulan === 'disetujui_syarat');
+  const chkDitolak = getBox(d.kesimpulan === 'ditolak');
+
+  const verifikatorNama = isBlank ? '___________________________' : (d.verifikatorNama || document.getElementById('psvVerifikatorNama')?.value.trim() || 'Ns. Bambang Sugiarto, S.Kep');
+  const verifikatorNip = isBlank ? '........................' : (d.verifikatorNip || document.getElementById('psvVerifikatorNip')?.value.trim() || '19880315 201402 1 002');
+  const tanggalPsv = isBlank ? '__________________ 2026' : (d.tanggalPsv || document.getElementById('psvTanggal')?.value.trim() || '18 Oktober 2026');
+  const ketuaNama = isBlank ? '___________________________' : (d.ketuaSubkomiteNama || document.getElementById('psvKetuaNama')?.value.trim() || 'Ns. Rusmulyadi, M.Kep., Sp.Kep.MB');
+  const ketuaNip = isBlank ? '........................' : (d.ketuaSubkomiteNip || document.getElementById('psvKetuaNip')?.value.trim() || '19800728 200501 1 005');
+
+  const logoSrc = (window.KOMITE_DATA && window.KOMITE_DATA.logoKalbar) ? window.KOMITE_DATA.logoKalbar : 'logo_kalbar.png';
+
+  const kopSoedarso = `
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
+      <tr>
+        <td style="width: 80px; vertical-align: middle; text-align: center; padding-right: 12px;">
+          <img src="${logoSrc}" alt="Logo Pemprov Kalbar" style="width: 72px; height: auto;">
+        </td>
+        <td style="text-align: center; vertical-align: middle; font-family: Arial, Helvetica, sans-serif; color: #000;">
+          <div style="font-size: 11pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">PEMERINTAH PROVINSI KALIMANTAN BARAT</div>
+          <div style="font-size: 12.5pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">RUMAH SAKIT UMUM DAERAH DOKTER SOEDARSO</div>
+          <div style="font-size: 11pt; font-weight: bold; line-height: 1.25; letter-spacing: 0.2px;">KOMITE KEPERAWATAN – SUBKOMITE KREDENSIAL</div>
+          <div style="font-size: 8pt; line-height: 1.35; margin-top: 3px;">
+            Jalan Dokter Soedarso No.1 Pontianak Tenggara, Kota Pontianak, Kalimantan Barat 78124<br>
+            Telp. (0561) 737701, (0561) 746152, Fax. (0561) 736528<br>
+            Laman : <span style="color: #0000ee; text-decoration: underline;">https://rsuddrsoedarso.kalbarprov.go.id</span>, Pos-el : <span style="color: #0000ee; text-decoration: underline;">rsud@kalbarprov.go.id</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <div style="border-top: 2.5px solid #000000; border-bottom: 0.8px solid #000000; height: 2px; margin-top: 6px; margin-bottom: 14px;"></div>
+  `;
+
+  return `
+    <!-- ==========================================
+         HALAMAN 1: KOP, IDENTITAS & MATRIKS 1 S.D 3
+         ========================================== -->
+    <div class="soedarso-page page-1" style="page-break-after: always; break-after: page; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 12mm 15mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 8.5pt; line-height: 1.35;">
+      ${kopSoedarso}
+
+      <!-- JUDUL RESMI -->
+      <div style="text-align: center; font-weight: bold; font-size: 11pt; line-height: 1.3; margin-bottom: 16px; text-transform: uppercase; color: #000;">
+        FORMULIR VERIFIKASI SUMBER ASLI / UTAMA<br>
+        (PRIMARY SOURCE VERIFICATION - PSV) DOKUMEN KLINIS
+      </div>
+
+      <!-- I. IDENTITAS TENAGA KEPERAWATAN -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8.5pt; border: 1.5px solid #000;">
+        <tr style="background: #fff; color: #000;">
+          <td colspan="2" style="padding: 6px 10px; font-weight: bold; font-size: 9.5pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+            I. IDENTITAS TENAGA KEPERAWATAN
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 6px 10px; width: 36%; font-weight: bold;">Nama Lengkap Staf Keperawatan:</td>
+          <td style="border: 1px solid #000; padding: 6px 10px; width: 64%; font-weight: ${isBlank ? 'normal' : 'bold'};">${nama}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 6px 10px; font-weight: bold;">NIP / NIPPPK / NIK:</td>
+          <td style="border: 1px solid #000; padding: 6px 10px;">${nip}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 6px 10px; font-weight: bold;">Pendidikan Terakhir / Lulusan:</td>
+          <td style="border: 1px solid #000; padding: 6px 10px;">${pendidikan}</td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 6px 10px; font-weight: bold;">Unit Kerja / Ruang Penempatan:</td>
+          <td style="border: 1px solid #000; padding: 6px 10px;">${unit}</td>
+        </tr>
+      </table>
+
+      <!-- II. MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA) -->
+      <div style="border: 1.5px solid #000; border-bottom: none; background: #fff; color: #000; padding: 6px 10px; font-weight: bold; font-size: 9.5pt; letter-spacing: 0.2px;">
+        II. MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA)
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 8pt; border: 1.5px solid #000;">
+        <thead>
+          <tr style="background: #0f375f; color: #ffffff; text-align: center; font-weight: bold;">
+            <th style="border: 1px solid #000; padding: 7px 3px; width: 5%;">No</th>
+            <th style="border: 1px solid #000; padding: 7px 5px; width: 21%;">Jenis Dokumen<br>Kredensial</th>
+            <th style="border: 1px solid #000; padding: 7px 5px; width: 22%;">Institusi Sumber<br>Penerbit (Primary Source)</th>
+            <th style="border: 1px solid #000; padding: 7px 5px; width: 17%;">Metode<br>Verifikasi</th>
+            <th style="border: 1px solid #000; padding: 7px 5px; width: 17%;">Hasil<br>Verifikasi</th>
+            <th style="border: 1px solid #000; padding: 7px 5px; width: 18%;">Keterangan<br>Validasi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Baris 1: Ijazah -->
+          <tr>
+            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; font-weight: bold;">1</td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+              <strong>Ijazah Keperawatan</strong><br>
+              <span style="font-size: 7.5pt; color: #444;">(D-III/S1/Ners/Sp.)</span>
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+              ${ijazahInst}
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahOnline}</span> Online / Web<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahSurat}</span> Surat Resmi<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahKontak}</span> Kontak Langsung
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahValid}</span> Valid / Sah<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahInvalid}</span> Tidak Valid<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahProses}</span> Proses Terbuka
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.45;">
+              No. Ijazah:<br>
+              <span style="font-weight: bold;">${ijazahNo}</span><br><br>
+              Lulus Thn: <span style="font-weight: bold;">${ijazahThn}</span>
+            </td>
+          </tr>
+
+          <!-- Baris 2: STR -->
+          <tr>
+            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; font-weight: bold;">2</td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+              <strong>Surat Tanda Registrasi (STR) Perawat Aktif</strong>
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+              ${strInst}
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkStrKtki}</span> Aplikasi KTKI Web<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrQr}</span> QR Code Scan<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrSurat}</span> Surat Resmi
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkStrValid}</span> Valid / Sah<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrInvalid}</span> Tidak Valid<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrExpired}</span> Kadaluarsa
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.45;">
+              No. STR:<br>
+              <span style="font-weight: bold;">${strNo}</span><br><br>
+              Berlaku s/d: <span style="font-weight: bold;">${strExp}</span>
+            </td>
+          </tr>
+
+          <!-- Baris 3: SIPP -->
+          <tr>
+            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; font-weight: bold;">3</td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+              <strong>Surat Izin Praktik Perawat (SIPP) Lama</strong>
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+              ${sippInst}
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkSippSicantik}</span> Cek Sistem SiCantik<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkSippDinkes}</span> Konfirmasi Dinkes<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkSippFisik}</span> Berkas Fisik Sesuai
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkSippValid}</span> Valid / Sah<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkSippInvalid}</span> Tidak Valid<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkSippRekom}</span> Rekomendasi
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.45;">
+              No. SIPP:<br>
+              <span style="font-weight: bold;">${sippNo}</span><br><br>
+              Berlaku s/d: <span style="font-weight: bold;">${sippExp}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ==========================================
+         HALAMAN 2: MATRIKS 4, KESIMPULAN & TANDA TANGAN
+         ========================================== -->
+    <div class="soedarso-page page-2" style="page-break-after: avoid; break-after: avoid; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 12mm 15mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 8.5pt; line-height: 1.35; position: relative;">
+      <!-- Page number top right -->
+      <div style="text-align: right; font-size: 9pt; font-weight: bold; margin-bottom: 12px; color: #333;">2</div>
+
+      <!-- Baris 4 lanjutan Section II -->
+      <table style="width: 100%; border-collapse: collapse; font-size: 8pt; border: 1.5px solid #000; margin-bottom: 20px;">
+        <tbody>
+          <tr>
+            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; width: 5%; font-weight: bold;">4</td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 21%;">
+              <strong>Sertifikat Pelatihan Kekhususan</strong><br>
+              <span style="font-size: 7.5pt; color: #444;">(BTCLS/dst)</span>
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 22%;">
+              ${trainInst}
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 17%; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainBarcode}</span> Cek Barcode / No Reg<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainProvider}</span> Konfirmasi Provider<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainBuku}</span> Portofolio Buku
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 17%; line-height: 1.55;">
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainValid}</span> Valid / Sah<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainInvalid}</span> Tidak Valid<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainDiakui}</span> Sertifikasi Diakui
+            </td>
+            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 18%; line-height: 1.45;">
+              Nama Kursus:<br>
+              <span style="font-weight: bold;">${trainName}</span><br><br>
+              Tanggal: <span style="font-weight: bold;">${trainDate}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SECTION III: KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; font-size: 8.5pt; border: 1.5px solid #000;">
+        <tr style="background: #fff; color: #000;">
+          <td style="padding: 6px 10px; font-weight: bold; font-size: 9.5pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+            III. KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 12px 14px; line-height: 1.6;">
+            <p style="margin: 0 0 10px 0;">
+              Berdasarkan hasil penelusuran dokumen secara langsung ke institusi penerbit (<em>Primary Source Verification</em>), Subkomite Kredensial Keperawatan RSUD dr. Soedarso menyatakan bahwa berkas administrasi dan kompetensi klinis:
+            </p>
+            <div style="margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px;">
+              <span style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${chkSetujuPenuh}</span>
+              <div><strong>DISETUJUI PENUH:</strong> Seluruh dokumen absah, valid, dan legal sesuai aturan perundangan.</div>
+            </div>
+            <div style="margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px;">
+              <span style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${chkSetujuSyarat}</span>
+              <div><strong>DISETUJUI DENGAN SYARAT:</strong> Terdapat dokumen yang memerlukan pembaruan susulan (Keterangan tertulis terlampir).</div>
+            </div>
+            <div style="display: flex; align-items: flex-start; gap: 8px;">
+              <span style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${chkDitolak}</span>
+              <div><strong>DITOLAK:</strong> Ditemukan ketidaksesuaian kritis pada validitas dokumen utama staf keperawatan.</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- SECTION IV: OTENTIKASI DAN VALIDASI TIM KREDENSIAL -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8.5pt; border: 1.5px solid #000;">
+        <tr style="background: #fff; color: #000;">
+          <td style="padding: 6px 10px; font-weight: bold; font-size: 9.5pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+            IV. OTENTIKASI DAN VALIDASI TIM KREDENSIAL
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 18px 24px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 8.5pt;">
+              <tr>
+                <td style="width: 48%; text-align: center; vertical-align: top;">
+                  Staf / Verifikator Komite,<br>
+                  Subkomite Kredensial
+                  <div style="height: 60px;"></div>
+                  ( <span style="font-weight: bold; text-decoration: underline;">${verifikatorNama}</span> )<br>
+                  NIP. ${verifikatorNip}
+                </td>
+                <td style="width: 4%;"></td>
+                <td style="width: 48%; text-align: center; vertical-align: top;">
+                  Pontianak, ${tanggalPsv}<br>
+                  Ketua Subkomite Kredensial<br>
+                  RSUD dr. Soedarso,
+                  <div style="height: 60px;"></div>
+                  ( <span style="font-weight: bold; text-decoration: underline;">${ketuaNama}</span> )<br>
+                  NIP. ${ketuaNip}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
+}
+
+function printPsvHVS(mode) {
+  const printMode = mode || state.psvPreviewMode || 'filled';
+  const content = generatePsvHVS(printMode);
+  const printWindow = window.open('', '_blank', 'width=880,height=960');
+  if (printWindow) {
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Formulir Verifikasi Sumber Asli (PSV) - RSUD dr Soedarso</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 12mm 15mm;
+          }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          .soedarso-page {
+            page-break-after: always;
+            break-after: page;
+            background: #fff;
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .page-2 {
+            page-break-after: avoid;
+            break-after: avoid;
+          }
+          @media screen {
+            body {
+              background: #e2e8f0;
+              padding: 20px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+            }
+            .soedarso-page {
+              background: #fff;
+              width: 210mm;
+              min-height: 297mm;
+              padding: 12mm 15mm;
+              margin-bottom: 20px;
+              box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${content}
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  } else {
+    window.print();
+  }
+}
+
+function exportPsvWord() {
+  const content = generatePsvHVS(state.psvPreviewMode || 'filled');
+  const rawNama = document.getElementById('psvNama')?.value.trim() || state.psvData?.nama || state.currentApplicant?.nama || 'Staf';
+  const nama = rawNama.replace(/[^a-zA-Z0-9]/g, '_');
+  const header = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+          xmlns:w='urn:schemas-microsoft-com:office:word' 
+          xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>Formulir PSV Dokumen Klinis RSUD dr Soedarso</title>
+    <style>
+      @page Section1 { size: 595.3pt 841.9pt; margin: 0.5in 0.6in 0.5in 0.6in; }
+      div.Section1 { page: Section1; }
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 8.5pt; line-height: 1.35; color: #000; }
+      table { border-collapse: collapse; width: 100%; }
+      .page-1 { page-break-after: always; }
+      .page-2 { page-break-after: avoid; }
+    </style>
+    </head>
+    <body>
+    <div class="Section1">
+  `;
+  const footer = `</div></body></html>`;
+  const sourceHTML = header + content + footer;
+  const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+  const fileDownload = document.createElement("a");
+  document.body.appendChild(fileDownload);
+  fileDownload.href = source;
+  fileDownload.download = `Formulir_PSV_${nama}_RSUD_dr_Soedarso.doc`;
+  fileDownload.click();
+  document.body.removeChild(fileDownload);
+  showToast(`Dokumen PSV ${rawNama} berhasil diunduh dalam format Word (.doc)!`, 'success');
+}
+
 // Expose functions globally for inline onclick handlers
 window.switchTab = switchTab;
 window.toggleTheme = toggleTheme;
@@ -5691,4 +6362,14 @@ window.exportRkkWord = exportRkkWord;
 window.setAllRkkKode = setAllRkkKode;
 window.resetAllRkkKode = resetAllRkkKode;
 window.onAreaKlinisChange = onAreaKlinisChange;
+window.openPsvModal = openPsvModal;
+window.syncPsvFromApplicant = syncPsvFromApplicant;
+window.fillPsvPreset = fillPsvPreset;
+window.handlePsvSubmit = handlePsvSubmit;
+window.previewPsvHVS = previewPsvHVS;
+window.togglePreviewPsvMode = togglePreviewPsvMode;
+window.generatePsvHVS = generatePsvHVS;
+window.printPsvHVS = printPsvHVS;
+window.exportPsvWord = exportPsvWord;
+
 
