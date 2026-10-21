@@ -333,7 +333,7 @@ function loadData() {
       {
         id: 'NOTIF-2026-002',
         timestamp: '20 Oktober 2026, 14:05 WIB',
-        eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 3)',
+        eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 5)',
         applicantName: 'Bd. Siti Nurhaliza, S.Tr.Keb',
         applicantNip: '19940822 202012 2 003',
         unit: 'Ruang VK (Bersalin)',
@@ -1525,7 +1525,7 @@ function handleKredensialSubmit(e) {
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 3)',
+    eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 5)',
     subject: adminSubject,
     applicantName: nama,
     applicantNip: nip,
@@ -1537,7 +1537,7 @@ function handleKredensialSubmit(e) {
   showToast(`Permohonan kredensialing atas nama ${nama} berhasil didaftarkan! Notifikasi terkirim ke email Komite & Sekretaris.`, 'success');
 
   showAdminEmailNoticeModal({
-    eventType: 'Pendaftaran Asesmen Mandiri RKK Online (Langkah 3)',
+    eventType: 'Pendaftaran Asesmen Mandiri RKK Online (Langkah 5)',
     subject: adminSubject,
     applicantName: nama,
     bodyText: adminBody
@@ -4612,11 +4612,13 @@ function testSendAdminEmailPing() {
     `UJI KONEKSI SISTEM NOTIFIKASI ADMINISTRASI:\n\n` +
     `Koneksi saluran email administrasi Komite Keperawatan RSUD dr. Soedarso Pontianak dinyatakan BERFUNGSI DENGAN BAIK.\n\n` +
     `Seluruh berkas administrasi meliputi:\n` +
-    `1. Formulir Permohonan Kredensialing (Langkah 1)\n` +
-    `2. Unggah Surat Permohonan Mandiri & Portofolio (Langkah 2)\n` +
-    `3. Pengisian Asesmen Mandiri RKK Online (Langkah 3)\n` +
-    `4. Pelaporan & Konsultasi Etika / Disiplin Profesi\n` +
-    `5. Penerbitan Rekomendasi SPK/RKK Mitra Bestari\n\n` +
+    `1. Formulir CV Portofolio Klinis (Langkah 1)\n` +
+    `2. Formulir Logbook Kinerja Klinis Ka.Ru (Langkah 2)\n` +
+    `3. Formulir Surat Permohonan Kredensialing (Langkah 3)\n` +
+    `4. Unggah Dokumen Portofolio Lengkap (Langkah 4)\n` +
+    `5. Pengisian Asesmen Mandiri RKK Online (Langkah 5)\n` +
+    `6. Pelaporan & Konsultasi Etika / Disiplin Profesi\n` +
+    `7. Penerbitan Rekomendasi SPK/RKK Mitra Bestari\n\n` +
     `Kini otomatis terhubung ke email komitekeperawatanrsds2023@gmail.com dan email sekretaris yadhie28@gmail.com.\n\n` +
     `Waktu Pengujian: ${new Date().toLocaleString('id-ID')}\n` +
     `Sistem Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
