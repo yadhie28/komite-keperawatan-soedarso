@@ -1675,28 +1675,132 @@
               Pengajuan jenjang karir klinis secara otomatis memuat seluruh <strong>Kewenangan Klinis Mandatory jenjang di bawahnya</strong> (contoh: Perawat pengaju PK III KMB memiliki kewenangan mandatory PK I Generalis &amp; mandatory PK II KMB).
             </div>
 
-            <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-              <div>
-                <span class="form-label" style="margin-bottom: 0;">Rincian Tindakan Asuhan Keperawatan:</span>
+            <!-- PILIHAN OPSI RINCIAN TINDAKAN ASUHAN KEPERAWATAN -->
+            <div style="background: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 0.85rem; box-shadow: var(--shadow-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <label class="form-label" for="formRkkAreaFilter" style="margin-bottom: 0; font-weight: 700; color: var(--primary-800); display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-stethoscope" style="color: var(--primary-600);"></i>
+                  Rincian Tindakan Asuhan Keperawatan:
+                </label>
+                <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                  <span id="step3JenjangBadge" class="badge" style="background: #0e3860; color: #ffffff; font-weight: 700; font-size: 0.75rem;">
+                    Jenjang: PK III
+                  </span>
+                  <span id="step3AreaBadge" class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.75rem;">
+                    Buku Putih 2026
+                  </span>
+                </div>
               </div>
-              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
-                <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="setAllRkkKode(1)">
-                  <i class="fa-solid fa-check-double"></i> Set Semua Kode 1 (Mandiri)
-                </button>
-                <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="setAllRkkKode(2)">
-                  <i class="fa-solid fa-user-group"></i> Set Semua Kode 2 (Supervisi)
-                </button>
-                <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="resetAllRkkKode()">
-                  <i class="fa-solid fa-rotate-left"></i> Reset Standar
-                </button>
+
+              <div class="form-grid-2" style="gap: 0.65rem; margin-bottom: 0.65rem;">
+                <div>
+                  <label class="form-label" style="font-size: 0.77rem; margin-bottom: 0.25rem; color: var(--text-muted);">
+                    Pilih Rumpun / Area Kekhususan Tindakan Klinis:
+                  </label>
+                  <select class="form-select" id="formRkkAreaFilter" onchange="onStep3AreaFilterChange(this.value)" style="font-weight: 600; font-size: 0.83rem; padding: 0.45rem 0.75rem; border: 1.5px solid var(--primary-600); background-color: #f8fafc;">
+                    <option value="">-- Tampilkan Seluruh Rincian Tindakan Klinis (Kumulatif Buku Putih) --</option>
+
+                    <optgroup label="1. RUMPUN KEPERAWATAN GENERALIS (ASUHAN DASAR)">
+                      <option value="generalis">Pelayanan Keperawatan Generalis (19 Elemen Asuhan Dasar)</option>
+                      <option value="generalis_kmb">Generalis - Keperawatan Medikal Bedah (KMB Dasar)</option>
+                      <option value="generalis_ibs">Generalis - Kamar Bedah Sentral (Perioperatif Dasar)</option>
+                      <option value="generalis_igd">Generalis - Gawat Darurat (Emergensi Dasar)</option>
+                      <option value="generalis_icu">Generalis - Intensive Care (Kritis Dasar)</option>
+                      <option value="generalis_kardio">Generalis - Kardiovaskuler (PJT Dasar)</option>
+                      <option value="generalis_anak">Generalis - Keperawatan Anak (Pediatrik Dasar)</option>
+                      <option value="generalis_maternitas">Generalis - Keperawatan Maternitas (Kebidanan Dasar)</option>
+                      <option value="generalis_jiwa">Generalis - Keperawatan Jiwa Dasar</option>
+                      <option value="generalis_dialisis">Generalis - Nefrologi &amp; Hemodialisis Dasar</option>
+                      <option value="generalis_onkologi">Generalis - Onkologi &amp; Kemoterapi Dasar</option>
+                      <option value="generalis_anestesi">Generalis - Keperawatan Anestesi Dasar</option>
+                    </optgroup>
+
+                    <optgroup label="2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)">
+                      <option value="kmb_medikal_pk3" selected>KMB - Medikal (Penyakit Dalam Dewasa)</option>
+                      <option value="kmb_bedah_pk3">KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
+                      <option value="kmb_dewasa_pk2">KMB Dewasa (Advance Beginner)</option>
+                    </optgroup>
+
+                    <optgroup label="3. RUMPUN PERIOPERATIF &amp; ANESTESI">
+                      <option value="perioperatif_pk3">Perioperatif (Kamar Bedah Sentral / IBS)</option>
+                      <option value="anestesi_pk3">Keperawatan Anestesi</option>
+                    </optgroup>
+
+                    <optgroup label="4. RUMPUN GAWAT DARURAT (EMERGENSI) &amp; CRITICAL CARE">
+                      <option value="emergensi_pk3">Gawat Darurat / Emergensi (IGD &amp; Trauma)</option>
+                      <option value="intensif_pk3">Intensive Care (ICU / ICCU / HCU / Luka Bakar)</option>
+                    </optgroup>
+
+                    <optgroup label="5. RUMPUN KARDIOVASKULER (PUSAT JANTUNG TERPADU / PJT)">
+                      <option value="kardiovaskuler_rawat_pk3">Kardiovaskuler (Rawat Inap &amp; Jalan PJT)</option>
+                      <option value="kardiovaskuler_cathlab_pk3">Kardiovaskuler (Ruang Kateterisasi / Cathlab)</option>
+                      <option value="kardiovaskuler_perfusi_pk3">Kardiovaskuler (Perfusionist Mesin CPB)</option>
+                    </optgroup>
+
+                    <optgroup label="6. RUMPUN SPESIALISTIK DEWASA &amp; KEKHUSUSAN">
+                      <option value="neurosains_pk3">Neurosains (Neurologi &amp; Bedah Saraf)</option>
+                      <option value="nefrologi_pk3">Nefrologi (Hemodialisis &amp; CAPD)</option>
+                      <option value="onkologi_pk3">Keperawatan Onkologi (Kemoterapi &amp; Radiasi)</option>
+                      <option value="gastro_hepato_pk3">Gastro-Hepato (Endoskopi &amp; Hepatobilier)</option>
+                      <option value="respirologi_pk3">Respirologi (Paru &amp; Bronkoskopi)</option>
+                      <option value="mata_pk3">Keperawatan Mata (Oftalmologi)</option>
+                      <option value="geriatri_pk3">Keperawatan Geriatri (Lanjut Usia)</option>
+                      <option value="radiologi_pk3">Radiologi &amp; Kedokteran Nuklir</option>
+                    </optgroup>
+
+                    <optgroup label="7. RUMPUN KEPERAWATAN ANAK (PEDIATRIK &amp; NEONATUS)">
+                      <option value="anak_medikal_pk3">Rumpun Anak - Medikal Anak</option>
+                      <option value="anak_bedah_pk3">Rumpun Anak - Bedah Anak</option>
+                      <option value="anak_hemato_pk3">Rumpun Anak - Hemato-Onkologi Anak</option>
+                      <option value="anak_nefrologi_pk3">Rumpun Anak - Nefrologi Anak</option>
+                      <option value="anak_picu_pk3">Rumpun Anak - Intensive Anak (PICU)</option>
+                      <option value="anak_nicu_pk3">Rumpun Anak - Neonatologi (NICU)</option>
+                    </optgroup>
+
+                    <optgroup label="8. RUMPUN MATERNITAS &amp; PRAKTIK BIDAN KLINIS (BK)">
+                      <option value="maternitas_obgyn_pk3">Rumpun Maternitas - Obstetri &amp; Ginekologi (Obgyn)</option>
+                      <option value="maternitas_onkologi_pk3">Rumpun Maternitas - Onkologi Kebidanan</option>
+                      <option value="maternitas_fertilitas_pk3">Rumpun Maternitas - Fertilitas &amp; Bayi Tabung (IVF)</option>
+                      <option value="pmb_kebidanan">Pelayanan Kebidanan (Bidan Klinis BK I - BK IV / PMB)</option>
+                    </optgroup>
+
+                    <optgroup label="9. RUMPUN KEPERAWATAN JIWA">
+                      <option value="jiwa_pk3">Rumpun Keperawatan Jiwa</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="form-label" style="font-size: 0.77rem; margin-bottom: 0.25rem; color: var(--text-muted);">
+                    Cari Deskripsi Tindakan Klinis:
+                  </label>
+                  <div style="position: relative;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+                    <input type="text" id="rkkSearchActionInput" class="form-input" placeholder="Ketik minimal 2 huruf untuk filter tindakan..." oninput="onStep3SearchAction(this.value)" style="padding-left: 2rem; font-size: 0.82rem;">
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding-top: 0.4rem; border-top: 1px dashed var(--border-subtle);">
+                <div style="font-size: 0.77rem; color: var(--text-muted);" id="step3ActionCountText">
+                  Menampilkan seluruh rincian tindakan klinis sesuai White Book.
+                </div>
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="setAllRkkKode(1)">
+                    <i class="fa-solid fa-check-double"></i> Set Semua Kode 1 (Mandiri)
+                  </button>
+                  <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="setAllRkkKode(2)">
+                    <i class="fa-solid fa-user-group"></i> Set Semua Kode 2 (Supervisi)
+                  </button>
+                  <button type="button" class="btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" onclick="resetAllRkkKode()">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Standar
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div class="rkk-checklist-box" id="rkkChecklistContainer" style="max-height: 360px; overflow-y: auto;">
+            <div class="rkk-checklist-box" id="rkkChecklistContainer" style="max-height: 380px; overflow-y: auto;">
               <!-- Dynamically populated based on chosen PK Level & White Book Area -->
-              <div style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
-                Silakan pilih jenjang karir klinis pada langkah sebelumnya untuk memuat instrumen RKK.
-              </div>
             </div>
           </div>
 
