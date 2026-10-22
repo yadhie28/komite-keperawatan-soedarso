@@ -4173,7 +4173,7 @@ function generateSuratKredensialHVS(mode) {
       </div>
 
       <div style="font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; line-height: 1.55; margin-bottom: 18px; color: #000;">
-        <em>Jenis Permohonan (Berikan tanda ceklis [&check;] pada kotak pilihan):</em><br>
+        <em>Jenis Permohonan:</em><br>
         <div style="margin-left: 4px; margin-top: 4px;">
           [ ${jenis === 'baru' ? '<strong>&check;</strong>' : '&nbsp;&nbsp;'} ] Kredensial (Perawat Baru / Bidan Baru)<br>
           [ ${jenis === 'berkala' ? '<strong>&check;</strong>' : '&nbsp;&nbsp;'} ] Re-Kredensial Berkala (Setiap 3 Tahun)<br>

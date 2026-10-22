@@ -111,7 +111,7 @@ function onFormSubmit(e) {
           </div>
 
           <div style="font-size: 9.5pt; margin-bottom: 18px;">
-            <em>Jenis Permohonan (Berikan tanda ceklis [✓] pada kotak pilihan):</em><br>
+            <em>Jenis Permohonan:</em><br>
             <div style="margin-left: 4px; margin-top: 4px;">
               [ ${jenisPermohonan.toLowerCase().includes('baru') ? '<strong>✓</strong>' : '&nbsp;&nbsp;'} ] Kredensial (Perawat Baru / Bidan Baru)<br>
               [ ${jenisPermohonan.toLowerCase().includes('berkala') ? '<strong>✓</strong>' : '&nbsp;&nbsp;'} ] Re-Kredensial Berkala (Setiap 3 Tahun)<br>
