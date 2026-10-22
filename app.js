@@ -2254,9 +2254,7 @@ function updateAlurStepStatus() {
 
   // Langkah 1: CV Portofolio Klinis (badgeStep1Status)
   if (b1) {
-    b1.style.background = 'rgba(20, 148, 142, 0.15)';
-    b1.style.color = 'var(--primary-700)';
-    b1.innerHTML = '<i class="fa-solid fa-check"></i> Siap Diisi &amp; Diunduh';
+    b1.style.display = 'none';
   }
 
   // Langkah 2: Logbook Kinerja Klinis Harian (badgeStep2Status)
