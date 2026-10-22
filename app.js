@@ -1545,31 +1545,50 @@ function getAreaDisplayName(areaKey, pkLevel) {
 function getCumulativeRkkActions(pkLevel, areaKey) {
   const cluster = getClusterFromAreaKey(areaKey);
   const clusterName = getClusterDisplayName(cluster);
-  const areaName = getAreaDisplayName(areaKey, pkLevel);
-
-  // Jika Praktik Bidan Klinis (PMB / BK)
+  const effectiveAreaName = getAreaDisplayName(areaKey, pkLevel);
   const isBidan = pkLevel === 'PMB' || String(pkLevel).toUpperCase().includes('BK') || String(pkLevel).toUpperCase().includes('BIDAN');
-  if (isBidan) {
-    const pmbRaw = window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan'] || [];
-    return pmbRaw.map((a, idx) => ({
-      ...a,
-      no: idx + 1,
-      jenjangLevel: 'PMB',
-      isMandatory: false,
-      kategori: 'A. PELAYANAN PRAKTIK BIDAN KLINIS (BK I - BK IV / PMB MATERNAL & NEONATAL)',
-      badgeText: 'DIAJUKAN BIDAN',
-      defaultKode: a.defaultKode || 1
-    }));
-  }
 
   const result = [];
   let currentNo = 1;
 
-  // =========================================================================
-  // TIER 1: MANDATORY PK I (DASAR GENERALIS)
-  // Aturan User: Jika perawat mengajukan PK III KMB maka mandatory PK I & PK II.
-  // Jika tidak ada PK I KMB berikan mandatory PK I Generalis.
-  // =========================================================================
+  // 1. Jika Praktik Bidan Klinis (PMB / BK)
+  if (isBidan) {
+    const pmbKey = (areaKey && window.KOMITE_DATA?.whiteBookActions?.[areaKey]) ? areaKey : 'pmb_kebidanan';
+    const sourceActions = window.KOMITE_DATA?.whiteBookActions?.[pmbKey] || window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan'] || [];
+    const areaTitle = getAreaDisplayName(pmbKey, 'PMB');
+
+    sourceActions.forEach((a) => {
+      result.push({
+        ...a,
+        no: currentNo++,
+        jenjangLevel: 'PMB',
+        isMandatory: false,
+        kategori: `A. RINCIAN KEWENANGAN KLINIS BIDAN BUKU PUTIH 2026 (${areaTitle.toUpperCase()})`,
+        badgeText: 'DIAJUKAN BIDAN',
+        defaultKode: a.defaultKode || 1
+      });
+    });
+
+    // Jika area yang dipilih bukan pmb_kebidanan dasar, sertakan juga pmb_kebidanan sebagai dasar kompetensi kebidanan
+    if (pmbKey !== 'pmb_kebidanan' && window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan']) {
+      window.KOMITE_DATA.whiteBookActions['pmb_kebidanan'].forEach((a) => {
+        result.push({
+          ...a,
+          no: currentNo++,
+          jenjangLevel: 'PMB',
+          isMandatory: true,
+          kategori: 'B. KEWENANGAN DASAR PRAKTIK BIDAN KLINIS (BK I - BK IV / PMB)',
+          badgeText: 'MANDATORY BIDAN',
+          defaultKode: a.defaultKode || 1
+        });
+      });
+    }
+
+    return result;
+  }
+
+  // 2. Jika Perawat Klinis:
+  // Selalu sertakan Mandatory Base Actions (PK I Generalis / Asuhan Dasar)
   const isPk1Target = (pkLevel === 'PK I');
   const baseActions = (window.KOMITE_DATA?.mandatoryBaseActions || []).map(a => Object.assign({}, a));
   const pk1Specific = window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk1`];
@@ -1604,13 +1623,56 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     });
   });
 
+  // Jika user memilih area spesifik tertentu dari Buku Putih (misal anestesi_pk3, mata_pk3, anak_picu_pk3, dll.)
+  const specificActions = (areaKey && window.KOMITE_DATA?.whiteBookActions?.[areaKey])
+    ? window.KOMITE_DATA.whiteBookActions[areaKey]
+    : null;
+
+  if (areaKey && specificActions && specificActions.length > 0 && areaKey !== 'generalis') {
+    const targetJenjang = pkLevel || 'PK III';
+    specificActions.forEach(act => {
+      if (!result.some(r => r.id === act.id)) {
+        result.push({
+          ...act,
+          no: currentNo++,
+          jenjangLevel: targetJenjang,
+          isMandatory: false,
+          kategori: `B. RINCIAN KEWENANGAN KLINIS BUKU PUTIH: ${effectiveAreaName.toUpperCase()}`,
+          badgeText: `DIAJUKAN ${targetJenjang}`,
+          defaultKode: act.defaultKode || 1
+        });
+      }
+    });
+
+    // Tambahkan PK II klaster sebagai pendukung mandatory jika jenjang di atas PK II
+    if (!isPk1Target && pkLevel !== 'PK II') {
+      let pk2Key = `${cluster}_pk2`;
+      if (cluster === 'kmb') pk2Key = 'kmb_dewasa_pk2';
+      const pk2Source = window.KOMITE_DATA?.whiteBookActions?.[pk2Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_dewasa_pk2'] || [];
+      pk2Source.forEach(act => {
+        if (!result.some(r => r.id === act.id)) {
+          result.push({
+            ...act,
+            no: currentNo++,
+            jenjangLevel: 'PK II',
+            isMandatory: true,
+            kategori: `C. KEWENANGAN KLINIS MANDATORY PK II (${clusterName.toUpperCase()})`,
+            badgeText: 'MANDATORY PK II',
+            defaultKode: act.defaultKode || 1
+          });
+        }
+      });
+    }
+
+    return result;
+  }
+
+  // Jika PK I murni
   if (isPk1Target) {
     return result;
   }
 
-  // =========================================================================
-  // TIER 2: PK II (MANDATORY jika mengajukan PK III / IV / V, atau DIAJUKAN jika PK II)
-  // =========================================================================
+  // TIER 2: PK II
   const isPk2Target = (pkLevel === 'PK II');
   let pk2Key = `${cluster}_pk2`;
   if (cluster === 'kmb') pk2Key = 'kmb_dewasa_pk2';
@@ -1623,27 +1685,27 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     : `B. KEWENANGAN KLINIS MANDATORY PK II (${clusterName.toUpperCase()})`;
 
   pk2Source.forEach(act => {
-    result.push({
-      ...act,
-      no: currentNo++,
-      jenjangLevel: 'PK II',
-      isMandatory: !isPk2Target,
-      kategori: catTitlePk2,
-      badgeText: isPk2Target ? 'DIAJUKAN PK II' : 'MANDATORY PK II',
-      defaultKode: act.defaultKode || 1
-    });
+    if (!result.some(r => r.id === act.id)) {
+      result.push({
+        ...act,
+        no: currentNo++,
+        jenjangLevel: 'PK II',
+        isMandatory: !isPk2Target,
+        kategori: catTitlePk2,
+        badgeText: isPk2Target ? 'DIAJUKAN PK II' : 'MANDATORY PK II',
+        defaultKode: act.defaultKode || 1
+      });
+    }
   });
 
   if (isPk2Target) {
     return result;
   }
 
-  // =========================================================================
-  // TIER 3: PK III (MANDATORY jika mengajukan PK IV / V, atau DIAJUKAN jika PK III)
-  // =========================================================================
+  // TIER 3: PK III
   const isPk3Target = (pkLevel === 'PK III');
   let pk3Key = areaKey;
-  if (!isPk3Target) {
+  if (!isPk3Target || !window.KOMITE_DATA?.whiteBookActions?.[pk3Key]) {
     if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk3`]) {
       pk3Key = `${cluster}_medikal_pk3`;
     } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk3`]) {
@@ -1653,33 +1715,33 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     }
   }
   const pk3Source = window.KOMITE_DATA?.whiteBookActions?.[pk3Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk3'] || [];
-  const pk3Title = isPk3Target ? areaName : getAreaDisplayName(pk3Key, 'PK III');
+  const pk3Title = isPk3Target ? effectiveAreaName : getAreaDisplayName(pk3Key, 'PK III');
   const catTitlePk3 = isPk3Target
     ? `C. KEWENANGAN KLINIS DIAJUKAN PK III (${pk3Title.toUpperCase()})`
     : `C. KEWENANGAN KLINIS MANDATORY PK III (${pk3Title.toUpperCase()})`;
 
   pk3Source.forEach(act => {
-    result.push({
-      ...act,
-      no: currentNo++,
-      jenjangLevel: 'PK III',
-      isMandatory: !isPk3Target,
-      kategori: catTitlePk3,
-      badgeText: isPk3Target ? 'DIAJUKAN PK III' : 'MANDATORY PK III',
-      defaultKode: act.defaultKode || 1
-    });
+    if (!result.some(r => r.id === act.id)) {
+      result.push({
+        ...act,
+        no: currentNo++,
+        jenjangLevel: 'PK III',
+        isMandatory: !isPk3Target,
+        kategori: catTitlePk3,
+        badgeText: isPk3Target ? 'DIAJUKAN PK III' : 'MANDATORY PK III',
+        defaultKode: act.defaultKode || 1
+      });
+    }
   });
 
   if (isPk3Target) {
     return result;
   }
 
-  // =========================================================================
-  // TIER 4: PK IV (MANDATORY jika mengajukan PK V, atau DIAJUKAN jika PK IV)
-  // =========================================================================
+  // TIER 4: PK IV
   const isPk4Target = (pkLevel === 'PK IV');
   let pk4Key = areaKey;
-  if (!isPk4Target) {
+  if (!isPk4Target || !window.KOMITE_DATA?.whiteBookActions?.[pk4Key]) {
     if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk4`]) {
       pk4Key = `${cluster}_pk4`;
     } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk4`]) {
@@ -1689,44 +1751,46 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     }
   }
   const pk4Source = window.KOMITE_DATA?.whiteBookActions?.[pk4Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk4'] || [];
-  const pk4Title = isPk4Target ? areaName : getAreaDisplayName(pk4Key, 'PK IV');
+  const pk4Title = isPk4Target ? effectiveAreaName : getAreaDisplayName(pk4Key, 'PK IV');
   const catTitlePk4 = isPk4Target
     ? `D. KEWENANGAN KLINIS DIAJUKAN PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`
     : `D. KEWENANGAN KLINIS MANDATORY PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`;
 
   pk4Source.forEach(act => {
-    result.push({
-      ...act,
-      no: currentNo++,
-      jenjangLevel: 'PK IV',
-      isMandatory: !isPk4Target,
-      kategori: catTitlePk4,
-      badgeText: isPk4Target ? 'DIAJUKAN PK IV' : 'MANDATORY PK IV',
-      defaultKode: act.defaultKode || 1
-    });
+    if (!result.some(r => r.id === act.id)) {
+      result.push({
+        ...act,
+        no: currentNo++,
+        jenjangLevel: 'PK IV',
+        isMandatory: !isPk4Target,
+        kategori: catTitlePk4,
+        badgeText: isPk4Target ? 'DIAJUKAN PK IV' : 'MANDATORY PK IV',
+        defaultKode: act.defaultKode || 1
+      });
+    }
   });
 
   if (isPk4Target) {
     return result;
   }
 
-  // =========================================================================
-  // TIER 5: PK V (DIAJUKAN jika PK V)
-  // =========================================================================
-  const pk5Key = areaKey;
+  // TIER 5: PK V
+  const pk5Key = areaKey || 'kmb_medikal_pk5';
   const pk5Source = window.KOMITE_DATA?.whiteBookActions?.[pk5Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk5'] || [];
-  const catTitlePk5 = `E. KEWENANGAN KLINIS DIAJUKAN PK V (${areaName.toUpperCase()} - EXPERT/PAKAR)`;
+  const catTitlePk5 = `E. KEWENANGAN KLINIS DIAJUKAN PK V (${effectiveAreaName.toUpperCase()} - EXPERT/PAKAR)`;
 
   pk5Source.forEach(act => {
-    result.push({
-      ...act,
-      no: currentNo++,
-      jenjangLevel: 'PK V',
-      isMandatory: false,
-      kategori: catTitlePk5,
-      badgeText: 'DIAJUKAN PK V',
-      defaultKode: act.defaultKode || 1
-    });
+    if (!result.some(r => r.id === act.id)) {
+      result.push({
+        ...act,
+        no: currentNo++,
+        jenjangLevel: 'PK V',
+        isMandatory: false,
+        kategori: catTitlePk5,
+        badgeText: 'DIAJUKAN PK V',
+        defaultKode: act.defaultKode || 1
+      });
+    }
   });
 
   return result;
@@ -1776,6 +1840,7 @@ function getRumpunBukuPutihLabel(areaKey) {
 
 function populateAreaKlinisDropdown(pkLevel) {
   const selectArea = document.getElementById('formAreaKlinis');
+  const selectFilter = document.getElementById('formRkkAreaFilter');
   if (!selectArea) return;
 
   const prevValue = selectArea.value;
@@ -1832,6 +1897,25 @@ function populateAreaKlinisDropdown(pkLevel) {
 
   selectArea.innerHTML = html;
 
+  // Sinkronkan juga dropdown Step 3 (formRkkAreaFilter) dengan 9 Rumpun yang sama
+  if (selectFilter) {
+    const prevFilterVal = selectFilter.value;
+    let filterHtml = `<option value="">-- Tampilkan Seluruh Rincian Tindakan Klinis (Buku Putih 2026) --</option>`;
+    RUMPUN_ORDER_BUKU_PUTIH.forEach(rumpunLabel => {
+      if (groups[rumpunLabel] && groups[rumpunLabel].length > 0) {
+        filterHtml += `<optgroup label="${rumpunLabel}">`;
+        groups[rumpunLabel].forEach(area => {
+          filterHtml += `<option value="${area.key}">${area.name}</option>`;
+        });
+        filterHtml += `</optgroup>`;
+      }
+    });
+    selectFilter.innerHTML = filterHtml;
+    if (prevFilterVal && selectFilter.querySelector(`option[value="${prevFilterVal}"]`)) {
+      selectFilter.value = prevFilterVal;
+    }
+  }
+
   // Pertahankan pilihan sebelumnya jika masih ada di opsi baru
   if (prevValue && selectArea.querySelector(`option[value="${prevValue}"]`)) {
     selectArea.value = prevValue;
@@ -1842,6 +1926,10 @@ function populateAreaKlinisDropdown(pkLevel) {
     } else {
       selectArea.value = areas[0].key;
     }
+  }
+
+  if (selectFilter && selectArea.value) {
+    selectFilter.value = selectArea.value;
   }
 
   if (selectArea.value) {
