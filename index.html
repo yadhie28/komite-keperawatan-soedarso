@@ -3333,9 +3333,12 @@
 
       <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 1.25rem 1.5rem;">
         <!-- Banner Info Resmi Soedarso -->
-        <div style="background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(13, 148, 136, 0.25); border-left: 4px solid #0d9488; padding: 0.85rem 1.1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.5; color: var(--text-main);">
-          <strong>Petunjuk Verifikasi Sumber Asli (Primary Source Verification - PSV):</strong> Formulir ini digunakan oleh Subkomite Kredensial untuk melakukan penelusuran dan validasi langsung keabsahan dokumen utama pemohon (Ijazah, STR Aktif, SIPP, dan Sertifikat Pelatihan) ke institusi penerbit resmi sesuai standar akreditasi KARS &amp; PMK 49/2013.<br>
-          <span style="color: #0f766e; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Terintegrasi Otomatis:</span> Data pemohon otomatis disinkronkan dari CV &amp; Surat Permohonan yang telah Anda isi pada langkah sebelumnya.
+        <div style="background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(13, 148, 136, 0.25); border-left: 4px solid #0d9488; padding: 0.9rem 1.15rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.5; color: var(--text-main);">
+          <div style="font-weight: 800; color: #0e3860; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-shield-halved" style="color: #0d9488;"></i> Petunjuk Verifikasi Sumber Asli (Primary Source Verification - PSV) Cepat &amp; Sah
+          </div>
+          Formulir ini memfasilitasi penelusuran mandiri &amp; verifikasi langsung dokumen keabsahan klinis sesuai <strong>Standar Akreditasi KARS STARKES (Bab KPS 10 &amp; 11), UU Kesehatan No. 17/2023, dan PMK 49/2013</strong>.<br>
+          <span style="color: #0f766e; font-weight: 700;"><i class="fa-solid fa-bolt"></i> Metode Cepat &amp; Sah Rekomendasi:</span> PDDikti/SIVIL (< 2 mnt) &bull; Scan QR BSrE/SatuSehat SDMK (< 30 dtk) &bull; SiCantik Cloud DPMPTSP &bull; Barcode Plataran Sehat Kemenkes RI (< 1 mnt).
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-bottom: 1rem;">
@@ -3383,8 +3386,9 @@
 
             <!-- Item 1: Ijazah Keperawatan -->
             <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; background: #fff;">
-              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
-                1. Ijazah Keperawatan (D-III / S1 / Ners / Spesialis)
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>1. Ijazah Keperawatan (D-III / S1 / Ners / Spesialis)</span>
+                <span class="badge" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; font-size: 0.7rem; font-weight: 700;">Rekomendasi: PDDikti / SIVIL</span>
               </div>
               <div class="form-grid-2">
                 <div class="form-group">
@@ -3402,17 +3406,17 @@
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
                   <select class="form-select" id="psvIjazahMetode">
-                    <option value="online">Online / Web (Pangkalan Data PDDIKTI Kemendikbud)</option>
-                    <option value="surat">Surat Resmi Konfirmasi Perguruan Tinggi</option>
-                    <option value="kontak">Kontak Langsung ke Lembaga Penerbit</option>
+                    <option value="online">Pencarian Online PDDikti / SIVIL Kemendikbudristek (Cepat &lt; 2 Menit)</option>
+                    <option value="surat">Surel / Surat Resmi Konfirmasi Kampus (Alumni Pra-PDDikti)</option>
+                    <option value="kontak">Legalisir Cap Basah Institusi Pendidikan Penerbit</option>
                   </select>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                   <label class="form-label">Hasil Verifikasi Dokumen</label>
                   <select class="form-select" id="psvIjazahHasil">
-                    <option value="valid">Valid / Sah (Terverifikasi di Pangkalan Data Resmi)</option>
+                    <option value="valid">Valid / Sah (Terdaftar di PDDikti / SIVIL Kemendikbudristek)</option>
+                    <option value="proses">Proses Terbuka (Penelusuran Surat Kampus - Kredensial Sementara Maks. 90 Hari)</option>
                     <option value="invalid">Tidak Valid (Tidak Ditemukan / Ada Ketidaksesuaian)</option>
-                    <option value="proses">Proses Terbuka (Menunggu Jawaban Tertulis)</option>
                   </select>
                 </div>
               </div>
@@ -3420,13 +3424,14 @@
 
             <!-- Item 2: Surat Tanda Registrasi (STR) -->
             <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; background: #fff;">
-              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
-                2. Surat Tanda Registrasi (STR) Perawat Aktif
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>2. Surat Tanda Registrasi (STR) Perawat Aktif</span>
+                <span class="badge" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; font-size: 0.7rem; font-weight: 700;">Rekomendasi: Scan QR BSrE / SatuSehat</span>
               </div>
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label">Institusi Sumber Penerbit</label>
-                  <input type="text" class="form-input" id="psvStrInstitusi" value="Majelis Tenaga Kesehatan / KTKI / KKI">
+                  <input type="text" class="form-input" id="psvStrInstitusi" value="Majelis Tenaga Kesehatan / KTKI / KKI Kemenkes RI">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Nomor STR</label>
@@ -3439,17 +3444,17 @@
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
                   <select class="form-select" id="psvStrMetode">
-                    <option value="ktki_web">Aplikasi KTKI / SatuSehat SDMK Web</option>
-                    <option value="qr_scan">QR Code Scan Resmi Balai Sertifikasi</option>
-                    <option value="surat">Surat Resmi Majelis Tenaga Kesehatan</option>
+                    <option value="qr_scan">Scan QR Code Balai Sertifikasi (BSrE BSSN) e-STR (&lt; 30 Detik)</option>
+                    <option value="ktki_web">Portal SatuSehat SDMK Kemenkes (satusehat.kemkes.go.id/sdmk)</option>
+                    <option value="surat">Aplikasi Web KTKI / Majelis Tenaga Kesehatan</option>
                   </select>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                   <label class="form-label">Hasil Verifikasi Dokumen</label>
                   <select class="form-select" id="psvStrHasil">
-                    <option value="valid">Valid / Sah (STR Aktif Terdaftar di KTKI/KKI)</option>
-                    <option value="invalid">Tidak Valid</option>
+                    <option value="valid">Valid / Sah (STR Aktif Terdaftar Kemenkes / Seumur Hidup)</option>
                     <option value="kadaluarsa">Kadaluarsa (Perlu Perpanjangan STR Segera)</option>
+                    <option value="invalid">Tidak Valid</option>
                   </select>
                 </div>
               </div>
@@ -3457,8 +3462,9 @@
 
             <!-- Item 3: Surat Izin Praktik Perawat (SIPP) -->
             <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; background: #fff;">
-              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
-                3. Surat Izin Praktik Perawat (SIPP / SIPB) Lama
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>3. Surat Izin Praktik Perawat (SIPP / SIPB)</span>
+                <span class="badge" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; font-size: 0.7rem; font-weight: 700;">Rekomendasi: SiCantik Cloud DPMPTSP</span>
               </div>
               <div class="form-grid-2">
                 <div class="form-group">
@@ -3476,17 +3482,17 @@
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
                   <select class="form-select" id="psvSippMetode">
-                    <option value="sicantik">Cek Sistem SiCantik / DPMPTSP Online</option>
-                    <option value="konfirmasi_dinkes">Konfirmasi Langsung Dinas Kesehatan</option>
-                    <option value="berkas_fisik">Pemeriksaan Berkas Fisik Asli Sesuai</option>
+                    <option value="sicantik">Sistem SiCantik Cloud / Portal Perizinan DPMPTSP Online</option>
+                    <option value="konfirmasi_dinkes">Konfirmasi Langsung Dinas Kesehatan / Rekomendasi Terbit Baru</option>
+                    <option value="berkas_fisik">Pemeriksaan Berkas Fisik Asli Sesuai Database RS</option>
                   </select>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                   <label class="form-label">Hasil Verifikasi Dokumen</label>
                   <select class="form-select" id="psvSippHasil">
-                    <option value="valid">Valid / Sah</option>
+                    <option value="valid">Valid / Sah (Terverifikasi di Database Perizinan Resmi)</option>
+                    <option value="rekomendasi">Diberikan Rekomendasi Pengurusan SIPP Baru Pasca SPK</option>
                     <option value="invalid">Tidak Valid</option>
-                    <option value="rekomendasi">Diberikan Rekomendasi Pengurusan Baru</option>
                   </select>
                 </div>
               </div>
@@ -3494,8 +3500,9 @@
 
             <!-- Item 4: Sertifikat Pelatihan Kekhususan -->
             <div style="border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.9rem; background: #fff;">
-              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem;">
-                4. Sertifikat Pelatihan Kekhususan (BTCLS / KMB / ICU / Kamar Bedah / dll)
+              <div style="font-size: 0.86rem; font-weight: 800; color: #0f766e; margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>4. Sertifikat Pelatihan Kekhususan (BTCLS / KMB / ICU / Kamar Bedah / dll)</span>
+                <span class="badge" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; font-size: 0.7rem; font-weight: 700;">Rekomendasi: Plataran Sehat Kemenkes</span>
               </div>
               <div class="form-grid-2">
                 <div class="form-group">
@@ -3513,55 +3520,84 @@
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
                   <select class="form-select" id="psvPelatihanMetode">
-                    <option value="barcode">Cek Barcode / Nomor Registrasi Pusdiklat</option>
-                    <option value="provider">Konfirmasi Provider / Lembaga Penyelenggara</option>
-                    <option value="portofolio">Pemeriksaan Portofolio Buku Logbook</option>
+                    <option value="barcode">Platform Plataran Sehat Kemenkes (lms.kemkes.go.id) / Barcode Kemenkes</option>
+                    <option value="provider">Scan QR Code / Provider Terakreditasi PPNI / Kolegium</option>
+                    <option value="portofolio">Pemeriksaan Portofolio Buku Logbook &amp; Konfirmasi Lembaga</option>
                   </select>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                   <label class="form-label">Hasil Verifikasi Dokumen</label>
                   <select class="form-select" id="psvPelatihanHasil">
-                    <option value="valid">Valid / Sah (Sertifikasi Diakui &amp; Terakreditasi Kemenkes)</option>
-                    <option value="invalid">Tidak Valid</option>
+                    <option value="valid">Valid / Sah (Terakreditasi Kemenkes / PPNI)</option>
                     <option value="diakui">Sertifikasi Internal Diakui</option>
+                    <option value="invalid">Tidak Valid</option>
                   </select>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- BAGIAN III: KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL -->
+          <!-- BAGIAN III: KELENGKAPAN BUKTI DOKUMEN DIGITAL (STANDAR AKREDITASI KARS STARKES) -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">III</span>
+              KELENGKAPAN BUKTI DOKUMEN DIGITAL (KARS STARKES KPS 10-11)
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+              Centang bukti digital hasil penelusuran mandiri (Self-Assisted PSV) yang telah dilampirkan pemohon dan diverifikasi oleh Subkomite:
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.65rem; font-size: 0.84rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
+                <input type="checkbox" id="chkBuktiPddikti" checked style="accent-color: #0d9488;">
+                <span><i class="fa-solid fa-graduation-cap" style="color: #0d9488;"></i> Screenshot Status Lulusan PDDikti / SIVIL</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
+                <input type="checkbox" id="chkBuktiStr" checked style="accent-color: #0d9488;">
+                <span><i class="fa-solid fa-qrcode" style="color: #0284c7;"></i> Bukti e-STR QR BSrE / SatuSehat SDMK</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
+                <input type="checkbox" id="chkBuktiSipp" checked style="accent-color: #0d9488;">
+                <span><i class="fa-solid fa-id-badge" style="color: #d97706;"></i> Tangkapan Layar Izin Praktik SiCantik DPMPTSP</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
+                <input type="checkbox" id="chkBuktiPelatihan" checked style="accent-color: #0d9488;">
+                <span><i class="fa-solid fa-certificate" style="color: #7e22ce;"></i> Bukti Barcode Sertifikat Plataran Sehat</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- BAGIAN IV: KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL -->
           <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
             <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
-              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">III</span>
-              KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">IV</span>
+              KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.85rem;">
-              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;">
-                <input type="radio" name="psvKesimpulan" value="disetujui_penuh" checked style="margin-top: 3px;">
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; background: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <input type="radio" name="psvKesimpulan" value="disetujui_penuh" checked style="margin-top: 3px; accent-color: #0d9488;">
                 <div>
-                  <strong>DISETUJUI PENUH:</strong> Seluruh dokumen absah, valid, dan legal sesuai aturan perundangan.
+                  <strong style="color: #0f766e;">DISETUJUI PENUH (FULL PRIVILEGES):</strong> Seluruh dokumen administrasi dan kompetensi klinis telah terverifikasi sah melalui sumber asli (Primary Source) dan memenuhi standar PMK 49/2013 serta KARS STARKES.
                 </div>
               </label>
-              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;">
-                <input type="radio" name="psvKesimpulan" value="disetujui_syarat" style="margin-top: 3px;">
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; background: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <input type="radio" name="psvKesimpulan" value="disetujui_syarat" style="margin-top: 3px; accent-color: #0d9488;">
                 <div>
-                  <strong>DISETUJUI DENGAN SYARAT:</strong> Terdapat dokumen yang memerlukan pembaruan susulan (Keterangan tertulis terlampir).
+                  <strong style="color: #b45309;">DISETUJUI SEMENTARA / BERSYARAT (PROVISIONAL PRIVILEGES - MAKS. 90 HARI):</strong> STR aktif dan sertifikat kompetensi telah terbukti sah. Dokumen ijazah/SIPP dalam proses penelusuran resmi pihak ketiga tanpa mengurangi aspek keselamatan pasien.
                 </div>
               </label>
-              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer;">
-                <input type="radio" name="psvKesimpulan" value="ditolak" style="margin-top: 3px;">
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; background: #fff; padding: 0.7rem 0.9rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                <input type="radio" name="psvKesimpulan" value="ditolak" style="margin-top: 3px; accent-color: #0d9488;">
                 <div>
-                  <strong>DITOLAK:</strong> Ditemukan ketidaksesuaian kritis pada validitas dokumen utama staf keperawatan.
+                  <strong style="color: #b91c1c;">DITOLAK (REJECTED):</strong> Ditemukan ketidaksesuaian kritis pada validitas dokumen utama staf keperawatan.
                 </div>
               </label>
             </div>
           </div>
 
-          <!-- BAGIAN IV: OTENTIKASI DAN VALIDASI TIM KREDENSIAL -->
+          <!-- BAGIAN V: OTENTIKASI DAN VALIDASI TIM KREDENSIAL -->
           <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1rem;">
             <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
-              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">IV</span>
+              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">V</span>
               OTENTIKASI DAN VALIDASI TIM KREDENSIAL
             </div>
             <div class="form-grid-2">
