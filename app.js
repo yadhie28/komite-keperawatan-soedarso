@@ -1525,16 +1525,17 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
   const clusterName = getClusterDisplayName(cluster);
   const areaName = getAreaDisplayName(areaKey, pkLevel);
 
-  // Jika Praktik Bidan Klinis (PMB)
-  if (pkLevel === 'PMB') {
+  // Jika Praktik Bidan Klinis (PMB / BK)
+  const isBidan = pkLevel === 'PMB' || String(pkLevel).toUpperCase().includes('BK') || String(pkLevel).toUpperCase().includes('BIDAN');
+  if (isBidan) {
     const pmbRaw = window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan'] || [];
     return pmbRaw.map((a, idx) => ({
       ...a,
       no: idx + 1,
       jenjangLevel: 'PMB',
       isMandatory: false,
-      kategori: 'A. PELAYANAN PRAKTIK BIDAN KLINIS (PMB I - PMB IV MATERNAL & NEONATAL)',
-      badgeText: 'DIAJUKAN PMB',
+      kategori: 'A. PELAYANAN PRAKTIK BIDAN KLINIS (BK I - BK IV / PMB MATERNAL & NEONATAL)',
+      badgeText: 'DIAJUKAN BIDAN',
       defaultKode: a.defaultKode || 1
     }));
   }
@@ -1713,14 +1714,50 @@ function populateAreaKlinisDropdown(pkLevel) {
   const selectArea = document.getElementById('formAreaKlinis');
   if (!selectArea) return;
 
-  const areas = window.KOMITE_DATA?.whiteBookAreas?.[pkLevel] || window.KOMITE_DATA?.whiteBookAreas?.['PK I'] || [];
-  let html = '';
-  areas.forEach((area, idx) => {
-    html += `<option value="${area.key}" ${idx === 0 ? 'selected' : ''}>${area.name}</option>`;
+  // Normalisasi Jenjang Sesuai White Book (Perawat PK I-V atau Bidan BK I-IV / PMB)
+  let normalizedLevel = 'PK III';
+  if (pkLevel) {
+    const s = String(pkLevel).toUpperCase();
+    if (s.includes('BK') || s.includes('BIDAN') || s.includes('PMB')) normalizedLevel = 'PMB';
+    else if (s.includes('PK V') || s.includes('PK 5')) normalizedLevel = 'PK V';
+    else if (s.includes('PK IV') || s.includes('PK 4')) normalizedLevel = 'PK IV';
+    else if (s.includes('PK III') || s.includes('PK 3')) normalizedLevel = 'PK III';
+    else if (s.includes('PK II') || s.includes('PK 2')) normalizedLevel = 'PK II';
+    else if (s.includes('PK I') || s.includes('PK 1')) normalizedLevel = 'PK I';
+  }
+
+  const areas = window.KOMITE_DATA?.whiteBookAreas?.[normalizedLevel] || window.KOMITE_DATA?.whiteBookAreas?.['PK III'] || [];
+  
+  // Kelompokkan area klinis berdasarkan Rumpun Keahlian Buku Putih 2026
+  const groups = {};
+  areas.forEach(area => {
+    const cluster = getClusterFromAreaKey(area.key);
+    const clusterName = getClusterDisplayName(cluster);
+    if (!groups[clusterName]) groups[clusterName] = [];
+    groups[clusterName].push(area);
   });
+
+  const groupKeys = Object.keys(groups);
+  let html = `<option value="">-- Pilih Area Kekhususan Klinis (${normalizedLevel} White Book) --</option>`;
+
+  if (groupKeys.length > 1) {
+    groupKeys.forEach(grp => {
+      html += `<optgroup label="Rumpun: ${grp}">`;
+      groups[grp].forEach(area => {
+        html += `<option value="${area.key}">${area.name}</option>`;
+      });
+      html += `</optgroup>`;
+    });
+  } else {
+    areas.forEach(area => {
+      html += `<option value="${area.key}">${area.name}</option>`;
+    });
+  }
+
   selectArea.innerHTML = html;
 
   if (areas.length > 0) {
+    selectArea.value = areas[0].key;
     onAreaKlinisChange(areas[0].key);
   }
 }
