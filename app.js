@@ -1369,7 +1369,13 @@ function openNewKredensialModal() {
   if (jenjangVal) {
     setVal('formJenjang', jenjangVal);
     onJenjangChange(jenjangVal);
+  } else {
+    onJenjangChange('PK III');
   }
+
+  // Pre-render Step 3 Checklist RKK agar langsung siap dengan seluruh opsi White Book
+  const initialArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value || 'kmb_medikal_pk3';
+  onAreaKlinisChange(initialArea);
 
   const checkIntegritas = document.getElementById('checkPernyataanIntegritas');
   if (checkIntegritas) checkIntegritas.checked = false;
@@ -1403,7 +1409,13 @@ function updateWizardUI() {
   if (btnNext) btnNext.style.display = state.wizardStep < 4 ? 'inline-flex' : 'none';
   if (btnSubmit) btnSubmit.style.display = state.wizardStep === 4 ? 'inline-flex' : 'none';
 
-  if (state.wizardStep === 4) {
+  if (state.wizardStep === 3) {
+    const container = document.getElementById('rkkChecklistContainer');
+    if (!container || !container.querySelector('table')) {
+      const curArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value || 'kmb_medikal_pk3';
+      onAreaKlinisChange(curArea);
+    }
+  } else if (state.wizardStep === 4) {
     generateWizardSummary();
   }
 }
@@ -1436,6 +1448,10 @@ function wizardNextStep() {
   if (state.wizardStep < 4) {
     state.wizardStep++;
     updateWizardUI();
+    if (state.wizardStep === 3) {
+      const curArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value || 'kmb_medikal_pk3';
+      onAreaKlinisChange(curArea);
+    }
   }
 }
 
@@ -1447,9 +1463,11 @@ function wizardPrevStep() {
 }
 
 function goToWizardStep(step, force = false) {
-  if (force || step < state.wizardStep) {
-    state.wizardStep = step;
-    updateWizardUI();
+  state.wizardStep = step;
+  updateWizardUI();
+  if (step === 3) {
+    const curArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value || 'kmb_medikal_pk3';
+    onAreaKlinisChange(curArea);
   }
 }
 
@@ -1458,6 +1476,10 @@ function onJenjangChange(pkLevel) {
   const catalog = window.KOMITE_DATA?.rkkCatalog?.[pkLevel];
   if (descEl && catalog) {
     descEl.textContent = `${catalog.title} - ${catalog.description}`;
+  }
+  const jBadge = document.getElementById('step3JenjangBadge');
+  if (jBadge) {
+    jBadge.textContent = `Jenjang: ${pkLevel || 'PK III'}`;
   }
   populateAreaKlinisDropdown(pkLevel);
 }
@@ -1765,19 +1787,59 @@ function populateAreaKlinisDropdown(pkLevel) {
 function onAreaKlinisChange(areaKey) {
   const container = document.getElementById('rkkChecklistContainer');
   const descEl = document.getElementById('areaKlinisDescText');
-  const pkLevel = document.getElementById('formJenjang')?.value || 'PK I';
+  const pkLevel = document.getElementById('formJenjang')?.value || 'PK III';
   if (!container) return;
 
-  const curAreaName = getAreaDisplayName(areaKey, pkLevel);
+  // Resolve safe effective area key
+  let effectiveAreaKey = areaKey;
+  if (!effectiveAreaKey) {
+    const isBidan = pkLevel === 'PMB' || String(pkLevel).toUpperCase().includes('BK') || String(pkLevel).toUpperCase().includes('BIDAN');
+    if (isBidan) effectiveAreaKey = 'pmb_kebidanan';
+    else if (pkLevel === 'PK I') effectiveAreaKey = 'generalis';
+    else if (pkLevel === 'PK II') effectiveAreaKey = 'kmb_dewasa_pk2';
+    else if (pkLevel === 'PK IV') effectiveAreaKey = 'kmb_medikal_pk4';
+    else if (pkLevel === 'PK V') effectiveAreaKey = 'kmb_medikal_pk5';
+    else effectiveAreaKey = 'kmb_medikal_pk3';
+  }
+
+  // Synchronize Step 2 dropdown
+  const selStep2 = document.getElementById('formAreaKlinis');
+  if (selStep2 && effectiveAreaKey && selStep2.value !== effectiveAreaKey) {
+    selStep2.value = effectiveAreaKey;
+  }
+
+  // Synchronize Step 3 dropdown
+  const selStep3 = document.getElementById('formRkkAreaFilter');
+  if (selStep3 && effectiveAreaKey && selStep3.value !== effectiveAreaKey) {
+    selStep3.value = effectiveAreaKey;
+  }
+
+  // Update badges
+  const jenjangBadge = document.getElementById('step3JenjangBadge');
+  if (jenjangBadge) {
+    jenjangBadge.textContent = `Jenjang: ${pkLevel}`;
+  }
+
+  const curAreaName = getAreaDisplayName(effectiveAreaKey, pkLevel);
+  const areaBadge = document.getElementById('step3AreaBadge');
+  if (areaBadge) {
+    areaBadge.textContent = curAreaName;
+  }
+
   if (descEl) {
     descEl.textContent = `Area Terpilih: ${curAreaName} (Buku Pedoman 2026).`;
   }
 
-  state.currentWizardRkkList = getCumulativeRkkActions(pkLevel, areaKey);
+  state.currentWizardRkkList = getCumulativeRkkActions(pkLevel, effectiveAreaKey);
 
   const totalCount = state.currentWizardRkkList.length;
   const mandatoryCount = state.currentWizardRkkList.filter(a => a.isMandatory).length;
   const targetCount = totalCount - mandatoryCount;
+
+  const countTextEl = document.getElementById('step3ActionCountText');
+  if (countTextEl) {
+    countTextEl.innerHTML = `Menampilkan <strong>${totalCount}</strong> tindakan klinis (<strong>${mandatoryCount}</strong> Mandatory + <strong>${targetCount}</strong> Diajukan ${pkLevel}) sesuai Buku Putih RSUD dr. Soedarso.`;
+  }
 
   let html = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; background: var(--bg-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
@@ -1880,6 +1942,75 @@ function onAreaKlinisChange(areaKey) {
   `;
 
   container.innerHTML = html;
+
+  // Re-apply search query if user was typing in search box
+  const searchInput = document.getElementById('rkkSearchActionInput');
+  if (searchInput && searchInput.value.trim()) {
+    onStep3SearchAction(searchInput.value.trim());
+  }
+}
+
+function onStep3AreaFilterChange(areaKey) {
+  const selectStep2 = document.getElementById('formAreaKlinis');
+  if (selectStep2 && areaKey) {
+    selectStep2.value = areaKey;
+  }
+  onAreaKlinisChange(areaKey);
+  const searchInput = document.getElementById('rkkSearchActionInput');
+  if (searchInput) searchInput.value = '';
+}
+
+function onStep3SearchAction(keyword) {
+  const query = (keyword || '').toLowerCase().trim();
+  const allRows = document.querySelectorAll('#rkkChecklistContainer table tbody tr');
+  let visibleCount = 0;
+  let totalRows = 0;
+
+  allRows.forEach(tr => {
+    const isHeader = !!tr.querySelector('td[colspan]');
+    if (!isHeader) {
+      totalRows++;
+      const text = tr.textContent.toLowerCase();
+      if (!query || text.includes(query)) {
+        tr.style.display = '';
+        visibleCount++;
+      } else {
+        tr.style.display = 'none';
+      }
+    }
+  });
+
+  let currentHeader = null;
+  let currentHeaderHasVisible = false;
+  allRows.forEach(tr => {
+    const isHeader = !!tr.querySelector('td[colspan]');
+    if (isHeader) {
+      if (currentHeader) {
+        currentHeader.style.display = (!query || currentHeaderHasVisible) ? '' : 'none';
+      }
+      currentHeader = tr;
+      currentHeaderHasVisible = false;
+    } else {
+      if (tr.style.display !== 'none') {
+        currentHeaderHasVisible = true;
+      }
+    }
+  });
+  if (currentHeader) {
+    currentHeader.style.display = (!query || currentHeaderHasVisible) ? '' : 'none';
+  }
+
+  const countEl = document.getElementById('step3ActionCountText');
+  if (countEl) {
+    if (query) {
+      countEl.innerHTML = `Ditemukan <strong>${visibleCount}</strong> dari ${totalRows} tindakan klinis untuk kata kunci "<em>${keyword}</em>".`;
+    } else {
+      const pkLevel = document.getElementById('formJenjang')?.value || 'PK III';
+      const mandatoryCount = (state.currentWizardRkkList || []).filter(a => a.isMandatory).length;
+      const targetCount = totalRows - mandatoryCount;
+      countEl.innerHTML = `Menampilkan <strong>${totalRows}</strong> tindakan klinis (<strong>${mandatoryCount}</strong> Mandatory + <strong>${targetCount}</strong> Diajukan ${pkLevel}) sesuai Buku Putih RSUD dr. Soedarso.`;
+    }
+  }
 }
 
 function setAllRkkKode(val) {
@@ -1889,13 +2020,15 @@ function setAllRkkKode(val) {
 }
 
 function resetAllRkkKode() {
-  const currentArea = document.getElementById('formAreaKlinis')?.value;
+  const currentArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value;
   if (currentArea) {
     onAreaKlinisChange(currentArea);
   } else {
-    const currentPk = document.getElementById('formJenjang')?.value || 'PK I';
+    const currentPk = document.getElementById('formJenjang')?.value || 'PK III';
     onJenjangChange(currentPk);
   }
+  const searchInput = document.getElementById('rkkSearchActionInput');
+  if (searchInput) searchInput.value = '';
 }
 
 function setAllKewenangan(val) {
@@ -1975,7 +2108,7 @@ function handleKredensialSubmit(e) {
   const jenjang = document.getElementById('formJenjang').value;
   const unit = document.getElementById('formUnit').value;
   const totalCount = state.currentWizardRkkList.length || 10;
-  const countM = document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="M"]:checked').length;
+  const countM = document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="1"]:checked, #rkkChecklistContainer input[type="radio"][value="M"]:checked').length;
 
   const randomId = 'NURSE-' + String(state.nurses.length + 1).padStart(3, '0');
   const randomSpk = `800/${Math.floor(1000 + Math.random() * 9000)}/RSUD-DS/KOM-KEP/2026`;
@@ -6743,6 +6876,8 @@ window.wizardNextStep = wizardNextStep;
 window.wizardPrevStep = wizardPrevStep;
 window.goToWizardStep = goToWizardStep;
 window.onJenjangChange = onJenjangChange;
+window.onStep3AreaFilterChange = onStep3AreaFilterChange;
+window.onStep3SearchAction = onStep3SearchAction;
 window.toggleAllRkk = toggleAllRkk;
 window.handleKredensialSubmit = handleKredensialSubmit;
 window.openPrintSpkModal = openPrintSpkModal;
