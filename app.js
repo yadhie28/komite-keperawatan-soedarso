@@ -2253,27 +2253,24 @@ function updateAlurStepStatus() {
   const b6 = document.getElementById('badgeStep6Status');
 
   // Langkah 1: CV Portofolio Klinis (badgeStep1Status)
-  if (state.kredensialCvGenerated && b1) {
-    b1.style.background = '#dcfce7';
-    b1.style.color = '#15803d';
-    const cvName = state.cvData?.nama ? ` (${state.cvData.nama.split(' ')[0]})` : '';
-    b1.innerHTML = `<i class="fa-solid fa-circle-check"></i> CV Diunduh${cvName}`;
+  if (b1) {
+    b1.style.background = 'rgba(20, 148, 142, 0.15)';
+    b1.style.color = 'var(--primary-700)';
+    b1.innerHTML = '<i class="fa-solid fa-check"></i> Siap Diisi &amp; Diunduh';
   }
 
   // Langkah 2: Logbook Kinerja Klinis Harian (badgeStep2Status)
   if (state.kredensialLogbookGenerated && b2) {
     b2.style.background = '#dcfce7';
     b2.style.color = '#15803d';
-    const logName = state.logbookData?.nama ? ` (${state.logbookData.nama.split(' ')[0]})` : '';
-    b2.innerHTML = `<i class="fa-solid fa-circle-check"></i> Logbook Diunduh${logName}`;
+    b2.innerHTML = '<i class="fa-solid fa-circle-check"></i> Logbook Diunduh';
   }
 
   // Langkah 3: Surat Permohonan Kredensial (badgeStep3Status)
   if (state.kredensialSuratGenerated && b3) {
     b3.style.background = '#dcfce7';
     b3.style.color = '#15803d';
-    const appName = state.currentApplicant?.nama ? ` (${state.currentApplicant.nama.split(' ')[0]})` : '';
-    b3.innerHTML = `<i class="fa-solid fa-circle-check"></i> Surat Diunduh${appName}`;
+    b3.innerHTML = '<i class="fa-solid fa-circle-check"></i> Surat Diunduh';
   }
 
   // Langkah 4: Asesmen RKK Online (badgeStep4Status)
