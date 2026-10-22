@@ -2646,58 +2646,6 @@
       </div>
 
       <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 1.25rem 1.5rem;">
-        <!-- Google Form Integration & Quick-Fill Toolbar -->
-        <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.65rem;">
-            <div style="font-size: 0.82rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.45rem;">
-              <i class="fa-solid fa-square-poll-vertical" style="color: #4285f4;"></i>
-              Integrasi Google Form &amp; Blangko Resmi Soedarso
-            </div>
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="document.getElementById('boxGoogleFormImport').style.display = document.getElementById('boxGoogleFormImport').style.display === 'none' ? 'block' : 'none'">
-                <i class="fa-solid fa-file-import" style="color: #4285f4;"></i> Tempel Respon Google Form
-              </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="downloadGoogleAppsScriptFile()">
-                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Unduh Skrip Google Form (.js)
-              </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="resetSuratFormToBlank()">
-                <i class="fa-solid fa-eraser"></i> Bersihkan Isian
-              </button>
-            </div>
-          </div>
-
-          <!-- Presets Cepat -->
-          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.76rem; color: var(--text-muted);">
-            <span style="font-weight: 600;">Muat Contoh Respon:</span>
-            <button type="button" class="badge" style="background: rgba(20, 148, 142, 0.12); color: var(--primary-700); border: 1px solid rgba(20, 148, 142, 0.3); cursor: pointer; padding: 3px 8px;" onclick="fillGoogleFormPreset('rusmulyadi')">
-              <i class="fa-solid fa-user-check"></i> Ns. Rusmulyadi, S.Kep., MARS
-            </button>
-            <button type="button" class="badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.3); cursor: pointer; padding: 3px 8px;" onclick="fillGoogleFormPreset('hendra')">
-              <i class="fa-solid fa-user-pen"></i> Ns. Hendra Kurniawan, S.Kep
-            </button>
-            <button type="button" class="badge" style="background: rgba(217, 119, 6, 0.12); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.3); cursor: pointer; padding: 3px 8px;" onclick="fillGoogleFormPreset('siti')">
-              <i class="fa-solid fa-user-nurse"></i> Bd. Siti Aminah, S.Tr.Keb
-            </button>
-          </div>
-
-          <!-- Expandable Box: Tempel Hasil Google Form / Spreadsheet -->
-          <div id="boxGoogleFormImport" style="display: none; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed var(--border-subtle);">
-            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px;">
-              Tempel Salinan Baris dari Google Form / Google Sheets (Tab / Koma / Baris Terpisah):
-            </label>
-            <textarea id="txtGoogleFormRaw" class="form-input" style="width: 100%; height: 70px; font-size: 0.76rem; font-family: monospace; resize: vertical;" placeholder="Contoh salinan kolom: Ns. Rusmulyadi	19800815 200501 1 008	Pontianak, 15 Agustus 1980	Laki-laki	Jl. Danau Sentarum	0812-5678-0001	..."></textarea>
-            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 6px; flex-wrap: wrap;">
-              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.65rem;" onclick="document.getElementById('boxGoogleFormImport').style.display='none'">Batal</button>
-              <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.85rem;" onclick="importGoogleFormResponse(false)">
-                <i class="fa-solid fa-check"></i> Terapkan ke Formulir
-              </button>
-              <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.85rem;" onclick="importGoogleFormResponse(true)">
-                <i class="fa-solid fa-paper-plane"></i> Terapkan &amp; Langsung Terbitkan Surat
-              </button>
-            </div>
-          </div>
-        </div>
-
         <form id="formSuratPermohonan" onsubmit="handleSuratPermohonanSubmit(event)">
           <!-- BOX PILIHAN: JENIS PERMOHONAN -->
           <div style="background: var(--bg-card); border: 2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
@@ -3045,9 +2993,14 @@
       </div>
 
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-        <button type="button" class="btn-secondary" onclick="closeModal('modalSuratPermohonan')">
-          <i class="fa-solid fa-xmark"></i> Tutup
-        </button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalSuratPermohonan')">
+            <i class="fa-solid fa-xmark"></i> Tutup
+          </button>
+          <button type="button" class="btn-secondary" onclick="resetSuratFormToBlank()" style="color: var(--text-muted);">
+            <i class="fa-solid fa-eraser"></i> Bersihkan Isian
+          </button>
+        </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
           <button type="button" class="btn-secondary" onclick="previewSuratKredensialHVS('filled')" style="background: rgba(20, 148, 142, 0.1); border-color: var(--primary-600); color: var(--primary-700); font-weight: 700;">
             <i class="fa-solid fa-eye"></i> Pratinjau Surat Hasil Isian
