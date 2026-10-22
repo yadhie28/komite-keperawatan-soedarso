@@ -93,6 +93,38 @@
       </div>
     </div>
 
+    <!-- 5S JAPANESE CULTURE TOP RIBBON (SEIRI, SEITON, SEISO, SEIKETSU, SHITSUKE) -->
+    <div class="ribbon-5s">
+      <div class="ribbon-5s-left">
+        <span class="ribbon-5s-flag"><i class="fa-solid fa-shapes" style="color: #2dd4bf;"></i> BUDAYA KERJA 5S JEPANG</span>
+        <span style="opacity: 0.85;">Tata Kelola Mutu &amp; Kredensial:</span>
+      </div>
+      <div class="ribbon-5s-items">
+        <span class="ribbon-5s-item" onclick="show5SInfo('seiri')" title="Seiri (Ringkas): Pemilahan data & formulir esensial tanpa kertas fisik ganda">
+          <span class="kanji">整理</span> <span class="romaji">Seiri</span> <span class="indo">(Ringkas)</span>
+        </span>
+        <span style="opacity: 0.4;">&bull;</span>
+        <span class="ribbon-5s-item" onclick="show5SInfo('seiton')" title="Seiton (Rapi): Penataan teratur 5 jenjang karir PK I-V & alur 6 tahap">
+          <span class="kanji">整頓</span> <span class="romaji">Seiton</span> <span class="indo">(Rapi)</span>
+        </span>
+        <span style="opacity: 0.4;">&bull;</span>
+        <span class="ribbon-5s-item" onclick="show5SInfo('seiso')" title="Seiso (Resik): Verifikasi bebas cacat PSV 100% & cetak dokumen bersih">
+          <span class="kanji">清掃</span> <span class="romaji">Seiso</span> <span class="indo">(Resik)</span>
+        </span>
+        <span style="opacity: 0.4;">&bull;</span>
+        <span class="ribbon-5s-item" onclick="show5SInfo('seiketsu')" title="Seiketsu (Rawat): Standarisasi akreditasi KARS Paripurna & White Book">
+          <span class="kanji">清潔</span> <span class="romaji">Seiketsu</span> <span class="indo">(Rawat)</span>
+        </span>
+        <span style="opacity: 0.4;">&bull;</span>
+        <span class="ribbon-5s-item" onclick="show5SInfo('shitsuke')" title="Shitsuke (Rajin): Disiplin etika profesi & auto-save draft formulir">
+          <span class="kanji">躾</span> <span class="romaji">Shitsuke</span> <span class="indo">(Rajin)</span>
+        </span>
+      </div>
+      <button class="ribbon-5s-btn" onclick="openModal('modalFilosofi5S')" title="Buka panduan lengkap implementasi 5S di RSUD dr. Soedarso">
+        <i class="fa-solid fa-circle-info"></i> Panduan 5S Rumah Sakit
+      </button>
+    </div>
+
     <!-- Main Navigation Bar -->
     <nav class="nav-container">
       <a href="#beranda" class="brand-wrapper" id="brandLogoLink">
@@ -190,6 +222,21 @@
        ======================================================================== -->
   <main class="main-wrapper">
 
+    <!-- Seiri Focus Mode Top Indicator (Hidden by default) -->
+    <div class="focus-mode-banner" id="focusModeBanner">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="badge-5s-mini badge-5s-seiri" style="font-size: 0.8rem; background: #0d9488; color: #ffffff;">
+          <i class="fa-solid fa-filter"></i> 整理 SEIRI FOCUS MODE AKTIF
+        </span>
+        <span style="font-size: 0.85rem; font-weight: 600;">
+          Tampilan disederhanakan: Elemen sekunder disembunyikan untuk fokus optimal pada tugas kredensialing Anda.
+        </span>
+      </div>
+      <button class="btn-secondary" onclick="toggleSeiriFocusMode(false)" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3);">
+        <i class="fa-solid fa-eye"></i> Tampilkan Mode Lengkap
+      </button>
+    </div>
+
     <!-- ----------------------------------------------------------------------
          TAB 1: BERANDA & PROFIL
          ---------------------------------------------------------------------- -->
@@ -239,6 +286,275 @@
               <div class="stat-num">100%</div>
               <div class="stat-label">Kepatuhan Rekomendasi Direktur</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           5S LIVE SCORE DASHBOARD — REAL-TIME KEPATUHAN BUDAYA KERJA 5S
+           ====================================================================== -->
+      <div class="score-5s-dashboard" id="score5sDashboard">
+        <div class="score-5s-header">
+          <div class="score-5s-title-group">
+            <div class="score-5s-tag">
+              <i class="fa-solid fa-gauge-high"></i> DASHBOARD SKOR 5S REAL-TIME
+            </div>
+            <h2 class="score-5s-main-title">Indeks Kepatuhan Budaya Kerja 5S Jepang</h2>
+            <p class="score-5s-subtitle">
+              Skor kepatuhan portal terhadap prinsip 5S (Seiri, Seiton, Seiso, Seiketsu, Shitsuke) dihitung secara real-time berdasarkan kelengkapan data dan kinerja sistem.
+            </p>
+          </div>
+          <div class="score-5s-aggregate" id="score5sAggregate">
+            <div class="score-5s-ring-wrap">
+              <svg viewBox="0 0 42 42">
+                <circle class="ring-bg" cx="21" cy="21" r="16"></circle>
+                <circle class="ring-fill" id="ringAggregate" cx="21" cy="21" r="16" stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              </svg>
+              <span class="score-5s-ring-val" id="score5sAggregateVal">0%</span>
+            </div>
+            <div class="score-5s-ring-label">
+              <span class="score-5s-ring-label-title">Skor Gabungan 5S</span>
+              <span class="score-5s-ring-label-sub">Kepatuhan Tata Kelola Klinis</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-5s-grid" id="score5sGrid">
+          <!-- Pilar 1: Seiri -->
+          <div class="score-5s-pilar pilar-seiri">
+            <span class="kanji-bg">整理</span>
+            <div class="pilar-ring-wrap">
+              <svg viewBox="0 0 42 42">
+                <circle class="pilar-ring-bg" cx="21" cy="21" r="16"></circle>
+                <circle class="pilar-ring-fill" id="ringSeiri" cx="21" cy="21" r="16" stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              </svg>
+              <span class="pilar-ring-val" id="valSeiri">0%</span>
+            </div>
+            <div class="pilar-kanji-label"><span class="kanji-char">整理</span> SEIRI</div>
+            <div class="pilar-name">Ringkas</div>
+            <div class="pilar-desc">Digitalisasi paperless &amp; penghapusan redundansi berkas</div>
+            <span class="pilar-metric-mini" id="metricSeiri">100% Digital</span>
+          </div>
+
+          <!-- Pilar 2: Seiton -->
+          <div class="score-5s-pilar pilar-seiton">
+            <span class="kanji-bg">整頓</span>
+            <div class="pilar-ring-wrap">
+              <svg viewBox="0 0 42 42">
+                <circle class="pilar-ring-bg" cx="21" cy="21" r="16"></circle>
+                <circle class="pilar-ring-fill" id="ringSeiton" cx="21" cy="21" r="16" stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              </svg>
+              <span class="pilar-ring-val" id="valSeiton">0%</span>
+            </div>
+            <div class="pilar-kanji-label"><span class="kanji-char">整頓</span> SEITON</div>
+            <div class="pilar-name">Rapi</div>
+            <div class="pilar-desc">Penataan 5 jenjang PK &amp; alur 6 tahap terstruktur</div>
+            <span class="pilar-metric-mini" id="metricSeiton">5 Jenjang Baku</span>
+          </div>
+
+          <!-- Pilar 3: Seiso -->
+          <div class="score-5s-pilar pilar-seiso">
+            <span class="kanji-bg">清掃</span>
+            <div class="pilar-ring-wrap">
+              <svg viewBox="0 0 42 42">
+                <circle class="pilar-ring-bg" cx="21" cy="21" r="16"></circle>
+                <circle class="pilar-ring-fill" id="ringSeiso" cx="21" cy="21" r="16" stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              </svg>
+              <span class="pilar-ring-val" id="valSeiso">0%</span>
+            </div>
+            <div class="pilar-kanji-label"><span class="kanji-char">清掃</span> SEISO</div>
+            <div class="pilar-name">Resik</div>
+            <div class="pilar-desc">Validasi data PSV &amp; keabsahan dokumen 100%</div>
+            <span class="pilar-metric-mini" id="metricSeiso">PSV Verified</span>
+          </div>
+
+          <!-- Pilar 4: Seiketsu -->
+          <div class="score-5s-pilar pilar-seiketsu">
+            <span class="kanji-bg">清潔</span>
+            <div class="pilar-ring-wrap">
+              <svg viewBox="0 0 42 42">
+                <circle class="pilar-ring-bg" cx="21" cy="21" r="16"></circle>
+                <circle class="pilar-ring-fill" id="ringSeiketsu" cx="21" cy="21" r="16" stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              </svg>
+              <span class="pilar-ring-val" id="valSeiketsu">0%</span>
+            </div>
+            <div class="pilar-kanji-label"><span class="kanji-char">清潔</span> SEIKETSU</div>
+            <div class="pilar-name">Rawat</div>
+            <div class="pilar-desc">Standarisasi format KARS &amp; keseragaman dokumen</div>
+            <span class="pilar-metric-mini" id="metricSeiketsu">KARS STARKES</span>
+          </div>
+
+          <!-- Pilar 5: Shitsuke -->
+          <div class="score-5s-pilar pilar-shitsuke">
+            <span class="kanji-bg">躾</span>
+            <div class="pilar-ring-wrap">
+              <svg viewBox="0 0 42 42">
+                <circle class="pilar-ring-bg" cx="21" cy="21" r="16"></circle>
+                <circle class="pilar-ring-fill" id="ringShitsuke" cx="21" cy="21" r="16" stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              </svg>
+              <span class="pilar-ring-val" id="valShitsuke">0%</span>
+            </div>
+            <div class="pilar-kanji-label"><span class="kanji-char">躾</span> SHITSUKE</div>
+            <div class="pilar-name">Rajin</div>
+            <div class="pilar-desc">Auto-save, disiplin pengisian &amp; kepatuhan etik</div>
+            <span class="pilar-metric-mini" id="metricShitsuke">Auto-Save Aktif</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           KAIZEN 5S BUDAYA JEPANG (SEIRI, SEITON, SEISO, SEIKETSU, SHITSUKE)
+           ====================================================================== -->
+      <div class="kaizen-5s-section">
+        <div class="kaizen-5s-header">
+          <div>
+            <div class="kaizen-5s-tag">
+              <i class="fa-solid fa-shapes"></i> FILOSOFI &amp; METODOLOGI 5S KAIZEN RUMAH SAKIT
+            </div>
+            <h2 class="kaizen-5s-title">
+              Pilar Budaya Kerja 5S Komite Keperawatan RSUD dr. Soedarso
+            </h2>
+            <p class="kaizen-5s-subtitle">
+              Penerapan prinsip manajemen kualitas Jepang (Seiri, Seiton, Seiso, Seiketsu, Shitsuke) yang diintegrasikan secara fungsional dalam alur kredensialing klinis, audit mutu asuhan keperawatan, dan kedisiplinan etika profesi demi keselamatan pasien tertinggi.
+            </p>
+          </div>
+          <button class="btn-secondary" onclick="openModal('modalFilosofi5S')" style="font-size: 0.82rem; padding: 0.5rem 1rem; border-color: var(--primary-600); color: var(--primary-700);">
+            <i class="fa-solid fa-book-open"></i> Pelajari Standar 5S Lengkap
+          </button>
+        </div>
+
+        <div class="kaizen-5s-grid">
+          <!-- 1. SEIRI (整理 - RINGKAS) -->
+          <div class="kaizen-5s-card card-seiri">
+            <div class="kanji-watermark">整理</div>
+            <div class="kaizen-5s-card-top">
+              <span class="kaizen-kanji-badge">
+                <i class="fa-solid fa-filter"></i> 整理 SEIRI
+              </span>
+              <span class="kaizen-card-num">PILAR 1</span>
+            </div>
+            <div class="kaizen-card-name">Ringkas <span>(Sort / Pemilahan)</span></div>
+            <div class="kaizen-card-desc">
+              Memilah secara tegas dokumen yang diperlukan dan mengeliminasi berkas fisik berlebih. Menghapus redudansi formulir pengajuan kredensial melalui digitalisasi terpusat bebas kertas (<em>paperless</em>).
+            </div>
+            <div class="kaizen-card-metric">
+              <span class="kaizen-metric-label">Efisiensi Arsip</span>
+              <span class="kaizen-metric-val">100% Digital &amp; Ringkas</span>
+            </div>
+            <button class="kaizen-card-btn" onclick="toggleSeiriFocusMode()">
+              <i class="fa-solid fa-compress"></i> Aktifkan Mode Ringkas
+            </button>
+          </div>
+
+          <!-- 2. SEITON (整頓 - RAPI) -->
+          <div class="kaizen-5s-card card-seiton">
+            <div class="kanji-watermark">整頓</div>
+            <div class="kaizen-5s-card-top">
+              <span class="kaizen-kanji-badge">
+                <i class="fa-solid fa-layer-group"></i> 整頓 SEITON
+              </span>
+              <span class="kaizen-card-num">PILAR 2</span>
+            </div>
+            <div class="kaizen-card-name">Rapi <span>(Set in Order / Penataan)</span></div>
+            <div class="kaizen-card-desc">
+              Penataan terstruktur seluruh kewenangan klinis dalam 5 Jenjang Karir (PK I s.d PK V) dan Bidan, penomoran urut alur 6 tahap portofolio, serta akses instan ke Buku Putih (White Book) dalam 1 klik.
+            </div>
+            <div class="kaizen-card-metric">
+              <span class="kaizen-metric-label">Struktur Alur</span>
+              <span class="kaizen-metric-val">5 Jenjang &amp; 6 Tahap Baku</span>
+            </div>
+            <button class="kaizen-card-btn" onclick="switchTab('kredensial'); scrollToAlurKredensial();">
+              <i class="fa-solid fa-arrow-down-1-9"></i> Telusuri Alur Rapi
+            </button>
+          </div>
+
+          <!-- 3. SEISO (清掃 - RESIK) -->
+          <div class="kaizen-5s-card card-seiso">
+            <div class="kanji-watermark">清掃</div>
+            <div class="kaizen-5s-card-top">
+              <span class="kaizen-kanji-badge">
+                <i class="fa-solid fa-stamp"></i> 清掃 SEISO
+              </span>
+              <span class="kaizen-card-num">PILAR 3</span>
+            </div>
+            <div class="kaizen-card-name">Resik <span>(Shine / Pembersihan Cacat)</span></div>
+            <div class="kaizen-card-desc">
+              Membersihkan noda kesalahan data dan memastikan dokumen 100% bebas cacat melalui Verifikasi Sumber Asli (<em>Primary Source Verification / PSV</em>) ke Kemenkes/KTKI, serta pencetakan format baku resmi.
+            </div>
+            <div class="kaizen-card-metric">
+              <span class="kaizen-metric-label">Validasi Legalitas</span>
+              <span class="kaizen-metric-val">100% Sahih via PSV</span>
+            </div>
+            <button class="kaizen-card-btn" onclick="openPsvModal()">
+              <i class="fa-solid fa-stamp"></i> Verifikasi Bebas Cacat
+            </button>
+          </div>
+
+          <!-- 4. SEIKETSU (清潔 - RAWAT) -->
+          <div class="kaizen-5s-card card-seiketsu">
+            <div class="kanji-watermark">清潔</div>
+            <div class="kaizen-5s-card-top">
+              <span class="kaizen-kanji-badge">
+                <i class="fa-solid fa-certificate"></i> 清潔 SEIKETSU
+              </span>
+              <span class="kaizen-card-num">PILAR 4</span>
+            </div>
+            <div class="kaizen-card-name">Rawat <span>(Standardize / Standarisasi)</span></div>
+            <div class="kaizen-card-desc">
+              Memelihara konsistensi mutu dengan standarisasi format dokumen resmi KOP Pemprov Kalbar, kepatuhan Standar Akreditasi KARS Paripurna, dan regulasi Permenkes RI No. 49 Tahun 2013 secara seragam.
+            </div>
+            <div class="kaizen-card-metric">
+              <span class="kaizen-metric-label">Standar Mutu</span>
+              <span class="kaizen-metric-val">KARS Versi STARKES</span>
+            </div>
+            <button class="kaizen-card-btn" onclick="switchTab('regulasi')">
+              <i class="fa-solid fa-book-bookmark"></i> Standar Regulasi
+            </button>
+          </div>
+
+          <!-- 5. SHITSUKE (躾 - RAJIN) -->
+          <div class="kaizen-5s-card card-shitsuke">
+            <div class="kanji-watermark">躾</div>
+            <div class="kaizen-5s-card-top">
+              <span class="kaizen-kanji-badge">
+                <i class="fa-solid fa-shield-heart"></i> 躾 SHITSUKE
+              </span>
+              <span class="kaizen-card-num">PILAR 5</span>
+            </div>
+            <div class="kaizen-card-name">Rajin <span>(Sustain / Disiplin Berkelanjutan)</span></div>
+            <div class="kaizen-card-desc">
+              Membangun disiplin diri dalam pengisian logbook klinis berkala, kepatuhan kode etik PPNI/IBI, dan disiplin proteksi data mandiri dengan fitur Auto-Save real-time formulir tanpa takut kehilangan data.
+            </div>
+            <div class="kaizen-card-metric">
+              <span class="kaizen-metric-label">Disiplin Pengisian</span>
+              <span class="kaizen-metric-val">Auto-Save Real-Time</span>
+            </div>
+            <button class="kaizen-card-btn" onclick="switchTab('mutu')">
+              <i class="fa-solid fa-clipboard-check"></i> Audit Mutu &amp; Disiplin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5S COMMITMENT BANNER -->
+      <div class="commitment-5s-banner">
+        <div class="commitment-5s-icon">
+          <i class="fa-solid fa-torii-gate"></i>
+        </div>
+        <div class="commitment-5s-content">
+          <h3 class="commitment-5s-title">
+            Komitmen Budaya Kerja 5S Rumah Sakit
+            <span class="kaizen-text">改善 KAIZEN</span>
+          </h3>
+          <p class="commitment-5s-desc">
+            RSUD dr. Soedarso Pontianak berkomitmen menerapkan prinsip 5S Jepang secara menyeluruh dalam tata kelola klinis keperawatan &mdash; mulai dari digitalisasi arsip (Seiri), penataan alur kredensialing (Seiton), validasi data bebas cacat (Seiso), standarisasi format KARS (Seiketsu), hingga disiplin pengisian berkelanjutan (Shitsuke).
+          </p>
+          <div class="commitment-5s-pills">
+            <span class="commitment-5s-pill"><span class="dot" style="background: #0d9488;"></span> 整理 Seiri — Paperless</span>
+            <span class="commitment-5s-pill"><span class="dot" style="background: #0284c7;"></span> 整頓 Seiton — Terstruktur</span>
+            <span class="commitment-5s-pill"><span class="dot" style="background: #10b981;"></span> 清掃 Seiso — Bebas Cacat</span>
+            <span class="commitment-5s-pill"><span class="dot" style="background: #d97706;"></span> 清潔 Seiketsu — Standar KARS</span>
+            <span class="commitment-5s-pill"><span class="dot" style="background: #6366f1;"></span> 躾 Shitsuke — Disiplin Diri</span>
           </div>
         </div>
       </div>
@@ -433,6 +749,7 @@
     <section class="tab-pane" id="pane-kredensial">
       <div class="section-header">
         <div>
+          <span class="section-5s-label label-seiton"><i class="fa-solid fa-layer-group"></i> 整頓 Seiton — Penataan Terstruktur</span>
           <h2 class="section-title">Registry E-Kredensialing & RKK/SPK</h2>
           <p class="section-subtitle">
             Daftar tenaga keperawatan dan kebidanan RSUD dr. Soedarso Pontianak beserta status verifikasi kewenangan klinis (SPK/RKK)
@@ -784,6 +1101,7 @@
     <section class="tab-pane" id="pane-mutu">
       <div class="section-header">
         <div>
+          <span class="section-5s-label label-seiso"><i class="fa-solid fa-stamp"></i> 清掃 Seiso — Verifikasi Bebas Cacat</span>
           <h2 class="section-title">Subkomite Mutu Profesi & Audit Klinis</h2>
           <p class="section-subtitle">
             Indikator penjaminan mutu pelayanan asuhan keperawatan dan keselamatan pasien di seluruh ruang perawatan RSUD dr. Soedarso
@@ -888,6 +1206,7 @@
     <section class="tab-pane" id="pane-etik">
       <div class="section-header">
         <div>
+          <span class="section-5s-label label-shitsuke"><i class="fa-solid fa-shield-heart"></i> 躾 Shitsuke — Disiplin Berkelanjutan</span>
           <h2 class="section-title">Subkomite Etika & Disiplin Profesi</h2>
           <p class="section-subtitle">
             Penegakan Kode Etik Keperawatan & Kebidanan, Perlindungan Hak Pasien, dan Saluran Whistleblowing Aman & Rahasia
@@ -1029,6 +1348,7 @@
     <section class="tab-pane" id="pane-analitik">
       <div class="section-header">
         <div>
+          <span class="section-5s-label label-seiri"><i class="fa-solid fa-filter"></i> 整理 Seiri — Ringkas &amp; Terdigitalisasi</span>
           <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>
           <p class="section-subtitle">
             Visualisasi data jenjang karir klinis (PK I - PK V), kepatuhan kredensialing, dan profil tenaga perawat & bidan RSUD dr. Soedarso
@@ -1082,6 +1402,7 @@
     <section class="tab-pane" id="pane-regulasi">
       <div class="section-header">
         <div>
+          <span class="section-5s-label label-seiketsu"><i class="fa-solid fa-certificate"></i> 清潔 Seiketsu — Standarisasi Regulasi</span>
           <h2 class="section-title">Pusat Regulasi, Pedoman & Unduhan Resmi</h2>
           <p class="section-subtitle">
             Kumpulan dokumen regulasi nasional, SK Direktur, Buku Putih (White Paper) RKK, panduan audit klinis, dan format permohonan kredensialing

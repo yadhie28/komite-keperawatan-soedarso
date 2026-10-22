@@ -2458,3 +2458,1070 @@ body::before {
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
+/* ==========================================================================
+   5S JAPANESE CULTURE DESIGN SYSTEM (SEIRI, SEITON, SEISO, SEIKETSU, SHITSUKE)
+   Tata Kelola Klinis & Mutu Keperawatan RSUD dr. Soedarso Pontianak
+   ========================================================================== */
+
+/* 1. Top Ribbon 5S */
+.ribbon-5s {
+  background: linear-gradient(90deg, #042f2e 0%, #0d5f5b 40%, #117873 70%, #064e3b 100%);
+  color: #f0fdfa;
+  padding: 5px 1.5rem;
+  font-size: 0.75rem;
+  border-bottom: 1px solid rgba(45, 212, 191, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.ribbon-5s-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ribbon-5s-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ribbon-5s-items {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ribbon-5s-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.ribbon-5s-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.ribbon-5s-item .kanji {
+  font-weight: 900;
+  color: #2dd4bf;
+  font-size: 0.82rem;
+}
+
+.ribbon-5s-item .romaji {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ribbon-5s-item .indo {
+  color: #a7f3d0;
+  font-size: 0.7rem;
+}
+
+.ribbon-5s-btn {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fef08a;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.ribbon-5s-btn:hover {
+  background: #f59e0b;
+  color: #042f2e;
+  border-color: #f59e0b;
+}
+
+/* 2. Kaizen 5S Section on Beranda */
+.kaizen-5s-section {
+  margin: 2.5rem 0 2rem 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.kaizen-5s-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #14b8a6, #0284c7, #10b981, #d97706, #6366f1);
+}
+
+.kaizen-5s-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.kaizen-5s-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--primary-700);
+  background: rgba(20, 148, 142, 0.12);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+
+.kaizen-5s-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.kaizen-5s-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 720px;
+  margin: 0.35rem 0 0 0;
+  line-height: 1.5;
+}
+
+.kaizen-5s-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.kaizen-5s-card {
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.kaizen-5s-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--card-accent, var(--primary-500));
+}
+
+.kaizen-5s-card .kanji-watermark {
+  position: absolute;
+  right: -8px;
+  bottom: -15px;
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--card-accent, #14948e);
+  opacity: 0.08;
+  pointer-events: none;
+  line-height: 1;
+  user-select: none;
+  transition: opacity 0.3s;
+}
+
+.kaizen-5s-card:hover .kanji-watermark {
+  opacity: 0.16;
+}
+
+.kaizen-5s-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.kaizen-kanji-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--card-badge-bg, rgba(20, 148, 142, 0.12));
+  color: var(--card-accent, var(--primary-700));
+  font-weight: 800;
+  font-size: 0.8rem;
+  border: 1px solid var(--card-badge-border, rgba(20, 148, 142, 0.25));
+}
+
+.kaizen-card-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.kaizen-card-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 0.25rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.kaizen-card-name span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--card-accent, var(--primary-600));
+}
+
+.kaizen-card-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 0.9rem;
+  flex-grow: 1;
+}
+
+.kaizen-card-metric {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kaizen-metric-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.kaizen-metric-val {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--card-accent, var(--primary-700));
+}
+
+.kaizen-card-btn {
+  width: 100%;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--card-accent, var(--primary-600));
+  background: transparent;
+  color: var(--card-accent, var(--primary-700));
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.kaizen-card-btn:hover {
+  background: var(--card-accent, var(--primary-600));
+  color: #ffffff;
+}
+
+/* 5 Colors for 5S Cards */
+.card-seiri {
+  --card-accent: #0d9488;
+  --card-badge-bg: rgba(13, 148, 136, 0.12);
+  --card-badge-border: rgba(13, 148, 136, 0.25);
+}
+
+.card-seiton {
+  --card-accent: #0284c7;
+  --card-badge-bg: rgba(2, 132, 199, 0.12);
+  --card-badge-border: rgba(2, 132, 199, 0.25);
+}
+
+.card-seiso {
+  --card-accent: #10b981;
+  --card-badge-bg: rgba(16, 185, 129, 0.12);
+  --card-badge-border: rgba(16, 185, 129, 0.25);
+}
+
+.card-seiketsu {
+  --card-accent: #d97706;
+  --card-badge-bg: rgba(217, 119, 6, 0.12);
+  --card-badge-border: rgba(217, 119, 6, 0.25);
+}
+
+.card-shitsuke {
+  --card-accent: #6366f1;
+  --card-badge-bg: rgba(99, 102, 241, 0.12);
+  --card-badge-border: rgba(99, 102, 241, 0.25);
+}
+
+/* 3. Floating 5S Quick Action Dock */
+.dock-5s {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.dock-5s-panel {
+  pointer-events: auto;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  padding: 8px 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock-5s-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.dock-5s-pill:hover {
+  background: var(--primary-600);
+  color: #ffffff;
+  border-color: var(--primary-600);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.dock-5s-pill.active {
+  background: #042f2e;
+  color: #2dd4bf;
+  border-color: #2dd4bf;
+}
+
+.dock-5s-main-btn {
+  pointer-events: auto;
+  background: linear-gradient(135deg, #0d5f5b, #042f2e);
+  color: #2dd4bf;
+  border: 2px solid #2dd4bf;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(4, 47, 46, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: all 0.2s ease;
+}
+
+.dock-5s-main-btn:hover {
+  background: #117873;
+  color: #ffffff;
+  transform: scale(1.04);
+}
+
+/* 4. Form Auto-Save (Shitsuke) & Clean Reset (Seiso) Badges */
+.form-5s-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.autosave-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #047857;
+}
+
+.autosave-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.btn-seiso-reset {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s;
+}
+
+.btn-seiso-reset:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* 5. Seiri Focus Mode State */
+body.seiri-focus-mode .hero-card,
+body.seiri-focus-mode .subkomite-grid,
+body.seiri-focus-mode .card-table-wrapper {
+  display: none !important;
+}
+
+body.seiri-focus-mode .focus-mode-banner {
+  display: flex !important;
+}
+
+.focus-mode-banner {
+  display: none;
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  color: #f8fafc;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #334155;
+  box-shadow: var(--shadow-md);
+}
+
+/* 6. Mini 5S Kanji Badges */
+.badge-5s-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.badge-5s-seiri { background: rgba(13, 148, 136, 0.12); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.25); }
+.badge-5s-seiton { background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.25); }
+.badge-5s-seiso { background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
+.badge-5s-seiketsu { background: rgba(217, 119, 6, 0.12); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.25); }
+.badge-5s-shitsuke { background: rgba(99, 102, 241, 0.12); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.25); }
+
+/* Responsive adjustments for 5S ribbon and dock */
+@media (max-width: 768px) {
+  .ribbon-5s {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 6px 1rem;
+    gap: 0.4rem;
+  }
+  .dock-5s {
+    bottom: 16px;
+    right: 16px;
+  }
+  .dock-5s-panel {
+    display: none; /* toggle via main button on mobile */
+  }
+  .dock-5s.open .dock-5s-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ==========================================================================
+   5S LIVE SCORE DASHBOARD — BERANDA WIDGET
+   Animated rings + real-time scoring per pilar 5S
+   ========================================================================== */
+
+/* 5S Score Dashboard Container */
+.score-5s-dashboard {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.score-5s-dashboard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0d9488, #0284c7, #10b981, #d97706, #6366f1);
+}
+
+.score-5s-dashboard::after {
+  content: "5S";
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  font-family: var(--font-heading);
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: var(--primary-500);
+  opacity: 0.04;
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.score-5s-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.score-5s-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.score-5s-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0d9488;
+  background: rgba(13, 148, 136, 0.1);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  width: fit-content;
+  border: 1px solid rgba(13, 148, 136, 0.2);
+}
+
+.score-5s-main-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0.15rem 0 0 0;
+}
+
+.score-5s-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  max-width: 550px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Aggregate Score Ring (Central) */
+.score-5s-aggregate {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #042f2e, #0d5f5b);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.15rem;
+  color: #ffffff;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+}
+
+.score-5s-ring-wrap {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+}
+
+.score-5s-ring-wrap svg {
+  width: 58px;
+  height: 58px;
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 5;
+}
+
+.ring-fill {
+  fill: none;
+  stroke: #2dd4bf;
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ring-fill-gold {
+  stroke: #fbbf24;
+}
+
+.ring-fill-blue {
+  stroke: #38bdf8;
+}
+
+.ring-fill-green {
+  stroke: #34d399;
+}
+
+.ring-fill-amber {
+  stroke: #f59e0b;
+}
+
+.ring-fill-indigo {
+  stroke: #818cf8;
+}
+
+.score-5s-ring-val {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.score-5s-ring-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.score-5s-ring-label-title {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.score-5s-ring-label-sub {
+  font-size: 0.72rem;
+  color: #a7f3d0;
+  font-weight: 600;
+}
+
+/* 5 Pilar Score Cards Grid */
+.score-5s-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+.score-5s-pilar {
+  background: var(--bg-app);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+
+.score-5s-pilar:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--pilar-color, var(--primary-500));
+}
+
+.score-5s-pilar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--pilar-color, var(--primary-500));
+  opacity: 0.8;
+}
+
+.score-5s-pilar .kanji-bg {
+  position: absolute;
+  bottom: -8px;
+  right: -5px;
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--pilar-color, #14948e);
+  opacity: 0.06;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.score-5s-pilar:hover .kanji-bg {
+  opacity: 0.12;
+}
+
+.pilar-ring-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 0.65rem;
+}
+
+.pilar-ring-wrap svg {
+  width: 72px;
+  height: 72px;
+  transform: rotate(-90deg);
+}
+
+.pilar-ring-bg {
+  fill: none;
+  stroke: var(--border-subtle);
+  stroke-width: 5;
+}
+
+.pilar-ring-fill {
+  fill: none;
+  stroke: var(--pilar-color, #14948e);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pilar-ring-val {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--pilar-color, var(--primary-700));
+  line-height: 1;
+}
+
+.pilar-kanji-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--pilar-color, var(--primary-700));
+  margin-bottom: 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.pilar-kanji-label .kanji-char {
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.pilar-name {
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.2rem;
+}
+
+.pilar-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.pilar-metric-mini {
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--pilar-color, var(--primary-600));
+  background: var(--pilar-bg, rgba(13, 148, 136, 0.08));
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid var(--pilar-border, rgba(13, 148, 136, 0.2));
+}
+
+/* Pilar Colors */
+.pilar-seiri { --pilar-color: #0d9488; --pilar-bg: rgba(13,148,136,0.08); --pilar-border: rgba(13,148,136,0.2); }
+.pilar-seiton { --pilar-color: #0284c7; --pilar-bg: rgba(2,132,199,0.08); --pilar-border: rgba(2,132,199,0.2); }
+.pilar-seiso { --pilar-color: #10b981; --pilar-bg: rgba(16,185,129,0.08); --pilar-border: rgba(16,185,129,0.2); }
+.pilar-seiketsu { --pilar-color: #d97706; --pilar-bg: rgba(217,119,6,0.08); --pilar-border: rgba(217,119,6,0.2); }
+.pilar-shitsuke { --pilar-color: #6366f1; --pilar-bg: rgba(99,102,241,0.08); --pilar-border: rgba(99,102,241,0.2); }
+
+/* ==========================================================================
+   5S COMMITMENT BANNER
+   ========================================================================== */
+.commitment-5s-banner {
+  background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 40%, #074744 100%);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem 2rem;
+  margin-bottom: 2.5rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  box-shadow: var(--shadow-lg);
+}
+
+.commitment-5s-banner::before {
+  content: "改善";
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 6rem;
+  font-weight: 900;
+  color: rgba(45, 212, 191, 0.06);
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.commitment-5s-icon {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  background: rgba(45, 212, 191, 0.15);
+  border: 2px solid rgba(45, 212, 191, 0.35);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.65rem;
+  color: #2dd4bf;
+}
+
+.commitment-5s-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.commitment-5s-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.commitment-5s-title .kaizen-text {
+  color: #fde68a;
+  font-size: 0.82rem;
+  background: rgba(253, 230, 138, 0.15);
+  padding: 1px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(253, 230, 138, 0.3);
+}
+
+.commitment-5s-desc {
+  font-size: 0.88rem;
+  color: #a7f3d0;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 680px;
+}
+
+.commitment-5s-pills {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.commitment-5s-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s;
+}
+
+.commitment-5s-pill:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.commitment-5s-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ==========================================================================
+   5S SECTION LABELS — Tab Section Headers
+   ========================================================================== */
+.section-5s-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.section-5s-label.label-seiri {
+  background: rgba(13, 148, 136, 0.1);
+  color: #0d9488;
+  border: 1px solid rgba(13, 148, 136, 0.2);
+}
+
+.section-5s-label.label-seiton {
+  background: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.section-5s-label.label-seiso {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.section-5s-label.label-seiketsu {
+  background: rgba(217, 119, 6, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.section-5s-label.label-shitsuke {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* ==========================================================================
+   5S ANIMATED COUNTER
+   ========================================================================== */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.score-animate-in {
+  animation: countUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ringPulse {
+  0% { filter: drop-shadow(0 0 0px transparent); }
+  50% { filter: drop-shadow(0 0 8px var(--pilar-color)); }
+  100% { filter: drop-shadow(0 0 0px transparent); }
+}
+
+.pilar-ring-wrap:hover {
+  animation: ringPulse 1.2s ease infinite;
+}
+
+/* ==========================================================================
+   5S RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .score-5s-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .commitment-5s-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  .commitment-5s-pills {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .score-5s-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .score-5s-header {
+    flex-direction: column;
+  }
+  .score-5s-dashboard {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .score-5s-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
