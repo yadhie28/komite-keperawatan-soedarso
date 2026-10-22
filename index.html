@@ -10,18 +10,18 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Komite Kep Soedarso">
 
-  <!-- Open Graph & Social Sharing (Permanently Locked to regal-smakager-133704.netlify.app) -->
+  <!-- Open Graph & Social Sharing (Official GitHub Pages) -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Portal Terpadu Komite Keperawatan | RSUD dr. Soedarso Pontianak">
   <meta property="og:description" content="Pelayanan E-Kredensialing, Rincian Kewenangan Klinis (RKK), Surat Penugasan Klinis (SPK), Audit Mutu Profesi, Penegakan Etika & Disiplin.">
-  <meta property="og:image" content="https://regal-smakager-133704.netlify.app/hero_banner.jpg">
-  <meta property="og:url" content="https://regal-smakager-133704.netlify.app/">
+  <meta property="og:image" content="https://yadhie28.github.io/komite-keperawatan-soedarso/hero_banner.jpg">
+  <meta property="og:url" content="https://yadhie28.github.io/komite-keperawatan-soedarso/#kredensial">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Portal Terpadu Komite Keperawatan | RSUD dr. Soedarso Pontianak">
   <meta name="twitter:description" content="Pelayanan E-Kredensialing, Rincian Kewenangan Klinis (RKK), Surat Penugasan Klinis (SPK), Audit Mutu Profesi, Penegakan Etika & Disiplin.">
-  <meta name="twitter:image" content="https://regal-smakager-133704.netlify.app/hero_banner.jpg">
-  <meta name="twitter:url" content="https://regal-smakager-133704.netlify.app/">
-  <link rel="canonical" href="https://regal-smakager-133704.netlify.app/">
+  <meta name="twitter:image" content="https://yadhie28.github.io/komite-keperawatan-soedarso/hero_banner.jpg">
+  <meta name="twitter:url" content="https://yadhie28.github.io/komite-keperawatan-soedarso/#kredensial">
+  <link rel="canonical" href="https://yadhie28.github.io/komite-keperawatan-soedarso/#kredensial">
 
   <!-- Favicon & PWA Manifest -->
   <link rel="icon" type="image/png" href="logo_komite_256.png">
@@ -127,10 +127,10 @@
 
     <!-- Main Navigation Bar -->
     <nav class="nav-container">
-      <a href="#beranda" class="brand-wrapper" id="brandLogoLink">
+      <a href="#kredensial" class="brand-wrapper" id="brandLogoLink">
         <div class="brand-logos">
           <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" class="logo-pemprov-img" id="navLogoKalbar">
-          <img src="logo_komite.png" alt="Logo Komite Keperawatan" class="logo-komite-img" id="navLogoKomite">
+          <img src="logo_komite.png" alt="Logo RSUD dr. Soedarso Pontianak" class="logo-komite-img" id="navLogoKomite">
         </div>
         <div class="brand-details">
           <div class="brand-title">
@@ -146,12 +146,12 @@
       <!-- Navigation Tabs -->
       <ul class="nav-tabs" id="navTabs">
         <li>
-          <button class="nav-tab-btn active" data-tab="beranda">
+          <button class="nav-tab-btn" data-tab="beranda">
             <i class="fa-solid fa-house-chimney-medical"></i> Beranda
           </button>
         </li>
         <li>
-          <button class="nav-tab-btn" data-tab="kredensial">
+          <button class="nav-tab-btn active" data-tab="kredensial">
             <i class="fa-solid fa-id-card-clip"></i> E-Kredensialing & RKK
           </button>
         </li>
@@ -240,7 +240,7 @@
     <!-- ----------------------------------------------------------------------
          TAB 1: BERANDA & PROFIL
          ---------------------------------------------------------------------- -->
-    <section class="tab-pane active" id="pane-beranda">
+    <section class="tab-pane" id="pane-beranda">
       <!-- Hero Card Banner -->
       <div class="hero-card">
         <div class="hero-overlay"></div>
@@ -731,7 +731,7 @@
     <!-- ----------------------------------------------------------------------
          TAB 2: E-KREDENSIALING & RKK/SPK
          ---------------------------------------------------------------------- -->
-    <section class="tab-pane" id="pane-kredensial">
+    <section class="tab-pane active" id="pane-kredensial">
       <div class="section-header">
         <div>
           <h2 class="section-title">Registry E-Kredensialing & RKK/SPK</h2>
@@ -1497,7 +1497,7 @@
                   <option value="">-- Pilih Jenjang Karir --</option>
                   <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
                   <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
-                  <option value="PK III">Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                  <option value="PK III" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
                   <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
                   <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
                   <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
@@ -1509,6 +1509,33 @@
                 <label class="form-label">Rumpun / Area Kekhususan Klinis (Buku Putih 2026) <span class="req">*</span></label>
                 <select class="form-select" id="formAreaKlinis" onchange="onAreaKlinisChange(this.value)" required>
                   <option value="">-- Pilih Area Kekhususan Klinis --</option>
+                  <option value="kmb_medikal_pk3" selected>KMB - Medikal (Penyakit Dalam Dewasa)</option>
+                  <option value="kmb_bedah_pk3">KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
+                  <option value="perioperatif_pk3">Perioperatif (Kamar Bedah Sentral / IBS)</option>
+                  <option value="emergensi_pk3">Gawat Darurat / Emergensi (IGD &amp; Trauma)</option>
+                  <option value="intensif_pk3">Intensive Care (ICU / ICCU / HCU / Luka Bakar)</option>
+                  <option value="kardiovaskuler_rawat_pk3">Kardiovaskuler (Rawat Inap &amp; Jalan PJT)</option>
+                  <option value="kardiovaskuler_cathlab_pk3">Kardiovaskuler (Ruang Kateterisasi / Cathlab)</option>
+                  <option value="kardiovaskuler_perfusi_pk3">Kardiovaskuler (Perfusionist Mesin CPB)</option>
+                  <option value="neurosains_pk3">Neurosains (Neurologi &amp; Bedah Saraf)</option>
+                  <option value="geriatri_pk3">Keperawatan Geriatri (Lanjut Usia)</option>
+                  <option value="onkologi_pk3">Keperawatan Onkologi (Kemoterapi &amp; Radiasi)</option>
+                  <option value="anestesi_pk3">Keperawatan Anestesi</option>
+                  <option value="nefrologi_pk3">Nefrologi (Hemodialisis &amp; CAPD)</option>
+                  <option value="gastro_hepato_pk3">Gastro-Hepato (Endoskopi &amp; Hepatobilier)</option>
+                  <option value="respirologi_pk3">Respirologi (Paru &amp; Bronkoskopi)</option>
+                  <option value="mata_pk3">Keperawatan Mata (Oftalmologi)</option>
+                  <option value="radiologi_pk3">Radiologi &amp; Kedokteran Nuklir</option>
+                  <option value="anak_medikal_pk3">Rumpun Anak - Medikal Anak</option>
+                  <option value="anak_hemato_pk3">Rumpun Anak - Hemato-Onkologi Anak</option>
+                  <option value="anak_bedah_pk3">Rumpun Anak - Bedah Anak</option>
+                  <option value="anak_nefrologi_pk3">Rumpun Anak - Nefrologi Anak</option>
+                  <option value="anak_picu_pk3">Rumpun Anak - Intensive Anak (PICU)</option>
+                  <option value="anak_nicu_pk3">Rumpun Anak - Neonatologi (NICU)</option>
+                  <option value="maternitas_obgyn_pk3">Rumpun Maternitas - Obstetri &amp; Ginekologi (Obgyn)</option>
+                  <option value="maternitas_onkologi_pk3">Rumpun Maternitas - Onkologi Kebidanan</option>
+                  <option value="maternitas_fertilitas_pk3">Rumpun Maternitas - Fertilitas &amp; Bayi Tabung (IVF)</option>
+                  <option value="jiwa_pk3">Rumpun Keperawatan Jiwa</option>
                 </select>
                 <span class="form-hint" id="areaKlinisDescText">Pilih area spesialisasi sesuai Buku Pedoman (White Book).</span>
               </div>
@@ -2065,26 +2092,6 @@
           <strong>Petunjuk Pengisian &amp; Standar Portofolio:</strong> Lengkapi data Identitas Pribadi (A), Legalitas STR/SIPP/SIPB (B), Riwayat Pendidikan Formal (C), Log Pengalaman Kerja Ruangan (D), dan Pelatihan Kompetensi Mandatory White Paper (E). Formulir ini menyusun dokumen <strong>CV Resmi 3 Halaman A4 format baku RSUD dr. Soedarso</strong> yang langsung dapat dicetak/disimpan ke PDF untuk ditandatangani. Data yang Anda isi di sini juga otomatis disinkronkan ke Surat Permohonan Kredensial.
         </div>
 
-        <!-- Banner Koneksi Notifikasi Administrasi Resmi (Komite & Sekretaris) -->
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-          <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
-              <i class="fa-solid fa-envelope-circle-check"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.84rem; font-weight: 800; color: #065f46;">
-                Terkoneksi Otomatis ke Email Komite &amp; Sekretaris
-              </div>
-              <div style="font-size: 0.76rem; color: #047857;">
-                Penerbitan CV dan berkas kredensial terpantau langsung oleh: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
-              </div>
-            </div>
-          </div>
-          <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
-            <i class="fa-solid fa-link"></i> SALURAN AKTIF
-          </span>
-        </div>
-
         <!-- Quick-Fill Toolbar -->
         <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
@@ -2361,26 +2368,6 @@
           <strong>Petunjuk Pengisian Langkah 2 (Logbook Kinerja Klinis):</strong> Catat 10 rincian deskripsi tindakan asuhan keperawatan / kebidanan yang telah dilaksanakan dalam periode penugasan di ruangan beserta nomor rekam medis (RM), status kemandirian (M = Mandiri / S = Supervisi), dan catatan verifikasi ruangan. Dokumen ini dicetak dalam <strong>format resmi 2 Halaman A4 RSUD dr. Soedarso</strong> dan disahkan oleh Kepala Ruangan.
         </div>
 
-        <!-- Banner Koneksi Notifikasi Administrasi Resmi (Komite & Sekretaris) -->
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-          <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
-              <i class="fa-solid fa-envelope-circle-check"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.84rem; font-weight: 800; color: #065f46;">
-                Terkoneksi Otomatis ke Email Komite &amp; Sekretaris
-              </div>
-              <div style="font-size: 0.76rem; color: #047857;">
-                Penerbitan Logbook dan berkas kredensial terpantau langsung oleh: <strong>komitekeperawatanrsds2023@gmail.com</strong> &bull; <strong>yadhie28@gmail.com</strong>
-              </div>
-            </div>
-          </div>
-          <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
-            <i class="fa-solid fa-link"></i> SALURAN AKTIF
-          </span>
-        </div>
-
         <!-- Quick-Fill Toolbar -->
         <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
@@ -2423,8 +2410,55 @@
                 <input type="text" class="form-input" id="logbookJenjang" placeholder="Perawat Klinis III (PK III)" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Unit Kerja / Ruang Rawat <span class="req">*</span></label>
-                <input type="text" class="form-input" id="logbookUnit" placeholder="Ruang Rawat Inap / Bedah / ICU / VK" required>
+                <label class="form-label">Unit Kerja / Ruang Rawat (Sesuai SK Tempat Tidur) <span class="req">*</span></label>
+                <select class="form-select" id="logbookUnit" onchange="syncLogbookRuangan(this.value)" required>
+                  <option value="">-- Pilih Unit Kerja / Ruang Rawat (Sesuai SK Direktur 2025) --</option>
+                  
+                  <optgroup label="A. INSTALASI RAWAT INAP A">
+                    <option value="Singkut Buluh">Singkut Buluh</option>
+                    <option value="PPT">PPT</option>
+                    <option value="A (Anak)">A (Anak)</option>
+                    <option value="B (Perinatologi)">B (Perinatologi)</option>
+                    <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
+                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
+                    <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
+                    <option value="Meranti">Meranti</option>
+                    <option value="Mahoni">Mahoni</option>
+                    <option value="Ramin">Ramin</option>
+                    <option value="ICU">ICU</option>
+                    <option value="HCU Umum">HCU Umum</option>
+                    <option value="PICU">PICU</option>
+                    <option value="HCU Anak">HCU Anak</option>
+                    <option value="NICU">NICU</option>
+                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
+                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
+                    <option value="Enggang Gading 1">Enggang Gading 1</option>
+                    <option value="Enggang Gading 2">Enggang Gading 2</option>
+                  </optgroup>
+
+                  <optgroup label="B. INSTALASI JANTUNG TERPADU">
+                    <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
+                    <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
+                    <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
+                    <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
+                    <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+                  </optgroup>
+
+                  <optgroup label="C. RUANG TINDAKAN">
+                    <option value="Cendana">Cendana</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                    <option value="IGD Kebidanan">IGD Kebidanan</option>
+                    <option value="OK Sentral">OK Sentral</option>
+                    <option value="OK IGD">OK IGD</option>
+                  </optgroup>
+
+                  <optgroup label="D. RUANG RAWAT KHUSUS">
+                    <option value="Thalassemia">Thalassemia</option>
+                    <option value="HD Rawat Jalan">HD Rawat Jalan</option>
+                    <option value="HD Rawat Inap">HD Rawat Inap</option>
+                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+                  </optgroup>
+                </select>
               </div>
               <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
                 <label class="form-label">Periode Pencatatan Logbook <span class="req">*</span></label>
@@ -2493,8 +2527,55 @@
                 <input type="text" class="form-input" id="logbookKaRuNip" placeholder="19xxxxxxxxxxxxxx" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Nama Ruang Rawat / Unit Kerja <span class="req">*</span></label>
-                <input type="text" class="form-input" id="logbookKaRuRuangan" placeholder="Ruang Rawat Inap / Bedah" required>
+                <label class="form-label">Nama Ruang Rawat / Unit Kerja (Sesuai SK Tempat Tidur) <span class="req">*</span></label>
+                <select class="form-select" id="logbookKaRuRuangan" required>
+                  <option value="">-- Pilih Ruang Rawat / Unit Kerja (Sesuai SK Direktur 2025) --</option>
+                  
+                  <optgroup label="A. INSTALASI RAWAT INAP A">
+                    <option value="Singkut Buluh">Singkut Buluh</option>
+                    <option value="PPT">PPT</option>
+                    <option value="A (Anak)">A (Anak)</option>
+                    <option value="B (Perinatologi)">B (Perinatologi)</option>
+                    <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
+                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
+                    <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
+                    <option value="Meranti">Meranti</option>
+                    <option value="Mahoni">Mahoni</option>
+                    <option value="Ramin">Ramin</option>
+                    <option value="ICU">ICU</option>
+                    <option value="HCU Umum">HCU Umum</option>
+                    <option value="PICU">PICU</option>
+                    <option value="HCU Anak">HCU Anak</option>
+                    <option value="NICU">NICU</option>
+                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
+                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
+                    <option value="Enggang Gading 1">Enggang Gading 1</option>
+                    <option value="Enggang Gading 2">Enggang Gading 2</option>
+                  </optgroup>
+
+                  <optgroup label="B. INSTALASI JANTUNG TERPADU">
+                    <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
+                    <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
+                    <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
+                    <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
+                    <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+                  </optgroup>
+
+                  <optgroup label="C. RUANG TINDAKAN">
+                    <option value="Cendana">Cendana</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                    <option value="IGD Kebidanan">IGD Kebidanan</option>
+                    <option value="OK Sentral">OK Sentral</option>
+                    <option value="OK IGD">OK IGD</option>
+                  </optgroup>
+
+                  <optgroup label="D. RUANG RAWAT KHUSUS">
+                    <option value="Thalassemia">Thalassemia</option>
+                    <option value="HD Rawat Jalan">HD Rawat Jalan</option>
+                    <option value="HD Rawat Inap">HD Rawat Inap</option>
+                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+                  </optgroup>
+                </select>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Kota Tempat Pengesahan</label>
@@ -2558,26 +2639,6 @@
         <div style="background: linear-gradient(135deg, rgba(20, 148, 142, 0.08), rgba(15, 55, 95, 0.05)); border: 1px solid rgba(20, 148, 142, 0.25); border-left: 4px solid var(--primary-600); padding: 0.85rem 1.1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; line-height: 1.5; color: var(--text-main);">
           <strong>Petunjuk Pengisian &amp; Alur Permohonan:</strong> Lengkapi rincian identitas, data legalitas formal STR/SIPP/SIPB, serta checklist 8 berkas pendukung. Formulir ini otomatis menyusun lembar Surat Permohonan 3 Halaman A4 format baku RSUD dr. Soedarso. <br>
           <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-circle-info"></i> Ketentuan Alur:</span> Surat Permohonan ini <strong>TIDAK PERLU persetujuan atau tanda tangan pengurus komite keperawatan</strong> pada tahap awal. Anda cukup mengunduh surat, menandatanganinya sendiri sebagai pemohon, lalu mengunggahnya kembali pada <strong>Langkah 2</strong>.
-        </div>
-
-        <!-- Banner Koneksi Notifikasi Administrasi Resmi (Komite & Sekretaris) -->
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1.5px solid rgba(16, 185, 129, 0.35); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-          <div style="display: flex; align-items: center; gap: 0.65rem;">
-            <div style="width: 34px; height: 34px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #047857; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0;">
-              <i class="fa-solid fa-envelope-circle-check"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.84rem; font-weight: 800; color: #065f46;">
-                Terkoneksi Otomatis ke Email Komite &amp; Sekretaris
-              </div>
-              <div style="font-size: 0.76rem; color: #047857;">
-                Setiap permohonan diteruskan langsung ke: <strong>komitekeperawatanrsds2023@gmail.com</strong> dan <strong>yadhie28@gmail.com</strong>
-              </div>
-            </div>
-          </div>
-          <span class="badge" style="background: #10b981; color: #ffffff; font-weight: 800; font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
-            <i class="fa-solid fa-link"></i> SALURAN AKTIF
-          </span>
         </div>
 
         <!-- Google Form Integration & Quick-Fill Toolbar -->

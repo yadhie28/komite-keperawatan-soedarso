@@ -375,7 +375,7 @@ function setupNavigation() {
   if (hash && document.getElementById(`pane-${hash}`)) {
     switchTab(hash);
   } else {
-    switchTab('beranda');
+    switchTab('kredensial');
   }
 
   window.addEventListener('hashchange', () => {
