@@ -2106,9 +2106,6 @@
               <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="fillCvPreset('bidan')">
                 <i class="fa-solid fa-baby" style="color: #ea580c;"></i> Bdn. Siti (Bidan BK III)
               </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="previewCvHVS('blank')">
-                <i class="fa-regular fa-file"></i> Blangko Kosong Asli
-              </button>
               <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="resetCvForm()">
                 <i class="fa-solid fa-eraser"></i> Bersihkan Isian
               </button>
@@ -2326,9 +2323,6 @@
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalCvKredensial')">Batal</button>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button type="button" class="btn-secondary" onclick="previewCvHVS('blank')">
-                <i class="fa-regular fa-file"></i> Pratinjau Blangko Kosong
-              </button>
               <button type="submit" class="btn-primary" style="background: var(--primary-600); border-color: var(--primary-600);">
                 <i class="fa-solid fa-file-pdf"></i> Simpan &amp; Terbitkan CV Resmi (PDF)
               </button>
@@ -2406,8 +2400,24 @@
                 <input type="text" class="form-input" id="logbookNip" placeholder="19xxxxxxxxxxxxxx" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Jenjang Perawat Klinis (PK) / Bidan (BK) <span class="req">*</span></label>
-                <input type="text" class="form-input" id="logbookJenjang" placeholder="Perawat Klinis III (PK III)" required>
+                <label class="form-label">Jenjang Perawat Klinis (PK) / Bidan (BK) (White Book) <span class="req">*</span></label>
+                <select class="form-select" id="logbookJenjang" required>
+                  <option value="">-- Pilih Jenjang Karir Sesuai White Book --</option>
+                  <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
+                    <option value="Perawat Klinis I (PK I)">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                    <option value="Perawat Klinis II (PK II)">Perawat Klinis II (PK II - Advance Beginner / Mandiri Dasar)</option>
+                    <option value="Perawat Klinis III (PK III)" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                    <option value="Perawat Klinis IV (PK IV)">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                    <option value="Perawat Klinis V (PK V)">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                  </optgroup>
+                  <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
+                    <option value="Bidan Klinis I (BK I)">Bidan Klinis I (BK I - Novice / Fisiologis Dasar)</option>
+                    <option value="Bidan Klinis II (BK II)">Bidan Klinis II (BK II - Advance Beginner / Mandiri Fisiologis)</option>
+                    <option value="Bidan Klinis III (BK III)">Bidan Klinis III (BK III - Competent / Patologis &amp; Emergensi)</option>
+                    <option value="Bidan Klinis IV (BK IV)">Bidan Klinis IV (BK IV - Proficient / Konsultan Asuhan Kebidanan)</option>
+                  </optgroup>
+                </select>
+                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Sesuai standar Buku Putih (White Book) RSUD dr. Soedarso.</span>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Unit Kerja / Ruang Rawat (Sesuai SK Tempat Tidur) <span class="req">*</span></label>
@@ -2595,9 +2605,6 @@
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalLogbookKredensial')">Batal</button>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button type="button" class="btn-secondary" onclick="previewLogbookHVS('blank')">
-                <i class="fa-regular fa-file"></i> Pratinjau Blangko Kosong
-              </button>
               <button type="button" class="btn-secondary" onclick="previewLogbookHVS('filled')">
                 <i class="fa-solid fa-eye"></i> Pratinjau Dokumen Cetak HVS (2 Hal)
               </button>
@@ -2654,9 +2661,6 @@
               </button>
               <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="downloadGoogleAppsScriptFile()">
                 <i class="fa-brands fa-google" style="color: #ea4335;"></i> Unduh Skrip Google Form (.js)
-              </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="previewSuratKredensialHVS('blank')">
-                <i class="fa-regular fa-file"></i> Blangko Kosong Asli
               </button>
               <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="resetSuratFormToBlank()">
                 <i class="fa-solid fa-eraser"></i> Bersihkan Isian
@@ -3047,9 +3051,6 @@
           <i class="fa-solid fa-xmark"></i> Tutup
         </button>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button type="button" class="btn-secondary" onclick="previewSuratKredensialHVS('blank')">
-            <i class="fa-regular fa-file"></i> Blangko Kosong
-          </button>
           <button type="button" class="btn-secondary" onclick="previewSuratKredensialHVS('filled')" style="background: rgba(20, 148, 142, 0.1); border-color: var(--primary-600); color: var(--primary-700); font-weight: 700;">
             <i class="fa-solid fa-eye"></i> Pratinjau Surat Hasil Isian
           </button>
@@ -3119,9 +3120,6 @@
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewSuratHVS')">Tutup Pratinjau</button>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button type="button" class="btn-secondary" id="btnTogglePreviewMode" onclick="togglePreviewSuratMode()">
-            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
-          </button>
           <button type="button" class="btn-secondary" onclick="exportSuratKredensialWord()">
             <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
           </button>
@@ -3184,9 +3182,6 @@
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewCvHVS')">Tutup Pratinjau</button>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button type="button" class="btn-secondary" id="btnTogglePreviewCvMode" onclick="togglePreviewCvMode()">
-            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
-          </button>
           <button type="button" class="btn-secondary" onclick="exportCvWord()">
             <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
           </button>
@@ -3249,9 +3244,6 @@
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewLogbookHVS')">Tutup Pratinjau</button>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button type="button" class="btn-secondary" id="btnTogglePreviewLogbookMode" onclick="togglePreviewLogbookMode()">
-            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
-          </button>
           <button type="button" class="btn-secondary" onclick="exportLogbookWord()">
             <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
           </button>
@@ -3314,9 +3306,6 @@
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
         <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewRkkResmiHVS')">Tutup Pratinjau</button>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <button type="button" class="btn-secondary" id="btnTogglePreviewRkkMode" onclick="togglePreviewRkkMode()">
-            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
-          </button>
           <button type="button" class="btn-secondary" onclick="exportRkkWord()">
             <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
           </button>
@@ -3650,9 +3639,6 @@
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalPsvKredensial')">Batal</button>
             <div style="display: flex; gap: 0.5rem;">
-              <button type="button" class="btn-secondary" onclick="previewPsvHVS('blank'); openModal('modalPreviewPsvHVS');">
-                <i class="fa-regular fa-file"></i> Pratinjau Format Blangko
-              </button>
               <button type="submit" class="btn-primary" style="background: #0d9488; border-color: #0d9488;">
                 <i class="fa-solid fa-print"></i> Simpan &amp; Pratinjau Dokumen PSV (2 Halaman)
               </button>
@@ -3708,9 +3694,6 @@
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
           <button type="button" class="btn-secondary" onclick="closeModal('modalPreviewPsvHVS'); openModal('modalPsvKredensial');">
             <i class="fa-solid fa-pen-to-square"></i> Edit Data PSV
-          </button>
-          <button type="button" class="btn-secondary" id="btnTogglePreviewPsvMode" onclick="togglePreviewPsvMode()">
-            <i class="fa-regular fa-file"></i> Tampilkan Format Blangko Kosong
           </button>
           <button type="button" class="btn-secondary" onclick="exportPsvWord()">
             <i class="fa-solid fa-file-word" style="color: #2563eb;"></i> Unduh Word (.doc)
