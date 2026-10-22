@@ -4914,6 +4914,44 @@ function openModalUploadSurat() {
   openModal('modalUploadBerkasKredensial');
 }
 
+function demoSimulasiUploadBerkas() {
+  const fileConfigs = [
+    { id: 'uploadFileIjazah', name: '1_Salinan_Ijazah_Terlegalisir.pdf' },
+    { id: 'uploadFileStr', name: '2_Salinan_STR_Elektronik_Aktif.pdf' },
+    { id: 'uploadFileSipp', name: '3_Salinan_SIPP_SIPB_Aktif.pdf' },
+    { id: 'uploadFileSertifikat', name: '4_Sertifikat_Pelatihan_Khusus_ICU_Gadar.pdf' },
+    { id: 'uploadFilePddikti', name: '5_Screenshot_PDDikti_PISN_Kemdiktisaintek.png' },
+    { id: 'uploadFileKetSehat', name: '6_Surat_Ket_Sehat_Dokter_Pemerintah.pdf' },
+    { id: 'uploadFileLogbook', name: '7_Buku_Logbook_Kinerja_Klinis_Disahkan_Karu.pdf' },
+    { id: 'uploadFileCv', name: '8_Curriculum_Vitae_Portofolio_Klinis.pdf' },
+    { id: 'uploadFileSurat', name: '9_Surat_Permohonan_Kredensial_Bertandatangan.pdf' },
+    { id: 'uploadFileRkk', name: '10_Dokumen_RKK_Resmi_Bertandatangan.pdf' },
+    { id: 'uploadFilePsv', name: '11_Formulir_PSV_Verifikasi_Keabsahan.pdf' }
+  ];
+
+  let filledCount = 0;
+  fileConfigs.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (!el) return;
+    try {
+      const dt = new DataTransfer();
+      const isImg = item.name.endsWith('.png') || item.name.endsWith('.jpg');
+      const file = new File(
+        ['%PDF-1.4 simulasi berkas kredensial resmi RSUD dr. Soedarso Pontianak'],
+        item.name,
+        { type: isImg ? 'image/png' : 'application/pdf', lastModified: Date.now() }
+      );
+      dt.items.add(file);
+      el.files = dt.files;
+      filledCount++;
+    } catch (e) {
+      console.warn('DataTransfer simulation fallback:', e);
+    }
+  });
+
+  showToast(`Simulasi Demo: Seluruh ${filledCount} berkas persyaratan wajib & permohonan berhasil diisi otomatis!`, 'success');
+}
+
 function simpanUploadSurat(e) {
   if (e) e.preventDefault();
   state.kredensialBerkasUploaded = true;
@@ -4926,30 +4964,30 @@ function simpanUploadSurat(e) {
   const unit = state.currentApplicant ? state.currentApplicant.unit : 'Ruang Pelayanan';
 
   // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
-  const adminSubject = `[BERKAS LENGKAP DIUNGGAH] ${pemohon} - Berkas Kredensial Lengkap (Langkah 5 Selesai)`;
+  const adminSubject = `[BERKAS LENGKAP DIUNGGAH] ${pemohon} - 8 Berkas Persyaratan & Dokumen Kredensial (Langkah 6 Selesai)`;
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
     `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
-    `Pemberitahuan Unggah Dokumen Kredensial Lengkap (Langkah 5 - Final):\n\n` +
+    `Pemberitahuan Unggah Dokumen Kredensial Lengkap (Langkah 6 - Final):\n\n` +
     `• Nama Pemohon    : ${pemohon}\n` +
     `• Unit Kerja      : ${unit}\n` +
-    `• Tahapan         : Langkah 5 Selesai (Unggah Berkas Lengkap Bertanda Tangan)\n` +
-    `• Status Berkas   : Dokumen CV (3 Hal), Logbook Kinerja Klinis (2 Hal sah Ka.Ru), Surat Permohonan (3 Hal), RKK Resmi (3 Hal), STR Aktif, dan Ijazah telah lengkap terunggah di sistem.\n` +
+    `• Tahapan         : Langkah 6 Selesai (Unggah 8 Berkas Persyaratan Wajib & Dokumen Bertanda Tangan)\n` +
+    `• Status Berkas   : Seluruh 8 Berkas Persyaratan Wajib (Ijazah Terlegalisir, STR Aktif, SIPP/SIPB, Sertifikat Pelatihan Khusus, Bukti PDDikti, Surat Ket. Sehat Dokter Pemerintah, Buku Logbook Kinerja Ka.Ru, CV) beserta Surat Permohonan, RKK Resmi, dan PSV telah lengkap terunggah di sistem.\n` +
     `• Waktu Unggah    : ${new Date().toLocaleString('id-ID')}\n\n` +
-    `Seluruh 5 tahapan pengajuan mandiri pemohon telah lengkap dan resmi masuk ke antrean verifikasi Subkomite Kredensial & disposisi Mitra Bestari.\n\n` +
+    `Seluruh tahapan pengajuan mandiri pemohon telah lengkap dan resmi masuk ke antrean verifikasi Subkomite Kredensial & disposisi Mitra Bestari.\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Unggah Berkas Kredensial Lengkap (Langkah 5 - Final)',
+    eventType: 'Unggah Berkas Kredensial Lengkap (Langkah 6 - Final)',
     subject: adminSubject,
     applicantName: pemohon,
     unit: unit,
     bodyText: adminBody
   });
 
-  showToast(`Seluruh berkas lengkap kredensialing (Langkah 5) berhasil diunggah! Berkas masuk ke antrean verifikasi komite.`, 'success');
+  showToast(`Seluruh 8 berkas persyaratan kredensialing (Langkah 6) berhasil diunggah! Berkas masuk ke antrean verifikasi komite.`, 'success');
 
   // Buka tracker status berkas secara otomatis
   setTimeout(() => {
@@ -6923,6 +6961,7 @@ window.printSuratKredensialHVS = printSuratKredensialHVS;
 window.exportSuratKredensialWord = exportSuratKredensialWord;
 window.openModalUploadSurat = openModalUploadSurat;
 window.simpanUploadSurat = simpanUploadSurat;
+window.demoSimulasiUploadBerkas = demoSimulasiUploadBerkas;
 window.cekBukaRkkOnline = cekBukaRkkOnline;
 window.toggleTrackerKredensial = toggleTrackerKredensial;
 window.lacakStatusKredensial = lacakStatusKredensial;

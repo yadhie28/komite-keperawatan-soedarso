@@ -909,7 +909,7 @@
             </div>
             <div class="alur-card-title">6. Tanda Tangani &amp; Unggah Berkas Lengkap</div>
             <div class="alur-card-desc">
-              Scan seluruh dokumen hasil cetak yang telah Anda tanda tangani mandiri (CV, Logbook diverifikasi Kepala Ruangan, Surat Permohonan, RKK asesmen mandiri, dan Formulir PSV) diunggah bersama STR aktif, ijazah, dan sertifikat pelatihan untuk verifikasi Subkomite Kredensial.
+              Unggah 8 berkas persyaratan wajib (Ijazah Terlegalisir, STR Aktif, SIPP/SIPB, Sertifikat Pelatihan Khusus, Bukti PDDikti, Surat Ket. Sehat Dokter Pemerintah, Buku Logbook Kinerja Ka.Ru, CV) beserta Surat Permohonan, RKK, dan Formulir PSV bertanda tangan untuk verifikasi Subkomite Kredensial.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -3786,62 +3786,114 @@
       </div>
 
       <div class="modal-body">
-        <div style="background: #fef3c7; border-left: 4px solid #d97706; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: #78350f;">
-          <strong>Instruksi Langkah 6 (Tahap Akhir):</strong> Unggah scan seluruh dokumen yang telah Anda cetak dan tanda tangani mandiri: CV Portofolio Klinis (Langkah 1), Logbook Kinerja Klinis tervalidasi Kepala Ruangan (Langkah 2), Surat Permohonan (Langkah 3), Rincian Kewenangan Klinis/RKK (Langkah 4), dan Formulir PSV (Langkah 5), beserta salinan STR aktif dan ijazah.<br>
-          <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-check"></i> Tahap Pengesahan:</span> Setelah mengunggah berkas lengkap ini, pengajuan Anda resmi masuk ke antrean verifikasi Subkomite Kredensial dan disposisi Mitra Bestari.
+        <div style="background: #fef3c7; border-left: 4px solid #d97706; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: #78350f; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="flex: 1; min-width: 280px;">
+            <strong>Instruksi Langkah 6 (Tahap Akhir):</strong> Unggah scan seluruh 8 berkas persyaratan wajib kredensialing tenaga keperawatan sesuai standar akreditasi KARS STARKES dan ketentuan RSUD dr. Soedarso, beserta dokumen permohonan yang telah Anda tanda tangani mandiri.<br>
+            <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-check"></i> Tahap Pengesahan:</span> Setelah mengunggah berkas lengkap ini, pengajuan Anda resmi masuk ke antrean verifikasi Subkomite Kredensial dan disposisi Mitra Bestari.
+          </div>
+          <div>
+            <button type="button" class="btn-secondary" onclick="demoSimulasiUploadBerkas()" style="font-size: 0.78rem; padding: 0.4rem 0.8rem; border-color: #d97706; color: #92400e; background: #fff; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              <i class="fa-solid fa-wand-magic-sparkles" style="color: #d97706;"></i> Isi File Contoh (Simulasi Demo)
+            </button>
+          </div>
         </div>
 
-
         <form id="formUploadBerkas" onsubmit="simpanUploadSurat(event)">
-          <div class="form-group">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
             <label class="form-label">Nama Tenaga Keperawatan / Bidan Pemohon <span class="req">*</span></label>
             <input type="text" class="form-input" id="uploadNamaPemohon" value="Ns. Hendra Kurniawan, S.Kep" required>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">1. Unggah Scan CV Portofolio Klinis yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
-            <input type="file" class="form-input" id="uploadFileCv" accept=".pdf,.jpg,.jpeg,.png">
-            <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 1 yang telah ditandatangani pada Lembar 3 (Bagian F).</span>
+          <!-- SECTION A: 8 BERKAS PERSYARATAN WAJIB KREDENSIAL -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.15rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.88rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem; padding-bottom: 0.45rem; border-bottom: 1.5px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="background: #0d9488; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">8</span>
+                <span>8 BERKAS PERSYARATAN WAJIB KREDENSIALING</span>
+              </div>
+              <span style="font-size: 0.72rem; font-weight: 700; color: #0f766e; background: #ccfbf1; padding: 2px 8px; border-radius: 4px;">
+                Standar KARS &bull; Checklist Dokumen Permohonan
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">1. Salinan Ijazah Keperawatan/Kebidanan Terakhir Terlegalisir <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileIjazah" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Salinan ijazah dan transkrip nilai pendidikan keperawatan/kebidanan terakhir yang telah dilegalisir basah / legalisir elektronik resmi. Format PDF, JPG, PNG.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">2. Salinan Surat Tanda Registrasi (STR) yang Masih Aktif Secara Hukum <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileStr" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Salinan e-STR aktif dari KTKI / Kemenkes RI yang masih berlaku secara hukum dengan barcode QR code valid. Format PDF, JPG, PNG.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">3. Salinan SIPP / SIPB <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileSipp" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Salinan Surat Izin Praktik Perawat (SIPP) atau Surat Izin Praktik Bidan (SIPB) yang berlaku di RSUD dr. Soedarso. Format PDF, JPG, PNG.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">4. Salinan Sertifikat Pelatihan Khusus Keperawatan/Kebidanan (ICU/OK/HD/dll.) <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileSertifikat" accept=".pdf,.jpg,.jpeg,.png,.zip,.rar">
+              <span class="form-hint">Salinan sertifikat pelatihan keahlian klinis khusus (ICU/ICCU, Kamar Bedah, Hemodialisa, Kardiologi, Gawat Darurat/BTCLS, NICU, PPI, dll.). Format PDF/ZIP/RAR (Maks. 15 MB).</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">5. Tangkapan Layar Bukti Pendidikan Keperawatan/Kebidanan Terakhir dari PDDikti <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFilePddikti" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Tangkapan layar (screenshot) bukti status kelulusan pada PDDikti / Penomoran Ijazah Nasional: <a href="https://pisn.kemdiktisaintek.go.id/" target="_blank" rel="noopener noreferrer" style="color: #0d9488; font-weight: 700; text-decoration: underline;">https://pisn.kemdiktisaintek.go.id/ <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i></a></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">6. Surat Keterangan Sehat dari Dokter Pemerintah <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileKetSehat" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Surat Keterangan Sehat fisik &amp; jiwa dari Dokter Pemerintah / Fasyankes Pemerintah yang masih berlaku. Format PDF, JPG, PNG.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">7. Asli Buku Logbook Kinerja Klinis Harian (Telah Diverifikasi Kepala Ruangan) <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileLogbook" accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx">
+              <span class="form-hint">Scan logbook capaian asuhan klinis (hasil unduh Langkah 2 atau buku logbook ruangan) yang telah diverifikasi &amp; disahkan Kepala Ruangan pada Lembar 2. Format PDF, JPG, PNG, DOCX, XLSX.</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">8. Curriculum Vitae / Daftar Riwayat Hidup <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileCv" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Dokumen CV dan Portofolio Klinis tenaga keperawatan (hasil unduh Langkah 1 atau format resmi) yang telah ditandatangani pemohon pada Bagian F. Format PDF, JPG, PNG.</span>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">2. Unggah Scan Logbook Kinerja Klinis Tervalidasi Kepala Ruangan (PDF 2 Halaman) <span class="req">*</span></label>
-            <input type="file" class="form-input" id="uploadFileLogbook" accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx" required>
-            <span class="form-hint">Format PDF 2 halaman hasil unduh dari Langkah 2 yang telah diverifikasi &amp; ditandatangani Kepala Ruangan pada Lembar 2.</span>
-          </div>
+          <!-- SECTION B: DOKUMEN PENGAJUAN & ASESMEN SISTEM (BERTANDA TANGAN) -->
+          <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.15rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.88rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem; padding-bottom: 0.45rem; border-bottom: 1.5px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-file-signature" style="color: #2563eb;"></i>
+                <span>DOKUMEN ASESMEN &amp; PERMOHONAN SISTEM (BERTANDA TANGAN MANDIRI)</span>
+              </div>
+              <span style="font-size: 0.72rem; font-weight: 700; color: #1d4ed8; background: #dbeafe; padding: 2px 8px; border-radius: 4px;">
+                Hasil Cetak Langkah 3, 4 &amp; 5
+              </span>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">3. Unggah Scan Surat Permohonan yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
-            <input type="file" class="form-input" id="uploadFileSurat" accept=".pdf,.jpg,.jpeg,.png" required>
-            <span class="form-hint">Format PDF hasil unduh dari Langkah 3 bertanda tangan pemohon pada Lembar 3.</span>
-          </div>
+            <div class="form-group">
+              <label class="form-label">9. Scan Surat Permohonan Kredensial Resmi Bertanda Tangan (Langkah 3) <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileSurat" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 3 yang telah ditandatangani mandiri oleh pemohon pada Lembar 3.</span>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">4. Unggah Scan Dokumen RKK Resmi yang Telah Ditandatangani (PDF 3 Halaman) <span class="req">*</span></label>
-            <input type="file" class="form-input" id="uploadFileRkk" accept=".pdf,.jpg,.jpeg,.png">
-            <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 4 yang telah ditandatangani pemohon pada Lembar 3 (Bagian D).</span>
-          </div>
+            <div class="form-group">
+              <label class="form-label">10. Scan Dokumen RKK Resmi Asesmen Mandiri Bertanda Tangan (Langkah 4) <span class="req">*</span></label>
+              <input type="file" class="form-input" id="uploadFileRkk" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Format PDF 3 halaman hasil unduh dari Langkah 4 yang telah ditandatangani pemohon pada Lembar 3 (Bagian D).</span>
+            </div>
 
-          <div class="form-group">
-            <label class="form-label">5. Unggah Scan Formulir PSV (Verifikasi Sumber Asli) yang Telah Diverifikasi (PDF 2 Halaman)</label>
-            <input type="file" class="form-input" id="uploadFilePsv" accept=".pdf,.jpg,.jpeg,.png">
-            <span class="form-hint">Format PDF 2 halaman hasil unduh dari Langkah 5 yang memuat matriks verifikasi keabsahan dokumen klinis.</span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">6. Unggah Salinan STR Aktif <span class="req">*</span></label>
-            <input type="file" class="form-input" id="uploadFileStr" accept=".pdf,.jpg,.jpeg,.png" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">7. Unggah Ijazah &amp; Transkrip Terakhir <span class="req">*</span></label>
-            <input type="file" class="form-input" id="uploadFileIjazah" accept=".pdf,.jpg,.jpeg,.png" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">8. Unggah Gabungan Sertifikat Pelatihan CPD (Opsional)</label>
-            <input type="file" class="form-input" id="uploadFileCpd" accept=".pdf,.zip,.rar">
-            <span class="form-hint">Maksimal 15 MB format PDF atau ZIP arsip sertifikat.</span>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">11. Scan Dokumen Formulir PSV (Verifikasi Keabsahan Dokumen) (Langkah 5)</label>
+              <input type="file" class="form-input" id="uploadFilePsv" accept=".pdf,.jpg,.jpeg,.png">
+              <span class="form-hint">Format PDF 2 halaman hasil unduh dari Langkah 5 yang memuat matriks verifikasi keabsahan dokumen klinis.</span>
+            </div>
           </div>
 
           <div class="form-group">
@@ -3849,10 +3901,10 @@
             <textarea class="form-textarea" id="uploadCatatan" rows="2" placeholder="Tuliskan catatan khusus atau keterangan verifikasi bila diperlukan..."></textarea>
           </div>
 
-          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none;">
+          <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalUploadBerkasKredensial')">Batal</button>
             <button type="submit" class="btn-primary" style="background: #d97706; border-color: #d97706;">
-              <i class="fa-solid fa-check"></i> Simpan &amp; Kirim Pengajuan Berkas Lengkap
+              <i class="fa-solid fa-cloud-arrow-up"></i> Simpan &amp; Kirim Pengajuan Berkas Lengkap
             </button>
           </div>
         </form>
