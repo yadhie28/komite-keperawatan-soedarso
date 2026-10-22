@@ -5824,10 +5824,10 @@ function handlePsvSubmit(e) {
     ijazahTahun: getVal('psvIjazahTahun', '2018'),
     ijazahMetode: getVal('psvIjazahMetode', 'online'),
     ijazahHasil: getVal('psvIjazahHasil', 'valid'),
-    strInstitusi: getVal('psvStrInstitusi', 'Majelis Tenaga Kesehatan / KTKI / KKI'),
+    strInstitusi: getVal('psvStrInstitusi', 'Majelis Tenaga Kesehatan / KTKI / KKI Kemenkes RI'),
     strNomor: getVal('psvStrNomor', '140152123-2893812'),
     strBerlaku: getVal('psvStrBerlaku', '17 Agustus 2028'),
-    strMetode: getVal('psvStrMetode', 'ktki_web'),
+    strMetode: getVal('psvStrMetode', 'qr_scan'),
     strHasil: getVal('psvStrHasil', 'valid'),
     sippInstitusi: getVal('psvSippInstitusi', 'Dinas Kesehatan / DPMPTSP Asal'),
     sippNomor: getVal('psvSippNomor', '503/412/Dinkes-PP/SIPP/2023'),
@@ -5839,6 +5839,10 @@ function handlePsvSubmit(e) {
     pelatihanTanggal: getVal('psvPelatihanTanggal', '14 - 18 Mei 2024'),
     pelatihanMetode: getVal('psvPelatihanMetode', 'barcode'),
     pelatihanHasil: getVal('psvPelatihanHasil', 'valid'),
+    buktiPddikti: document.getElementById('chkBuktiPddikti')?.checked ?? true,
+    buktiStr: document.getElementById('chkBuktiStr')?.checked ?? true,
+    buktiSipp: document.getElementById('chkBuktiSipp')?.checked ?? true,
+    buktiPelatihan: document.getElementById('chkBuktiPelatihan')?.checked ?? true,
     kesimpulan: kesimpulanRadio ? kesimpulanRadio.value : 'disetujui_penuh',
     verifikatorNama: getVal('psvVerifikatorNama', 'Ns. Bambang Sugiarto, S.Kep'),
     verifikatorNip: getVal('psvVerifikatorNip', '19880315 201402 1 002'),
@@ -5908,7 +5912,7 @@ function generatePsvHVS(mode) {
   const ijazahNo = isBlank ? '____________' : (d.ijazahNomor || document.getElementById('psvIjazahNomor')?.value.trim() || '1401/UNTAN/NERS/2018');
   const ijazahThn = isBlank ? '____' : (d.ijazahTahun || document.getElementById('psvIjazahTahun')?.value.trim() || '2018');
 
-  const strInst = isBlank ? 'Majelis Tenaga Kesehatan / KTKI / KKI' : (d.strInstitusi || document.getElementById('psvStrInstitusi')?.value.trim() || 'Majelis Tenaga Kesehatan / KTKI / KKI');
+  const strInst = isBlank ? 'Majelis Tenaga Kesehatan / KTKI / KKI Kemenkes RI' : (d.strInstitusi || document.getElementById('psvStrInstitusi')?.value.trim() || 'Majelis Tenaga Kesehatan / KTKI / KKI Kemenkes RI');
   const strNo = isBlank ? '____________' : (d.strNomor || document.getElementById('psvStrNomor')?.value.trim() || '140152123-2893812');
   const strExp = isBlank ? '____' : (d.strBerlaku || document.getElementById('psvStrBerlaku')?.value.trim() || '17 Agustus 2028');
 
@@ -5922,35 +5926,42 @@ function generatePsvHVS(mode) {
 
   const getBox = (checked) => (!isBlank && checked) ? '[ &#10003; ]' : '[ &nbsp; ]';
 
-  // Checkboxes
+  // Checkboxes Metode & Hasil
   const chkIjazahOnline = getBox(d.ijazahMetode === 'online' || !d.ijazahMetode);
   const chkIjazahSurat = getBox(d.ijazahMetode === 'surat');
   const chkIjazahKontak = getBox(d.ijazahMetode === 'kontak');
   const chkIjazahValid = getBox(d.ijazahHasil === 'valid' || !d.ijazahHasil);
-  const chkIjazahInvalid = getBox(d.ijazahHasil === 'invalid');
   const chkIjazahProses = getBox(d.ijazahHasil === 'proses');
+  const chkIjazahInvalid = getBox(d.ijazahHasil === 'invalid');
 
-  const chkStrKtki = getBox(d.strMetode === 'ktki_web' || !d.strMetode);
-  const chkStrQr = getBox(d.strMetode === 'qr_scan');
+  const chkStrQr = getBox(d.strMetode === 'qr_scan' || !d.strMetode);
+  const chkStrKtki = getBox(d.strMetode === 'ktki_web');
   const chkStrSurat = getBox(d.strMetode === 'surat');
   const chkStrValid = getBox(d.strHasil === 'valid' || !d.strHasil);
-  const chkStrInvalid = getBox(d.strHasil === 'invalid');
   const chkStrExpired = getBox(d.strHasil === 'kadaluarsa');
+  const chkStrInvalid = getBox(d.strHasil === 'invalid');
 
   const chkSippSicantik = getBox(d.sippMetode === 'sicantik' || !d.sippMetode);
   const chkSippDinkes = getBox(d.sippMetode === 'konfirmasi_dinkes');
   const chkSippFisik = getBox(d.sippMetode === 'berkas_fisik');
   const chkSippValid = getBox(d.sippHasil === 'valid' || !d.sippHasil);
-  const chkSippInvalid = getBox(d.sippHasil === 'invalid');
   const chkSippRekom = getBox(d.sippHasil === 'rekomendasi');
+  const chkSippInvalid = getBox(d.sippHasil === 'invalid');
 
   const chkTrainBarcode = getBox(d.pelatihanMetode === 'barcode' || !d.pelatihanMetode);
   const chkTrainProvider = getBox(d.pelatihanMetode === 'provider');
   const chkTrainBuku = getBox(d.pelatihanMetode === 'portofolio');
   const chkTrainValid = getBox(d.pelatihanHasil === 'valid' || !d.pelatihanHasil);
-  const chkTrainInvalid = getBox(d.pelatihanHasil === 'invalid');
   const chkTrainDiakui = getBox(d.pelatihanHasil === 'diakui');
+  const chkTrainInvalid = getBox(d.pelatihanHasil === 'invalid');
 
+  // Digital Evidence Checkboxes
+  const chkBuktiPddikti = getBox(!isBlank && (d.buktiPddikti !== false));
+  const chkBuktiStr = getBox(!isBlank && (d.buktiStr !== false));
+  const chkBuktiSipp = getBox(!isBlank && (d.buktiSipp !== false));
+  const chkBuktiPelatihan = getBox(!isBlank && (d.buktiPelatihan !== false));
+
+  // Conclusion Checkboxes
   const chkSetujuPenuh = getBox(d.kesimpulan === 'disetujui_penuh' || !d.kesimpulan);
   const chkSetujuSyarat = getBox(d.kesimpulan === 'disetujui_syarat');
   const chkDitolak = getBox(d.kesimpulan === 'ditolak');
@@ -5981,226 +5992,287 @@ function generatePsvHVS(mode) {
         </td>
       </tr>
     </table>
-    <div style="border-top: 2.5px solid #000000; border-bottom: 0.8px solid #000000; height: 2px; margin-top: 6px; margin-bottom: 14px;"></div>
+    <div style="border-top: 2.5px solid #000000; border-bottom: 0.8px solid #000000; height: 2px; margin-top: 6px; margin-bottom: 12px;"></div>
   `;
 
   return `
     <!-- ==========================================
-         HALAMAN 1: KOP, IDENTITAS & MATRIKS 1 S.D 3
+         HALAMAN 1: KOP, IDENTITAS & MATRIKS VERIFIKASI SUMBER ASLI (1 S.D 4)
          ========================================== -->
-    <div class="soedarso-page page-1" style="page-break-after: always; break-after: page; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 12mm 15mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 8.5pt; line-height: 1.35;">
+    <div class="soedarso-page page-1" style="page-break-after: always; break-after: page; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 10mm 14mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 8pt; line-height: 1.3;">
       ${kopSoedarso}
 
       <!-- JUDUL RESMI -->
-      <div style="text-align: center; font-weight: bold; font-size: 11pt; line-height: 1.3; margin-bottom: 16px; text-transform: uppercase; color: #000;">
+      <div style="text-align: center; font-weight: bold; font-size: 10.5pt; line-height: 1.25; margin-bottom: 2px; text-transform: uppercase; color: #000;">
         FORMULIR VERIFIKASI SUMBER ASLI / UTAMA<br>
         (PRIMARY SOURCE VERIFICATION - PSV) DOKUMEN KLINIS
       </div>
+      <div style="text-align: center; font-size: 7.5pt; font-style: italic; color: #444; margin-bottom: 12px;">
+        Standar Kualifikasi dan Pendidikan Staf (KPS 10 &amp; 11) KARS STARKES &bull; Permenkes RI No. 49 Tahun 2013 &bull; UU Kesehatan No. 17 Tahun 2023
+      </div>
 
       <!-- I. IDENTITAS TENAGA KEPERAWATAN -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8.5pt; border: 1.5px solid #000;">
-        <tr style="background: #fff; color: #000;">
-          <td colspan="2" style="padding: 6px 10px; font-weight: bold; font-size: 9.5pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8pt; border: 1.5px solid #000;">
+        <tr style="background: #f1f5f9; color: #000;">
+          <td colspan="2" style="padding: 5px 8px; font-weight: bold; font-size: 8.8pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
             I. IDENTITAS TENAGA KEPERAWATAN
           </td>
         </tr>
         <tr>
-          <td style="border: 1px solid #000; padding: 6px 10px; width: 36%; font-weight: bold;">Nama Lengkap Staf Keperawatan:</td>
-          <td style="border: 1px solid #000; padding: 6px 10px; width: 64%; font-weight: ${isBlank ? 'normal' : 'bold'};">${nama}</td>
+          <td style="border: 1px solid #000; padding: 5px 8px; width: 34%; font-weight: bold;">Nama Lengkap Staf Keperawatan:</td>
+          <td style="border: 1px solid #000; padding: 5px 8px; width: 66%; font-weight: ${isBlank ? 'normal' : 'bold'};">${nama}</td>
         </tr>
         <tr>
-          <td style="border: 1px solid #000; padding: 6px 10px; font-weight: bold;">NIP / NIPPPK / NIK:</td>
-          <td style="border: 1px solid #000; padding: 6px 10px;">${nip}</td>
+          <td style="border: 1px solid #000; padding: 5px 8px; font-weight: bold;">NIP / NIPPPK / NIK:</td>
+          <td style="border: 1px solid #000; padding: 5px 8px;">${nip}</td>
         </tr>
         <tr>
-          <td style="border: 1px solid #000; padding: 6px 10px; font-weight: bold;">Pendidikan Terakhir / Lulusan:</td>
-          <td style="border: 1px solid #000; padding: 6px 10px;">${pendidikan}</td>
+          <td style="border: 1px solid #000; padding: 5px 8px; font-weight: bold;">Pendidikan Terakhir / Lulusan:</td>
+          <td style="border: 1px solid #000; padding: 5px 8px;">${pendidikan}</td>
         </tr>
         <tr>
-          <td style="border: 1px solid #000; padding: 6px 10px; font-weight: bold;">Unit Kerja / Ruang Penempatan:</td>
-          <td style="border: 1px solid #000; padding: 6px 10px;">${unit}</td>
+          <td style="border: 1px solid #000; padding: 5px 8px; font-weight: bold;">Unit Kerja / Ruang Penempatan:</td>
+          <td style="border: 1px solid #000; padding: 5px 8px;">${unit}</td>
         </tr>
       </table>
 
       <!-- II. MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA) -->
-      <div style="border: 1.5px solid #000; border-bottom: none; background: #fff; color: #000; padding: 6px 10px; font-weight: bold; font-size: 9.5pt; letter-spacing: 0.2px;">
-        II. MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA)
+      <div style="border: 1.5px solid #000; border-bottom: none; background: #f1f5f9; color: #000; padding: 5px 8px; font-weight: bold; font-size: 8.8pt; letter-spacing: 0.2px;">
+        II. MATRIKS PENELUSURAN SUMBER ASLI / UTAMA (PRIMARY SOURCE VERIFICATION)
       </div>
-      <table style="width: 100%; border-collapse: collapse; font-size: 8pt; border: 1.5px solid #000;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 7.6pt; border: 1.5px solid #000;">
         <thead>
-          <tr style="background: #0f375f; color: #ffffff; text-align: center; font-weight: bold;">
-            <th style="border: 1px solid #000; padding: 7px 3px; width: 5%;">No</th>
-            <th style="border: 1px solid #000; padding: 7px 5px; width: 21%;">Jenis Dokumen<br>Kredensial</th>
-            <th style="border: 1px solid #000; padding: 7px 5px; width: 22%;">Institusi Sumber<br>Penerbit (Primary Source)</th>
-            <th style="border: 1px solid #000; padding: 7px 5px; width: 17%;">Metode<br>Verifikasi</th>
-            <th style="border: 1px solid #000; padding: 7px 5px; width: 17%;">Hasil<br>Verifikasi</th>
-            <th style="border: 1px solid #000; padding: 7px 5px; width: 18%;">Keterangan<br>Validasi</th>
+          <tr style="background: #0e3860; color: #ffffff; text-align: center; font-weight: bold;">
+            <th style="border: 1px solid #000; padding: 6px 3px; width: 4%;">No</th>
+            <th style="border: 1px solid #000; padding: 6px 4px; width: 20%;">Dokumen Kredensial<br>&amp; Legalitas</th>
+            <th style="border: 1px solid #000; padding: 6px 4px; width: 22%;">Institusi Sumber Penerbit<br>(Primary Source)</th>
+            <th style="border: 1px solid #000; padding: 6px 4px; width: 20%;">Metode Verifikasi<br>(Direkomendasikan Kemenkes/KARS)</th>
+            <th style="border: 1px solid #000; padding: 6px 4px; width: 17%;">Hasil<br>Verifikasi</th>
+            <th style="border: 1px solid #000; padding: 6px 4px; width: 17%;">Keterangan &amp;<br>Nomor Dokumen</th>
           </tr>
         </thead>
         <tbody>
           <!-- Baris 1: Ijazah -->
           <tr>
-            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; font-weight: bold;">1</td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+            <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: bold;">1</td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
               <strong>Ijazah Keperawatan</strong><br>
-              <span style="font-size: 7.5pt; color: #444;">(D-III/S1/Ners/Sp.)</span>
+              <span style="font-size: 7pt; color: #444;">(D-III/S1/Ners/Spesialis)</span>
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
               ${ijazahInst}
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
-              <span style="font-family: monospace; font-weight: bold;">${chkIjazahOnline}</span> Online / Web<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkIjazahSurat}</span> Surat Resmi<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkIjazahKontak}</span> Kontak Langsung
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahOnline}</span> PDDikti / SIVIL Online<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahSurat}</span> Surel Resmi Kampus<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahKontak}</span> Legalisir Cap Basah
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
               <span style="font-family: monospace; font-weight: bold;">${chkIjazahValid}</span> Valid / Sah<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkIjazahInvalid}</span> Tidak Valid<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkIjazahProses}</span> Proses Terbuka
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahProses}</span> Proses Terbuka<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkIjazahInvalid}</span> Tidak Valid
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.45;">
-              No. Ijazah:<br>
-              <span style="font-weight: bold;">${ijazahNo}</span><br><br>
-              Lulus Thn: <span style="font-weight: bold;">${ijazahThn}</span>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.35;">
+              No: <strong>${ijazahNo}</strong><br>
+              Thn: <strong>${ijazahThn}</strong><br>
+              <span style="font-size: 6.8pt; color: #0f766e;">Status: Terdaftar Sah</span>
             </td>
           </tr>
 
           <!-- Baris 2: STR -->
           <tr>
-            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; font-weight: bold;">2</td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
-              <strong>Surat Tanda Registrasi (STR) Perawat Aktif</strong>
+            <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: bold;">2</td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
+              <strong>Surat Tanda Registrasi (STR)</strong><br>
+              <span style="font-size: 7pt; color: #444;">Perawat/Bidan Aktif</span>
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
               ${strInst}
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
-              <span style="font-family: monospace; font-weight: bold;">${chkStrKtki}</span> Aplikasi KTKI Web<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkStrQr}</span> QR Code Scan<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkStrSurat}</span> Surat Resmi
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
+              <span style="font-family: monospace; font-weight: bold;">${chkStrQr}</span> Scan QR Code BSrE<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrKtki}</span> SatuSehat SDMK Web<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrSurat}</span> Portal KTKI / KKI
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
-              <span style="font-family: monospace; font-weight: bold;">${chkStrValid}</span> Valid / Sah<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkStrInvalid}</span> Tidak Valid<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkStrExpired}</span> Kadaluarsa
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
+              <span style="font-family: monospace; font-weight: bold;">${chkStrValid}</span> Valid / Sah Aktif<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrExpired}</span> Kadaluarsa<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkStrInvalid}</span> Tidak Valid
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.45;">
-              No. STR:<br>
-              <span style="font-weight: bold;">${strNo}</span><br><br>
-              Berlaku s/d: <span style="font-weight: bold;">${strExp}</span>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.35;">
+              No: <strong>${strNo}</strong><br>
+              s/d: <strong>${strExp}</strong><br>
+              <span style="font-size: 6.8pt; color: #0f766e;">TTE BSrE Sahih</span>
             </td>
           </tr>
 
           <!-- Baris 3: SIPP -->
           <tr>
-            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; font-weight: bold;">3</td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
-              <strong>Surat Izin Praktik Perawat (SIPP) Lama</strong>
+            <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: bold;">3</td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
+              <strong>Surat Izin Praktik (SIPP/SIPB)</strong><br>
+              <span style="font-size: 7pt; color: #444;">Fasyankes Penempatan</span>
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top;">
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
               ${sippInst}
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
-              <span style="font-family: monospace; font-weight: bold;">${chkSippSicantik}</span> Cek Sistem SiCantik<br>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
+              <span style="font-family: monospace; font-weight: bold;">${chkSippSicantik}</span> SiCantik DPMPTSP<br>
               <span style="font-family: monospace; font-weight: bold;">${chkSippDinkes}</span> Konfirmasi Dinkes<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkSippFisik}</span> Berkas Fisik Sesuai
+              <span style="font-family: monospace; font-weight: bold;">${chkSippFisik}</span> Fisik Database RS
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.55;">
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
               <span style="font-family: monospace; font-weight: bold;">${chkSippValid}</span> Valid / Sah<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkSippInvalid}</span> Tidak Valid<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkSippRekom}</span> Rekomendasi
+              <span style="font-family: monospace; font-weight: bold;">${chkSippRekom}</span> Rekom. Terbit Baru<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkSippInvalid}</span> Tidak Valid
             </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; line-height: 1.45;">
-              No. SIPP:<br>
-              <span style="font-weight: bold;">${sippNo}</span><br><br>
-              Berlaku s/d: <span style="font-weight: bold;">${sippExp}</span>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.35;">
+              No: <strong>${sippNo}</strong><br>
+              s/d: <strong>${sippExp}</strong><br>
+              <span style="font-size: 6.8pt; color: #0f766e;">RSUD dr. Soedarso</span>
+            </td>
+          </tr>
+
+          <!-- Baris 4: Pelatihan Kekhususan -->
+          <tr>
+            <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: bold;">4</td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
+              <strong>Sertifikat Pelatihan</strong><br>
+              <span style="font-size: 7pt; color: #444;">Kompetensi Klinis Khusus</span>
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
+              ${trainInst}
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainBarcode}</span> Plataran Sehat LMS<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainProvider}</span> Scan QR Provider PPNI<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainBuku}</span> Portofolio Logbook
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.5;">
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainValid}</span> Valid / Sah<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainDiakui}</span> Sertifikasi Diakui<br>
+              <span style="font-family: monospace; font-weight: bold;">${chkTrainInvalid}</span> Tidak Valid
+            </td>
+            <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top; line-height: 1.35;">
+              Kursus: <strong>${trainName}</strong><br>
+              Tgl: <strong>${trainDate}</strong><br>
+              <span style="font-size: 6.8pt; color: #0f766e;">Terakreditasi Sah</span>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <div style="font-size: 7.2pt; color: #555; margin-top: 8px; font-style: italic;">
+        *Catatan: Seluruh penelusuran dokumen utama di atas dilakukan langsung ke institusi penerbit (Primary Source) tanpa perantara sesuai instrumen Standar Akreditasi KARS STARKES KPS 10-11.
+      </div>
     </div>
 
     <!-- ==========================================
-         HALAMAN 2: MATRIKS 4, KESIMPULAN & TANDA TANGAN
+         HALAMAN 2: BUKTI DIGITAL, KESIMPULAN & TANDA TANGAN
          ========================================== -->
-    <div class="soedarso-page page-2" style="page-break-after: avoid; break-after: avoid; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 12mm 15mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 8.5pt; line-height: 1.35; position: relative;">
+    <div class="soedarso-page page-2" style="page-break-after: avoid; break-after: avoid; background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; padding: 10mm 14mm; width: 210mm; min-height: 297mm; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 20px; font-size: 8pt; line-height: 1.35; position: relative;">
       <!-- Page number top right -->
-      <div style="text-align: right; font-size: 9pt; font-weight: bold; margin-bottom: 12px; color: #333;">2</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 12px; font-size: 7.5pt; color: #555;">
+        <span>FORMULIR VERIFIKASI SUMBER ASLI (PSV) &bull; RSUD DR. SOEDARSO PONTIANAK</span>
+        <strong>HALAMAN 2 DARI 2</strong>
+      </div>
 
-      <!-- Baris 4 lanjutan Section II -->
-      <table style="width: 100%; border-collapse: collapse; font-size: 8pt; border: 1.5px solid #000; margin-bottom: 20px;">
-        <tbody>
-          <tr>
-            <td style="border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: top; width: 5%; font-weight: bold;">4</td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 21%;">
-              <strong>Sertifikat Pelatihan Kekhususan</strong><br>
-              <span style="font-size: 7.5pt; color: #444;">(BTCLS/dst)</span>
-            </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 22%;">
-              ${trainInst}
-            </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 17%; line-height: 1.55;">
-              <span style="font-family: monospace; font-weight: bold;">${chkTrainBarcode}</span> Cek Barcode / No Reg<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkTrainProvider}</span> Konfirmasi Provider<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkTrainBuku}</span> Portofolio Buku
-            </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 17%; line-height: 1.55;">
-              <span style="font-family: monospace; font-weight: bold;">${chkTrainValid}</span> Valid / Sah<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkTrainInvalid}</span> Tidak Valid<br>
-              <span style="font-family: monospace; font-weight: bold;">${chkTrainDiakui}</span> Sertifikasi Diakui
-            </td>
-            <td style="border: 1px solid #000; padding: 8px 6px; vertical-align: top; width: 18%; line-height: 1.45;">
-              Nama Kursus:<br>
-              <span style="font-weight: bold;">${trainName}</span><br><br>
-              Tanggal: <span style="font-weight: bold;">${trainDate}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- SECTION III: KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 22px; font-size: 8.5pt; border: 1.5px solid #000;">
-        <tr style="background: #fff; color: #000;">
-          <td style="padding: 6px 10px; font-weight: bold; font-size: 9.5pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
-            III. KESIMPULAN ASESMEN SUBKOMITE KREDENSIAL
+      <!-- SECTION III: KELENGKAPAN BUKTI DOKUMEN DIGITAL (KARS STARKES) -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 7.8pt; border: 1.5px solid #000;">
+        <tr style="background: #f1f5f9; color: #000;">
+          <td colspan="4" style="padding: 5px 8px; font-weight: bold; font-size: 8.8pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+            III. CHECKLIST KELENGKAPAN BUKTI DOKUMEN DIGITAL (DIGITAL EVIDENCE REPOSITORY - KARS STARKES)
+          </td>
+        </tr>
+        <tr style="background: #0e3860; color: #ffffff; text-align: center; font-weight: bold;">
+          <th style="border: 1px solid #000; padding: 5px 3px; width: 5%;">No</th>
+          <th style="border: 1px solid #000; padding: 5px 6px; width: 38%;">Jenis Bukti Digital yang Dilampirkan</th>
+          <th style="border: 1px solid #000; padding: 5px 6px; width: 37%;">Sumber Sistem / Portal Verifikasi Utama</th>
+          <th style="border: 1px solid #000; padding: 5px 6px; width: 20%;">Status Lampiran</th>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">1</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Tangkapan Layar (Screenshot) Status Mahasiswa / Lulusan</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Pangkalan Data Pendidikan Tinggi (PDDikti / SIVIL) Kemendikbudristek</td>
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
+            <span style="font-family: monospace;">${chkBuktiPddikti}</span> Terlampir &amp; Sahih
           </td>
         </tr>
         <tr>
-          <td style="border: 1px solid #000; padding: 12px 14px; line-height: 1.6;">
-            <p style="margin: 0 0 10px 0;">
-              Berdasarkan hasil penelusuran dokumen secara langsung ke institusi penerbit (<em>Primary Source Verification</em>), Subkomite Kredensial Keperawatan RSUD dr. Soedarso menyatakan bahwa berkas administrasi dan kompetensi klinis:
+          <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">2</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Berkas e-STR Aktif dengan QR Code &amp; Tanda Tangan Elektronik</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Balai Sertifikasi Elektronik (BSrE BSSN) / SatuSehat SDMK Kemenkes</td>
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
+            <span style="font-family: monospace;">${chkBuktiStr}</span> Terlampir &amp; Sahih
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">3</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Tangkapan Layar Izin Praktik / Rekomendasi Penerbitan</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Sistem SiCantik Cloud / DPMPTSP Online / Dinas Kesehatan</td>
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
+            <span style="font-family: monospace;">${chkBuktiSipp}</span> Terlampir &amp; Sahih
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">4</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Salinan e-Sertifikat Pelatihan Ber-barcode / Akreditasi</td>
+          <td style="border: 1px solid #000; padding: 5px 6px;">Plataran Sehat (LMS Kemenkes RI) / Pusdiklat PPNI Terakreditasi</td>
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
+            <span style="font-family: monospace;">${chkBuktiPelatihan}</span> Terlampir &amp; Sahih
+          </td>
+        </tr>
+      </table>
+
+      <!-- SECTION IV: KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8pt; border: 1.5px solid #000;">
+        <tr style="background: #f1f5f9; color: #000;">
+          <td style="padding: 5px 8px; font-weight: bold; font-size: 8.8pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+            IV. KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 1px solid #000; padding: 10px 12px; line-height: 1.55;">
+            <p style="margin: 0 0 8px 0; font-size: 7.9pt;">
+              Berdasarkan hasil penelusuran keabsahan langsung ke institusi penerbit resmi (<em>Primary Source Verification</em>), Subkomite Kredensial Komite Keperawatan RSUD dr. Soedarso menyatakan bahwa berkas kredensial staf bersangkutan:
             </p>
-            <div style="margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px;">
-              <span style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${chkSetujuPenuh}</span>
-              <div><strong>DISETUJUI PENUH:</strong> Seluruh dokumen absah, valid, dan legal sesuai aturan perundangan.</div>
+            <div style="margin-bottom: 7px; display: flex; align-items: flex-start; gap: 8px;">
+              <span style="font-family: monospace; font-weight: bold; font-size: 9.5pt; color: #0f766e;">${chkSetujuPenuh}</span>
+              <div>
+                <strong style="color: #0f766e;">DISETUJUI PENUH (FULL PRIVILEGES):</strong> Seluruh dokumen administrasi dan kompetensi klinis telah terverifikasi sah melalui sumber asli (Primary Source) dan memenuhi standar PMK 49/2013 serta KARS STARKES.
+              </div>
             </div>
-            <div style="margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px;">
-              <span style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${chkSetujuSyarat}</span>
-              <div><strong>DISETUJUI DENGAN SYARAT:</strong> Terdapat dokumen yang memerlukan pembaruan susulan (Keterangan tertulis terlampir).</div>
+            <div style="margin-bottom: 7px; display: flex; align-items: flex-start; gap: 8px;">
+              <span style="font-family: monospace; font-weight: bold; font-size: 9.5pt; color: #b45309;">${chkSetujuSyarat}</span>
+              <div>
+                <strong style="color: #b45309;">DISETUJUI SEMENTARA / BERSYARAT (PROVISIONAL PRIVILEGES - MAKS. 90 HARI):</strong> STR aktif dan sertifikat kompetensi telah terbukti sah. Dokumen ijazah/SIPP dalam proses penelusuran resmi pihak ketiga sesuai Standar KARS KPS 10 tanpa mengabaikan aspek keselamatan pasien (<em>patient safety</em>).
+              </div>
             </div>
             <div style="display: flex; align-items: flex-start; gap: 8px;">
-              <span style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${chkDitolak}</span>
-              <div><strong>DITOLAK:</strong> Ditemukan ketidaksesuaian kritis pada validitas dokumen utama staf keperawatan.</div>
+              <span style="font-family: monospace; font-weight: bold; font-size: 9.5pt; color: #b91c1c;">${chkDitolak}</span>
+              <div>
+                <strong style="color: #b91c1c;">DITOLAK (REJECTED):</strong> Ditemukan ketidaksesuaian kritis pada validitas dokumen utama staf keperawatan.
+              </div>
             </div>
           </td>
         </tr>
       </table>
 
-      <!-- SECTION IV: OTENTIKASI DAN VALIDASI TIM KREDENSIAL -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8.5pt; border: 1.5px solid #000;">
-        <tr style="background: #fff; color: #000;">
-          <td style="padding: 6px 10px; font-weight: bold; font-size: 9.5pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
-            IV. OTENTIKASI DAN VALIDASI TIM KREDENSIAL
+      <!-- SECTION V: OTENTIKASI DAN VALIDASI TIM KREDENSIAL -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8pt; border: 1.5px solid #000;">
+        <tr style="background: #f1f5f9; color: #000;">
+          <td style="padding: 5px 8px; font-weight: bold; font-size: 8.8pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
+            V. OTENTIKASI DAN VALIDASI TIM KREDENSIAL
           </td>
         </tr>
         <tr>
-          <td style="border: 1px solid #000; padding: 18px 24px;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 8.5pt;">
+          <td style="border: 1px solid #000; padding: 14px 20px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 8pt;">
               <tr>
                 <td style="width: 48%; text-align: center; vertical-align: top;">
                   Staf / Verifikator Komite,<br>
                   Subkomite Kredensial
-                  <div style="height: 60px;"></div>
+                  <div style="height: 55px;"></div>
                   ( <span style="font-weight: bold; text-decoration: underline;">${verifikatorNama}</span> )<br>
                   NIP. ${verifikatorNip}
                 </td>
@@ -6209,7 +6281,7 @@ function generatePsvHVS(mode) {
                   Pontianak, ${tanggalPsv}<br>
                   Ketua Subkomite Kredensial<br>
                   RSUD dr. Soedarso,
-                  <div style="height: 60px;"></div>
+                  <div style="height: 55px;"></div>
                   ( <span style="font-weight: bold; text-decoration: underline;">${ketuaNama}</span> )<br>
                   NIP. ${ketuaNip}
                 </td>
@@ -6218,6 +6290,11 @@ function generatePsvHVS(mode) {
           </td>
         </tr>
       </table>
+
+      <!-- FOOTER LEGALITAS & AKREDITASI -->
+      <div style="border-top: 1px dashed #999; padding-top: 6px; font-size: 6.8pt; color: #666; line-height: 1.4; text-align: justify;">
+        <strong>Catatan Mutu &amp; Kepatuhan Hukum:</strong> Dokumen formulir PSV ini merupakan instrumen kendali mutu dan verifikasi sumber primer yang sah sesuai Standar Nasional Akreditasi Rumah Sakit (KARS STARKES Bab KPS 10 &amp; 11). Berkas disimpan secara aman dan rahasia (*confidential clinical credentialing file*) pada Komite Keperawatan RSUD dr. Soedarso Pontianak untuk kepentingan tata kelola klinis yang baik (*good clinical governance*).
+      </div>
     </div>
   `;
 }
