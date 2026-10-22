@@ -90,7 +90,7 @@ function onFormSubmit(e) {
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
             <tr>
               <td style="width: 80px; text-align: center; vertical-align: middle;">
-                <img src="https://regal-smakager-133704.netlify.app/logo_kalbar.png" style="width: 70px; height: auto;" />
+                <img src="https://yadhie28.github.io/komite-keperawatan-soedarso/logo_kalbar.png" style="width: 70px; height: auto;" />
               </td>
               <td style="text-align: center; vertical-align: middle;">
                 <div style="font-size: 11pt; font-weight: bold;">PEMERINTAH PROVINSI KALIMANTAN BARAT</div>
