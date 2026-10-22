@@ -1494,13 +1494,21 @@
               <div class="form-group">
                 <label class="form-label">Pilih Jenjang Karir Klinis Diajukan <span class="req">*</span></label>
                 <select class="form-select" id="formJenjang" onchange="onJenjangChange(this.value)" required>
-                  <option value="">-- Pilih Jenjang Karir --</option>
-                  <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
-                  <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
-                  <option value="PK III" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
-                  <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
-                  <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
-                  <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
+                  <option value="">-- Pilih Jenjang Karir Sesuai White Book --</option>
+                  <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
+                    <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                    <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
+                    <option value="PK III" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                    <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                    <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                  </optgroup>
+                  <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
+                    <option value="PMB">Praktisi Bidan Klinis (BK I - BK IV / PMB Maternal &amp; Neonatal)</option>
+                    <option value="BK I">Bidan Klinis I (BK I - Novice Kebidanan)</option>
+                    <option value="BK II">Bidan Klinis II (BK II - Advance Beginner Kebidanan)</option>
+                    <option value="BK III">Bidan Klinis III (BK III - Competent Kebidanan)</option>
+                    <option value="BK IV">Bidan Klinis IV (BK IV - Proficient Kebidanan)</option>
+                  </optgroup>
                 </select>
                 <span class="form-hint" id="jenjangDescText">Pilih jenjang karir klinis yang diusulkan.</span>
               </div>
@@ -1508,34 +1516,75 @@
               <div class="form-group">
                 <label class="form-label">Rumpun / Area Kekhususan Klinis (Buku Putih 2026) <span class="req">*</span></label>
                 <select class="form-select" id="formAreaKlinis" onchange="onAreaKlinisChange(this.value)" required>
-                  <option value="">-- Pilih Area Kekhususan Klinis --</option>
-                  <option value="kmb_medikal_pk3" selected>KMB - Medikal (Penyakit Dalam Dewasa)</option>
-                  <option value="kmb_bedah_pk3">KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
-                  <option value="perioperatif_pk3">Perioperatif (Kamar Bedah Sentral / IBS)</option>
-                  <option value="emergensi_pk3">Gawat Darurat / Emergensi (IGD &amp; Trauma)</option>
-                  <option value="intensif_pk3">Intensive Care (ICU / ICCU / HCU / Luka Bakar)</option>
-                  <option value="kardiovaskuler_rawat_pk3">Kardiovaskuler (Rawat Inap &amp; Jalan PJT)</option>
-                  <option value="kardiovaskuler_cathlab_pk3">Kardiovaskuler (Ruang Kateterisasi / Cathlab)</option>
-                  <option value="kardiovaskuler_perfusi_pk3">Kardiovaskuler (Perfusionist Mesin CPB)</option>
-                  <option value="neurosains_pk3">Neurosains (Neurologi &amp; Bedah Saraf)</option>
-                  <option value="geriatri_pk3">Keperawatan Geriatri (Lanjut Usia)</option>
-                  <option value="onkologi_pk3">Keperawatan Onkologi (Kemoterapi &amp; Radiasi)</option>
-                  <option value="anestesi_pk3">Keperawatan Anestesi</option>
-                  <option value="nefrologi_pk3">Nefrologi (Hemodialisis &amp; CAPD)</option>
-                  <option value="gastro_hepato_pk3">Gastro-Hepato (Endoskopi &amp; Hepatobilier)</option>
-                  <option value="respirologi_pk3">Respirologi (Paru &amp; Bronkoskopi)</option>
-                  <option value="mata_pk3">Keperawatan Mata (Oftalmologi)</option>
-                  <option value="radiologi_pk3">Radiologi &amp; Kedokteran Nuklir</option>
-                  <option value="anak_medikal_pk3">Rumpun Anak - Medikal Anak</option>
-                  <option value="anak_hemato_pk3">Rumpun Anak - Hemato-Onkologi Anak</option>
-                  <option value="anak_bedah_pk3">Rumpun Anak - Bedah Anak</option>
-                  <option value="anak_nefrologi_pk3">Rumpun Anak - Nefrologi Anak</option>
-                  <option value="anak_picu_pk3">Rumpun Anak - Intensive Anak (PICU)</option>
-                  <option value="anak_nicu_pk3">Rumpun Anak - Neonatologi (NICU)</option>
-                  <option value="maternitas_obgyn_pk3">Rumpun Maternitas - Obstetri &amp; Ginekologi (Obgyn)</option>
-                  <option value="maternitas_onkologi_pk3">Rumpun Maternitas - Onkologi Kebidanan</option>
-                  <option value="maternitas_fertilitas_pk3">Rumpun Maternitas - Fertilitas &amp; Bayi Tabung (IVF)</option>
-                  <option value="jiwa_pk3">Rumpun Keperawatan Jiwa</option>
+                  <option value="">-- Pilih Area Kekhususan Klinis Sesuai White Book --</option>
+
+                  <optgroup label="1. RUMPUN KEPERAWATAN GENERALIS (ASUHAN DASAR)">
+                    <option value="generalis">Pelayanan Keperawatan Generalis (19 Elemen Asuhan Dasar)</option>
+                    <option value="generalis_kmb">Generalis - Keperawatan Medikal Bedah (KMB Dasar)</option>
+                    <option value="generalis_ibs">Generalis - Kamar Bedah Sentral (Perioperatif Dasar)</option>
+                    <option value="generalis_igd">Generalis - Gawat Darurat (Emergensi Dasar)</option>
+                    <option value="generalis_icu">Generalis - Intensive Care (Kritis Dasar)</option>
+                    <option value="generalis_kardio">Generalis - Kardiovaskuler (PJT Dasar)</option>
+                    <option value="generalis_anak">Generalis - Keperawatan Anak (Pediatrik Dasar)</option>
+                    <option value="generalis_maternitas">Generalis - Keperawatan Maternitas (Kebidanan Dasar)</option>
+                    <option value="generalis_jiwa">Generalis - Keperawatan Jiwa Dasar</option>
+                    <option value="generalis_dialisis">Generalis - Nefrologi &amp; Hemodialisis Dasar</option>
+                    <option value="generalis_onkologi">Generalis - Onkologi &amp; Kemoterapi Dasar</option>
+                    <option value="generalis_anestesi">Generalis - Keperawatan Anestesi Dasar</option>
+                  </optgroup>
+
+                  <optgroup label="2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)">
+                    <option value="kmb_medikal_pk3" selected>KMB - Medikal (Penyakit Dalam Dewasa)</option>
+                    <option value="kmb_bedah_pk3">KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
+                    <option value="kmb_dewasa_pk2">KMB Dewasa (Advance Beginner)</option>
+                  </optgroup>
+
+                  <optgroup label="3. RUMPUN PERIOPERATIF &amp; ANESTESI">
+                    <option value="perioperatif_pk3">Perioperatif (Kamar Bedah Sentral / IBS)</option>
+                    <option value="anestesi_pk3">Keperawatan Anestesi</option>
+                  </optgroup>
+
+                  <optgroup label="4. RUMPUN GAWAT DARURAT (EMERGENSI) &amp; CRITICAL CARE">
+                    <option value="emergensi_pk3">Gawat Darurat / Emergensi (IGD &amp; Trauma)</option>
+                    <option value="intensif_pk3">Intensive Care (ICU / ICCU / HCU / Luka Bakar)</option>
+                  </optgroup>
+
+                  <optgroup label="5. RUMPUN KARDIOVASKULER (PUSAT JANTUNG TERPADU / PJT)">
+                    <option value="kardiovaskuler_rawat_pk3">Kardiovaskuler (Rawat Inap &amp; Jalan PJT)</option>
+                    <option value="kardiovaskuler_cathlab_pk3">Kardiovaskuler (Ruang Kateterisasi / Cathlab)</option>
+                    <option value="kardiovaskuler_perfusi_pk3">Kardiovaskuler (Perfusionist Mesin CPB)</option>
+                  </optgroup>
+
+                  <optgroup label="6. RUMPUN SPESIALISTIK DEWASA &amp; KEKHUSUSAN">
+                    <option value="neurosains_pk3">Neurosains (Neurologi &amp; Bedah Saraf)</option>
+                    <option value="nefrologi_pk3">Nefrologi (Hemodialisis &amp; CAPD)</option>
+                    <option value="onkologi_pk3">Keperawatan Onkologi (Kemoterapi &amp; Radiasi)</option>
+                    <option value="gastro_hepato_pk3">Gastro-Hepato (Endoskopi &amp; Hepatobilier)</option>
+                    <option value="respirologi_pk3">Respirologi (Paru &amp; Bronkoskopi)</option>
+                    <option value="mata_pk3">Keperawatan Mata (Oftalmologi)</option>
+                    <option value="geriatri_pk3">Keperawatan Geriatri (Lanjut Usia)</option>
+                    <option value="radiologi_pk3">Radiologi &amp; Kedokteran Nuklir</option>
+                  </optgroup>
+
+                  <optgroup label="7. RUMPUN KEPERAWATAN ANAK (PEDIATRIK &amp; NEONATUS)">
+                    <option value="anak_medikal_pk3">Rumpun Anak - Medikal Anak</option>
+                    <option value="anak_bedah_pk3">Rumpun Anak - Bedah Anak</option>
+                    <option value="anak_hemato_pk3">Rumpun Anak - Hemato-Onkologi Anak</option>
+                    <option value="anak_nefrologi_pk3">Rumpun Anak - Nefrologi Anak</option>
+                    <option value="anak_picu_pk3">Rumpun Anak - Intensive Anak (PICU)</option>
+                    <option value="anak_nicu_pk3">Rumpun Anak - Neonatologi (NICU)</option>
+                  </optgroup>
+
+                  <optgroup label="8. RUMPUN MATERNITAS &amp; PRAKTIK BIDAN KLINIS (BK)">
+                    <option value="maternitas_obgyn_pk3">Rumpun Maternitas - Obstetri &amp; Ginekologi (Obgyn)</option>
+                    <option value="maternitas_onkologi_pk3">Rumpun Maternitas - Onkologi Kebidanan</option>
+                    <option value="maternitas_fertilitas_pk3">Rumpun Maternitas - Fertilitas &amp; Bayi Tabung (IVF)</option>
+                    <option value="pmb_kebidanan">Pelayanan Kebidanan (Bidan Klinis BK I - BK IV / PMB)</option>
+                  </optgroup>
+
+                  <optgroup label="9. RUMPUN KEPERAWATAN JIWA">
+                    <option value="jiwa_pk3">Rumpun Keperawatan Jiwa</option>
+                  </optgroup>
                 </select>
                 <span class="form-hint" id="areaKlinisDescText">Pilih area spesialisasi sesuai Buku Pedoman (White Book).</span>
               </div>
