@@ -441,9 +441,6 @@
               <span class="kaizen-metric-label">Efisiensi Arsip</span>
               <span class="kaizen-metric-val">100% Digital &amp; Ringkas</span>
             </div>
-            <button class="kaizen-card-btn" onclick="toggleSeiriFocusMode()">
-              <i class="fa-solid fa-compress"></i> Aktifkan Mode Ringkas
-            </button>
           </div>
 
           <!-- 2. SEITON (整頓 - RAPI) -->
@@ -463,9 +460,6 @@
               <span class="kaizen-metric-label">Struktur Alur</span>
               <span class="kaizen-metric-val">5 Jenjang &amp; 6 Tahap Baku</span>
             </div>
-            <button class="kaizen-card-btn" onclick="switchTab('kredensial'); scrollToAlurKredensial();">
-              <i class="fa-solid fa-arrow-down-1-9"></i> Telusuri Alur Rapi
-            </button>
           </div>
 
           <!-- 3. SEISO (清掃 - RESIK) -->
@@ -485,9 +479,6 @@
               <span class="kaizen-metric-label">Validasi Legalitas</span>
               <span class="kaizen-metric-val">100% Sahih via PSV</span>
             </div>
-            <button class="kaizen-card-btn" onclick="openPsvModal()">
-              <i class="fa-solid fa-stamp"></i> Verifikasi Bebas Cacat
-            </button>
           </div>
 
           <!-- 4. SEIKETSU (清潔 - RAWAT) -->
@@ -507,9 +498,6 @@
               <span class="kaizen-metric-label">Standar Mutu</span>
               <span class="kaizen-metric-val">KARS Versi STARKES</span>
             </div>
-            <button class="kaizen-card-btn" onclick="switchTab('regulasi')">
-              <i class="fa-solid fa-book-bookmark"></i> Standar Regulasi
-            </button>
           </div>
 
           <!-- 5. SHITSUKE (躾 - RAJIN) -->
@@ -529,9 +517,6 @@
               <span class="kaizen-metric-label">Disiplin Pengisian</span>
               <span class="kaizen-metric-val">Auto-Save Real-Time</span>
             </div>
-            <button class="kaizen-card-btn" onclick="switchTab('mutu')">
-              <i class="fa-solid fa-clipboard-check"></i> Audit Mutu &amp; Disiplin
-            </button>
           </div>
         </div>
       </div>
@@ -749,7 +734,6 @@
     <section class="tab-pane" id="pane-kredensial">
       <div class="section-header">
         <div>
-          <span class="section-5s-label label-seiton"><i class="fa-solid fa-layer-group"></i> 整頓 Seiton — Penataan Terstruktur</span>
           <h2 class="section-title">Registry E-Kredensialing & RKK/SPK</h2>
           <p class="section-subtitle">
             Daftar tenaga keperawatan dan kebidanan RSUD dr. Soedarso Pontianak beserta status verifikasi kewenangan klinis (SPK/RKK)
@@ -776,26 +760,8 @@
               Berdasarkan PMK No. 49 Tahun 2013 &amp; Format Baku Portofolio RSUD dr. Soedarso Pontianak
             </div>
           </div>
-          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openCvModal()">
-              <i class="fa-solid fa-address-card"></i> 1. Buat CV Portofolio (PDF)
-            </button>
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openLogbookModal()">
-              <i class="fa-solid fa-book-medical" style="color: #7e22ce;"></i> 2. Buat Logbook Klinis (PDF)
-            </button>
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="openSuratPermohonanModal()">
-              <i class="fa-solid fa-file-pen"></i> 3. Buat Surat Permohonan
-            </button>
-            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #0e3860; border-color: #0e3860;" onclick="openPreviewRkkModal()">
-              <i class="fa-solid fa-file-contract"></i> 4. Cetak RKK Resmi (PDF)
-            </button>
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: rgba(13, 148, 136, 0.12); color: #0f766e; border-color: #0d9488; font-weight: 700;" onclick="openPsvModal()">
-              <i class="fa-solid fa-stamp" style="color: #0d9488;"></i> 5. Verifikasi Sumber Asli (PSV)
-            </button>
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem; background: #fef3c7; color: #92400e; border-color: #f59e0b;" onclick="openModalUploadSurat()">
-              <i class="fa-solid fa-cloud-arrow-up"></i> 6. Unggah Berkas Lengkap
-            </button>
-            <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" onclick="toggleTrackerKredensial()">
+          <div>
+            <button class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;" onclick="toggleTrackerKredensial()">
               <i class="fa-solid fa-route"></i> Lacak Status Berkas
             </button>
           </div>
@@ -1101,7 +1067,6 @@
     <section class="tab-pane" id="pane-mutu">
       <div class="section-header">
         <div>
-          <span class="section-5s-label label-seiso"><i class="fa-solid fa-stamp"></i> 清掃 Seiso — Verifikasi Bebas Cacat</span>
           <h2 class="section-title">Subkomite Mutu Profesi & Audit Klinis</h2>
           <p class="section-subtitle">
             Indikator penjaminan mutu pelayanan asuhan keperawatan dan keselamatan pasien di seluruh ruang perawatan RSUD dr. Soedarso
@@ -1206,7 +1171,6 @@
     <section class="tab-pane" id="pane-etik">
       <div class="section-header">
         <div>
-          <span class="section-5s-label label-shitsuke"><i class="fa-solid fa-shield-heart"></i> 躾 Shitsuke — Disiplin Berkelanjutan</span>
           <h2 class="section-title">Subkomite Etika & Disiplin Profesi</h2>
           <p class="section-subtitle">
             Penegakan Kode Etik Keperawatan & Kebidanan, Perlindungan Hak Pasien, dan Saluran Whistleblowing Aman & Rahasia
@@ -1348,7 +1312,6 @@
     <section class="tab-pane" id="pane-analitik">
       <div class="section-header">
         <div>
-          <span class="section-5s-label label-seiri"><i class="fa-solid fa-filter"></i> 整理 Seiri — Ringkas &amp; Terdigitalisasi</span>
           <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>
           <p class="section-subtitle">
             Visualisasi data jenjang karir klinis (PK I - PK V), kepatuhan kredensialing, dan profil tenaga perawat & bidan RSUD dr. Soedarso
@@ -1402,7 +1365,6 @@
     <section class="tab-pane" id="pane-regulasi">
       <div class="section-header">
         <div>
-          <span class="section-5s-label label-seiketsu"><i class="fa-solid fa-certificate"></i> 清潔 Seiketsu — Standarisasi Regulasi</span>
           <h2 class="section-title">Pusat Regulasi, Pedoman & Unduhan Resmi</h2>
           <p class="section-subtitle">
             Kumpulan dokumen regulasi nasional, SK Direktur, Buku Putih (White Paper) RKK, panduan audit klinis, dan format permohonan kredensialing
