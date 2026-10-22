@@ -1732,55 +1732,120 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
   return result;
 }
 
+const RUMPUN_ORDER_BUKU_PUTIH = [
+  "1. RUMPUN KEPERAWATAN GENERALIS (ASUHAN DASAR)",
+  "2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)",
+  "3. RUMPUN PERIOPERATIF & ANESTESI",
+  "4. RUMPUN GAWAT DARURAT (EMERGENSI) & CRITICAL CARE",
+  "5. RUMPUN KARDIOVASKULER (PUSAT JANTUNG TERPADU / PJT)",
+  "6. RUMPUN SPESIALISTIK DEWASA & KEKHUSUSAN",
+  "7. RUMPUN KEPERAWATAN ANAK (PEDIATRIK & NEONATUS)",
+  "8. RUMPUN MATERNITAS & PRAKTIK BIDAN KLINIS (BK)",
+  "9. RUMPUN KEPERAWATAN JIWA"
+];
+
+function getRumpunBukuPutihLabel(areaKey) {
+  if (!areaKey) return "2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)";
+  const k = areaKey.toLowerCase();
+  if (k.startsWith('generalis')) {
+    return "1. RUMPUN KEPERAWATAN GENERALIS (ASUHAN DASAR)";
+  }
+  if (k.includes('kmb') || k.includes('bedah_pk') || k.includes('medikal_pk')) {
+    return "2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)";
+  }
+  if (k.includes('perioperatif') || k.includes('ibs') || k.includes('anestesi')) {
+    return "3. RUMPUN PERIOPERATIF & ANESTESI";
+  }
+  if (k.includes('emergensi') || k.includes('igd') || k.includes('intensif') || k.includes('icu') || k.includes('iccu') || k.includes('trauma') || k.includes('luka_bakar')) {
+    return "4. RUMPUN GAWAT DARURAT (EMERGENSI) & CRITICAL CARE";
+  }
+  if (k.includes('kardio') || k.includes('cathlab') || k.includes('perfusi') || k.includes('pjt')) {
+    return "5. RUMPUN KARDIOVASKULER (PUSAT JANTUNG TERPADU / PJT)";
+  }
+  if (k.includes('anak') || k.includes('pediatrik') || k.includes('picu') || k.includes('nicu')) {
+    return "7. RUMPUN KEPERAWATAN ANAK (PEDIATRIK & NEONATUS)";
+  }
+  if (k.includes('maternitas') || k.includes('obgyn') || k.includes('kebidanan') || k.includes('bidan') || k.includes('fertilitas') || k.includes('pmb')) {
+    return "8. RUMPUN MATERNITAS & PRAKTIK BIDAN KLINIS (BK)";
+  }
+  if (k.includes('jiwa')) {
+    return "9. RUMPUN KEPERAWATAN JIWA";
+  }
+  return "6. RUMPUN SPESIALISTIK DEWASA & KEKHUSUSAN";
+}
+
 function populateAreaKlinisDropdown(pkLevel) {
   const selectArea = document.getElementById('formAreaKlinis');
   if (!selectArea) return;
 
+  const prevValue = selectArea.value;
+
   // Normalisasi Jenjang Sesuai White Book (Perawat PK I-V atau Bidan BK I-IV / PMB)
   let normalizedLevel = 'PK III';
-  if (pkLevel) {
+  const isBidan = pkLevel && (String(pkLevel).toUpperCase().includes('BK') || String(pkLevel).toUpperCase().includes('BIDAN') || String(pkLevel).toUpperCase().includes('PMB'));
+
+  if (isBidan) {
+    normalizedLevel = 'PMB';
+  } else if (pkLevel) {
     const s = String(pkLevel).toUpperCase();
-    if (s.includes('BK') || s.includes('BIDAN') || s.includes('PMB')) normalizedLevel = 'PMB';
-    else if (s.includes('PK V') || s.includes('PK 5')) normalizedLevel = 'PK V';
+    if (s.includes('PK V') || s.includes('PK 5')) normalizedLevel = 'PK V';
     else if (s.includes('PK IV') || s.includes('PK 4')) normalizedLevel = 'PK IV';
     else if (s.includes('PK III') || s.includes('PK 3')) normalizedLevel = 'PK III';
     else if (s.includes('PK II') || s.includes('PK 2')) normalizedLevel = 'PK II';
     else if (s.includes('PK I') || s.includes('PK 1')) normalizedLevel = 'PK I';
   }
 
-  const areas = window.KOMITE_DATA?.whiteBookAreas?.[normalizedLevel] || window.KOMITE_DATA?.whiteBookAreas?.['PK III'] || [];
-  
-  // Kelompokkan area klinis berdasarkan Rumpun Keahlian Buku Putih 2026
+  let areas = [];
+  if (isBidan) {
+    // Area Klinis Buku Putih Khusus Bidan (BK I - BK IV / PMB)
+    areas = [
+      { key: "pmb_kebidanan", name: "Pelayanan Praktik Bidan Klinis (BK I - BK IV / PMB Maternal & Neonatal)" },
+      { key: "maternitas_obgyn_pk3", name: "Rumpun Maternitas - Obstetri & Ginekologi (Obgyn)" },
+      { key: "maternitas_onkologi_pk3", name: "Rumpun Maternitas - Onkologi Kebidanan" },
+      { key: "maternitas_fertilitas_pk3", name: "Rumpun Maternitas - Fertilitas & Bayi Tabung (IVF)" },
+      { key: "anak_nicu_pk3", name: "Rumpun Anak - Neonatologi (NICU & Perinatologi)" },
+      { key: "generalis_maternitas", name: "Generalis - Keperawatan Maternitas (Kebidanan Dasar)" }
+    ];
+  } else {
+    areas = window.KOMITE_DATA?.whiteBookAreas?.[normalizedLevel] || window.KOMITE_DATA?.whiteBookAreas?.['PK III'] || [];
+  }
+
+  // Kelompokkan area klinis ke dalam 9 Rumpun Resmi Buku Putih 2026
   const groups = {};
   areas.forEach(area => {
-    const cluster = getClusterFromAreaKey(area.key);
-    const clusterName = getClusterDisplayName(cluster);
-    if (!groups[clusterName]) groups[clusterName] = [];
-    groups[clusterName].push(area);
+    const rumpunLabel = getRumpunBukuPutihLabel(area.key);
+    if (!groups[rumpunLabel]) groups[rumpunLabel] = [];
+    groups[rumpunLabel].push(area);
   });
 
-  const groupKeys = Object.keys(groups);
-  let html = `<option value="">-- Pilih Area Kekhususan Klinis (${normalizedLevel} White Book) --</option>`;
+  let html = `<option value="">-- Pilih Area Kekhususan Klinis Sesuai Buku Putih 2026 --</option>`;
 
-  if (groupKeys.length > 1) {
-    groupKeys.forEach(grp => {
-      html += `<optgroup label="Rumpun: ${grp}">`;
-      groups[grp].forEach(area => {
+  RUMPUN_ORDER_BUKU_PUTIH.forEach(rumpunLabel => {
+    if (groups[rumpunLabel] && groups[rumpunLabel].length > 0) {
+      html += `<optgroup label="${rumpunLabel}">`;
+      groups[rumpunLabel].forEach(area => {
         html += `<option value="${area.key}">${area.name}</option>`;
       });
       html += `</optgroup>`;
-    });
-  } else {
-    areas.forEach(area => {
-      html += `<option value="${area.key}">${area.name}</option>`;
-    });
-  }
+    }
+  });
 
   selectArea.innerHTML = html;
 
-  if (areas.length > 0) {
-    selectArea.value = areas[0].key;
-    onAreaKlinisChange(areas[0].key);
+  // Pertahankan pilihan sebelumnya jika masih ada di opsi baru
+  if (prevValue && selectArea.querySelector(`option[value="${prevValue}"]`)) {
+    selectArea.value = prevValue;
+  } else if (areas.length > 0) {
+    const defaultOpt = selectArea.querySelector('option[value="kmb_medikal_pk3"]') || selectArea.querySelector('option[value="generalis"]') || selectArea.querySelector('option[value="pmb_kebidanan"]');
+    if (defaultOpt) {
+      selectArea.value = defaultOpt.value;
+    } else {
+      selectArea.value = areas[0].key;
+    }
+  }
+
+  if (selectArea.value) {
+    onAreaKlinisChange(selectArea.value);
   }
 }
 
