@@ -2286,28 +2286,12 @@ function updateAlurStepStatus() {
 
   // Langkah 5: Verifikasi Sumber Asli (PSV) (badgeStep5PsvStatus)
   if (b5) {
-    if (state.kredensialPsvGenerated) {
-      b5.style.background = '#dcfce7';
-      b5.style.color = '#15803d';
-      b5.innerHTML = '<i class="fa-solid fa-circle-check"></i> PSV Tervalidasi';
-    } else {
-      b5.style.background = 'rgba(13, 148, 136, 0.12)';
-      b5.style.color = '#0f766e';
-      b5.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Standar KARS / PMK 49';
-    }
+    b5.style.display = 'none';
   }
 
   // Langkah 6: Unggah Berkas Lengkap (badgeStep6Status)
   if (b6) {
-    if (state.kredensialBerkasUploaded) {
-      b6.style.background = '#dcfce7';
-      b6.style.color = '#15803d';
-      b6.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berkas Lengkap (Lolos Verifikasi)';
-    } else {
-      b6.style.background = '#fef3c7';
-      b6.style.color = '#92400e';
-      b6.innerHTML = '<i class="fa-solid fa-clock"></i> Belum Diunggah';
-    }
+    b6.style.display = 'none';
   }
 }
 
