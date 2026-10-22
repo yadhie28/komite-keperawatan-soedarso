@@ -872,18 +872,13 @@
               Formulir Verifikasi Sumber Asli / Utama (<em>Primary Source Verification - PSV</em>) untuk memvalidasi keabsahan Ijazah, STR Aktif (KTKI/KKI), SIPP Dinkes, dan Sertifikat Pelatihan langsung ke institusi penerbit resmi sesuai standar akreditasi KARS / PMK 49.
             </div>
             <div class="alur-card-action">
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                <span class="badge" id="badgeStep5PsvStatus" style="background: rgba(13, 148, 136, 0.12); color: #0f766e; font-weight: 700; font-size: 0.72rem;">
-                  <i class="fa-solid fa-shield-halved"></i> Standar KARS / PMK 49
-                </span>
-                <div style="display: flex; gap: 0.35rem;">
-                  <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="event.stopPropagation(); previewPsvHVS('filled'); openModal('modalPreviewPsvHVS');">
-                    <i class="fa-solid fa-print"></i> Cetak PDF
-                  </button>
-                  <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem; background: #0d9488; border-color: #0d9488;" onclick="event.stopPropagation(); openPsvModal();">
-                    Buka PSV <i class="fa-solid fa-arrow-right"></i>
-                  </button>
-                </div>
+              <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem;">
+                <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;" onclick="event.stopPropagation(); previewPsvHVS('filled'); openModal('modalPreviewPsvHVS');">
+                  <i class="fa-solid fa-print"></i> Cetak PDF
+                </button>
+                <button type="button" class="btn-primary" style="font-size: 0.75rem; padding: 0.25rem 0.65rem; background: #0d9488; border-color: #0d9488;" onclick="event.stopPropagation(); openPsvModal();">
+                  Buka PSV <i class="fa-solid fa-arrow-right"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -901,10 +896,7 @@
               Unggah 8 berkas persyaratan wajib (Ijazah Terlegalisir, STR Aktif, SIPP/SIPB, Sertifikat Pelatihan Khusus, Bukti PDDikti, Surat Ket. Sehat Dokter Pemerintah, Buku Logbook Kinerja Ka.Ru, CV) beserta Surat Permohonan, RKK, dan Formulir PSV bertanda tangan untuk verifikasi Subkomite Kredensial.
             </div>
             <div class="alur-card-action">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="badge" id="badgeStep6Status" style="background: #fef3c7; color: #92400e; font-weight: 700; font-size: 0.72rem;">
-                  <i class="fa-solid fa-clock"></i> Belum Diunggah
-                </span>
+              <div style="display: flex; justify-content: flex-end; align-items: center;">
                 <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
                   Upload Berkas Lengkap <i class="fa-solid fa-arrow-right"></i>
                 </span>
