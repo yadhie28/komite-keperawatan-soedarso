@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
   setupEventListeners();
   renderAllViews();
+  initLogbookAutocomplete();
 });
 
 /* ==========================================================================
@@ -3078,8 +3079,8 @@ function renderLogbookItemRows(items = []) {
       <td style="padding: 6px 4px;">
         <input type="text" class="form-input logbook-item-tglrm" value="${tglRmCombined}" placeholder="Contoh: 12/01/2025 (RM: 482910)" style="font-size: 0.78rem; padding: 4px 6px;">
       </td>
-      <td style="padding: 6px 4px;">
-        <input type="text" class="form-input logbook-item-tindakan" value="${item.tindakan || ''}" placeholder="Deskripsi rincian prosedur tindakan asuhan..." style="font-size: 0.78rem; padding: 4px 6px;">
+      <td style="padding: 6px 4px; position: relative;">
+        <input type="text" class="form-input logbook-item-tindakan" value="${item.tindakan || ''}" placeholder="Ketik min 2 huruf untuk opsi tindakan White Book..." autocomplete="off" style="font-size: 0.78rem; padding: 4px 6px;">
       </td>
       <td style="padding: 6px 4px; text-align: center;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 0.76rem;">
@@ -3138,6 +3139,259 @@ function removeLogbookItemRow(btn) {
       }
     }
   }
+}
+
+/* ==========================================================================
+   WHITE BOOK ACTION AUTOCOMPLETE (MIN 2 CHARACTERS)
+   ========================================================================== */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getAllWhiteBookActionsList() {
+  if (window._cachedWhiteBookActions && window._cachedWhiteBookActions.length > 0) {
+    return window._cachedWhiteBookActions;
+  }
+  const set = new Set();
+  const list = [];
+  const add = (name, category = '') => {
+    if (!name) return;
+    const s = String(name).trim();
+    if (s.length > 2 && !set.has(s.toLowerCase())) {
+      set.add(s.toLowerCase());
+      list.push({ name: s, category: category || 'Buku Putih' });
+    }
+  };
+
+  if (window.KOMITE_DATA?.mandatoryBaseActions && Array.isArray(window.KOMITE_DATA.mandatoryBaseActions)) {
+    window.KOMITE_DATA.mandatoryBaseActions.forEach(a => add(a.name, a.domain || 'Asuhan Umum & Dasar'));
+  }
+  if (window.KOMITE_DATA?.whiteBookActions && typeof window.KOMITE_DATA.whiteBookActions === 'object') {
+    Object.keys(window.KOMITE_DATA.whiteBookActions).forEach(areaKey => {
+      const arr = window.KOMITE_DATA.whiteBookActions[areaKey];
+      if (Array.isArray(arr)) {
+        arr.forEach(a => {
+          let cat = a.domain || '';
+          if (!cat) {
+            if (areaKey.includes('generalis')) cat = 'Generalis';
+            else if (areaKey.includes('kmb')) cat = 'KMB';
+            else if (areaKey.includes('perioperatif') || areaKey.includes('ibs')) cat = 'Kamar Bedah';
+            else if (areaKey.includes('emergensi') || areaKey.includes('igd')) cat = 'IGD & Trauma';
+            else if (areaKey.includes('intensif') || areaKey.includes('icu')) cat = 'ICU / Kritis';
+            else if (areaKey.includes('kardio')) cat = 'Kardiovaskuler';
+            else if (areaKey.includes('anak')) cat = 'Rumpun Anak';
+            else if (areaKey.includes('maternitas') || areaKey.includes('pmb') || areaKey.includes('kebidanan')) cat = 'Maternitas / Bidan';
+            else cat = 'Buku Putih 2026';
+          }
+          add(a.name, cat);
+        });
+      }
+    });
+  }
+  if (window.KOMITE_DATA?.sampleLogbook) {
+    if (Array.isArray(window.KOMITE_DATA.sampleLogbook.perawat?.items)) {
+      window.KOMITE_DATA.sampleLogbook.perawat.items.forEach(it => add(it.tindakan, 'Keperawatan Bedah'));
+    }
+    if (Array.isArray(window.KOMITE_DATA.sampleLogbook.bidan?.items)) {
+      window.KOMITE_DATA.sampleLogbook.bidan.items.forEach(it => add(it.tindakan, 'Kebidanan & VK'));
+    }
+  }
+  window._cachedWhiteBookActions = list;
+  return list;
+}
+
+let currentAutocompleteInput = null;
+let currentAutocompleteIndex = -1;
+
+function initLogbookAutocomplete() {
+  let dropdown = document.getElementById('logbookActionAutocomplete');
+  if (!dropdown) {
+    dropdown = document.createElement('div');
+    dropdown.id = 'logbookActionAutocomplete';
+    dropdown.className = 'action-autocomplete-dropdown';
+    document.body.appendChild(dropdown);
+  }
+
+  // Delegated input listener for any row's tindakan input
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('logbook-item-tindakan')) {
+      handleLogbookActionInput(e.target);
+    }
+  });
+
+  // Re-open if user focuses back on an input with >= 2 characters
+  document.addEventListener('focusin', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('logbook-item-tindakan')) {
+      if (e.target.value && e.target.value.trim().length >= 2) {
+        handleLogbookActionInput(e.target);
+      }
+    }
+  });
+
+  // Keyboard navigation inside autocomplete
+  document.addEventListener('keydown', (e) => {
+    if (!dropdown || dropdown.style.display !== 'block' || !currentAutocompleteInput) return;
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      currentAutocompleteIndex = (currentAutocompleteIndex + 1) % items.length;
+      updateAutocompleteActiveItem(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      currentAutocompleteIndex = (currentAutocompleteIndex - 1 + items.length) % items.length;
+      updateAutocompleteActiveItem(items);
+    } else if (e.key === 'Enter') {
+      if (currentAutocompleteIndex >= 0 && currentAutocompleteIndex < items.length) {
+        e.preventDefault();
+        selectAutocompleteItem(items[currentAutocompleteIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      closeLogbookAutocomplete();
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (dropdown && dropdown.style.display === 'block') {
+      if (!dropdown.contains(e.target) && e.target !== currentAutocompleteInput) {
+        closeLogbookAutocomplete();
+      }
+    }
+  });
+
+  // Reposition or close when modal scrolls
+  const modalBody = document.querySelector('#modalLogbookKredensial .modal-body');
+  if (modalBody) {
+    modalBody.addEventListener('scroll', () => {
+      if (currentAutocompleteInput && dropdown.style.display === 'block') {
+        const rect = currentAutocompleteInput.getBoundingClientRect();
+        const bodyRect = modalBody.getBoundingClientRect();
+        if (rect.bottom < bodyRect.top || rect.top > bodyRect.bottom) {
+          closeLogbookAutocomplete();
+        } else {
+          dropdown.style.top = `${rect.bottom + 2}px`;
+          dropdown.style.left = `${rect.left}px`;
+        }
+      }
+    });
+  }
+}
+
+function handleLogbookActionInput(input) {
+  const query = (input.value || '').trim();
+  const dropdown = document.getElementById('logbookActionAutocomplete');
+  if (!dropdown) return;
+
+  // Requirement: Min 2 characters to show options
+  if (query.length < 2) {
+    closeLogbookAutocomplete();
+    return;
+  }
+
+  currentAutocompleteInput = input;
+  currentAutocompleteIndex = -1;
+
+  const allActions = getAllWhiteBookActionsList();
+  const qLower = query.toLowerCase();
+
+  const matches = allActions.filter(item => {
+    return item.name.toLowerCase().includes(qLower) || item.category.toLowerCase().includes(qLower);
+  });
+
+  // Sort: actions starting with query first, then alphabetical
+  matches.sort((a, b) => {
+    const aStarts = a.name.toLowerCase().startsWith(qLower);
+    const bStarts = b.name.toLowerCase().startsWith(qLower);
+    if (aStarts && !bStarts) return -1;
+    if (!aStarts && bStarts) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  const topMatches = matches.slice(0, 30);
+
+  if (topMatches.length === 0) {
+    dropdown.innerHTML = `
+      <div class="action-autocomplete-header">
+        <span><i class="fa-solid fa-book-medical" style="color:var(--gold-400);"></i> Tindakan White Book</span>
+        <span class="count-badge">0 Opsi</span>
+      </div>
+      <div class="autocomplete-no-match">
+        <i class="fa-solid fa-magnifying-glass"></i> Tidak ditemukan tindakan White Book yang cocok dengan "<strong>${escapeHtml(query)}</strong>"
+      </div>
+    `;
+  } else {
+    let html = `
+      <div class="action-autocomplete-header">
+        <span><i class="fa-solid fa-book-medical" style="color:var(--gold-400);"></i> Tindakan White Book (${matches.length} Ditemukan)</span>
+        <span class="count-badge">${matches.length > 30 ? 'Menampilkan 30' : matches.length} Opsi</span>
+      </div>
+    `;
+
+    topMatches.forEach((item) => {
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      const highlightedName = escapeHtml(item.name).replace(regex, '<mark>$1</mark>');
+      const categoryBadge = item.category ? `<span class="autocomplete-item-badge">${escapeHtml(item.category)}</span>` : '';
+
+      html += `
+        <div class="autocomplete-item" data-action="${escapeHtml(item.name)}">
+          <div class="autocomplete-item-text">${highlightedName}</div>
+          ${categoryBadge}
+        </div>
+      `;
+    });
+    dropdown.innerHTML = html;
+
+    dropdown.querySelectorAll('.autocomplete-item').forEach(el => {
+      el.addEventListener('click', () => {
+        selectAutocompleteItem(el);
+      });
+    });
+  }
+
+  const rect = input.getBoundingClientRect();
+  dropdown.style.display = 'block';
+  dropdown.style.top = `${rect.bottom + 2}px`;
+  dropdown.style.left = `${rect.left}px`;
+  dropdown.style.width = `${Math.max(rect.width, 380)}px`;
+  dropdown.style.maxWidth = '90vw';
+}
+
+function updateAutocompleteActiveItem(items) {
+  items.forEach((item, idx) => {
+    if (idx === currentAutocompleteIndex) {
+      item.classList.add('active');
+      item.scrollIntoView({ block: 'nearest' });
+    } else {
+      item.classList.remove('active');
+    }
+  });
+}
+
+function selectAutocompleteItem(el) {
+  if (!currentAutocompleteInput || !el) return;
+  const actionText = el.getAttribute('data-action') || el.textContent;
+  currentAutocompleteInput.value = actionText;
+  currentAutocompleteInput.dispatchEvent(new Event('input', { bubbles: true }));
+  currentAutocompleteInput.dispatchEvent(new Event('change', { bubbles: true }));
+  closeLogbookAutocomplete();
+  currentAutocompleteInput.focus();
+}
+
+function closeLogbookAutocomplete() {
+  const dropdown = document.getElementById('logbookActionAutocomplete');
+  if (dropdown) {
+    dropdown.style.display = 'none';
+  }
+  currentAutocompleteInput = null;
+  currentAutocompleteIndex = -1;
 }
 
 function getLogbookItemsFromForm() {
