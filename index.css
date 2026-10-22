@@ -3523,3 +3523,110 @@ body.seiri-focus-mode .focus-mode-banner {
   }
 }
 
+/* ==========================================================================
+   AUTOCOMPLETE DROPDOWN: WHITE BOOK CLINICAL ACTIONS
+   ========================================================================== */
+.action-autocomplete-dropdown {
+  position: fixed;
+  background: var(--bg-surface, #ffffff);
+  border: 1.5px solid var(--primary-600, #117873);
+  border-radius: var(--radius-sm, 6px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.28), 0 8px 12px -6px rgba(0, 0, 0, 0.18);
+  z-index: 1000005;
+  max-height: 280px;
+  overflow-y: auto;
+  font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.8rem;
+  display: none;
+  animation: fadeInDropdown 0.15s ease-out;
+}
+
+@keyframes fadeInDropdown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.action-autocomplete-header {
+  background: #0f172a;
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.action-autocomplete-header .count-badge {
+  background: var(--primary-700, #0d5f5b);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface, #ffffff);
+  transition: all 0.12s ease;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+  background: #f0fdfa !important;
+  border-left: 3.5px solid var(--primary-600, #117873);
+}
+
+.autocomplete-item-text {
+  color: var(--text-main, #0f172a);
+  font-weight: 500;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.autocomplete-item-text mark {
+  background: #fef08a;
+  color: #854d0e;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+.autocomplete-item-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--primary-700, #0d5f5b);
+  background: rgba(17, 120, 115, 0.1);
+  border: 1px solid rgba(17, 120, 115, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.autocomplete-no-match {
+  padding: 14px;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  font-size: 0.8rem;
+  font-style: italic;
+  background: var(--bg-surface, #ffffff);
+}
+
+
