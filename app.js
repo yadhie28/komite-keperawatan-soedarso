@@ -2993,7 +2993,20 @@ function fillLogbookFormWithData(data) {
   if (!data) return;
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el) el.value = val !== undefined ? val : '';
+    if (!el) return;
+    if (el.tagName === 'SELECT' && val) {
+      el.value = val;
+      if (!el.value) {
+        for (const opt of el.options) {
+          if (opt.value && (opt.value.includes(val) || val.includes(opt.value))) {
+            el.value = opt.value;
+            break;
+          }
+        }
+      }
+    } else {
+      el.value = val !== undefined ? val : '';
+    }
   };
 
   setVal('logbookNama', data.nama);
@@ -3169,7 +3182,20 @@ function transferCvToLogbook(cv) {
   if (!cv) return;
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val) el.value = val;
+    if (!el || !val) return;
+    if (el.tagName === 'SELECT') {
+      el.value = val;
+      if (!el.value) {
+        for (const opt of el.options) {
+          if (opt.value && (opt.value.includes(val) || val.includes(opt.value))) {
+            el.value = opt.value;
+            break;
+          }
+        }
+      }
+    } else {
+      el.value = val;
+    }
   };
 
   setVal('logbookNama', cv.nama);
