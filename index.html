@@ -3458,7 +3458,55 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Unit Kerja / Ruang Penempatan <span class="req">*</span></label>
-                <input type="text" class="form-input" id="psvUnit" placeholder="Misal: Enggang Gading 2" required>
+                <select class="form-select" id="psvUnit" required>
+                  <option value="">-- Pilih Unit Kerja / Ruang Penempatan (Sesuai SK Tempat Tidur 2025) --</option>
+                  
+                  <optgroup label="A. INSTALASI RAWAT INAP A (545 TT)">
+                    <option value="Singkut Buluh">Singkut Buluh</option>
+                    <option value="PPT">PPT</option>
+                    <option value="A (Anak)">A (Anak)</option>
+                    <option value="B (Perinatologi)">B (Perinatologi)</option>
+                    <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
+                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
+                    <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
+                    <option value="Meranti">Meranti</option>
+                    <option value="Mahoni">Mahoni</option>
+                    <option value="Ramin">Ramin</option>
+                    <option value="ICU">ICU</option>
+                    <option value="HCU Umum">HCU Umum</option>
+                    <option value="PICU">PICU</option>
+                    <option value="HCU Anak">HCU Anak</option>
+                    <option value="NICU">NICU</option>
+                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
+                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
+                    <option value="Enggang Gading 1">Enggang Gading 1</option>
+                    <option value="Enggang Gading 2" selected>Enggang Gading 2</option>
+                  </optgroup>
+
+                  <optgroup label="B. INSTALASI JANTUNG TERPADU (55 TT)">
+                    <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
+                    <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
+                    <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
+                    <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
+                    <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+                  </optgroup>
+
+                  <optgroup label="C. RUANG TINDAKAN (53 TT)">
+                    <option value="Cendana">Cendana</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
+                    <option value="IGD Kebidanan">IGD Kebidanan</option>
+                    <option value="OK Sentral">OK Sentral</option>
+                    <option value="OK IGD">OK IGD</option>
+                  </optgroup>
+
+                  <optgroup label="D. RUANG RAWAT KHUSUS (51 TT)">
+                    <option value="Thalassemia">Thalassemia</option>
+                    <option value="HD Rawat Jalan">HD Rawat Jalan</option>
+                    <option value="HD Rawat Inap">HD Rawat Inap</option>
+                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+                  </optgroup>
+                </select>
+                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Sesuai SK Direktur No: SK/031103/RSUD/2025 Penetapan 704 Tempat Tidur.</span>
               </div>
             </div>
           </div>

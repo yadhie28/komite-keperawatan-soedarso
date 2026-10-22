@@ -6166,7 +6166,19 @@ function syncPsvFromApplicant() {
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val !== undefined) el.value = val;
+    if (!el || val === undefined) return;
+    el.value = val;
+    if (el.tagName === 'SELECT' && el.value !== val) {
+      const lower = String(val).toLowerCase();
+      for (let i = 0; i < el.options.length; i++) {
+        const optVal = el.options[i].value.toLowerCase();
+        const optText = el.options[i].textContent.toLowerCase();
+        if (optVal && (lower.includes(optVal) || optVal.includes(lower) || lower.includes(optText) || optText.includes(lower))) {
+          el.selectedIndex = i;
+          break;
+        }
+      }
+    }
   };
 
   setVal('psvNama', nama);
@@ -6214,7 +6226,19 @@ function fillPsvPreset(key) {
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val !== undefined) el.value = val;
+    if (!el || val === undefined) return;
+    el.value = val;
+    if (el.tagName === 'SELECT' && el.value !== val) {
+      const lower = String(val).toLowerCase();
+      for (let i = 0; i < el.options.length; i++) {
+        const optVal = el.options[i].value.toLowerCase();
+        const optText = el.options[i].textContent.toLowerCase();
+        if (optVal && (lower.includes(optVal) || optVal.includes(lower) || lower.includes(optText) || optText.includes(lower))) {
+          el.selectedIndex = i;
+          break;
+        }
+      }
+    }
   };
 
   setVal('psvNama', psv.nama);
