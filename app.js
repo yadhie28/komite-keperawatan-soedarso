@@ -2280,9 +2280,7 @@ function updateAlurStepStatus() {
       b4.style.color = '#15803d';
       b4.innerHTML = '<i class="fa-solid fa-circle-check"></i> RKK Terkirim (Review)';
     } else {
-      b4.style.background = 'rgba(14, 56, 96, 0.12)';
-      b4.style.color = '#0e3860';
-      b4.innerHTML = '<i class="fa-solid fa-file-circle-check"></i> Sesuai Buku Putih 2026';
+      b4.style.display = 'none';
     }
   }
 
