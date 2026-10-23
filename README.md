@@ -7,7 +7,8 @@ Aplikasi portal resmi Komite Keperawatan RSUD dr. Soedarso Provinsi Kalimantan B
 ## 🌐 Akses Live (GitHub Pages)
 - **URL Produksi:** [https://yadhie28.github.io/komite-keperawatan-soedarso/](https://yadhie28.github.io/komite-keperawatan-soedarso/)
 - **Repository GitHub:** [git@github.com:yadhie28/komite-keperawatan-soedarso.git](git@github.com:yadhie28/komite-keperawatan-soedarso.git)
-- **Git Checkpoint Tag:** `checkpoint-20261022` (Commit: `8b31b69`)
+- **Git Checkpoint Tag Terbaru:** `checkpoint-20261023-bukuputih` (Commit: `7ec5935`)
+- **Arsip Backup Zip:** `komite-keperawatan-soedarso-backup-20261023.zip` (Tersimpan di Direktori Proyek, `~/Documents/`, dan `~/Downloads/`)
 
 ---
 
