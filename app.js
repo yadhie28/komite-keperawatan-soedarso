@@ -2463,7 +2463,6 @@ function fillCvFormWithData(cv) {
   setVal('cvStrBerlaku', cv.strBerlaku);
   setVal('cvSipp', cv.sipp);
   setVal('cvSippBerlaku', cv.sippBerlaku);
-  setVal('cvKta', cv.kta);
 
   if (cv.pendidikan && cv.pendidikan.length >= 4) {
     cv.pendidikan.forEach((edu, idx) => {
@@ -2491,7 +2490,7 @@ function fillCvPreset(type) {
 }
 
 function resetCvForm() {
-  const ids = ['cvNama', 'cvNip', 'cvTtl', 'cvJabatan', 'cvStr', 'cvStrBerlaku', 'cvSipp', 'cvSippBerlaku', 'cvKta'];
+  const ids = ['cvNama', 'cvNip', 'cvTtl', 'cvJabatan', 'cvStr', 'cvStrBerlaku', 'cvSipp', 'cvSippBerlaku'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -2647,7 +2646,6 @@ function handleCvSubmit(e) {
   const strBerlaku = getVal('cvStrBerlaku');
   const sipp = getVal('cvSipp');
   const sippBerlaku = getVal('cvSippBerlaku');
-  const kta = getVal('cvKta');
 
   const pendidikan = [
     { jenjang: 'D3 Keperawatan', institusi: getVal('cvEduInst_0'), tahun: getVal('cvEduTahun_0'), noIjazah: getVal('cvEduIjazah_0') },
@@ -2671,7 +2669,6 @@ function handleCvSubmit(e) {
     strBerlaku,
     sipp,
     sippBerlaku,
-    kta,
     pendidikan,
     pengalamanKerja,
     pelatihan,
@@ -2771,7 +2768,6 @@ function getActiveCvMasterData() {
   const strBerlaku = getElVal('cvStrBerlaku') || stored.strBerlaku || '15 April 2028';
   const sipp = getElVal('cvSipp') || stored.sipp || '503/0842/SIPP/DPMPTSP-C/2022';
   const sippBerlaku = getElVal('cvSippBerlaku') || stored.sippBerlaku || '15 April 2027';
-  const kta = getElVal('cvKta') || stored.kta || '61710048291';
 
   // Education
   const eduList = stored.pendidikan || [];
@@ -2833,7 +2829,6 @@ function getActiveCvMasterData() {
     strBerlaku,
     sipp,
     sippBerlaku,
-    kta,
     edu0,
     edu1,
     edu2,
@@ -2898,7 +2893,6 @@ function syncAllDownstreamFormsFromCv() {
   setVal('suratStrExpiry', master.strBerlaku);
   setVal('suratSipp', master.sipp);
   setVal('suratSippExpiry', master.sippBerlaku);
-  setVal('suratKtaPpni', master.kta);
 
   // --- LANGKAH 4: RKK ONLINE ---
   setVal('formNama', master.nama);
@@ -3036,7 +3030,6 @@ function generateCvHVS(mode) {
   const strBerlaku = v(cv?.strBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY (Wajib Aktif) ]');
   const sipp = v(cv?.sipp, '[ xxxx/SIPP/DPMPTSP/YYYY ]');
   const sippBerlaku = v(cv?.sippBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY ]');
-  const kta = v(cv?.kta, '[ xxxxxxxxx (Terdaftar Aktif di Komisariat RSUD dr. Soedarso) ]');
 
   const edu = cv?.pendidikan || [
     { jenjang: 'D3 Keperawatan', institusi: '', tahun: '', noIjazah: '' },
@@ -3205,10 +3198,6 @@ function generateCvHVS(mode) {
         <tr>
           <td style="font-weight: bold;">Masa Berlaku SIPP/SIPB:</td>
           <td>${sippBerlaku}</td>
-        </tr>
-        <tr>
-          <td style="font-weight: bold;">Keanggotaan PPNI (NIRA)/IBI (KTA):</td>
-          <td>${kta}</td>
         </tr>
       </table>
 
