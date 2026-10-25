@@ -1773,12 +1773,12 @@ window.KOMITE_DATA = {
     buktiStr: true,
     buktiSipp: true,
     buktiPelatihan: true,
-    kesimpulan: "disetujui_penuh",
-    verifikatorNama: "Ns. Bambang Sugiarto, S.Kep",
-    verifikatorNip: "19880315 201402 1 002",
-    tanggalPsv: "18 Oktober 2026",
-    ketuaSubkomiteNama: "Ns. Rusmulyadi, M.Kep., Sp.Kep.MB",
-    ketuaSubkomiteNip: "19800728 200501 1 005"
+    kesimpulan: "",
+    verifikatorNama: "",
+    verifikatorNip: "",
+    tanggalPsv: "__________________ 2026",
+    ketuaSubkomiteNama: "",
+    ketuaSubkomiteNip: ""
   },
 
   // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)

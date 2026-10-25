@@ -6642,11 +6642,6 @@ function syncPsvFromApplicant() {
   setVal('psvPelatihanMetode', 'barcode');
   setVal('psvPelatihanHasil', 'valid');
 
-  setVal('psvVerifikatorNama', samplePsv.verifikatorNama);
-  setVal('psvVerifikatorNip', samplePsv.verifikatorNip);
-  setVal('psvTanggal', samplePsv.tanggalPsv);
-  setVal('psvKetuaNama', samplePsv.ketuaSubkomiteNama);
-  setVal('psvKetuaNip', samplePsv.ketuaSubkomiteNip);
 }
 
 function fillPsvPreset(key) {
@@ -6699,12 +6694,6 @@ function fillPsvPreset(key) {
   setVal('psvPelatihanMetode', psv.pelatihanMetode);
   setVal('psvPelatihanHasil', psv.pelatihanHasil);
 
-  setVal('psvVerifikatorNama', psv.verifikatorNama);
-  setVal('psvVerifikatorNip', psv.verifikatorNip);
-  setVal('psvTanggal', psv.tanggalPsv);
-  setVal('psvKetuaNama', psv.ketuaSubkomiteNama);
-  setVal('psvKetuaNip', psv.ketuaSubkomiteNip);
-
   // Data pemohon dan kualifikasi tetap terkunci dan tersinkron dari CV Master
   syncAllDownstreamFormsFromCv();
 
@@ -6746,11 +6735,11 @@ function handlePsvSubmit(e) {
     buktiSipp: document.getElementById('chkBuktiSipp')?.checked ?? true,
     buktiPelatihan: document.getElementById('chkBuktiPelatihan')?.checked ?? true,
     kesimpulan: '',
-    verifikatorNama: getVal('psvVerifikatorNama', 'Ns. Bambang Sugiarto, S.Kep'),
-    verifikatorNip: getVal('psvVerifikatorNip', '19880315 201402 1 002'),
-    tanggalPsv: getVal('psvTanggal', '18 Oktober 2026'),
-    ketuaSubkomiteNama: getVal('psvKetuaNama', 'Ns. Rusmulyadi, M.Kep., Sp.Kep.MB'),
-    ketuaSubkomiteNip: getVal('psvKetuaNip', '19800728 200501 1 005')
+    verifikatorNama: '',
+    verifikatorNip: '',
+    tanggalPsv: getVal('psvTanggal', '__________________ 2026'),
+    ketuaSubkomiteNama: '',
+    ketuaSubkomiteNip: ''
   };
 
   state.kredensialPsvGenerated = true;
@@ -6863,16 +6852,16 @@ function generatePsvHVS(mode) {
   const chkBuktiSipp = getBox(!isBlank && (d.buktiSipp !== false));
   const chkBuktiPelatihan = getBox(!isBlank && (d.buktiPelatihan !== false));
 
-  // Conclusion Checkboxes
-  const chkSetujuPenuh = getBox(d.kesimpulan === 'disetujui_penuh' || !d.kesimpulan);
-  const chkSetujuSyarat = getBox(d.kesimpulan === 'disetujui_syarat');
-  const chkDitolak = getBox(d.kesimpulan === 'ditolak');
+  // Conclusion Checkboxes (Diisi oleh Verifikator / Subkomite Kredensial)
+  const chkSetujuPenuh = getBox(!isBlank && d.kesimpulan === 'disetujui_penuh');
+  const chkSetujuSyarat = getBox(!isBlank && d.kesimpulan === 'disetujui_syarat');
+  const chkDitolak = getBox(!isBlank && d.kesimpulan === 'ditolak');
 
-  const verifikatorNama = isBlank ? '___________________________' : (d.verifikatorNama || document.getElementById('psvVerifikatorNama')?.value.trim() || 'Ns. Bambang Sugiarto, S.Kep');
-  const verifikatorNip = isBlank ? '........................' : (d.verifikatorNip || document.getElementById('psvVerifikatorNip')?.value.trim() || '19880315 201402 1 002');
-  const tanggalPsv = isBlank ? '__________________ 2026' : (d.tanggalPsv || document.getElementById('psvTanggal')?.value.trim() || '18 Oktober 2026');
-  const ketuaNama = isBlank ? '___________________________' : (d.ketuaSubkomiteNama || document.getElementById('psvKetuaNama')?.value.trim() || 'Ns. Rusmulyadi, M.Kep., Sp.Kep.MB');
-  const ketuaNip = isBlank ? '........................' : (d.ketuaSubkomiteNip || document.getElementById('psvKetuaNip')?.value.trim() || '19800728 200501 1 005');
+  const verifikatorNama = '___________________________';
+  const verifikatorNip = '..................................................';
+  const tanggalPsv = isBlank ? '__________________ 2026' : (d.tanggalPsv || '__________________ 2026');
+  const ketuaNama = '___________________________';
+  const ketuaNip = '..................................................';
 
   const logoSrc = (window.KOMITE_DATA && window.KOMITE_DATA.logoKalbar) ? window.KOMITE_DATA.logoKalbar : 'logo_kalbar.png';
 
@@ -7175,8 +7164,8 @@ function generatePsvHVS(mode) {
                   Staf / Verifikator Komite,<br>
                   Subkomite Kredensial
                   <div style="height: 55px;"></div>
-                  ( <span style="font-weight: bold; text-decoration: underline;">${verifikatorNama}</span> )<br>
-                  NIP. ${verifikatorNip}
+                  ( ___________________________ )<br>
+                  NIP. ..................................................
                 </td>
                 <td style="width: 4%;"></td>
                 <td style="width: 48%; text-align: center; vertical-align: top;">
@@ -7184,8 +7173,8 @@ function generatePsvHVS(mode) {
                   Ketua Subkomite Kredensial<br>
                   RSUD dr. Soedarso,
                   <div style="height: 55px;"></div>
-                  ( <span style="font-weight: bold; text-decoration: underline;">${ketuaNama}</span> )<br>
-                  NIP. ${ketuaNip}
+                  ( ___________________________ )<br>
+                  NIP. ..................................................
                 </td>
               </tr>
             </table>
