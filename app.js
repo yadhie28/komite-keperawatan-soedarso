@@ -2423,7 +2423,33 @@ function fillCvFormWithData(cv) {
   if (!cv) return;
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el) el.value = val !== undefined ? val : '';
+    if (!el) return;
+    if (el.tagName === 'SELECT') {
+      if (!val) {
+        el.selectedIndex = 0;
+        return;
+      }
+      const target = String(val).trim().toLowerCase();
+      // 1. Exact value match
+      for (let i = 0; i < el.options.length; i++) {
+        if (el.options[i].value.trim().toLowerCase() === target) {
+          el.selectedIndex = i;
+          return;
+        }
+      }
+      // 2. Partial / flexible match on value or label
+      for (let i = 0; i < el.options.length; i++) {
+        const optVal = el.options[i].value.trim().toLowerCase();
+        const optText = el.options[i].textContent.trim().toLowerCase();
+        if (!optVal) continue;
+        if (target.includes(optVal) || optVal.includes(target) || target.includes(optText) || optText.includes(target)) {
+          el.selectedIndex = i;
+          return;
+        }
+      }
+    } else {
+      el.value = val !== undefined ? val : '';
+    }
   };
   setVal('cvNama', cv.nama);
   setVal('cvNip', cv.nip);
@@ -2465,11 +2491,18 @@ function fillCvPreset(type) {
 }
 
 function resetCvForm() {
-  const ids = ['cvNama', 'cvNip', 'cvTtl', 'cvJabatan', 'cvUnit', 'cvPkSaatIni', 'cvPkDiusulkan', 'cvStr', 'cvStrBerlaku', 'cvSipp', 'cvSippBerlaku', 'cvKta'];
+  const ids = ['cvNama', 'cvNip', 'cvTtl', 'cvJabatan', 'cvStr', 'cvStrBerlaku', 'cvSipp', 'cvSippBerlaku', 'cvKta'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const unitEl = document.getElementById('cvUnit');
+  if (unitEl) unitEl.value = 'Enggang Gading 2';
+  const pkSaatIniEl = document.getElementById('cvPkSaatIni');
+  if (pkSaatIniEl) pkSaatIniEl.value = 'PK II';
+  const pkDiusulkanEl = document.getElementById('cvPkDiusulkan');
+  if (pkDiusulkanEl) pkDiusulkanEl.value = 'PK III';
+
   for (let i = 0; i < 4; i++) {
     const iEl = document.getElementById(`cvEduInst_${i}`);
     const tEl = document.getElementById(`cvEduTahun_${i}`);
@@ -2972,13 +3005,32 @@ function generateCvHVS(mode) {
     return (val !== undefined && val !== null && String(val).trim() !== '') ? val : (placeholder || '');
   };
 
+  const formatJenjangLabel = (val) => {
+    if (!val) return '';
+    const mapping = {
+      'Pra PK': 'Pra PK / Belum Memiliki Jenjang (Perawat Baru)',
+      'PK I': 'Perawat Klinis I (PK I - Novice / Generalis)',
+      'PK II': 'Perawat Klinis II (PK II - Advance Beginner)',
+      'PK III': 'Perawat Klinis III (PK III - Competent / Spesifik Area)',
+      'PK IV': 'Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)',
+      'PK V': 'Perawat Klinis V (PK V - Expert / Pakar)',
+      'Pra BK': 'Pra BK / Belum Memiliki Jenjang (Bidan Baru)',
+      'BK I': 'Bidan Klinis I (BK I - Novice Kebidanan)',
+      'BK II': 'Bidan Klinis II (BK II - Advance Beginner Kebidanan)',
+      'BK III': 'Bidan Klinis III (BK III - Competent Kebidanan)',
+      'BK IV': 'Bidan Klinis IV (BK IV - Proficient Kebidanan)',
+      'PMB': 'Praktisi Bidan Klinis (PMB Maternal & Neonatal)'
+    };
+    return mapping[val] || val;
+  };
+
   const nama = v(cv?.nama, '[ Ns. Nama Lengkap, S.Kep ]');
   const nip = v(cv?.nip, '[ 19xxxxxxxxxxxxxx ]');
   const ttl = v(cv?.ttl, '[ Pontianak, DD / MM / YYYY ]');
   const jabatan = v(cv?.jabatan, '[ Perawat Pelaksana / Ketua Tim / Kepala Ruangan ]');
-  const unit = v(cv?.unit, '[ Misal: Ruang ICU / IGD / Kanker / Cath Lab Jantung ]');
-  const pkSaatIni = v(cv?.pkSaatIni, '[ Perawat Klinis I / II / III / IV / V ]');
-  const pkDiusulkan = v(cv?.pkDiusulkan, '[ PK II / PK III / PK IV - Sesuaikan White Paper ]');
+  const unit = v(cv?.unit, '[ Sesuai SK Tempat Tidur: Enggang Gading 2 ]');
+  const pkSaatIni = v(formatJenjangLabel(cv?.pkSaatIni), '[ Perawat Klinis I / II / III / IV / V ]');
+  const pkDiusulkan = v(formatJenjangLabel(cv?.pkDiusulkan), '[ PK II / PK III / PK IV - Sesuaikan White Paper ]');
 
   const str = v(cv?.str, '[ xxxxxxxxx-xxxxxxx ]');
   const strBerlaku = v(cv?.strBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY (Wajib Aktif) ]');
