@@ -6622,25 +6622,21 @@ function syncPsvFromApplicant() {
   setVal('psvIjazahNomor', ijazahNo);
   setVal('psvIjazahTahun', ijazahTahun);
   setVal('psvIjazahMetode', 'online');
-  setVal('psvIjazahHasil', 'valid');
 
   setVal('psvStrInstitusi', samplePsv.strInstitusi);
   setVal('psvStrNomor', strNo);
   setVal('psvStrBerlaku', strExp);
   setVal('psvStrMetode', 'ktki_web');
-  setVal('psvStrHasil', 'valid');
 
   setVal('psvSippInstitusi', samplePsv.sippInstitusi);
   setVal('psvSippNomor', sippNo);
   setVal('psvSippBerlaku', sippExp);
   setVal('psvSippMetode', 'sicantik');
-  setVal('psvSippHasil', 'valid');
 
   setVal('psvPelatihanInstitusi', samplePsv.pelatihanInstitusi);
   setVal('psvPelatihanNama', trainName);
   setVal('psvPelatihanTanggal', trainDate);
   setVal('psvPelatihanMetode', 'barcode');
-  setVal('psvPelatihanHasil', 'valid');
 
 }
 
@@ -6714,22 +6710,22 @@ function handlePsvSubmit(e) {
     ijazahNomor: getVal('psvIjazahNomor', '1401/UNTAN/NERS/2018'),
     ijazahTahun: getVal('psvIjazahTahun', '2018'),
     ijazahMetode: getVal('psvIjazahMetode', 'online'),
-    ijazahHasil: getVal('psvIjazahHasil', 'valid'),
+    ijazahHasil: '',
     strInstitusi: getVal('psvStrInstitusi', 'Majelis Tenaga Kesehatan / KTKI / KKI Kemenkes RI'),
     strNomor: getVal('psvStrNomor', '140152123-2893812'),
     strBerlaku: getVal('psvStrBerlaku', '17 Agustus 2028'),
     strMetode: getVal('psvStrMetode', 'qr_scan'),
-    strHasil: getVal('psvStrHasil', 'valid'),
+    strHasil: '',
     sippInstitusi: getVal('psvSippInstitusi', 'Dinas Kesehatan / DPMPTSP Asal'),
     sippNomor: getVal('psvSippNomor', '503/412/Dinkes-PP/SIPP/2023'),
     sippBerlaku: getVal('psvSippBerlaku', '17 Agustus 2028'),
     sippMetode: getVal('psvSippMetode', 'sicantik'),
-    sippHasil: getVal('psvSippHasil', 'valid'),
+    sippHasil: '',
     pelatihanInstitusi: getVal('psvPelatihanInstitusi', 'Pusdiklat Kemenkes / Organisasi Profesi (PPNI)'),
     pelatihanNama: getVal('psvPelatihanNama', 'Basic Trauma Cardiac Life Support (BTCLS) & KMB Terpadu'),
     pelatihanTanggal: getVal('psvPelatihanTanggal', '14 - 18 Mei 2024'),
     pelatihanMetode: getVal('psvPelatihanMetode', 'barcode'),
-    pelatihanHasil: getVal('psvPelatihanHasil', 'valid'),
+    pelatihanHasil: '',
     buktiPddikti: document.getElementById('chkBuktiPddikti')?.checked ?? true,
     buktiStr: document.getElementById('chkBuktiStr')?.checked ?? true,
     buktiSipp: document.getElementById('chkBuktiSipp')?.checked ?? true,
@@ -6821,30 +6817,31 @@ function generatePsvHVS(mode) {
   const chkIjazahOnline = getBox(d.ijazahMetode === 'online' || !d.ijazahMetode);
   const chkIjazahSurat = getBox(d.ijazahMetode === 'surat');
   const chkIjazahKontak = getBox(d.ijazahMetode === 'kontak');
-  const chkIjazahValid = getBox(d.ijazahHasil === 'valid' || !d.ijazahHasil);
-  const chkIjazahProses = getBox(d.ijazahHasil === 'proses');
-  const chkIjazahInvalid = getBox(d.ijazahHasil === 'invalid');
+  // Kolom Hasil Verifikasi dikosongkan (tidak diberi ceklis karena ditentukan oleh verifikator)
+  const chkIjazahValid = getBox(false);
+  const chkIjazahProses = getBox(false);
+  const chkIjazahInvalid = getBox(false);
 
   const chkStrQr = getBox(d.strMetode === 'qr_scan' || !d.strMetode);
   const chkStrKtki = getBox(d.strMetode === 'ktki_web');
   const chkStrSurat = getBox(d.strMetode === 'surat');
-  const chkStrValid = getBox(d.strHasil === 'valid' || !d.strHasil);
-  const chkStrExpired = getBox(d.strHasil === 'kadaluarsa');
-  const chkStrInvalid = getBox(d.strHasil === 'invalid');
+  const chkStrValid = getBox(false);
+  const chkStrExpired = getBox(false);
+  const chkStrInvalid = getBox(false);
 
   const chkSippSicantik = getBox(d.sippMetode === 'sicantik' || !d.sippMetode);
   const chkSippDinkes = getBox(d.sippMetode === 'konfirmasi_dinkes');
   const chkSippFisik = getBox(d.sippMetode === 'berkas_fisik');
-  const chkSippValid = getBox(d.sippHasil === 'valid' || !d.sippHasil);
-  const chkSippRekom = getBox(d.sippHasil === 'rekomendasi');
-  const chkSippInvalid = getBox(d.sippHasil === 'invalid');
+  const chkSippValid = getBox(false);
+  const chkSippRekom = getBox(false);
+  const chkSippInvalid = getBox(false);
 
   const chkTrainBarcode = getBox(d.pelatihanMetode === 'barcode' || !d.pelatihanMetode);
   const chkTrainProvider = getBox(d.pelatihanMetode === 'provider');
   const chkTrainBuku = getBox(d.pelatihanMetode === 'portofolio');
-  const chkTrainValid = getBox(d.pelatihanHasil === 'valid' || !d.pelatihanHasil);
-  const chkTrainDiakui = getBox(d.pelatihanHasil === 'diakui');
-  const chkTrainInvalid = getBox(d.pelatihanHasil === 'invalid');
+  const chkTrainValid = getBox(false);
+  const chkTrainDiakui = getBox(false);
+  const chkTrainInvalid = getBox(false);
 
   // Digital Evidence Checkboxes
   const chkBuktiPddikti = getBox(!isBlank && (d.buktiPddikti !== false));
