@@ -3629,4 +3629,112 @@ body.seiri-focus-mode .focus-mode-banner {
   background: var(--bg-surface, #ffffff);
 }
 
+/* ==========================================================================
+   ALUR KREDENSIAL: AUTO-FILL & LOCKED FIELDS (ZERO REPETITIVE ENTRY)
+   Single Source of Truth: Langkah 1 (Curriculum Vitae / CV)
+   ========================================================================== */
+.input-locked,
+input.form-input.input-locked,
+select.form-select.input-locked,
+textarea.form-textarea.input-locked {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+  cursor: not-allowed !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+select.form-select.input-locked {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.input-locked:focus {
+  outline: none !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2) !important;
+}
+
+.locked-field-container {
+  position: relative;
+}
+
+.locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: #0369a1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.locked-section-banner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #16a34a;
+  padding: 0.65rem 0.95rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #166534;
+  margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.locked-section-banner.info-blue {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  border-left-color: #0284c7;
+  color: #0369a1;
+}
+
+.btn-goto-step1 {
+  background: #0284c7;
+  color: #ffffff !important;
+  border: none;
+  font-size: 0.73rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-goto-step1:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.badge-source-truth {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 4px;
+}
+
+
 

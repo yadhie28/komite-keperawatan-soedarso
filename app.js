@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
   renderAllViews();
   initLogbookAutocomplete();
+  initCredentialingSync();
 });
 
 /* ==========================================================================
@@ -1323,55 +1324,11 @@ function openNewKredensialModal() {
   const form = document.getElementById('kredensialForm');
   if (form) form.reset();
 
-  // Auto-fill dari data CV / Surat Permohonan / Current Applicant
-  const cv = state.cvData || {};
-  const applicant = state.currentApplicant || {};
-  const current = state.currentUser || {};
+  // Pastikan data tersinkronisasi penuh dan terkunci dari Langkah 1 (CV)
+  syncAllDownstreamFormsFromCv();
 
-  const namaVal = cv.nama || applicant.nama || current.name || document.getElementById('suratNama')?.value || document.getElementById('cvNama')?.value || '';
-  const nipVal = cv.nip || applicant.nip || current.nip || document.getElementById('suratNip')?.value || document.getElementById('cvNip')?.value || '';
-  const strVal = cv.str || applicant.str || document.getElementById('suratStr')?.value || document.getElementById('cvStr')?.value || '';
-  const strExpVal = cv.strBerlaku || applicant.strExpiry || document.getElementById('suratStrExpiry')?.value || '';
-  const sippVal = cv.sipp || document.getElementById('suratSipp')?.value || '';
-  const unitVal = cv.unit || applicant.unit || document.getElementById('suratUnit')?.value || document.getElementById('cvUnit')?.value || '';
-  const jenjangVal = cv.pkDiusulkan || applicant.jenjang || document.getElementById('suratJenjang')?.value || document.getElementById('cvJenjang')?.value || 'PK III';
-
-  const setVal = (id, val) => {
-    const el = document.getElementById(id);
-    if (!el || !val) return;
-    el.value = val;
-    if (el.tagName === 'SELECT' && el.value !== val) {
-      const lowerVal = String(val).toLowerCase();
-      for (let i = 0; i < el.options.length; i++) {
-        const opt = el.options[i];
-        const optVal = opt.value.toLowerCase();
-        const optText = opt.textContent.toLowerCase();
-        if (optVal && (lowerVal.includes(optVal) || optVal.includes(lowerVal) || lowerVal.includes(optText) || optText.includes(lowerVal))) {
-          el.selectedIndex = i;
-          break;
-        }
-      }
-    }
-  };
-
-  setVal('formNama', namaVal);
-  setVal('formNip', nipVal);
-  setVal('formStr', strVal);
-  if (strExpVal) {
-    const elExp = document.getElementById('formStrExpiry');
-    if (elExp) {
-      if (strExpVal.includes('-')) elExp.value = strExpVal;
-      else elExp.value = '2028-11-20';
-    }
-  }
-  setVal('formSipp', sippVal);
-  if (unitVal) setVal('formUnit', unitVal);
-  if (jenjangVal) {
-    setVal('formJenjang', jenjangVal);
-    onJenjangChange(jenjangVal);
-  } else {
-    onJenjangChange('PK III');
-  }
+  const jenjangVal = document.getElementById('formJenjang')?.value || 'PK III';
+  onJenjangChange(jenjangVal);
 
   // Pre-render Step 3 Checklist RKK agar langsung siap dengan seluruh opsi White Book
   const initialArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value || 'kmb_medikal_pk3';
@@ -2502,7 +2459,8 @@ function fillCvPreset(type) {
   const preset = window.KOMITE_DATA?.sampleCv?.[type];
   if (preset) {
     fillCvFormWithData(preset);
-    showToast(`Data profil ${type === 'bidan' ? 'Bdn. Siti Nurhaliza (BK III)' : 'Ns. Hendra Kurniawan (PK III)'} berhasil dimuat!`, 'info');
+    syncAllDownstreamFormsFromCv();
+    showToast(`Data profil ${type === 'bidan' ? 'Bdn. Siti Nurhaliza (BK III)' : 'Ns. Hendra Kurniawan (PK III)'} berhasil dimuat! Seluruh formulir alur otomatis terbarui.`, 'info');
   }
 }
 
@@ -2531,6 +2489,7 @@ function resetCvForm() {
     { jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' },
     { jenis: '', penyelenggara: '', tahun: '', masaBerlaku: '' }
   ]);
+  syncAllDownstreamFormsFromCv();
   showToast('Formulir CV berhasil dikosongkan. Siap diisi data baru atau dipratinjau sebagai blangko kosong.', 'info');
 }
 
@@ -2739,54 +2698,268 @@ function handleCvSubmit(e) {
   showToast(`Curriculum Vitae (CV) resmi untuk ${nama} berhasil diterbitkan (3 Halaman)! Notifikasi terkirim ke Komite & Sekretaris.`, 'success');
 }
 
-function transferCvToSurat(cv) {
-  if (!cv) return;
+/* ==========================================================================
+   ALUR KREDENSIAL: SINGLE SOURCE OF TRUTH & DOWNSTREAM AUTO-SYNC
+   Master / Origin Form: Langkah 1 (Curriculum Vitae / CV)
+   ========================================================================== */
+
+function parseIndonesianDateToYMD(str) {
+  if (!str) return '2028-11-20';
+  const clean = String(str).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) return clean;
+  
+  const months = {
+    januari: '01', februari: '02', maret: '03', april: '04', mei: '05', juni: '06',
+    juli: '07', agustus: '08', september: '09', oktober: '10', november: '11', desember: '12'
+  };
+  
+  const m = clean.match(/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+  if (m) {
+    const d = m[1].padStart(2, '0');
+    const mo = months[m[2].toLowerCase()] || '01';
+    const y = m[3];
+    return `${y}-${mo}-${d}`;
+  }
+  return '2028-11-20';
+}
+
+function getActiveCvMasterData() {
+  const getElVal = id => document.getElementById(id)?.value?.trim() || '';
+  const stored = state.cvData || (window.KOMITE_DATA?.sampleCv?.perawat || {});
+  
+  const nama = getElVal('cvNama') || stored.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  const nip = getElVal('cvNip') || stored.nip || '19920415 201903 1 004';
+  const ttl = getElVal('cvTtl') || stored.ttl || 'Pontianak, 15 April 1992';
+  const jabatan = getElVal('cvJabatan') || stored.jabatan || 'Perawat Pelaksana / Ketua Tim';
+  const unit = getElVal('cvUnit') || stored.unit || 'Enggang Gading 2';
+  const pkSaatIni = getElVal('cvPkSaatIni') || stored.pkSaatIni || 'PK II';
+  const pkDiusulkan = getElVal('cvPkDiusulkan') || stored.pkDiusulkan || 'PK III';
+  const str = getElVal('cvStr') || stored.str || '140152119-2849103';
+  const strBerlaku = getElVal('cvStrBerlaku') || stored.strBerlaku || '15 April 2028';
+  const sipp = getElVal('cvSipp') || stored.sipp || '503/0842/SIPP/DPMPTSP-C/2022';
+  const sippBerlaku = getElVal('cvSippBerlaku') || stored.sippBerlaku || '15 April 2027';
+  const kta = getElVal('cvKta') || stored.kta || '61710048291';
+
+  // Education
+  const eduList = stored.pendidikan || [];
+  const edu0 = {
+    jenjang: 'D3 Keperawatan',
+    institusi: getElVal('cvEduInst_0') || eduList[0]?.institusi || 'Poltekkes Kemenkes Pontianak',
+    tahun: getElVal('cvEduTahun_0') || eduList[0]?.tahun || '2013',
+    noIjazah: getElVal('cvEduIjazah_0') || eduList[0]?.noIjazah || '14201/POLTEK-PTK/D3/2013'
+  };
+  const edu1 = {
+    jenjang: 'S1 Keperawatan',
+    institusi: getElVal('cvEduInst_1') || eduList[1]?.institusi || 'STIKes Yarsi Pontianak',
+    tahun: getElVal('cvEduTahun_1') || eduList[1]?.tahun || '2017',
+    noIjazah: getElVal('cvEduIjazah_1') || eduList[1]?.noIjazah || '08412/YARSI/S1-KEP/2017'
+  };
+  const edu2 = {
+    jenjang: 'Profesi Ners',
+    institusi: getElVal('cvEduInst_2') || eduList[2]?.institusi || 'Fakultas Kedokteran Universitas Tanjungpura',
+    tahun: getElVal('cvEduTahun_2') || eduList[2]?.tahun || '2018',
+    noIjazah: getElVal('cvEduIjazah_2') || eduList[2]?.noIjazah || '180901/NERS-UNTAN/2018'
+  };
+  const edu3 = {
+    jenjang: 'S2 / Spesialis',
+    institusi: getElVal('cvEduInst_3') || eduList[3]?.institusi || '',
+    tahun: getElVal('cvEduTahun_3') || eduList[3]?.tahun || '',
+    noIjazah: getElVal('cvEduIjazah_3') || eduList[3]?.noIjazah || ''
+  };
+
+  let highest = edu2;
+  let highestLabel = 'S1+Profesi Ners';
+  if (edu3.institusi) {
+    highest = edu3;
+    highestLabel = 'S2 Keperawatan (Magister / Sp.Kep)';
+  } else if (edu2.institusi) {
+    highest = edu2;
+    highestLabel = 'S1+Profesi Ners';
+  } else if (edu1.institusi) {
+    highest = edu1;
+    highestLabel = 'S1+Profesi Ners';
+  } else {
+    highest = edu0;
+    highestLabel = 'D3 Keperawatan';
+  }
+
+  // Pelatihan
+  const trainList = stored.pelatihan || [];
+  const firstTrainName = trainList[0]?.jenis || 'Basic Trauma Cardiac Life Support (BTCLS)';
+  const firstTrainTahun = trainList[0]?.tahun ? `Tahun ${trainList[0].tahun}` : '14 - 18 Mei 2024';
+
+  return {
+    nama,
+    nip,
+    ttl,
+    jabatan,
+    unit,
+    pkSaatIni,
+    pkDiusulkan,
+    str,
+    strBerlaku,
+    sipp,
+    sippBerlaku,
+    kta,
+    edu0,
+    edu1,
+    edu2,
+    edu3,
+    highest,
+    highestLabel,
+    firstTrainName,
+    firstTrainTahun
+  };
+}
+
+function syncAllDownstreamFormsFromCv() {
+  const master = getActiveCvMasterData();
+
   const setVal = (id, val) => {
     const el = document.getElementById(id);
-    if (el && val) el.value = val;
+    if (!el || val === undefined || val === null) return;
+    el.value = val;
   };
 
-  setVal('suratNama', cv.nama);
-  if (cv.nip) {
-    const cleanNip = cv.nip.replace(/[^0-9]/g, '');
-    setVal('suratNip', cleanNip || cv.nip);
-  }
-  setVal('suratTtl', cv.ttl);
-  setVal('suratUnit', cv.unit);
-  setVal('suratJabatanFungsional', cv.jabatan);
-  if (cv.pkSaatIni) {
-    if (cv.pkSaatIni.includes('PK I') || cv.pkSaatIni.includes('Level I')) setVal('suratPkSaatIni', 'PK I');
-    else if (cv.pkSaatIni.includes('PK II')) setVal('suratPkSaatIni', 'PK II');
-    else if (cv.pkSaatIni.includes('PK III')) setVal('suratPkSaatIni', 'PK III');
-    else if (cv.pkSaatIni.includes('PK IV')) setVal('suratPkSaatIni', 'PK IV');
-    else if (cv.pkSaatIni.includes('PK V')) setVal('suratPkSaatIni', 'PK V');
-    else setVal('suratPkSaatIni', 'PK II');
-  }
-  if (cv.pkDiusulkan) {
-    if (cv.pkDiusulkan.includes('PK I') || cv.pkDiusulkan.includes('Level I')) setVal('suratJenjang', 'PK I');
-    else if (cv.pkDiusulkan.includes('PK II')) setVal('suratJenjang', 'PK II');
-    else if (cv.pkDiusulkan.includes('PK III')) setVal('suratJenjang', 'PK III');
-    else if (cv.pkDiusulkan.includes('PK IV')) setVal('suratJenjang', 'PK IV');
-    else if (cv.pkDiusulkan.includes('PK V')) setVal('suratJenjang', 'PK V');
-    else setVal('suratJenjang', 'PK III');
-  }
-  setVal('suratStr', cv.str);
-  setVal('suratStrExpiry', cv.strBerlaku);
-  setVal('suratSipp', cv.sipp);
-  setVal('suratSippExpiry', cv.sippBerlaku);
-  setVal('suratKtaPpni', cv.kta);
+  const setSelectFlex = (id, val) => {
+    const el = document.getElementById(id);
+    if (!el || !val) return;
+    const target = String(val).trim().toLowerCase();
+    for (let i = 0; i < el.options.length; i++) {
+      if (el.options[i].value.trim().toLowerCase() === target) {
+        el.selectedIndex = i;
+        return;
+      }
+    }
+    for (let i = 0; i < el.options.length; i++) {
+      const optVal = el.options[i].value.trim().toLowerCase();
+      const optText = el.options[i].textContent.trim().toLowerCase();
+      if (!optVal) continue;
+      if (target.includes(optVal) || optVal.includes(target) || target.includes(optText) || optText.includes(target)) {
+        el.selectedIndex = i;
+        return;
+      }
+    }
+  };
 
-  // Sync to Langkah 3 (Upload modal)
-  setVal('uploadNamaPemohon', cv.nama);
+  // --- LANGKAH 2: LOGBOOK KLINIS ---
+  setVal('logbookNama', master.nama);
+  setVal('logbookNip', master.nip);
+  setSelectFlex('logbookJenjang', master.pkDiusulkan || master.pkSaatIni);
+  setSelectFlex('logbookUnit', master.unit);
+  setVal('logbookKaRuRuangan', master.unit);
 
+  // --- LANGKAH 3: SURAT PERMOHONAN ---
+  setVal('suratNama', master.nama);
+  const cleanNip = master.nip.replace(/[^0-9]/g, '');
+  setVal('suratNip', cleanNip || master.nip);
+  setVal('suratTtl', master.ttl);
+  setSelectFlex('suratUnit', master.unit);
+  setVal('suratJabatanFungsional', master.jabatan);
+  setSelectFlex('suratPkSaatIni', master.pkSaatIni);
+  setSelectFlex('suratJenjang', master.pkDiusulkan);
+  setSelectFlex('suratPendidikan', master.highestLabel);
+  setVal('suratInstitusi', master.highest.institusi);
+  setVal('suratTahunLulus', master.highest.tahun);
+  setVal('suratStr', master.str);
+  setVal('suratStrExpiry', master.strBerlaku);
+  setVal('suratSipp', master.sipp);
+  setVal('suratSippExpiry', master.sippBerlaku);
+  setVal('suratKtaPpni', master.kta);
+
+  // --- LANGKAH 4: RKK ONLINE ---
+  setVal('formNama', master.nama);
+  setVal('formNip', master.nip);
+  setVal('formStr', master.str);
+  const expYMD = parseIndonesianDateToYMD(master.strBerlaku);
+  setVal('formStrExpiry', expYMD);
+  setSelectFlex('formJenjang', master.pkDiusulkan);
+  setSelectFlex('formUnit', master.unit);
+
+  // Auto-sync Kontak & Email from Langkah 3 to Langkah 4
+  const suratHp = document.getElementById('suratHp')?.value;
+  const suratEmail = document.getElementById('suratEmail')?.value;
+  if (suratHp) setVal('formKontak', suratHp);
+  if (suratEmail) setVal('formEmail', suratEmail);
+
+  // --- LANGKAH 5: PSV DOKUMEN ---
+  setVal('psvNama', master.nama);
+  setVal('psvNip', master.nip);
+  setVal('psvPendidikan', `${master.highestLabel} / ${master.highest.institusi}`);
+  setSelectFlex('psvUnit', master.unit);
+  setVal('psvIjazahInstitusi', master.highest.institusi);
+  setVal('psvIjazahNomor', master.highest.noIjazah);
+  setVal('psvIjazahTahun', master.highest.tahun);
+  setVal('psvStrNomor', master.str);
+  setVal('psvStrBerlaku', master.strBerlaku);
+  setVal('psvSippNomor', master.sipp);
+  setVal('psvSippBerlaku', master.sippBerlaku);
+  setVal('psvPelatihanNama', master.firstTrainName);
+  setVal('psvPelatihanTanggal', master.firstTrainTahun);
+
+  // --- LANGKAH 6: UPLOAD BERKAS ---
+  setVal('uploadNamaPemohon', master.nama);
+
+  // Update current applicant state
   state.currentApplicant = {
-    nama: cv.nama,
-    nip: cv.nip,
-    rawNip: cv.nip,
-    unit: cv.unit,
-    jenjang: cv.pkDiusulkan,
+    nama: master.nama,
+    nip: master.nip,
+    rawNip: master.nip,
+    unit: master.unit,
+    jenjang: master.pkDiusulkan,
+    str: master.str,
+    strExpiry: master.strBerlaku,
+    education: `${master.highestLabel} / ${master.highest.institusi}`,
     timestamp: new Date().toISOString()
   };
+}
+
+function syncHpEmailToRkk() {
+  const hp = document.getElementById('suratHp')?.value;
+  const email = document.getElementById('suratEmail')?.value;
+  const fHp = document.getElementById('formKontak');
+  const fEmail = document.getElementById('formEmail');
+  if (fHp && hp) fHp.value = hp;
+  if (fEmail && email) fEmail.value = email;
+}
+
+function jumpToStep1Cv(fromModalId) {
+  if (fromModalId) closeModal(fromModalId);
+  else {
+    ['modalLogbookKredensial', 'modalSuratPermohonan', 'modalNewKredensial', 'modalPsvKredensial', 'modalUploadBerkasKredensial'].forEach(id => closeModal(id));
+  }
+  openCvModal();
+  showToast('Silakan perbarui data di Formulir Langkah 1 (CV). Data yang Anda ubah di sini otomatis disinkronkan ke seluruh langkah berikutnya.', 'info');
+}
+
+function transferCvToSurat(cv) {
+  syncAllDownstreamFormsFromCv();
+}
+
+function initCredentialingSync() {
+  const cvForm = document.getElementById('formCvKredensial');
+  if (cvForm) {
+    cvForm.addEventListener('input', () => {
+      syncAllDownstreamFormsFromCv();
+    });
+    cvForm.addEventListener('change', () => {
+      syncAllDownstreamFormsFromCv();
+    });
+  }
+
+  const suratHp = document.getElementById('suratHp');
+  const suratEmail = document.getElementById('suratEmail');
+  if (suratHp) {
+    suratHp.addEventListener('input', syncHpEmailToRkk);
+    suratHp.addEventListener('change', syncHpEmailToRkk);
+  }
+  if (suratEmail) {
+    suratEmail.addEventListener('input', syncHpEmailToRkk);
+    suratEmail.addEventListener('change', syncHpEmailToRkk);
+  }
+
+  // Lakukan sinkronisasi awal saat aplikasi dimuat
+  syncAllDownstreamFormsFromCv();
 }
 
 function generateCvHVS(mode) {
@@ -3287,6 +3460,8 @@ function openLogbookModal() {
   } else {
     renderLogbookItemRows([]);
   }
+  // Data identitas wajib tersinkron dan terkunci dari Langkah 1 (CV)
+  syncAllDownstreamFormsFromCv();
   openModal('modalLogbookKredensial');
 }
 
@@ -3330,21 +3505,22 @@ function fillLogbookPreset(type) {
   const preset = window.KOMITE_DATA?.sampleLogbook?.[type];
   if (preset) {
     fillLogbookFormWithData(preset);
-    showToast(`Data logbook contoh untuk ${type === 'bidan' ? 'Bdn. Siti Nurhaliza (BK III - VK)' : 'Ns. Hendra Kurniawan (PK III - Bedah)'} berhasil dimuat!`, 'info');
+    // Prioritaskan identitas master dari CV
+    syncAllDownstreamFormsFromCv();
+    showToast(`Data logbook contoh untuk ${type === 'bidan' ? 'Bdn. Siti Nurhaliza (BK III - VK)' : 'Ns. Hendra Kurniawan (PK III - Bedah)'} dimuat! Identitas pemohon tetap terkunci dari Langkah 1 (CV).`, 'info');
   }
 }
 
 function resetLogbookForm() {
-  const ids = [
-    'logbookNama', 'logbookNip', 'logbookJenjang', 'logbookUnit', 'logbookPeriode',
-    'logbookKaRuNama', 'logbookKaRuNip', 'logbookKaRuRuangan'
-  ];
+  const ids = ['logbookPeriode', 'logbookKaRuNama', 'logbookKaRuNip', 'logbookKaRuRuangan'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   renderLogbookItemRows([]);
-  showToast('Formulir logbook berhasil dikosongkan untuk entri baru.', 'info');
+  // Pastikan data identitas tetap tersinkronisasi dari Langkah 1 (CV)
+  syncAllDownstreamFormsFromCv();
+  showToast('Tabel prosedur tindakan logbook dikosongkan. Identitas pemohon tetap tersinkron dan terkunci dari Langkah 1 (CV).', 'info');
 }
 
 function renderLogbookItemRows(items = []) {
@@ -3733,72 +3909,11 @@ function getLogbookItemsFromForm() {
 }
 
 function transferCvToLogbook(cv) {
-  if (!cv) return;
-  const setVal = (id, val) => {
-    const el = document.getElementById(id);
-    if (!el || !val) return;
-    if (el.tagName === 'SELECT') {
-      el.value = val;
-      if (!el.value) {
-        for (const opt of el.options) {
-          if (opt.value && (opt.value.includes(val) || val.includes(opt.value))) {
-            el.value = opt.value;
-            break;
-          }
-        }
-      }
-    } else {
-      el.value = val;
-    }
-  };
-
-  setVal('logbookNama', cv.nama);
-  if (cv.nip) {
-    setVal('logbookNip', cv.nip);
-  }
-  if (cv.pkDiusulkan || cv.pkSaatIni) {
-    setVal('logbookJenjang', cv.pkDiusulkan || cv.pkSaatIni);
-  }
-  if (cv.unit) {
-    setVal('logbookUnit', cv.unit);
-    setVal('logbookKaRuRuangan', cv.unit);
-  }
+  syncAllDownstreamFormsFromCv();
 }
 
 function transferLogbookData(logbook) {
-  if (!logbook) return;
-  const setVal = (id, val) => {
-    const el = document.getElementById(id);
-    if (el && val) el.value = val;
-  };
-
-  setVal('suratNama', logbook.nama);
-  if (logbook.nip) {
-    const cleanNip = logbook.nip.replace(/[^0-9]/g, '');
-    setVal('suratNip', cleanNip || logbook.nip);
-  }
-  if (logbook.unit) {
-    setVal('suratUnit', logbook.unit);
-  }
-  if (logbook.jenjang) {
-    if (logbook.jenjang.includes('PK I') || logbook.jenjang.includes('Level I')) setVal('suratJenjang', 'PK I');
-    else if (logbook.jenjang.includes('PK II')) setVal('suratJenjang', 'PK II');
-    else if (logbook.jenjang.includes('PK III')) setVal('suratJenjang', 'PK III');
-    else if (logbook.jenjang.includes('PK IV')) setVal('suratJenjang', 'PK IV');
-    else if (logbook.jenjang.includes('PK V')) setVal('suratJenjang', 'PK V');
-  }
-
-  // Sync ke Upload Modal (Langkah 4)
-  setVal('uploadNamaPemohon', logbook.nama);
-
-  state.currentApplicant = {
-    nama: logbook.nama,
-    nip: logbook.nip,
-    rawNip: logbook.nip,
-    unit: logbook.unit,
-    jenjang: logbook.jenjang,
-    timestamp: new Date().toISOString()
-  };
+  syncAllDownstreamFormsFromCv();
 }
 
 function handleLogbookSubmit(e) {
@@ -4269,6 +4384,7 @@ function exportLogbookWord() {
    ========================================================================== */
 
 function openSuratPermohonanModal() {
+  syncAllDownstreamFormsFromCv();
   if (state.currentUser && !state.currentUser.isSuperAdmin) {
     const namaInput = document.getElementById('suratNama');
     if (namaInput && (!namaInput.value || namaInput.value.includes('Hendra'))) {
@@ -5028,19 +5144,18 @@ function downloadGoogleAppsScriptFile() {
 }
 
 function resetSuratFormToBlank() {
-  const ids = ['suratNama', 'suratNip', 'suratTtl', 'suratAlamat', 'suratHp', 'suratEmail', 'suratJabatanFungsional', 'suratInstitusi', 'suratTahunLulus', 'suratStr', 'suratStrExpiry', 'suratSipp', 'suratSippExpiry'];
+  const ids = ['suratAlamat', 'suratHp', 'suratEmail'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  showToast('Formulir berhasil dikosongkan. Siap diisi data baru atau dipratinjau sebagai blangko kosong.', 'info');
+  // Pastikan data identitas dan kualifikasi tetap terkunci dan tersinkron dari CV
+  syncAllDownstreamFormsFromCv();
+  showToast('Formulir surat berhasil direset. Data identitas dan kualifikasi tetap terkunci dan tersinkron dari Langkah 1 (CV).', 'info');
 }
 
 function openModalUploadSurat() {
-  const pemohonInput = document.getElementById('uploadNamaPemohon');
-  if (pemohonInput) {
-    pemohonInput.value = document.getElementById('suratNama')?.value || (state.currentUser?.name || 'Ns. Hendra Kurniawan, S.Kep');
-  }
+  syncAllDownstreamFormsFromCv();
   openModal('modalUploadBerkasKredensial');
 }
 
@@ -6300,6 +6415,7 @@ function exportRkkWord() {
 
 function openPsvModal() {
   syncPsvFromApplicant();
+  syncAllDownstreamFormsFromCv();
   openModal('modalPsvKredensial');
 }
 
@@ -6447,7 +6563,10 @@ function fillPsvPreset(key) {
   setVal('psvKetuaNama', psv.ketuaSubkomiteNama);
   setVal('psvKetuaNip', psv.ketuaSubkomiteNip);
 
-  showToast('Contoh data verifikasi sah PSV berhasil dimuat!', 'success');
+  // Data pemohon dan kualifikasi tetap terkunci dan tersinkron dari CV Master
+  syncAllDownstreamFormsFromCv();
+
+  showToast('Contoh data verifikasi sah PSV dimuat! Data pemohon tetap terkunci dan tersinkron dari Langkah 1 (CV).', 'success');
 }
 
 function handlePsvSubmit(e) {
@@ -7162,3 +7281,9 @@ window.generatePsvHVS = generatePsvHVS;
 window.printPsvHVS = printPsvHVS;
 window.exportPsvWord = exportPsvWord;
 window.update5SScoreDashboard = update5SScoreDashboard;
+window.initCredentialingSync = initCredentialingSync;
+window.getActiveCvMasterData = getActiveCvMasterData;
+window.syncAllDownstreamFormsFromCv = syncAllDownstreamFormsFromCv;
+window.syncHpEmailToRkk = syncHpEmailToRkk;
+window.jumpToStep1Cv = jumpToStep1Cv;
+window.parseIndonesianDateToYMD = parseIndonesianDateToYMD;

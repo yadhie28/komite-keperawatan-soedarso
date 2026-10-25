@@ -764,22 +764,23 @@
           </div>
         </div>
 
-        <!-- 5-Step Action Grid -->
+        <!-- 6-Step Action Grid -->
         <div class="alur-grid">
-          <!-- Step 1 Card: CV Resmi PDF -->
+          <!-- Step 1 Card: CV Resmi PDF (Master Source) -->
           <div class="alur-card" onclick="openCvModal()">
             <div class="alur-card-badge step-1">
-              <i class="fa-solid fa-circle-dot"></i> LANGKAH 1
+              <i class="fa-solid fa-circle-dot"></i> LANGKAH 1 &bull; SUMBER UTAMA (MASTER)
             </div>
             <div class="alur-card-icon" style="color: var(--primary-600);">
               <i class="fa-solid fa-address-card"></i>
             </div>
             <div class="alur-card-title">1. Form &amp; Download CV Resmi (PDF)</div>
             <div class="alur-card-desc">
-              Pemohon mengisi data identitas, legalitas formal STR/SIPP/SIPB, riwayat pendidikan, logbook pengalaman kerja ruangan, dan sertifikasi pelatihan kompetensi, lalu langsung mengunduh/mencetak dokumen <strong>CV 3 Halaman A4 format baku RSUD dr. Soedarso</strong>.
+              <strong>Sumber Data Utama (Master):</strong> Isi identitas pribadi, NIP, TTL, unit kerja, jenjang klinis, STR, SIPP/SIPB, dan riwayat pendidikan. Data ini menjadi acuan tunggal yang <strong>otomatis mengisi dan mengunci data yang sama pada Langkah 2, 3, 4, 5, dan 6</strong> (Zero Repetitive Entry).
             </div>
             <div class="alur-card-action">
-              <div style="display: flex; justify-content: flex-end; align-items: center;">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span class="badge-source-truth"><i class="fa-solid fa-database"></i> Single Source of Truth</span>
                 <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary-600);">
                   Isi &amp; Download CV <i class="fa-solid fa-arrow-right"></i>
                 </span>
@@ -797,7 +798,7 @@
             </div>
             <div class="alur-card-title">2. Form &amp; Download Logbook Klinis (PDF)</div>
             <div class="alur-card-desc">
-              Pemohon mencatat rekapitulasi tindakan klinis harian (10 prosedur asuhan keperawatan/kebidanan mandiri &amp; supervisi) untuk diverifikasi dan ditandatangani Kepala Ruangan dalam format <strong>Buku Catatan Kinerja Klinis Harian (Logbook) 2 Halaman A4 RSUD dr. Soedarso</strong>.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Profil identitas &amp; unit otomatis terkunci dari Langkah 1.</span> Pemohon cukup mencatat 10 prosedur tindakan klinis harian untuk diverifikasi Kepala Ruangan dalam format <strong>Logbook 2 Halaman A4 RSUD dr. Soedarso</strong>.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center;">
@@ -818,7 +819,7 @@
             </div>
             <div class="alur-card-title">3. Isi &amp; Download Surat Permohonan</div>
             <div class="alur-card-desc">
-              Data dari formulir CV dan Logbook otomatis disinkronkan ke Surat Permohonan resmi. Cukup periksa checklist kelengkapan 8 berkas, lalu unduh dan cetak surat untuk ditandatangani mandiri. <strong>Tidak memerlukan tanda tangan pengurus komite</strong> di tahap awal.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Identitas, legalitas STR/SIPP, dan pendidikan otomatis terkunci dari Langkah 1.</span> Cukup periksa checklist kelengkapan 8 berkas, unduh dan cetak surat untuk ditandatangani mandiri tanpa tanda tangan pengurus di awal.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center;">
@@ -839,7 +840,7 @@
             </div>
             <div class="alur-card-title">4. Pengisian &amp; Cetak RKK Online (PDF)</div>
             <div class="alur-card-desc">
-              Pilih kewenangan klinis sesuai jenjang PK usulan dan area spesialisasi Buku Pedoman (White Book 2026), lakukan asesmen mandiri (Kode 1, 2, 3), serta langsung cetak/unduh dokumen <strong>RKK Resmi 3 Halaman A4 format baku RSUD dr. Soedarso</strong>.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Nama, NIP, STR, dan jenjang usulan otomatis terisi &amp; terkunci.</span> Anda langsung memilih kewenangan klinis sesuai area White Book 2026, melakukan asesmen mandiri, dan mencetak dokumen <strong>RKK Resmi 3 Halaman A4</strong>.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem;">
@@ -863,7 +864,7 @@
             </div>
             <div class="alur-card-title">5. Verifikasi Sumber Asli (PSV) Dokumen Klinis</div>
             <div class="alur-card-desc">
-              Formulir Verifikasi Sumber Asli / Utama (<em>Primary Source Verification - PSV</em>) untuk memvalidasi keabsahan Ijazah, STR Aktif (KTKI/KKI), SIPP Dinkes, dan Sertifikat Pelatihan langsung ke institusi penerbit resmi sesuai standar akreditasi KARS / PMK 49.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Data ijazah, STR, SIPP, dan sertifikat pelatihan otomatis terkunci dari Langkah 1.</span> Subkomite / pemohon memvalidasi keabsahan dokumen utama langsung ke penerbit resmi sesuai standar akreditasi KARS / PMK 49.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem;">
@@ -887,7 +888,7 @@
             </div>
             <div class="alur-card-title">6. Tanda Tangani &amp; Unggah Berkas Lengkap</div>
             <div class="alur-card-desc">
-              Unggah 8 berkas persyaratan wajib (Ijazah Terlegalisir, STR Aktif, SIPP/SIPB, Sertifikat Pelatihan Khusus, Bukti PDDikti, Surat Ket. Sehat Dokter Pemerintah, Buku Logbook Kinerja Ka.Ru, CV) beserta Surat Permohonan, RKK, dan Formulir PSV bertanda tangan untuk verifikasi Subkomite Kredensial.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Nama pemohon otomatis terkunci dari Langkah 1.</span> Unggah 8 berkas persyaratan wajib (Ijazah, STR, SIPP, Pelatihan, PDDikti, Surat Sehat, Logbook Ka.Ru, CV) beserta Surat Permohonan, RKK, dan PSV bertanda tangan.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center;">
@@ -1429,47 +1430,88 @@
         <form id="kredensialForm" onsubmit="handleKredensialSubmit(event)">
           <!-- STEP 1: DATA IDENTITAS -->
           <div class="wizard-content-step active" id="wizardStep1">
+            <div class="locked-section-banner info-blue">
+              <div>
+                <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
+                <strong>Data Terisi Otomatis:</strong> Identitas &amp; STR terkunci otomatis dari <strong>Langkah 1 (CV)</strong>. Kontak disinkronkan dari Langkah 3.
+              </div>
+              <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalNewKredensial')">
+                <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
+              </button>
+            </div>
+
             <div class="form-grid-2">
               <div class="form-group">
-                <label class="form-label">Nama Lengkap & Gelar <span class="req">*</span></label>
-                <input type="text" class="form-input" id="formNama" placeholder="Contoh: Ns. Ahmad Fauzi, S.Kep" required>
+                <label class="form-label">
+                  Nama Lengkap &amp; Gelar <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="formNama" placeholder="Contoh: Ns. Ahmad Fauzi, S.Kep" readonly required>
               </div>
               <div class="form-group">
-                <label class="form-label">NIP / NIK / No. Karyawan <span class="req">*</span></label>
-                <input type="text" class="form-input" id="formNip" placeholder="19900101 201502 1 001" required>
+                <label class="form-label">
+                  NIP / NIK / No. Karyawan <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="formNip" placeholder="19900101 201502 1 001" readonly required>
               </div>
             </div>
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label class="form-label">Nomor Surat Tanda Registrasi (STR) <span class="req">*</span></label>
-                <input type="text" class="form-input" id="formStr" placeholder="140152123-xxxxxxx" required>
+                <label class="form-label">
+                  Nomor Surat Tanda Registrasi (STR) <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="formStr" placeholder="140152123-xxxxxxx" readonly required>
               </div>
               <div class="form-group">
-                <label class="form-label">Masa Berlaku STR <span class="req">*</span></label>
-                <input type="date" class="form-input" id="formStrExpiry" required>
+                <label class="form-label">
+                  Masa Berlaku STR <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="date" class="form-input input-locked" id="formStrExpiry" readonly required>
               </div>
             </div>
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label class="form-label">Nomor WhatsApp / Kontak Aktif <span class="req">*</span></label>
-                <input type="text" class="form-input" id="formKontak" placeholder="081234567890" required>
+                <label class="form-label">
+                  Nomor WhatsApp / Kontak Aktif <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 3"><i class="fa-solid fa-lock"></i> Langkah 3</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="formKontak" placeholder="081234567890" readonly required>
               </div>
               <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-input" id="formEmail" placeholder="nama@rsudsoedarso.kalbarprov.go.id">
+                <label class="form-label">
+                  Email
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 3"><i class="fa-solid fa-lock"></i> Langkah 3</span>
+                </label>
+                <input type="email" class="form-input input-locked" id="formEmail" placeholder="nama@rsudsoedarso.kalbarprov.go.id" readonly>
               </div>
             </div>
           </div>
 
           <!-- STEP 2: JENJANG & UNIT -->
           <div class="wizard-content-step" id="wizardStep2" style="display: none;">
+            <div class="locked-section-banner info-blue" style="margin-bottom: 1rem;">
+              <div>
+                <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
+                <strong>Jenjang &amp; Unit Terkunci:</strong> Jenjang karir usulan dan penempatan ruangan disinkronkan dari <strong>Langkah 1 (CV)</strong>. Silakan tentukan <em>Rumpun Area Kekhususan (Buku Putih)</em>.
+              </div>
+              <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalNewKredensial')">
+                <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
+              </button>
+            </div>
+
             <div class="form-grid-2">
               <div class="form-group">
-                <label class="form-label">Pilih Jenjang Karir Klinis Diajukan <span class="req">*</span></label>
-                <select class="form-select" id="formJenjang" onchange="onJenjangChange(this.value)" required>
-                  <option value="">-- Pilih Jenjang Karir Sesuai White Book --</option>
+                <label class="form-label">
+                  Pilih Jenjang Karir Klinis Diajukan <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <select class="form-select input-locked" id="formJenjang" tabindex="-1" onchange="onJenjangChange(this.value)" required>
+                  <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
                     <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
                     <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
@@ -1485,7 +1527,7 @@
                     <option value="BK IV">Bidan Klinis IV (BK IV - Proficient Kebidanan)</option>
                   </optgroup>
                 </select>
-                <span class="form-hint" id="jenjangDescText">Pilih jenjang karir klinis yang diusulkan.</span>
+                <span class="form-hint" id="jenjangDescText">Terkunci otomatis sesuai jenjang usulan di Formulir CV (Langkah 1).</span>
               </div>
 
               <div class="form-group">
@@ -1567,9 +1609,12 @@
 
             <div class="form-grid-2">
               <div class="form-group">
-                <label class="form-label">Penempatan Ruang / Instalasi Pelayanan <span class="req">*</span></label>
-                <select class="form-select" id="formUnit" required>
-                  <option value="">-- Pilih Penempatan Ruang / Instalasi Pelayanan (Sesuai SK Direktur 2025) --</option>
+                <label class="form-label">
+                  Penempatan Ruang / Instalasi Pelayanan <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <select class="form-select input-locked" id="formUnit" tabindex="-1" required>
+                  <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   
                   <optgroup label="A. INSTALASI RAWAT INAP A">
                     <option value="Singkut Buluh">Singkut Buluh</option>
@@ -1612,9 +1657,6 @@
                   <optgroup label="D. RUANG RAWAT KHUSUS">
                     <option value="Thalassemia">Thalassemia</option>
                     <option value="HD Rawat Jalan">HD Rawat Jalan</option>
-                    <option value="HD Rawat Inap">HD Rawat Inap</option>
-                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
-                  </optgroup>
                 </select>
               </div>
 
@@ -2514,23 +2556,49 @@
         <form id="formLogbookKredensial" onsubmit="handleLogbookSubmit(event)">
           <!-- SECTION 1: PROFIL PERSONAL TENAGA KEPERAWATAN -->
           <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;">
-            <div style="font-size: 0.88rem; font-weight: 800; color: #0e3860; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1.5px solid var(--border-subtle); padding-bottom: 0.5rem;">
-              <i class="fa-solid fa-id-card-clip" style="color: #7e22ce;"></i>
-              PROFIL PERSONAL TENAGA KEPERAWATAN:
+            <div style="font-size: 0.88rem; font-weight: 800; color: #0e3860; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1.5px solid var(--border-subtle); padding-bottom: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-id-card-clip" style="color: #7e22ce;"></i>
+                PROFIL PERSONAL TENAGA KEPERAWATAN:
+              </div>
+              <span class="locked-badge" style="font-size: 0.72rem; padding: 2px 8px;">
+                <i class="fa-solid fa-lock"></i> Terkunci Otomatis dari Langkah 1 (CV)
+              </span>
             </div>
+
+            <!-- Auto-Fill Locked Banner -->
+            <div class="locked-section-banner info-blue">
+              <div>
+                <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
+                <strong>Data Terisi Otomatis:</strong> Nama, NIP, Jenjang PK, dan Unit Kerja terkunci otomatis dari <strong>Langkah 1 (CV)</strong>. Tidak perlu mengisi ulang.
+              </div>
+              <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalLogbookKredensial')">
+                <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
+              </button>
+            </div>
+
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.85rem;">
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Nama Lengkap &amp; Gelar <span class="req">*</span></label>
-                <input type="text" class="form-input" id="logbookNama" placeholder="Ns. Nama Lengkap, S.Kep" required>
+                <label class="form-label">
+                  Nama Lengkap &amp; Gelar <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="logbookNama" placeholder="Ns. Nama Lengkap, S.Kep" readonly required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
-                <input type="text" class="form-input" id="logbookNip" placeholder="19xxxxxxxxxxxxxx" required>
+                <label class="form-label">
+                  NIP / NIPPPK / NIK <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="logbookNip" placeholder="19xxxxxxxxxxxxxx" readonly required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Jenjang Perawat Klinis (PK) / Bidan (BK) (White Book) <span class="req">*</span></label>
-                <select class="form-select" id="logbookJenjang" required>
-                  <option value="">-- Pilih Jenjang Karir Sesuai White Book --</option>
+                <label class="form-label">
+                  Jenjang Perawat Klinis (PK) / Bidan (BK) <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <select class="form-select input-locked" id="logbookJenjang" tabindex="-1" required>
+                  <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
                     <option value="Perawat Klinis I (PK I)">Perawat Klinis I (PK I - Novice / Generalis)</option>
                     <option value="Perawat Klinis II (PK II)">Perawat Klinis II (PK II - Advance Beginner / Mandiri Dasar)</option>
@@ -2545,12 +2613,15 @@
                     <option value="Bidan Klinis IV (BK IV)">Bidan Klinis IV (BK IV - Proficient / Konsultan Asuhan Kebidanan)</option>
                   </optgroup>
                 </select>
-                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Sesuai standar Buku Putih (White Book) RSUD dr. Soedarso.</span>
+                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Terkunci otomatis sesuai usulan jenjang di Formulir CV (Langkah 1).</span>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label">Unit Kerja / Ruang Rawat (Sesuai SK Tempat Tidur) <span class="req">*</span></label>
-                <select class="form-select" id="logbookUnit" onchange="syncLogbookRuangan(this.value)" required>
-                  <option value="">-- Pilih Unit Kerja / Ruang Rawat (Sesuai SK Direktur 2025) --</option>
+                <label class="form-label">
+                  Unit Kerja / Ruang Rawat <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <select class="form-select input-locked" id="logbookUnit" tabindex="-1" onchange="syncLogbookRuangan(this.value)" required>
+                  <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   
                   <optgroup label="A. INSTALASI RAWAT INAP A">
                     <option value="Singkut Buluh">Singkut Buluh</option>
@@ -2798,25 +2869,48 @@
 
           <!-- BAGIAN I: IDENTITAS PERSONAL TENAGA KEPERAWATAN -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1.5rem;">
-            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> I. IDENTITAS PERSONAL TENAGA KEPERAWATAN
+            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> I. IDENTITAS PERSONAL TENAGA KEPERAWATAN
+              </div>
+              <span class="locked-badge" style="font-size: 0.72rem; padding: 2px 8px;">
+                <i class="fa-solid fa-lock"></i> Terkunci Otomatis dari Langkah 1 (CV)
+              </span>
             </div>
+
+            <!-- Auto-Fill Locked Banner -->
+            <div class="locked-section-banner info-blue" style="margin: 0.85rem 1.15rem 0.4rem 1.15rem;">
+              <div>
+                <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
+                <strong>Data Terisi Otomatis:</strong> Identitas, unit, jabatan, jenjang usulan, dan legalitas STR/SIPP disinkronkan langsung dari <strong>Langkah 1 (CV)</strong> dan dikunci.
+              </div>
+              <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalSuratPermohonan')">
+                <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
+              </button>
+            </div>
+
             <div style="padding: 1.15rem 1.25rem;">
               <!-- 1 & 2: Nama & NIP -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">1. Nama Lengkap (beserta Gelar) <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratNama" placeholder="Contoh: Ns. Hendra Kurniawan, S.Kep" value="Ns. Hendra Kurniawan, S.Kep" required>
+                  <label class="form-label">
+                    1. Nama Lengkap (beserta Gelar) <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratNama" placeholder="Contoh: Ns. Hendra Kurniawan, S.Kep" value="Ns. Hendra Kurniawan, S.Kep" readonly required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">2. Nomor Induk Pegawai (NIP / NIPPPK / NIK) <span class="req">*</span></label>
+                  <label class="form-label">
+                    2. Nomor Induk Pegawai (NIP / NIPPPK / NIK) <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
                   <div style="display: flex; gap: 0.5rem;">
-                    <select class="form-select" id="suratJenisNip" style="width: 130px;" required>
+                    <select class="form-select input-locked" id="suratJenisNip" style="width: 130px;" tabindex="-1" required>
                       <option value="NIP" selected>NIP (PNS)</option>
                       <option value="NIPPPK">NIPPPK</option>
                       <option value="NIK">NIK (Non-ASN)</option>
                     </select>
-                    <input type="text" class="form-input" id="suratNip" placeholder="19920415 201903 1 004" value="19920415 201903 1 004" required>
+                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="19920415 201903 1 004" value="19920415 201903 1 004" readonly required>
                   </div>
                 </div>
               </div>
@@ -2824,8 +2918,11 @@
               <!-- 3 & 4: TTL & Jenis Kelamin -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">3. Tempat / Tanggal Lahir <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratTtl" placeholder="Pontianak, 15 April 1992" value="Pontianak, 15 April 1992" required>
+                  <label class="form-label">
+                    3. Tempat / Tanggal Lahir <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratTtl" placeholder="Pontianak, 15 April 1992" value="Pontianak, 15 April 1992" readonly required>
                 </div>
                 <div class="form-group">
                   <label class="form-label">4. Jenis Kelamin <span class="req">*</span></label>
@@ -2846,20 +2943,23 @@
               <div class="form-grid-2">
                 <div class="form-group">
                   <label class="form-label">6. Nomor Telepon / HP WA Aktif <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratHp" placeholder="0812-5678-9012" value="0812-5678-9012" required>
+                  <input type="text" class="form-input" id="suratHp" placeholder="0812-5678-9012" value="0812-5678-9012" oninput="syncHpEmailToRkk()" required>
                 </div>
                 <div class="form-group">
                   <label class="form-label">7. Alamat Email <span class="req">*</span></label>
-                  <input type="email" class="form-input" id="suratEmail" placeholder="hendra.kurniawan@soedarso.kalbarprov.go.id" value="hendra.kurniawan@soedarso.kalbarprov.go.id" required>
+                  <input type="email" class="form-input" id="suratEmail" placeholder="hendra.kurniawan@soedarso.kalbarprov.go.id" value="hendra.kurniawan@soedarso.kalbarprov.go.id" oninput="syncHpEmailToRkk()" required>
                 </div>
               </div>
 
               <!-- 8: Unit Kerja / Ruang Rawat Saat Ini -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">8. Unit Kerja / Ruang Rawat Saat Ini <span class="req">*</span></label>
-                  <select class="form-select" id="suratUnit" required>
-                    <option value="">-- Pilih Unit Kerja / Ruang Rawat (Sesuai SK Direktur 2025) --</option>
+                  <label class="form-label">
+                    8. Unit Kerja / Ruang Rawat Saat Ini <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <select class="form-select input-locked" id="suratUnit" tabindex="-1" required>
+                    <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                     
                     <optgroup label="A. INSTALASI RAWAT INAP A">
                       <option value="Singkut Buluh">Singkut Buluh</option>
@@ -2908,16 +3008,22 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">9. Jabatan Fungsional Saat Ini <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratJabatanFungsional" placeholder="Perawat Ahli Pertama / Perawat Terampil" value="Perawat Ahli Pertama" required>
+                  <label class="form-label">
+                    9. Jabatan Fungsional Saat Ini <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratJabatanFungsional" placeholder="Perawat Ahli Pertama / Perawat Terampil" value="Perawat Ahli Pertama" readonly required>
                 </div>
               </div>
 
               <!-- 10 & 11: Level PK Saat Ini & Level PK Diusulkan -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">10. Level Perawat Klinis (PK) Saat Ini <span class="req">*</span></label>
-                  <select class="form-select" id="suratPkSaatIni" required>
+                  <label class="form-label">
+                    10. Level Perawat Klinis (PK) Saat Ini <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <select class="form-select input-locked" id="suratPkSaatIni" tabindex="-1" required>
                     <option value="Pra PK / Belum Memiliki Jenjang">Pra PK / Belum Memiliki Jenjang (Perawat Baru)</option>
                     <option value="PK I">Perawat Klinis I (PK I)</option>
                     <option value="PK II" selected>Perawat Klinis II (PK II)</option>
@@ -2928,8 +3034,11 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">11. Level PK yang Diusulkan <span class="req">*</span></label>
-                  <select class="form-select" id="suratJenjang" required>
+                  <label class="form-label">
+                    11. Level PK yang Diusulkan <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <select class="form-select input-locked" id="suratJenjang" tabindex="-1" required>
                     <option value="PK I">Perawat Klinis I (PK I - Novice / Pemula)</option>
                     <option value="PK II">Perawat Klinis II (PK II - Mandiri Dasar)</option>
                     <option value="PK III" selected>Perawat Klinis III (PK III - Spesifik Area)</option>
@@ -2937,7 +3046,7 @@
                     <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
                     <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
                   </select>
-                  <span class="form-hint">Otomatis sinkron dengan formulir Asesmen Mandiri RKK Online.</span>
+                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Terkunci otomatis sesuai usulan jenjang di Formulir CV (Langkah 1).</span>
                 </div>
               </div>
             </div>
@@ -2945,15 +3054,23 @@
 
           <!-- BAGIAN II: DATA LEGALITAS FORMAL & KUALIFIKASI -->
           <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 1.5rem;">
-            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fa-solid fa-graduation-cap" style="color: #f59e0b;"></i> II. DATA LEGALITAS FORMAL &amp; KUALIFIKASI
+            <div style="background: #0f172a; color: #ffffff; padding: 0.75rem 1.15rem; font-weight: 800; font-size: 0.88rem; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-graduation-cap" style="color: #f59e0b;"></i> II. DATA LEGALITAS FORMAL &amp; KUALIFIKASI
+              </div>
+              <span class="locked-badge" style="font-size: 0.72rem; padding: 2px 8px;">
+                <i class="fa-solid fa-lock"></i> Terkunci Otomatis dari Langkah 1 (CV)
+              </span>
             </div>
             <div style="padding: 1.15rem 1.25rem;">
               <!-- 1: Pendidikan Terakhir -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">1. Pendidikan Terakhir (D3 / D4+Profesi / S1+Profesi / S2) <span class="req">*</span></label>
-                  <select class="form-select" id="suratPendidikan" required>
+                  <label class="form-label">
+                    1. Pendidikan Terakhir (D3 / S1+Profesi / S2) <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <select class="form-select input-locked" id="suratPendidikan" tabindex="-1" required>
                     <option value="S1+Profesi Ners" selected>S1+Profesi (Ners)</option>
                     <option value="D3 Keperawatan">D3 Keperawatan</option>
                     <option value="D4+Profesi Kebidanan">D4+Profesi Kebidanan</option>
@@ -2962,10 +3079,13 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">2 &amp; 3. Institusi Asal Lulusan &amp; Tahun Kelulusan <span class="req">*</span></label>
+                  <label class="form-label">
+                    2 &amp; 3. Institusi Asal Lulusan &amp; Tahun Kelulusan <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
                   <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" class="form-input" id="suratInstitusi" placeholder="Universitas Tanjungpura" value="Universitas Tanjungpura" required>
-                    <input type="number" class="form-input" id="suratTahunLulus" placeholder="2018" value="2018" style="width: 100px;" required>
+                    <input type="text" class="form-input input-locked" id="suratInstitusi" placeholder="Universitas Tanjungpura" value="Universitas Tanjungpura" readonly required>
+                    <input type="number" class="form-input input-locked" id="suratTahunLulus" placeholder="2018" value="2018" style="width: 100px;" readonly required>
                   </div>
                 </div>
               </div>
@@ -2973,24 +3093,36 @@
               <!-- 4 & 5: Nomor STR & Masa Berlaku -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">4. Nomor Surat Tanda Registrasi (STR) <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratStr" placeholder="140152123-2893812" value="140152123-2893812" required>
+                  <label class="form-label">
+                    4. Nomor Surat Tanda Registrasi (STR) <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratStr" placeholder="140152123-2893812" value="140152123-2893812" readonly required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">5. Masa Berlaku STR (Tanggal/Bulan/Tahun) <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratStrExpiry" placeholder="17 Agustus 2028 (Seumur Hidup / Masa Berlaku)" value="17 Agustus 2028" required>
+                  <label class="form-label">
+                    5. Masa Berlaku STR <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratStrExpiry" placeholder="17 Agustus 2028 (Seumur Hidup / Masa Berlaku)" value="17 Agustus 2028" readonly required>
                 </div>
               </div>
 
               <!-- 6 & 7: Nomor SIPP/SIPB & Masa Berlaku -->
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">6. Nomor Surat Izin Praktik Perawat (SIPP) / SIPB <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratSipp" placeholder="503/412/Dinkes-PP/SIPP/2023" value="503/412/Dinkes-PP/SIPP/2023" required>
+                  <label class="form-label">
+                    6. Nomor Surat Izin Praktik Perawat (SIPP) / SIPB <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratSipp" placeholder="503/412/Dinkes-PP/SIPP/2023" value="503/412/Dinkes-PP/SIPP/2023" readonly required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">7. Masa Berlaku SIPP/SIPB (Tanggal/Bulan/Tahun) <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="suratSippExpiry" placeholder="17 Agustus 2028" value="17 Agustus 2028" required>
+                  <label class="form-label">
+                    7. Masa Berlaku SIPP/SIPB <span class="req">*</span>
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="suratSippExpiry" placeholder="17 Agustus 2028" value="17 Agustus 2028" readonly required>
                 </div>
               </div>
             </div>
@@ -3414,27 +3546,56 @@
         <form id="formPsvDokumen" onsubmit="handlePsvSubmit(event)">
           <!-- BAGIAN I: IDENTITAS TENAGA KEPERAWATAN -->
           <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
-            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
-              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">I</span>
-              IDENTITAS TENAGA KEPERAWATAN
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">I</span>
+                IDENTITAS TENAGA KEPERAWATAN
+              </div>
+              <span class="locked-badge" style="font-size: 0.72rem; padding: 2px 8px;">
+                <i class="fa-solid fa-lock"></i> Terkunci Otomatis dari Langkah 1 (CV)
+              </span>
             </div>
+
+            <!-- Auto-Fill Locked Banner -->
+            <div class="locked-section-banner info-blue" style="margin-bottom: 1rem;">
+              <div>
+                <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
+                <strong>Data Terisi Otomatis:</strong> Identitas staf, unit, ijazah, STR, SIPP, dan pelatihan terkunci dari <strong>Langkah 1 (CV)</strong>. Anda fokus pada metode &amp; status verifikasi sumber asli.
+              </div>
+              <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalPsvKredensial')">
+                <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
+              </button>
+            </div>
+
             <div class="form-grid-2">
               <div class="form-group">
-                <label class="form-label">Nama Lengkap Staf Keperawatan (beserta Gelar) <span class="req">*</span></label>
-                <input type="text" class="form-input" id="psvNama" placeholder="Nama Lengkap Staf Keperawatan" required>
+                <label class="form-label">
+                  Nama Lengkap Staf Keperawatan (beserta Gelar) <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="psvNama" placeholder="Nama Lengkap Staf Keperawatan" readonly required>
               </div>
               <div class="form-group">
-                <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
-                <input type="text" class="form-input" id="psvNip" placeholder="Nomor Induk Pegawai" required>
+                <label class="form-label">
+                  NIP / NIPPPK / NIK <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="psvNip" placeholder="Nomor Induk Pegawai" readonly required>
               </div>
               <div class="form-group">
-                <label class="form-label">Pendidikan Terakhir / Lulusan <span class="req">*</span></label>
-                <input type="text" class="form-input" id="psvPendidikan" placeholder="Misal: S1 Keperawatan & Profesi Ners / Universitas Tanjungpura" required>
+                <label class="form-label">
+                  Pendidikan Terakhir / Lulusan <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <input type="text" class="form-input input-locked" id="psvPendidikan" placeholder="Misal: S1 Keperawatan &amp; Profesi Ners / Universitas Tanjungpura" readonly required>
               </div>
               <div class="form-group">
-                <label class="form-label">Unit Kerja / Ruang Penempatan <span class="req">*</span></label>
-                <select class="form-select" id="psvUnit" required>
-                  <option value="">-- Pilih Unit Kerja / Ruang Penempatan (Sesuai SK Tempat Tidur 2025) --</option>
+                <label class="form-label">
+                  Unit Kerja / Ruang Penempatan <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                </label>
+                <select class="form-select input-locked" id="psvUnit" tabindex="-1" required>
+                  <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   
                   <optgroup label="A. INSTALASI RAWAT INAP A (545 TT)">
                     <option value="Singkut Buluh">Singkut Buluh</option>
@@ -3488,9 +3649,14 @@
 
           <!-- BAGIAN II: MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA) -->
           <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
-            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px;">
-              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">II</span>
-              MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA)
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">II</span>
+                MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA)
+              </div>
+              <span class="locked-badge" style="font-size: 0.72rem; padding: 2px 8px;">
+                <i class="fa-solid fa-lock"></i> No. Dokumen Terkunci dari Langkah 1
+              </span>
             </div>
 
             <!-- Item 1: Ijazah Keperawatan -->
@@ -3501,16 +3667,25 @@
               </div>
               <div class="form-grid-2">
                 <div class="form-group">
-                  <label class="form-label">Institusi Sumber Penerbit (Primary Source)</label>
-                  <input type="text" class="form-input" id="psvIjazahInstitusi" placeholder="Universitas / Poltekkes asal">
+                  <label class="form-label">
+                    Institusi Sumber Penerbit (Primary Source)
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvIjazahInstitusi" placeholder="Universitas / Poltekkes asal" readonly>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Nomor Ijazah</label>
-                  <input type="text" class="form-input" id="psvIjazahNomor" placeholder="Nomor Ijazah">
+                  <label class="form-label">
+                    Nomor Ijazah
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvIjazahNomor" placeholder="Nomor Ijazah" readonly>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Tahun Kelulusan</label>
-                  <input type="text" class="form-input" id="psvIjazahTahun" placeholder="Misal: 2018">
+                  <label class="form-label">
+                    Tahun Kelulusan
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvIjazahTahun" placeholder="Misal: 2018" readonly>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
@@ -3535,12 +3710,18 @@
                   <input type="text" class="form-input" id="psvStrInstitusi" value="Majelis Tenaga Kesehatan / KTKI / KKI Kemenkes RI">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Nomor STR</label>
-                  <input type="text" class="form-input" id="psvStrNomor" placeholder="Nomor STR">
+                  <label class="form-label">
+                    Nomor STR
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvStrNomor" placeholder="Nomor STR" readonly>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Masa Berlaku s/d</label>
-                  <input type="text" class="form-input" id="psvStrBerlaku" placeholder="Tanggal STR / Seumur Hidup">
+                  <label class="form-label">
+                    Masa Berlaku s/d
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvStrBerlaku" placeholder="Tanggal STR / Seumur Hidup" readonly>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
@@ -3565,12 +3746,18 @@
                   <input type="text" class="form-input" id="psvSippInstitusi" value="Dinas Kesehatan / DPMPTSP Asal">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Nomor SIPP / SIPB</label>
-                  <input type="text" class="form-input" id="psvSippNomor" placeholder="Nomor Surat Izin Praktik">
+                  <label class="form-label">
+                    Nomor SIPP / SIPB
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvSippNomor" placeholder="Nomor Surat Izin Praktik" readonly>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Masa Berlaku s/d</label>
-                  <input type="text" class="form-input" id="psvSippBerlaku" placeholder="Masa berlaku izin praktik">
+                  <label class="form-label">
+                    Masa Berlaku s/d
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvSippBerlaku" placeholder="Masa berlaku izin praktik" readonly>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
@@ -3595,12 +3782,18 @@
                   <input type="text" class="form-input" id="psvPelatihanInstitusi" value="Pusdiklat Kemenkes / Organisasi Profesi (PPNI)">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Nama Kursus / Pelatihan</label>
-                  <input type="text" class="form-input" id="psvPelatihanNama" placeholder="Nama Pelatihan">
+                  <label class="form-label">
+                    Nama Kursus / Pelatihan
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvPelatihanNama" placeholder="Nama Pelatihan" readonly>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Tanggal Pelatihan</label>
-                  <input type="text" class="form-input" id="psvPelatihanTanggal" placeholder="Misal: 14 - 18 Mei 2024">
+                  <label class="form-label">
+                    Tanggal Pelatihan
+                    <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+                  </label>
+                  <input type="text" class="form-input input-locked" id="psvPelatihanTanggal" placeholder="Misal: 14 - 18 Mei 2024" readonly>
                 </div>
                 <div class="form-group">
                   <label class="form-label">Metode Verifikasi</label>
@@ -3774,9 +3967,22 @@
         </div>
 
         <form id="formUploadBerkas" onsubmit="simpanUploadSurat(event)">
+          <div class="locked-section-banner info-blue" style="margin-bottom: 0.85rem;">
+            <div>
+              <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
+              <strong>Nama Pemohon Terkunci:</strong> Terisi otomatis dari <strong>Langkah 1 (CV)</strong>.
+            </div>
+            <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalUploadBerkasKredensial')">
+              <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
+            </button>
+          </div>
+
           <div class="form-group" style="margin-bottom: 1.25rem;">
-            <label class="form-label">Nama Tenaga Keperawatan / Bidan Pemohon <span class="req">*</span></label>
-            <input type="text" class="form-input" id="uploadNamaPemohon" value="Ns. Hendra Kurniawan, S.Kep" required>
+            <label class="form-label">
+              Nama Tenaga Keperawatan / Bidan Pemohon <span class="req">*</span>
+              <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
+            </label>
+            <input type="text" class="form-input input-locked" id="uploadNamaPemohon" value="Ns. Hendra Kurniawan, S.Kep" readonly required>
           </div>
 
           <!-- SECTION A: 8 BERKAS PERSYARATAN WAJIB KREDENSIAL -->
