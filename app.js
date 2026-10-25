@@ -6642,9 +6642,6 @@ function syncPsvFromApplicant() {
   setVal('psvPelatihanMetode', 'barcode');
   setVal('psvPelatihanHasil', 'valid');
 
-  const rSetuju = document.querySelector('input[name="psvKesimpulan"][value="disetujui_penuh"]');
-  if (rSetuju) rSetuju.checked = true;
-
   setVal('psvVerifikatorNama', samplePsv.verifikatorNama);
   setVal('psvVerifikatorNip', samplePsv.verifikatorNip);
   setVal('psvTanggal', samplePsv.tanggalPsv);
@@ -6702,9 +6699,6 @@ function fillPsvPreset(key) {
   setVal('psvPelatihanMetode', psv.pelatihanMetode);
   setVal('psvPelatihanHasil', psv.pelatihanHasil);
 
-  const r = document.querySelector(`input[name="psvKesimpulan"][value="${psv.kesimpulan}"]`);
-  if (r) r.checked = true;
-
   setVal('psvVerifikatorNama', psv.verifikatorNama);
   setVal('psvVerifikatorNip', psv.verifikatorNip);
   setVal('psvTanggal', psv.tanggalPsv);
@@ -6721,7 +6715,6 @@ function handlePsvSubmit(e) {
   if (e) e.preventDefault();
 
   const getVal = (id, def = '') => document.getElementById(id)?.value?.trim() || def;
-  const kesimpulanRadio = document.querySelector('input[name="psvKesimpulan"]:checked');
 
   state.psvData = {
     nama: getVal('psvNama', 'Ns. Hendra Kurniawan, S.Kep'),
@@ -6752,7 +6745,7 @@ function handlePsvSubmit(e) {
     buktiStr: document.getElementById('chkBuktiStr')?.checked ?? true,
     buktiSipp: document.getElementById('chkBuktiSipp')?.checked ?? true,
     buktiPelatihan: document.getElementById('chkBuktiPelatihan')?.checked ?? true,
-    kesimpulan: kesimpulanRadio ? kesimpulanRadio.value : 'disetujui_penuh',
+    kesimpulan: '',
     verifikatorNama: getVal('psvVerifikatorNama', 'Ns. Bambang Sugiarto, S.Kep'),
     verifikatorNip: getVal('psvVerifikatorNip', '19880315 201402 1 002'),
     tanggalPsv: getVal('psvTanggal', '18 Oktober 2026'),
@@ -7137,7 +7130,7 @@ function generatePsvHVS(mode) {
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8pt; border: 1.5px solid #000;">
         <tr style="background: #f1f5f9; color: #000;">
           <td style="padding: 5px 8px; font-weight: bold; font-size: 8.8pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
-            IV. KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL
+            IV. KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL (Diisi oleh Verifikator / Subkomite Kredensial)
           </td>
         </tr>
         <tr>
