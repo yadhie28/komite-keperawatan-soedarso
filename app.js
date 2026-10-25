@@ -1508,34 +1508,52 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
   const result = [];
   let currentNo = 1;
 
-  // 1. Jika Praktik Bidan Klinis (PMB / BK)
+  // 1. Jika Praktik Bidan Klinis (PMB / BK I s.d BK IV)
   if (isBidan) {
     const pmbKey = (areaKey && window.KOMITE_DATA?.whiteBookActions?.[areaKey]) ? areaKey : 'pmb_kebidanan';
-    const sourceActions = window.KOMITE_DATA?.whiteBookActions?.[pmbKey] || window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan'] || [];
-    const areaTitle = getAreaDisplayName(pmbKey, 'PMB');
+    const isBasePmb = (pmbKey === 'pmb_kebidanan');
+    const basePmbActions = window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan'] || [];
 
-    sourceActions.forEach((a) => {
-      result.push({
-        ...a,
-        no: currentNo++,
-        jenjangLevel: 'PMB',
-        isMandatory: false,
-        kategori: `A. RINCIAN KEWENANGAN KLINIS BIDAN BUKU PUTIH 2026 (${areaTitle.toUpperCase()})`,
-        badgeText: 'DIAJUKAN BIDAN',
-        defaultKode: a.defaultKode || 1
-      });
-    });
-
-    // Jika area yang dipilih bukan pmb_kebidanan dasar, sertakan juga pmb_kebidanan sebagai dasar kompetensi kebidanan
-    if (pmbKey !== 'pmb_kebidanan' && window.KOMITE_DATA?.whiteBookActions?.['pmb_kebidanan']) {
-      window.KOMITE_DATA.whiteBookActions['pmb_kebidanan'].forEach((a) => {
+    // Jika pemohon memilih area spesifik kebidanan (misal maternitas_obgyn_pk3, maternitas_onkologi_pk3, anak_nicu_pk3)
+    if (!isBasePmb) {
+      // Tier 1: Dasar Kebidanan (Mandatory)
+      basePmbActions.forEach((a) => {
         result.push({
           ...a,
           no: currentNo++,
           jenjangLevel: 'PMB',
           isMandatory: true,
-          kategori: 'B. KEWENANGAN DASAR PRAKTIK BIDAN KLINIS (BK I - BK IV / PMB)',
+          kategori: 'A. KEWENANGAN DASAR PRAKTIK BIDAN KLINIS (BK I - BK IV / PMB)',
           badgeText: 'MANDATORY BIDAN',
+          defaultKode: a.defaultKode || 1
+        });
+      });
+
+      // Tier 2: Area Kekhususan Kebidanan yang Diajukan
+      const specificActions = window.KOMITE_DATA?.whiteBookActions?.[pmbKey] || [];
+      specificActions.forEach((a) => {
+        if (!result.some(r => r.id === a.id)) {
+          result.push({
+            ...a,
+            no: currentNo++,
+            jenjangLevel: 'PMB',
+            isMandatory: false,
+            kategori: `B. RINCIAN KEWENANGAN KLINIS BIDAN BUKU PUTIH 2026 (${effectiveAreaName.toUpperCase()})`,
+            badgeText: 'DIAJUKAN BIDAN',
+            defaultKode: a.defaultKode || 1
+          });
+        }
+      });
+    } else {
+      // Area Kebidanan Komprehensif (BK I - BK IV)
+      basePmbActions.forEach((a) => {
+        result.push({
+          ...a,
+          no: currentNo++,
+          jenjangLevel: 'PMB',
+          isMandatory: false,
+          kategori: 'A. RINCIAN KEWENANGAN KLINIS BIDAN BUKU PUTIH 2026 (PELAYANAN KEBIDANAN / PMB)',
+          badgeText: 'DIAJUKAN BIDAN',
           defaultKode: a.defaultKode || 1
         });
       });
@@ -1544,8 +1562,10 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     return result;
   }
 
-  // 2. Jika Perawat Klinis:
-  // Selalu sertakan Mandatory Base Actions (PK I Generalis / Asuhan Dasar)
+  // 2. Jika Perawat Klinis (PK I s.d PK V):
+  // -------------------------------------------------------------------------
+  // TIER 1: KEWENANGAN KLINIS DASAR / GENERALIS (PK I)
+  // -------------------------------------------------------------------------
   const isPk1Target = (pkLevel === 'PK I');
   const baseActions = (window.KOMITE_DATA?.mandatoryBaseActions || []).map(a => Object.assign({}, a));
   const pk1Specific = window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk1`];
@@ -1553,83 +1573,44 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
   const pk1Source = pk1Specific || pk1Generalis;
 
   const catTitlePk1 = isPk1Target
-    ? 'A. KEWENANGAN KLINIS DIAJUKAN PK I (GENERALIS / ASUHAN DASAR)'
+    ? 'A. RINCIAN KEWENANGAN KLINIS DIAJUKAN PK I (GENERALIS / ASUHAN DASAR)'
     : 'A. KEWENANGAN KLINIS MANDATORY PK I (DASAR GENERALIS)';
 
   baseActions.forEach(act => {
-    result.push({
-      ...act,
-      no: currentNo++,
-      jenjangLevel: 'PK I',
-      isMandatory: !isPk1Target,
-      kategori: catTitlePk1,
-      badgeText: isPk1Target ? 'DIAJUKAN PK I' : 'MANDATORY PK I',
-      defaultKode: act.defaultKode || 1
-    });
+    if (!result.some(r => r.id === act.id)) {
+      result.push({
+        ...act,
+        no: currentNo++,
+        jenjangLevel: 'PK I',
+        isMandatory: !isPk1Target,
+        kategori: catTitlePk1,
+        badgeText: isPk1Target ? 'DIAJUKAN PK I' : 'MANDATORY PK I',
+        defaultKode: act.defaultKode || 1
+      });
+    }
   });
 
   pk1Source.forEach(act => {
-    result.push({
-      ...act,
-      no: currentNo++,
-      jenjangLevel: 'PK I',
-      isMandatory: !isPk1Target,
-      kategori: catTitlePk1,
-      badgeText: isPk1Target ? 'DIAJUKAN PK I' : 'MANDATORY PK I',
-      defaultKode: act.defaultKode || 1
-    });
-  });
-
-  // Jika user memilih area spesifik tertentu dari Buku Putih (misal anestesi_pk3, mata_pk3, anak_picu_pk3, dll.)
-  const specificActions = (areaKey && window.KOMITE_DATA?.whiteBookActions?.[areaKey])
-    ? window.KOMITE_DATA.whiteBookActions[areaKey]
-    : null;
-
-  if (areaKey && specificActions && specificActions.length > 0 && areaKey !== 'generalis') {
-    const targetJenjang = pkLevel || 'PK III';
-    specificActions.forEach(act => {
-      if (!result.some(r => r.id === act.id)) {
-        result.push({
-          ...act,
-          no: currentNo++,
-          jenjangLevel: targetJenjang,
-          isMandatory: false,
-          kategori: `B. RINCIAN KEWENANGAN KLINIS BUKU PUTIH: ${effectiveAreaName.toUpperCase()}`,
-          badgeText: `DIAJUKAN ${targetJenjang}`,
-          defaultKode: act.defaultKode || 1
-        });
-      }
-    });
-
-    // Tambahkan PK II klaster sebagai pendukung mandatory jika jenjang di atas PK II
-    if (!isPk1Target && pkLevel !== 'PK II') {
-      let pk2Key = `${cluster}_pk2`;
-      if (cluster === 'kmb') pk2Key = 'kmb_dewasa_pk2';
-      const pk2Source = window.KOMITE_DATA?.whiteBookActions?.[pk2Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_dewasa_pk2'] || [];
-      pk2Source.forEach(act => {
-        if (!result.some(r => r.id === act.id)) {
-          result.push({
-            ...act,
-            no: currentNo++,
-            jenjangLevel: 'PK II',
-            isMandatory: true,
-            kategori: `C. KEWENANGAN KLINIS MANDATORY PK II (${clusterName.toUpperCase()})`,
-            badgeText: 'MANDATORY PK II',
-            defaultKode: act.defaultKode || 1
-          });
-        }
+    if (!result.some(r => r.id === act.id)) {
+      result.push({
+        ...act,
+        no: currentNo++,
+        jenjangLevel: 'PK I',
+        isMandatory: !isPk1Target,
+        kategori: catTitlePk1,
+        badgeText: isPk1Target ? 'DIAJUKAN PK I' : 'MANDATORY PK I',
+        defaultKode: act.defaultKode || 1
       });
     }
+  });
 
-    return result;
-  }
-
-  // Jika PK I murni
   if (isPk1Target) {
     return result;
   }
 
-  // TIER 2: PK II
+  // -------------------------------------------------------------------------
+  // TIER 2: KEWENANGAN KLINIS PK II (KLASTER AREA)
+  // -------------------------------------------------------------------------
   const isPk2Target = (pkLevel === 'PK II');
   let pk2Key = `${cluster}_pk2`;
   if (cluster === 'kmb') pk2Key = 'kmb_dewasa_pk2';
@@ -1638,7 +1619,7 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
   }
   const pk2Source = window.KOMITE_DATA?.whiteBookActions?.[pk2Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_dewasa_pk2'] || [];
   const catTitlePk2 = isPk2Target
-    ? `B. KEWENANGAN KLINIS DIAJUKAN PK II (${clusterName.toUpperCase()})`
+    ? `B. RINCIAN KEWENANGAN KLINIS DIAJUKAN PK II (${clusterName.toUpperCase()})`
     : `B. KEWENANGAN KLINIS MANDATORY PK II (${clusterName.toUpperCase()})`;
 
   pk2Source.forEach(act => {
@@ -1659,11 +1640,17 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     return result;
   }
 
-  // TIER 3: PK III
+  // -------------------------------------------------------------------------
+  // TIER 3: KEWENANGAN KLINIS PK III (AREA SPESIFIK / KEKHUSUSAN)
+  // -------------------------------------------------------------------------
   const isPk3Target = (pkLevel === 'PK III');
   let pk3Key = areaKey;
   if (!isPk3Target || !window.KOMITE_DATA?.whiteBookActions?.[pk3Key]) {
-    if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk3`]) {
+    // If applicant is PK IV or PK V, find the corresponding PK 3 key
+    const mappedPk3 = areaKey ? areaKey.replace(/_pk[45]$/, '_pk3') : null;
+    if (mappedPk3 && window.KOMITE_DATA?.whiteBookActions?.[mappedPk3]) {
+      pk3Key = mappedPk3;
+    } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk3`]) {
       pk3Key = `${cluster}_medikal_pk3`;
     } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk3`]) {
       pk3Key = `${cluster}_pk3`;
@@ -1671,10 +1658,11 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
       pk3Key = 'kmb_medikal_pk3';
     }
   }
+
   const pk3Source = window.KOMITE_DATA?.whiteBookActions?.[pk3Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk3'] || [];
   const pk3Title = isPk3Target ? effectiveAreaName : getAreaDisplayName(pk3Key, 'PK III');
   const catTitlePk3 = isPk3Target
-    ? `C. KEWENANGAN KLINIS DIAJUKAN PK III (${pk3Title.toUpperCase()})`
+    ? `C. RINCIAN KEWENANGAN KLINIS DIAJUKAN PK III (${pk3Title.toUpperCase()})`
     : `C. KEWENANGAN KLINIS MANDATORY PK III (${pk3Title.toUpperCase()})`;
 
   pk3Source.forEach(act => {
@@ -1695,11 +1683,16 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     return result;
   }
 
-  // TIER 4: PK IV
+  // -------------------------------------------------------------------------
+  // TIER 4: KEWENANGAN KLINIS PK IV (PROFICIENT / KONSULTAN RUANGAN)
+  // -------------------------------------------------------------------------
   const isPk4Target = (pkLevel === 'PK IV');
   let pk4Key = areaKey;
   if (!isPk4Target || !window.KOMITE_DATA?.whiteBookActions?.[pk4Key]) {
-    if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk4`]) {
+    const mappedPk4 = areaKey ? areaKey.replace(/_pk5$/, '_pk4') : null;
+    if (mappedPk4 && window.KOMITE_DATA?.whiteBookActions?.[mappedPk4]) {
+      pk4Key = mappedPk4;
+    } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk4`]) {
       pk4Key = `${cluster}_pk4`;
     } else if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_medikal_pk4`]) {
       pk4Key = `${cluster}_medikal_pk4`;
@@ -1707,10 +1700,11 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
       pk4Key = 'kmb_medikal_pk4';
     }
   }
+
   const pk4Source = window.KOMITE_DATA?.whiteBookActions?.[pk4Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk4'] || [];
   const pk4Title = isPk4Target ? effectiveAreaName : getAreaDisplayName(pk4Key, 'PK IV');
   const catTitlePk4 = isPk4Target
-    ? `D. KEWENANGAN KLINIS DIAJUKAN PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`
+    ? `D. RINCIAN KEWENANGAN KLINIS DIAJUKAN PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`
     : `D. KEWENANGAN KLINIS MANDATORY PK IV (${pk4Title.toUpperCase()} - PROFICIENT)`;
 
   pk4Source.forEach(act => {
@@ -1731,10 +1725,20 @@ function getCumulativeRkkActions(pkLevel, areaKey) {
     return result;
   }
 
-  // TIER 5: PK V
-  const pk5Key = areaKey || 'kmb_medikal_pk5';
+  // -------------------------------------------------------------------------
+  // TIER 5: KEWENANGAN KLINIS PK V (EXPERT / PAKAR RS & PROVINSI)
+  // -------------------------------------------------------------------------
+  let pk5Key = areaKey;
+  if (!window.KOMITE_DATA?.whiteBookActions?.[pk5Key]) {
+    if (window.KOMITE_DATA?.whiteBookActions?.[`${cluster}_pk5`]) {
+      pk5Key = `${cluster}_pk5`;
+    } else {
+      pk5Key = 'kmb_medikal_pk5';
+    }
+  }
   const pk5Source = window.KOMITE_DATA?.whiteBookActions?.[pk5Key] || window.KOMITE_DATA?.whiteBookActions?.['kmb_medikal_pk5'] || [];
-  const catTitlePk5 = `E. KEWENANGAN KLINIS DIAJUKAN PK V (${effectiveAreaName.toUpperCase()} - EXPERT/PAKAR)`;
+  const pk5Title = effectiveAreaName || getAreaDisplayName(pk5Key, 'PK V');
+  const catTitlePk5 = `E. RINCIAN KEWENANGAN KLINIS DIAJUKAN PK V (${pk5Title.toUpperCase()} - EXPERT/PAKAR)`;
 
   pk5Source.forEach(act => {
     if (!result.some(r => r.id === act.id)) {
@@ -1954,10 +1958,10 @@ function onAreaKlinisChange(areaKey) {
   let html = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; background: var(--bg-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
       <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
-        <strong>Kode RKK:</strong>
-        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">1: Mandiri Penuh</span>
-        <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">2: Supervisi</span>
-        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">3: Tidak Diminta</span>
+        <strong>Petunjuk Ceklis:</strong>
+        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Kolom 1: Mandiri (M)</span>
+        <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">Kolom 2: Supervisi (S)</span>
+        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">Kolom 3: Tidak Diminta (T)</span>
       </div>
       <div style="font-size: 0.75rem; font-weight: 700; color: #0e3860; display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
         <span class="badge" style="background: #0e3860; color: #fff;">Total: ${totalCount} Tindakan</span>
@@ -1965,23 +1969,23 @@ function onAreaKlinisChange(areaKey) {
         <span class="badge" style="background: #fef3c7; color: #92400e;"><i class="fa-solid fa-star"></i> Diajukan ${pkLevel}: ${targetCount}</span>
       </div>
     </div>
-    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-      <table class="soedarso-table" style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
+    <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+      <table class="soedarso-table rkk-table-sticky-header" style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
         <thead>
           <tr style="background: #0e3860; color: #ffffff;">
-            <th rowspan="2" class="soedarso-th-blue" style="width: 32px; text-align: center;">No</th>
-            <th rowspan="2" class="soedarso-th-blue" style="text-align: left;">Daftar Kompetensi &amp; Tindakan Klinis Asuhan Keperawatan</th>
-            <th colspan="3" class="soedarso-th-blue" style="width: 105px; text-align: center;">Penilaian Mandiri</th>
+            <th rowspan="2" class="soedarso-th-blue" style="width: 36px; text-align: center; vertical-align: middle;">No</th>
+            <th rowspan="2" class="soedarso-th-blue" style="text-align: left; vertical-align: middle;">Daftar Rincian Kewenangan Klinis (White Book RSUD dr. Soedarso)</th>
+            <th colspan="3" class="soedarso-th-blue" style="width: 135px; text-align: center;">Penilaian Mandiri (Ceklis)</th>
             <th colspan="3" class="soedarso-th-blue" style="width: 105px; text-align: center;">Rekomendasi MB</th>
-            <th rowspan="2" class="soedarso-th-blue" style="width: 120px; text-align: left;">Catatan MB</th>
+            <th rowspan="2" class="soedarso-th-blue" style="width: 120px; text-align: left; vertical-align: middle;">Catatan MB</th>
           </tr>
           <tr style="background: #0e3860; color: #ffffff;">
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center;" title="Kode 1: Mandiri Penuh">1</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center;" title="Kode 2: Di bawah Supervisi">2</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center;" title="Kode 3: Tidak Diminta">3</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center;">1</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center;">2</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center;">3</th>
+            <th class="soedarso-th-blue" style="width: 45px; text-align: center; font-size: 0.75rem;" title="Kode 1: Mandiri Penuh (Kompeten Tanpa Supervisi)">1 (M)</th>
+            <th class="soedarso-th-blue" style="width: 45px; text-align: center; font-size: 0.75rem;" title="Kode 2: Di bawah Supervisi">2 (S)</th>
+            <th class="soedarso-th-blue" style="width: 45px; text-align: center; font-size: 0.75rem;" title="Kode 3: Tidak Diminta">3 (T)</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center; font-size: 0.75rem;">1</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center; font-size: 0.75rem;">2</th>
+            <th class="soedarso-th-blue" style="width: 35px; text-align: center; font-size: 0.75rem;">3</th>
           </tr>
         </thead>
         <tbody>
@@ -1997,7 +2001,7 @@ function onAreaKlinisChange(areaKey) {
       const catBorder = isMandatoryCat ? '4px solid #0284c7' : '4px solid #d97706';
 
       html += `
-        <tr style="background: ${catBg}; font-weight: 800; color: ${catColor}; border-left: ${catBorder};">
+        <tr class="rkk-cat-header" style="background: ${catBg}; font-weight: 800; color: ${catColor}; border-left: ${catBorder};">
           <td colspan="9" style="padding: 7px 10px; font-size: 0.81rem; border: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.2px;">
             ${isMandatoryCat ? '<i class="fa-solid fa-lock" style="margin-right: 4px;"></i>' : '<i class="fa-solid fa-star" style="margin-right: 4px; color: #fbbf24;"></i>'}
             ${currentCat}
@@ -2007,39 +2011,46 @@ function onAreaKlinisChange(areaKey) {
     }
 
     const kode = item.defaultKode || 1;
+    const isCode1 = (kode === 1);
+    const isCode2 = (kode === 2);
+    const isCode3 = (kode === 3);
+
     html += `
-      <tr style="border-bottom: 1px solid #e2e8f0; ${item.isMandatory ? 'background: #fafcff;' : ''}">
-        <td style="text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.78rem; border: 1px solid #e2e8f0;">${item.no || (idx + 1)}</td>
-        <td style="border: 1px solid #e2e8f0; padding: 6px 8px;">
+      <tr id="row_rkk_${item.id}" class="rkk-row ${item.isMandatory ? 'is-mandatory' : 'is-target'}" style="border-bottom: 1px solid #e2e8f0; ${item.isMandatory ? 'background: #fafcff;' : ''}">
+        <td style="text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.78rem; border: 1px solid #e2e8f0; vertical-align: middle;">${item.no || (idx + 1)}</td>
+        <td style="border: 1px solid #e2e8f0; padding: 6px 8px; vertical-align: middle;">
           <div style="font-weight: 600; color: var(--text-main); font-size: 0.83rem;">${item.name}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 3px; flex-wrap: wrap;">
+          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 0.4rem; margin-top: 3px; flex-wrap: wrap; align-items: center;">
             <span class="badge" style="background: ${item.isMandatory ? '#e0f2fe; color: #0369a1;' : '#fef3c7; color: #92400e;'} font-weight: 700; font-size: 0.69rem;">
               <i class="fa-solid ${item.isMandatory ? 'fa-lock' : 'fa-star'}"></i> ${item.badgeText}
             </span>
             <span class="badge" style="background: #f1f5f9; padding: 1px 6px;">${item.domain || 'Asuhan'}</span>
             <span class="badge" style="background: #eef2ff; color: #4338ca; padding: 1px 6px;">Sifat: ${item.jenisTindakan || 'Mandiri'}</span>
+            <span class="badge-status-rkk ${isCode1 ? 'badge-mandiri' : (isCode2 ? 'badge-supervisi' : 'badge-tidak')}" id="badge_status_${item.id}">
+              ${isCode1 ? '<i class="fa-solid fa-check"></i> 1: Mandiri' : (isCode2 ? '<i class="fa-solid fa-user-group"></i> 2: Supervisi' : '<i class="fa-solid fa-xmark"></i> 3: Tidak Diminta')}
+            </span>
           </div>
         </td>
-        <td style="text-align: center; border: 1px solid #e2e8f0;">
-          <input type="radio" name="rkk_mandiri_${item.id}" value="1" ${kode === 1 ? 'checked' : ''} title="Kode 1: Mandiri Penuh">
+        <td class="rkk-cell-check rkk-cell-1 ${isCode1 ? 'active-code-1' : ''}" onclick="selectRkkRadio('${item.id}', 1, event)" title="Klik untuk ceklis Kode 1 (Mandiri Penuh)">
+          <input type="radio" name="rkk_mandiri_${item.id}" id="radio_${item.id}_1" value="1" ${isCode1 ? 'checked' : ''} onchange="onRkkRadioChange('${item.id}', 1)">
         </td>
-        <td style="text-align: center; border: 1px solid #e2e8f0;">
-          <input type="radio" name="rkk_mandiri_${item.id}" value="2" ${kode === 2 ? 'checked' : ''} title="Kode 2: Di bawah Supervisi">
+        <td class="rkk-cell-check rkk-cell-2 ${isCode2 ? 'active-code-2' : ''}" onclick="selectRkkRadio('${item.id}', 2, event)" title="Klik untuk ceklis Kode 2 (Di bawah Supervisi)">
+          <input type="radio" name="rkk_mandiri_${item.id}" id="radio_${item.id}_2" value="2" ${isCode2 ? 'checked' : ''} onchange="onRkkRadioChange('${item.id}', 2)">
         </td>
-        <td style="text-align: center; border: 1px solid #e2e8f0;">
-          <input type="radio" name="rkk_mandiri_${item.id}" value="3" ${kode === 3 ? 'checked' : ''} title="Kode 3: Tidak Diminta">
+        <td class="rkk-cell-check rkk-cell-3 ${isCode3 ? 'active-code-3' : ''}" onclick="selectRkkRadio('${item.id}', 3, event)" title="Klik untuk ceklis Kode 3 (Tidak Diminta)">
+          <input type="radio" name="rkk_mandiri_${item.id}" id="radio_${item.id}_3" value="3" ${isCode3 ? 'checked' : ''} onchange="onRkkRadioChange('${item.id}', 3)">
         </td>
-        <td style="text-align: center; border: 1px solid #e2e8f0; color: #16a34a; font-weight: bold;">
-          <span style="font-size: 0.85rem;">[√]</span>
+        <td class="mb-col-1" style="text-align: center; border: 1px solid #e2e8f0; color: #16a34a; font-weight: bold; vertical-align: middle;">
+          <span style="font-size: 0.85rem;">${isCode1 ? '[√]' : '[ ]'}</span>
         </td>
-        <td style="text-align: center; border: 1px solid #e2e8f0; color: #94a3b8;">
-          <span style="font-size: 0.85rem;">[ ]</span>
+        <td class="mb-col-2" style="text-align: center; border: 1px solid #e2e8f0; color: #d97706; font-weight: bold; vertical-align: middle;">
+          <span style="font-size: 0.85rem;">${isCode2 ? '[√]' : '[ ]'}</span>
         </td>
-        <td style="text-align: center; border: 1px solid #e2e8f0; color: #94a3b8;">
-          <span style="font-size: 0.85rem;">[ ]</span>
+        <td class="mb-col-3" style="text-align: center; border: 1px solid #e2e8f0; color: #64748b; font-weight: bold; vertical-align: middle;">
+          <span style="font-size: 0.85rem;">${isCode3 ? '[√]' : '[ ]'}</span>
         </td>
-        <td style="border: 1px solid #e2e8f0; padding: 4px 6px; font-size: 0.75rem; color: #475569;">
-          <input type="text" class="form-input" style="padding: 2px 6px; font-size: 0.72rem;" value="Kompeten Penuh" placeholder="Catatan...">
+        <td style="border: 1px solid #e2e8f0; padding: 4px 6px; font-size: 0.75rem; color: #475569; vertical-align: middle;">
+          <input type="text" class="form-input rkk-catatan-input" style="padding: 2px 6px; font-size: 0.72rem;" value="${isCode1 ? 'Kompeten Penuh' : (isCode2 ? 'Supervisi' : 'Tidak Diminta')}" placeholder="Catatan...">
         </td>
       </tr>
     `;
@@ -2053,10 +2064,123 @@ function onAreaKlinisChange(areaKey) {
 
   container.innerHTML = html;
 
+  // Update live counters
+  updateRkkLiveCounters();
+
   // Re-apply search query if user was typing in search box
   const searchInput = document.getElementById('rkkSearchActionInput');
   if (searchInput && searchInput.value.trim()) {
     onStep3SearchAction(searchInput.value.trim());
+  }
+}
+
+function selectRkkRadio(itemId, val, event) {
+  if (event && event.target && event.target.tagName === 'INPUT') {
+    updateRkkRowVisual(itemId, val);
+    return;
+  }
+  const radio = document.querySelector(`input[name="rkk_mandiri_${itemId}"][value="${val}"]`);
+  if (radio) {
+    radio.checked = true;
+    updateRkkRowVisual(itemId, val);
+  }
+}
+
+function onRkkRadioChange(itemId, val) {
+  updateRkkRowVisual(itemId, val);
+}
+
+function updateRkkRowVisual(itemId, val) {
+  const row = document.getElementById(`row_rkk_${itemId}`);
+  if (!row) return;
+
+  const cell1 = row.querySelector('.rkk-cell-1');
+  const cell2 = row.querySelector('.rkk-cell-2');
+  const cell3 = row.querySelector('.rkk-cell-3');
+  if (cell1) cell1.classList.toggle('active-code-1', val == 1);
+  if (cell2) cell2.classList.toggle('active-code-2', val == 2);
+  if (cell3) cell3.classList.toggle('active-code-3', val == 3);
+
+  const badge = document.getElementById(`badge_status_${itemId}`);
+  if (badge) {
+    if (val == 1) {
+      badge.className = 'badge-status-rkk badge-mandiri';
+      badge.innerHTML = '<i class="fa-solid fa-check"></i> 1: Mandiri';
+    } else if (val == 2) {
+      badge.className = 'badge-status-rkk badge-supervisi';
+      badge.innerHTML = '<i class="fa-solid fa-user-group"></i> 2: Supervisi';
+    } else if (val == 3) {
+      badge.className = 'badge-status-rkk badge-tidak';
+      badge.innerHTML = '<i class="fa-solid fa-xmark"></i> 3: Tidak Diminta';
+    } else {
+      badge.className = 'badge-status-rkk badge-uncheck';
+      badge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Belum Diceklis';
+    }
+  }
+
+  const mb1 = row.querySelector('.mb-col-1');
+  const mb2 = row.querySelector('.mb-col-2');
+  const mb3 = row.querySelector('.mb-col-3');
+  const note = row.querySelector('.rkk-catatan-input');
+  if (mb1) mb1.innerHTML = val == 1 ? '<span style="color:#16a34a; font-weight:bold;">[√]</span>' : '<span style="color:#94a3b8;">[ ]</span>';
+  if (mb2) mb2.innerHTML = val == 2 ? '<span style="color:#d97706; font-weight:bold;">[√]</span>' : '<span style="color:#94a3b8;">[ ]</span>';
+  if (mb3) mb3.innerHTML = val == 3 ? '<span style="color:#64748b; font-weight:bold;">[√]</span>' : '<span style="color:#94a3b8;">[ ]</span>';
+  if (note) {
+    if (val == 1) note.value = 'Kompeten Penuh';
+    else if (val == 2) note.value = 'Supervisi';
+    else if (val == 3) note.value = 'Tidak Diminta';
+  }
+
+  updateRkkLiveCounters();
+}
+
+function updateRkkLiveCounters() {
+  const container = document.getElementById('rkkChecklistContainer');
+  if (!container) return;
+
+  const total = (state.currentWizardRkkList && state.currentWizardRkkList.length) || 0;
+  let count1 = 0, count2 = 0, count3 = 0, countChecked = 0;
+
+  if (state.currentWizardRkkList) {
+    state.currentWizardRkkList.forEach(item => {
+      const radio = document.querySelector(`input[name="rkk_mandiri_${item.id}"]:checked`);
+      if (radio) {
+        countChecked++;
+        if (radio.value === '1') count1++;
+        else if (radio.value === '2') count2++;
+        else if (radio.value === '3') count3++;
+      }
+    });
+  }
+
+  const countEl = document.getElementById('rkkCheckedCount');
+  if (countEl) countEl.textContent = `${countChecked} / ${total}`;
+
+  const c1El = document.getElementById('countMandiriBadge');
+  if (c1El) c1El.textContent = count1;
+
+  const c2El = document.getElementById('countSupervisiBadge');
+  if (c2El) c2El.textContent = count2;
+
+  const c3El = document.getElementById('countTidakBadge');
+  if (c3El) c3El.textContent = count3;
+
+  const unchecked = total - countChecked;
+  const uncheckBadge = document.getElementById('badgeUncheckedCount');
+  const countUncheckedEl = document.getElementById('countUncheckedBadge');
+  const progText = document.getElementById('rkkCheckedProgressText');
+
+  if (uncheckBadge) uncheckBadge.style.display = unchecked > 0 ? 'inline-flex' : 'none';
+  if (countUncheckedEl) countUncheckedEl.textContent = unchecked;
+
+  if (progText) {
+    if (unchecked === 0 && total > 0) {
+      progText.style.color = '#15803d';
+      progText.innerHTML = '<i class="fa-solid fa-circle-check"></i> Lengkap';
+    } else {
+      progText.style.color = '#d97706';
+      progText.innerHTML = `<i class="fa-solid fa-clock"></i> Belum Lengkap (${unchecked} belum diceklis)`;
+    }
   }
 }
 
@@ -2124,9 +2248,53 @@ function onStep3SearchAction(keyword) {
 }
 
 function setAllRkkKode(val) {
-  document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="' + val + '"]').forEach(r => {
-    r.checked = true;
+  if (!state.currentWizardRkkList) return;
+  state.currentWizardRkkList.forEach(item => {
+    const radio = document.querySelector(`input[name="rkk_mandiri_${item.id}"][value="${val}"]`);
+    if (radio) radio.checked = true;
+    updateRkkRowVisual(item.id, val);
   });
+  updateRkkLiveCounters();
+}
+
+function setMandatoryOnlyKode(val) {
+  if (!state.currentWizardRkkList) return;
+  state.currentWizardRkkList.forEach(item => {
+    if (item.isMandatory) {
+      const radio = document.querySelector(`input[name="rkk_mandiri_${item.id}"][value="${val}"]`);
+      if (radio) radio.checked = true;
+      updateRkkRowVisual(item.id, val);
+    }
+  });
+  updateRkkLiveCounters();
+}
+
+function clearAllRkkRadios() {
+  if (!state.currentWizardRkkList) return;
+  state.currentWizardRkkList.forEach(item => {
+    const radios = document.querySelectorAll(`input[name="rkk_mandiri_${item.id}"]`);
+    radios.forEach(r => r.checked = false);
+    const row = document.getElementById(`row_rkk_${item.id}`);
+    if (row) {
+      row.querySelectorAll('.rkk-cell-check').forEach(c => {
+        c.classList.remove('active-code-1', 'active-code-2', 'active-code-3');
+      });
+      const badge = document.getElementById(`badge_status_${item.id}`);
+      if (badge) {
+        badge.className = 'badge-status-rkk badge-uncheck';
+        badge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Belum Diceklis';
+      }
+      const mb1 = row.querySelector('.mb-col-1');
+      const mb2 = row.querySelector('.mb-col-2');
+      const mb3 = row.querySelector('.mb-col-3');
+      const note = row.querySelector('.rkk-catatan-input');
+      if (mb1) mb1.innerHTML = '<span style="color:#94a3b8;">[ ]</span>';
+      if (mb2) mb2.innerHTML = '<span style="color:#94a3b8;">[ ]</span>';
+      if (mb3) mb3.innerHTML = '<span style="color:#94a3b8;">[ ]</span>';
+      if (note) note.value = '';
+    }
+  });
+  updateRkkLiveCounters();
 }
 
 function resetAllRkkKode() {
@@ -7310,7 +7478,14 @@ window.generateRkkHVS = generateRkkHVS;
 window.printRkkHVS = printRkkHVS;
 window.exportRkkWord = exportRkkWord;
 window.setAllRkkKode = setAllRkkKode;
+window.setMandatoryOnlyKode = setMandatoryOnlyKode;
+window.clearAllRkkRadios = clearAllRkkRadios;
 window.resetAllRkkKode = resetAllRkkKode;
+window.selectRkkRadio = selectRkkRadio;
+window.onRkkRadioChange = onRkkRadioChange;
+window.updateRkkRowVisual = updateRkkRowVisual;
+window.updateRkkLiveCounters = updateRkkLiveCounters;
+window.getCumulativeRkkActions = getCumulativeRkkActions;
 window.onAreaKlinisChange = onAreaKlinisChange;
 window.openPsvModal = openPsvModal;
 window.syncPsvFromApplicant = syncPsvFromApplicant;
