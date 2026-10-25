@@ -1637,7 +1637,6 @@ window.KOMITE_DATA = {
       strBerlaku: "15 April 2028 (Wajib Aktif)",
       sipp: "503/0842/SIPP/DPMPTSP-C/2022",
       sippBerlaku: "15 April 2027",
-      kta: "61710048291 (Terdaftar Aktif di Komisariat RSUD dr. Soedarso)",
       pendidikan: [
         { jenjang: "D3 Keperawatan", institusi: "Poltekkes Kemenkes Pontianak", tahun: "2013", noIjazah: "14201/POLTEK-PTK/D3/2013" },
         { jenjang: "S1 Keperawatan", institusi: "STIKes Yarsi Pontianak", tahun: "2017", noIjazah: "08412/YARSI/S1-KEP/2017" },
@@ -1670,7 +1669,6 @@ window.KOMITE_DATA = {
       strBerlaku: "22 Agustus 2028 (Wajib Aktif)",
       sipp: "503/1209/SIPB/DPMPTSP-C/2021",
       sippBerlaku: "22 Agustus 2026",
-      kta: "61710928172 (Terdaftar Aktif di Pengurus Ranting IBI RSUD dr. Soedarso)",
       pendidikan: [
         { jenjang: "D3 Keperawatan / Kebidanan", institusi: "Poltekkes Kemenkes Pontianak", tahun: "2015", noIjazah: "15201/POLTEK-PTK/D3-KEB/2015" },
         { jenjang: "S1 Keperawatan / D4 Kebidanan", institusi: "Poltekkes Kemenkes Semarang (D4 Kebidanan)", tahun: "2018", noIjazah: "0912/POLTEK-SMG/D4/2018" },
