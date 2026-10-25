@@ -2309,15 +2309,99 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Unit Kerja / Penempatan <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvUnit" value="Ruang Bedah Pria / ICU" placeholder="Misal: Ruang ICU / IGD / Kanker / Cath Lab Jantung" required>
+                  <select class="form-select" id="cvUnit" required>
+                    <option value="">-- Pilih Unit Kerja / Penempatan (Sesuai SK Tempat Tidur) --</option>
+                    
+                    <optgroup label="A. INSTALASI RAWAT INAP A (545 Tempat Tidur)">
+                      <option value="Singkut Buluh">Singkut Buluh (13 TT)</option>
+                      <option value="PPT">PPT (43 TT)</option>
+                      <option value="A (Anak)">A (Anak) (95 TT)</option>
+                      <option value="B (Perinatologi)">B (Perinatologi) (25 TT)</option>
+                      <option value="Ruai (Syaraf)">Ruai (Syaraf) (33 TT)</option>
+                      <option value="Camar (Kemoterapi)">Camar (Kemoterapi) (34 TT)</option>
+                      <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita) (37 TT)</option>
+                      <option value="Meranti">Meranti (40 TT)</option>
+                      <option value="Mahoni">Mahoni (41 TT)</option>
+                      <option value="Ramin">Ramin (25 TT)</option>
+                      <option value="ICU">ICU (18 TT)</option>
+                      <option value="HCU Umum">HCU Umum (19 TT)</option>
+                      <option value="PICU">PICU (7 TT)</option>
+                      <option value="HCU Anak">HCU Anak (6 TT)</option>
+                      <option value="NICU">NICU (9 TT)</option>
+                      <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru (38 TT)</option>
+                      <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU (4 TT)</option>
+                      <option value="Enggang Gading 1">Enggang Gading 1 (10 TT)</option>
+                      <option value="Enggang Gading 2" selected>Enggang Gading 2 (48 TT)</option>
+                    </optgroup>
+
+                    <optgroup label="B. INSTALASI JANTUNG TERPADU (50 Tempat Tidur)">
+                      <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU (14 TT)</option>
+                      <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU (4 TT)</option>
+                      <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP (4 TT)</option>
+                      <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1 (8 TT)</option>
+                      <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas (20 TT)</option>
+                    </optgroup>
+
+                    <optgroup label="C. RUANG TINDAKAN (43 Tempat Tidur)">
+                      <option value="Cendana">Cendana (16 TT)</option>
+                      <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD) (15 TT)</option>
+                      <option value="IGD Kebidanan">IGD Kebidanan (2 TT)</option>
+                      <option value="OK Sentral">OK Sentral (8 TT)</option>
+                      <option value="OK IGD">OK IGD (2 TT)</option>
+                    </optgroup>
+
+                    <optgroup label="D. RUANG RAWAT KHUSUS (66 Tempat Tidur)">
+                      <option value="Thalassemia">Thalassemia (13 TT)</option>
+                      <option value="HD Rawat Jalan">HD Rawat Jalan (27 TT)</option>
+                      <option value="HD Rawat Inap">HD Rawat Inap (6 TT)</option>
+                      <option value="Kemoterapi (ODC)">Kemoterapi (ODC) (20 TT)</option>
+                    </optgroup>
+                  </select>
+                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-bed"></i> Sesuai SK Direktur No: SK/031103/RSUD/2025 Penetapan 704 Tempat Tidur.</span>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Jenjang Klinis Saat Ini <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvPkSaatIni" value="Perawat Klinis II (PK II)" placeholder="Perawat Klinis I / II / III / IV / V" required>
+                  <select class="form-select" id="cvPkSaatIni" required>
+                    <option value="">-- Pilih Jenjang Karir Klinis Saat Ini --</option>
+                    <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
+                      <option value="Pra PK">Pra PK / Belum Memiliki Jenjang (Perawat Baru)</option>
+                      <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                      <option value="PK II" selected>Perawat Klinis II (PK II - Advance Beginner)</option>
+                      <option value="PK III">Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                      <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                      <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                    </optgroup>
+                    <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
+                      <option value="Pra BK">Pra BK / Belum Memiliki Jenjang (Bidan Baru)</option>
+                      <option value="BK I">Bidan Klinis I (BK I - Novice Kebidanan)</option>
+                      <option value="BK II">Bidan Klinis II (BK II - Advance Beginner Kebidanan)</option>
+                      <option value="BK III">Bidan Klinis III (BK III - Competent Kebidanan)</option>
+                      <option value="BK IV">Bidan Klinis IV (BK IV - Proficient Kebidanan)</option>
+                      <option value="PMB">Praktisi Bidan Klinis (PMB Maternal &amp; Neonatal)</option>
+                    </optgroup>
+                  </select>
+                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-book-medical"></i> Sesuai Pedoman Jenjang Karir White Book RSUD dr. Soedarso.</span>
                 </div>
                 <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
                   <label class="form-label">Rencana Jenjang Diusulkan <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvPkDiusulkan" value="Perawat Klinis III (PK III) - Sesuai White Paper" placeholder="PK II / PK III / PK IV - Sesuaikan White Paper" required>
+                  <select class="form-select" id="cvPkDiusulkan" required>
+                    <option value="">-- Pilih Rencana Jenjang yang Diusulkan --</option>
+                    <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
+                      <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                      <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
+                      <option value="PK III" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                      <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                      <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                    </optgroup>
+                    <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
+                      <option value="BK I">Bidan Klinis I (BK I - Novice Kebidanan)</option>
+                      <option value="BK II">Bidan Klinis II (BK II - Advance Beginner Kebidanan)</option>
+                      <option value="BK III">Bidan Klinis III (BK III - Competent Kebidanan)</option>
+                      <option value="BK IV">Bidan Klinis IV (BK IV - Proficient Kebidanan)</option>
+                      <option value="PMB">Praktisi Bidan Klinis (PMB Maternal &amp; Neonatal)</option>
+                    </optgroup>
+                  </select>
+                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-shield-halved"></i> Master Jenjang Usulan untuk RKK Online, Surat Permohonan &amp; PSV.</span>
                 </div>
               </div>
             </div>
@@ -2600,17 +2684,18 @@
                 <select class="form-select input-locked" id="logbookJenjang" tabindex="-1" required>
                   <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
-                    <option value="Perawat Klinis I (PK I)">Perawat Klinis I (PK I - Novice / Generalis)</option>
-                    <option value="Perawat Klinis II (PK II)">Perawat Klinis II (PK II - Advance Beginner / Mandiri Dasar)</option>
-                    <option value="Perawat Klinis III (PK III)" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
-                    <option value="Perawat Klinis IV (PK IV)">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
-                    <option value="Perawat Klinis V (PK V)">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                    <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                    <option value="PK II">Perawat Klinis II (PK II - Advance Beginner / Mandiri Dasar)</option>
+                    <option value="PK III" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                    <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                    <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
                   </optgroup>
                   <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
-                    <option value="Bidan Klinis I (BK I)">Bidan Klinis I (BK I - Novice / Fisiologis Dasar)</option>
-                    <option value="Bidan Klinis II (BK II)">Bidan Klinis II (BK II - Advance Beginner / Mandiri Fisiologis)</option>
-                    <option value="Bidan Klinis III (BK III)">Bidan Klinis III (BK III - Competent / Patologis &amp; Emergensi)</option>
-                    <option value="Bidan Klinis IV (BK IV)">Bidan Klinis IV (BK IV - Proficient / Konsultan Asuhan Kebidanan)</option>
+                    <option value="BK I">Bidan Klinis I (BK I - Novice / Fisiologis Dasar)</option>
+                    <option value="BK II">Bidan Klinis II (BK II - Advance Beginner / Mandiri Fisiologis)</option>
+                    <option value="BK III">Bidan Klinis III (BK III - Competent / Patologis &amp; Emergensi)</option>
+                    <option value="BK IV">Bidan Klinis IV (BK IV - Proficient / Konsultan Asuhan Kebidanan)</option>
+                    <option value="PMB">Praktisi Bidan Klinis (PMB Maternal &amp; Neonatal)</option>
                   </optgroup>
                 </select>
                 <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Terkunci otomatis sesuai usulan jenjang di Formulir CV (Langkah 1).</span>
@@ -3024,13 +3109,23 @@
                     <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                   </label>
                   <select class="form-select input-locked" id="suratPkSaatIni" tabindex="-1" required>
-                    <option value="Pra PK / Belum Memiliki Jenjang">Pra PK / Belum Memiliki Jenjang (Perawat Baru)</option>
-                    <option value="PK I">Perawat Klinis I (PK I)</option>
-                    <option value="PK II" selected>Perawat Klinis II (PK II)</option>
-                    <option value="PK III">Perawat Klinis III (PK III)</option>
-                    <option value="PK IV">Perawat Klinis IV (PK IV)</option>
-                    <option value="PK V">Perawat Klinis V (PK V)</option>
-                    <option value="PMB">Praktisi Bidan Klinis (PMB)</option>
+                    <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
+                    <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
+                      <option value="Pra PK">Pra PK / Belum Memiliki Jenjang (Perawat Baru)</option>
+                      <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                      <option value="PK II" selected>Perawat Klinis II (PK II - Advance Beginner)</option>
+                      <option value="PK III">Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                      <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                      <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                    </optgroup>
+                    <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
+                      <option value="Pra BK">Pra BK / Belum Memiliki Jenjang (Bidan Baru)</option>
+                      <option value="BK I">Bidan Klinis I (BK I - Novice Kebidanan)</option>
+                      <option value="BK II">Bidan Klinis II (BK II - Advance Beginner Kebidanan)</option>
+                      <option value="BK III">Bidan Klinis III (BK III - Competent Kebidanan)</option>
+                      <option value="BK IV">Bidan Klinis IV (BK IV - Proficient Kebidanan)</option>
+                      <option value="PMB">Praktisi Bidan Klinis (PMB Maternal &amp; Neonatal)</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div class="form-group">
@@ -3039,12 +3134,21 @@
                     <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                   </label>
                   <select class="form-select input-locked" id="suratJenjang" tabindex="-1" required>
-                    <option value="PK I">Perawat Klinis I (PK I - Novice / Pemula)</option>
-                    <option value="PK II">Perawat Klinis II (PK II - Mandiri Dasar)</option>
-                    <option value="PK III" selected>Perawat Klinis III (PK III - Spesifik Area)</option>
-                    <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Konsultan)</option>
-                    <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
-                    <option value="PMB">Praktisi Bidan Klinis (PMB I - PMB IV)</option>
+                    <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
+                    <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
+                      <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
+                      <option value="PK II">Perawat Klinis II (PK II - Advance Beginner)</option>
+                      <option value="PK III" selected>Perawat Klinis III (PK III - Competent / Spesifik Area)</option>
+                      <option value="PK IV">Perawat Klinis IV (PK IV - Proficient / Mahir Konsultan)</option>
+                      <option value="PK V">Perawat Klinis V (PK V - Expert / Pakar)</option>
+                    </optgroup>
+                    <optgroup label="B. BIDAN KLINIS (BK) - BUKU PUTIH 2026">
+                      <option value="BK I">Bidan Klinis I (BK I - Novice Kebidanan)</option>
+                      <option value="BK II">Bidan Klinis II (BK II - Advance Beginner Kebidanan)</option>
+                      <option value="BK III">Bidan Klinis III (BK III - Competent Kebidanan)</option>
+                      <option value="BK IV">Bidan Klinis IV (BK IV - Proficient Kebidanan)</option>
+                      <option value="PMB">Praktisi Bidan Klinis (PMB Maternal &amp; Neonatal)</option>
+                    </optgroup>
                   </select>
                   <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Terkunci otomatis sesuai usulan jenjang di Formulir CV (Langkah 1).</span>
                 </div>
