@@ -4135,7 +4135,7 @@ function load10ActionsForRumpun(rumpunKey) {
     tindakan: act,
     mandiri: true,
     supervisi: false,
-    catatan: 'Valid / Terverifikasi Ka. Ru'
+    catatan: ''
   }));
 
   renderLogbookItemRows(items);
@@ -4218,16 +4218,16 @@ function renderLogbookItemRows(items = []) {
 
   // Exactly 10 default rows (No. 1 s.d 10) according to standard official form
   const defaultItems = [
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
-    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' }
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: '' }
   ];
 
   const list = (items && items.length > 0) ? items : defaultItems;
@@ -4306,7 +4306,7 @@ function addLogbookItemRow(data = {}) {
     tindakan: data.tindakan || '',
     mandiri: data.mandiri !== false,
     supervisi: data.mandiri === false,
-    catatan: data.catatan || 'Valid / Terverifikasi'
+    catatan: data.catatan || ''
   });
   renderLogbookItemRows(current);
 }
@@ -4959,7 +4959,7 @@ function getLogbookItemsFromForm() {
     const tindakan = r.querySelector('.logbook-item-tindakan')?.value?.trim() || '';
     const radioM = r.querySelector('.logbook-item-radio-m');
     const isMandiri = radioM ? radioM.checked : true;
-    const catatan = r.querySelector('.logbook-item-catatan')?.value?.trim() || 'Valid / Terverifikasi';
+    const catatan = r.querySelector('.logbook-item-catatan')?.value?.trim() || '';
 
     if (tglrm || tindakan) {
       let tgl = tglrm;
@@ -4977,7 +4977,7 @@ function getLogbookItemsFromForm() {
         tindakan: tindakan || 'Prosedur asuhan keperawatan / kebidanan',
         mandiri: isMandiri,
         supervisi: !isMandiri,
-        paraf: 'paraf',
+        paraf: '',
         catatan: catatan
       });
     }
@@ -5147,10 +5147,8 @@ function generateLogbookHVS(mode) {
         <td style="border: 1px solid #000; padding: 6px 8px; font-size: 8.5pt; vertical-align: top; line-height: 1.35;">${item.tindakan}</td>
         <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 9pt; vertical-align: top;">${mCheck}</td>
         <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 9pt; vertical-align: top;">${sCheck}</td>
-        <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8pt; vertical-align: top; color: #047857;">
-          <span style="border: 1px solid #10b981; border-radius: 3px; padding: 1px 4px; font-size: 7pt; font-weight: bold; background: #ecfdf5;">Paraf &check;</span>
-        </td>
-        <td style="border: 1px solid #000; padding: 6px 6px; font-size: 8pt; vertical-align: top; color: #1e293b;">${item.catatan || 'Valid / Terverifikasi'}</td>
+        <td style="border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 8pt; vertical-align: top;">&nbsp;</td>
+        <td style="border: 1px solid #000; padding: 6px 6px; font-size: 8pt; vertical-align: top;">&nbsp;</td>
       </tr>
     `;
   };
