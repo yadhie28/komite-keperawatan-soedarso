@@ -1933,10 +1933,11 @@ function onAreaKlinisChange(areaKey) {
   let html = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; background: var(--bg-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
       <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
-        <strong>Petunjuk Ceklis:</strong>
-        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Kolom 1: Mandiri (M)</span>
-        <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">Kolom 2: Supervisi (S)</span>
-        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">Kolom 3: Tidak Diminta (T)</span>
+        <strong>Petunjuk Ceklis Pemohon:</strong>
+        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">1 (M): Mandiri</span>
+        <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 700;">2 (S): Supervisi</span>
+        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">3 (T): Tidak Diminta</span>
+        <span class="badge" style="background: #eef2ff; color: #3730a3; font-weight: 600; border: 1px solid #c7d2fe;"><i class="fa-solid fa-shield-halved"></i> Rekomendasi &amp; Catatan MB Diverifikasi oleh Mitra Bestari</span>
       </div>
       <div style="font-size: 0.75rem; font-weight: 700; color: #0e3860; display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
         <span class="badge" style="background: #0e3860; color: #fff;">Total: ${totalCount} Tindakan</span>
@@ -1948,19 +1949,14 @@ function onAreaKlinisChange(areaKey) {
       <table class="soedarso-table rkk-table-sticky-header" style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
         <thead>
           <tr style="background: #0e3860; color: #ffffff;">
-            <th rowspan="2" class="soedarso-th-blue" style="width: 36px; text-align: center; vertical-align: middle;">No</th>
+            <th rowspan="2" class="soedarso-th-blue" style="width: 42px; text-align: center; vertical-align: middle;">No</th>
             <th rowspan="2" class="soedarso-th-blue" style="text-align: left; vertical-align: middle;">Daftar Rincian Kewenangan Klinis (White Book RSUD dr. Soedarso)</th>
-            <th colspan="3" class="soedarso-th-blue" style="width: 135px; text-align: center;">Penilaian Mandiri (Ceklis)</th>
-            <th colspan="3" class="soedarso-th-blue" style="width: 105px; text-align: center;">Rekomendasi MB</th>
-            <th rowspan="2" class="soedarso-th-blue" style="width: 120px; text-align: left; vertical-align: middle;">Catatan MB</th>
+            <th colspan="3" class="soedarso-th-blue" style="width: 210px; text-align: center;">Permohonan Kemampuan Klinis (Asesmen Mandiri)</th>
           </tr>
           <tr style="background: #0e3860; color: #ffffff;">
-            <th class="soedarso-th-blue" style="width: 45px; text-align: center; font-size: 0.75rem;" title="Kode 1: Mandiri Penuh (Kompeten Tanpa Supervisi)">1 (M)</th>
-            <th class="soedarso-th-blue" style="width: 45px; text-align: center; font-size: 0.75rem;" title="Kode 2: Di bawah Supervisi">2 (S)</th>
-            <th class="soedarso-th-blue" style="width: 45px; text-align: center; font-size: 0.75rem;" title="Kode 3: Tidak Diminta">3 (T)</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center; font-size: 0.75rem;">1</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center; font-size: 0.75rem;">2</th>
-            <th class="soedarso-th-blue" style="width: 35px; text-align: center; font-size: 0.75rem;">3</th>
+            <th class="soedarso-th-blue" style="width: 70px; text-align: center; font-size: 0.75rem;" title="Kode 1: Mandiri Penuh (Kompeten Tanpa Supervisi)">1 (M)</th>
+            <th class="soedarso-th-blue" style="width: 70px; text-align: center; font-size: 0.75rem;" title="Kode 2: Di bawah Supervisi">2 (S)</th>
+            <th class="soedarso-th-blue" style="width: 70px; text-align: center; font-size: 0.75rem;" title="Kode 3: Tidak Diminta">3 (T)</th>
           </tr>
         </thead>
         <tbody>
@@ -1977,7 +1973,7 @@ function onAreaKlinisChange(areaKey) {
 
       html += `
         <tr class="rkk-cat-header" style="background: ${catBg}; font-weight: 800; color: ${catColor}; border-left: ${catBorder};">
-          <td colspan="9" style="padding: 7px 10px; font-size: 0.81rem; border: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.2px;">
+          <td colspan="5" style="padding: 7px 10px; font-size: 0.81rem; border: 1px solid #cbd5e1; text-transform: uppercase; letter-spacing: 0.2px;">
             ${isMandatoryCat ? '<i class="fa-solid fa-lock" style="margin-right: 4px;"></i>' : '<i class="fa-solid fa-star" style="margin-right: 4px; color: #fbbf24;"></i>'}
             ${currentCat}
           </td>
@@ -2014,18 +2010,6 @@ function onAreaKlinisChange(areaKey) {
         </td>
         <td class="rkk-cell-check rkk-cell-3 ${isCode3 ? 'active-code-3' : ''}" onclick="selectRkkRadio('${item.id}', 3, event)" title="Klik untuk ceklis Kode 3 (Tidak Diminta)">
           <input type="radio" name="rkk_mandiri_${item.id}" id="radio_${item.id}_3" value="3" ${isCode3 ? 'checked' : ''} onchange="onRkkRadioChange('${item.id}', 3)">
-        </td>
-        <td class="mb-col-1" style="text-align: center; border: 1px solid #e2e8f0; color: #16a34a; font-weight: bold; vertical-align: middle;">
-          <span style="font-size: 0.85rem;">${isCode1 ? '[√]' : '[ ]'}</span>
-        </td>
-        <td class="mb-col-2" style="text-align: center; border: 1px solid #e2e8f0; color: #d97706; font-weight: bold; vertical-align: middle;">
-          <span style="font-size: 0.85rem;">${isCode2 ? '[√]' : '[ ]'}</span>
-        </td>
-        <td class="mb-col-3" style="text-align: center; border: 1px solid #e2e8f0; color: #64748b; font-weight: bold; vertical-align: middle;">
-          <span style="font-size: 0.85rem;">${isCode3 ? '[√]' : '[ ]'}</span>
-        </td>
-        <td style="border: 1px solid #e2e8f0; padding: 4px 6px; font-size: 0.75rem; color: #475569; vertical-align: middle;">
-          <input type="text" class="form-input rkk-catatan-input" style="padding: 2px 6px; font-size: 0.72rem;" value="${isCode1 ? 'Kompeten Penuh' : (isCode2 ? 'Supervisi' : 'Tidak Diminta')}" placeholder="Catatan...">
         </td>
       </tr>
     `;
