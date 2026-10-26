@@ -3680,6 +3680,345 @@ function resetLogbookForm() {
   showToast('Tabel prosedur tindakan logbook dikosongkan. Identitas pemohon tetap tersinkron dan terkunci dari Langkah 1 (CV).', 'info');
 }
 
+/* ==========================================================================
+   STANDAR BUKU PUTIH (WHITE BOOK 2026): 16 RUMPUN TINDAKAN KLINIS
+   PILIH 1 RUMPUN MAKA OTOMATIS TERISI 10 TINDAKAN DARI NOMOR 1 HINGGA 10
+   ========================================================================== */
+const WHITE_BOOK_RUMPUN_10_ACTIONS = {
+  kmb_bedah: {
+    title: 'Keperawatan Medikal Bedah (KMB & Bedah Dewasa - PK II / PK III)',
+    actions: [
+      'Validasi pengkajian awal, penilaian kesadaran GCS, dan deteksi peningkatan TIK',
+      'Pemeriksaan Ankle Brachial Index (ABI) dan analisa hasil EKG (ST elevasi / disritmia)',
+      'Serah terima pasien SBAR dan keselamatan prosedur invasif (Sign In, Time Out, Sign Out)',
+      'Melaksanakan bundles HAIs terkait Infeksi Aliran Darah Primer (IADP) & rawat pasien HIV/AIDS',
+      'Memonitor hemodinamik dengan monitor non-invasif & embolus precautions',
+      'Pemberian terapi O2 masker rebreathing/NRM, OPA/NPA, dan suction via trakeostomi',
+      'Melakukan pencabutan vena central line & monitoring balans cairan elektrolit',
+      'Perawatan cedera tekan grade 2-3, luka bakar, graft/donor site, dan ulkus Wagner I-II',
+      'Pemberian obat kemoterapi terverifikasi PK 3 & monitoring efek samping kemoterapi',
+      'Pemberian insulin drip IV & pemantauan respon obat anti-aritmia serta irigasi mata/hidung'
+    ]
+  },
+  kamar_bedah: {
+    title: 'Kamar Bedah / Perioperatif (IBS / OK / Anestesi)',
+    actions: [
+      'Pengkajian pra-operasi dasar dan verifikasi identitas pasien (Sign In WHO)',
+      'Persiapan lingkungan kamar bedah, suhu, kelembaban, dan kesterilan instrumen bedah',
+      'Melakukan cuci tangan bedah (surgical scrub), gowning, dan gloving dengan teknik aseptik tertutup',
+      'Persiapan instrumen bedah dasar sesuai jenis pembedahan (Mayor / Minor)',
+      'Pengelolaan spesimen jaringan / patologi anatomi intra-operasi dengan label identitas aman',
+      'Membantu penutupan luka operasi dan pembalutan steril serta penghitungan kassa/instrumen',
+      'Menerima dan memonitor pasien pasca operasi di ruang pulih sadar (PACU / RR)',
+      'Penilaian kriteria pemulihan pasca anestesi (Aldrete Score / Bromage Score / Steward Score)',
+      'Pemberian oksigenasi dan pembersihan jalan napas pasca ekstubasi di ruang pulih sadar',
+      'Penerapan keselamatan operasi: Sign In, Time Out, dan Sign Out sesuai standar WHO'
+    ]
+  },
+  generalis: {
+    title: 'Perawat Generalis / Ruang Rawat Inap Dasar (PK I & PK II)',
+    actions: [
+      'Melakukan interpretasi hasil EKG normal dan lapor nilai kritis',
+      'Melakukan skrining paliatif, psikologis, spiritual, dan kultural',
+      'Melakukan komunikasi verbal teknik SBAR dalam pelaporan kondisi pasien dengan TBAK',
+      'Menerapkan prinsip etika keperawatan (autonomy, beneficience, justice, non-maleficience, fidelity)',
+      'Melaksanakan bundles HAIs (ISK, HAP, IDO) dan hand hygiene sesuai standar',
+      'Mengukur TTV, skor EWSS, aktivasi Code Blue, dan Bantuan Hidup Dasar (BHD)',
+      'Pemberian terapi oksigen via nasal kanul dan simple mask serta suction OPA/oral',
+      'Pemasangan dan pencabutan NGT pasien dewasa tanpa penyulit serta cek kepatenan',
+      'Pengelolaan pemberian transfusi darah dan produk darah secara aman',
+      'Pengambilan sampel darah vena dan kapiler (GDS), sputum, feses, dan urin'
+    ]
+  },
+  intensif_icu: {
+    title: 'Perawatan Intensif & Kritis (ICU / ICCU / HCU)',
+    actions: [
+      'Pengkajian tanda vital pasien kritis via bedside monitor multifungsi',
+      'Interpretasi EKG strip kontinyu (sinus, aritmia letal, VT/VF, asistol) dan lapor nilai kritis',
+      'Penerapan bundles Ventilator-Associated Pneumonia (VAP) dan oral hygiene chlorhexidine',
+      'Pemantauan Mean Arterial Pressure (MAP), tekanan darah non-invasif, dan perfusi perifer',
+      'Pemberian bantuan napas bag-valve-mask (Ambu Bag) dan assisted ventilation darurat',
+      'Suction jalan napas via endotracheal tube (ETT) / tracheostomy dengan closed suction system',
+      'Pemberian nutrisi enteral kontinyu via enteral feeding pump & evaluasi residu lambung',
+      'Titrasi obat inotropik, vasopresor (norepinefrin, dopamin, dobutamin) via syringe pump',
+      'Pengambilan spesimen darah analisa gas darah (AGD) dan interpretasi keseimbangan asam-basa',
+      'Manajemen alarm fatigue di ICU, cooling/warming system, dan personal hygiene multidevice'
+    ]
+  },
+  emergensi_igd: {
+    title: 'Kegawatdaruratan & Trauma (IGD / Resusitasi / Triase)',
+    actions: [
+      'Melakukan triage awal kegawatdaruratan dasar (skala triase ATS/ESI)',
+      'Pengkajian primer (Primary Survey: Airway, Breathing, Circulation, Disability, Exposure)',
+      'Pemeriksaan EKG 12 lead cepat pada kasus nyeri dada akut / suspek ACS (< 10 menit)',
+      'Penerapan bundle pencegahan infeksi pada luka trauma kotor dan kontaminasi cairan tubuh',
+      'Melakukan Bantuan Hidup Dasar (BHD/BLS) dewasa dan aktivasi emergency call system',
+      'Pembebasan jalan napas tanpa alat (head tilt-chin lift, jaw thrust) & pemasangan OPA/NPA',
+      'Pemasangan jalur intravena perifer ganda ukuran besar (16G/18G) pada pasien syok/trauma',
+      'Melakukan pembidaian fraktur, fiksasi servikal (collar neck), dan log roll spine board',
+      'Pemberian terapi titrasi analgetik darurat, bronkodilator nebulisasi, dan antidotum',
+      'Tatalaksana perawatan pasien PINERE, isolasi kontak langsung, dan airborne disease'
+    ]
+  },
+  kardiovaskuler: {
+    title: 'Kardiovaskuler & Pelayanan Jantung (Cathlab / CVCU)',
+    actions: [
+      'Pemeriksaan fisik kardiovaskuler dasar dan pemantauan tanda gagal jantung',
+      'Perekaman dan pembacaan EKG 12 sandapan rutin serta pemantauan continuous telemetry',
+      'Komunikasi terapeutik dan edukasi modifikasi gaya hidup pasien penyakit jantung koroner',
+      'Edukasi restriksi cairan dan diet rendah garam pada pasien decompensatio cordis',
+      'Penerapan bundles pencegahan IADP pada akses vena sentral pasien kardiovaskuler',
+      'Pemantauan tanda vital dan deteksi dini syok kardiogenik (hipotensi, takikardia, oliguria)',
+      'Pemberian terapi oksigen pada sindrom koroner akut dan acute decompensated heart failure',
+      'Persiapan pasien dan asistensi tindakan ekokardiografi transtorakal (TTE)',
+      'Pemberian obat-obat kardiovaskuler oral (antihipertensi, statin, antikoagulan, beta blocker)',
+      'Persiapan dan pemantauan Holter monitoring, treadmill test, TEE, dan Dobutamin Stress Echo'
+    ]
+  },
+  pediatrik_anak: {
+    title: 'Pediatrik / Keperawatan Anak (Bangsal Anak & Bedah Anak)',
+    actions: [
+      'Anamnesis pasien anak & skrining perkembangan dengan Kuesioner Pra Skrining Perkembangan (KPSP)',
+      'Penilaian tanda bahaya umum anak balita (kejang, tidak bisa minum, stridor, letargis)',
+      'Pemberian terapi suportif demam: kompres hangat tepid sponge dan antipiretik',
+      'Pemberian cairan rehidrasi oral (CRO/oralit) pada anak diare dehidrasi ringan-sedang',
+      'Pencegahan infeksi silang di bangsal anak dan edukasi imunisasi dasar lengkap',
+      'Pemberian oksigenasi anak via nasal kanul pediatrik / sungkup mikro dengan humidifikasi',
+      'Pemasangan jalur intravena perifer anak (IV line) dengan teknik atraumatik care',
+      'Pemasangan pipa orogastrik / nasogastrik (OGT/NGT) pediatrik untuk nutrisi dan dekompresi',
+      'Pemberian obat puyer, sirup, tetes, dan injeksi dengan dosis presisi berat badan (BB)',
+      'Manajemen cairan, elektrolit, dan syok pada anak dengan penyakit infeksi berat'
+    ]
+  },
+  perinatologi_nicu: {
+    title: 'Perinatologi & Neonatologi (NICU / PICU / Bayi Risiko Tinggi)',
+    actions: [
+      'Asuhan perkembangan neonatus kritis, deteksi BBLR/BBLASR, dan pencegahan MARSI bayi',
+      'Pemeriksaan refleks primitif bayi baru lahir dan penilaian Ballard Score kematangan gestasi',
+      'Penerapan Perawatan Metode Kanguru (PMK / Kangaroo Mother Care) pada BBLR stabil',
+      'Pencegahan hipotermia neonatus: radiant warmer, infant incubator, dan plastic wrap BBLASR',
+      'Pemberian fototerapi pada neonatus hiperbilirubinemia dan perlindungan mata/genitalia',
+      'Resusitasi neonatus dasar: stimulasi taktil, pembersihan jalan napas, ventilasi tekanan positif (VTP)',
+      'Pemberian oksigenasi neonatus via continuous positive airway pressure (CPAP) / bubble CPAP',
+      'Pemasangan jalur vena perifer neonatus dengan transiluminasi / vena umbilikal darurat',
+      'Pemasangan OGT neonatus, pemberian ASI perah (ASIP) mikro, dan trophic feeding',
+      'Komunikasi terapeutik perkembangan anak: distraksi, story telling, dan terapi sentuhan'
+    ]
+  },
+  maternitas_bidan: {
+    title: 'Maternitas & Pelayanan Kebidanan (VK / Kamar Bersalin / Ponek)',
+    actions: [
+      'Pemeriksaan Antenatal Care (ANC) terstandar 10T & skrining faktor risiko maternal',
+      'Penapisan tanda bahaya kehamilan trimester 1, 2, dan 3 serta skrining preeklampsia',
+      'Asuhan Persalinan Normal (APN 60 Langkah) kala I, II, III, dan IV tanpa penyulit',
+      'Pemantauan kemajuan persalinan dan kondisi ibu-janin menggunakan Partograf WHO',
+      'Pemberian oksitosin drip untuk induksi / augmentasi persalinan sesuai instruksi DPJP',
+      'Manajemen Aktif Kala III (MAK III) dan kompresi bimanual pada perdarahan pasca persalinan (HPP)',
+      'Penjahitan robekan perineum / episiotomi derajat I dan II dengan anestesi lokal lidokain',
+      'Resusitasi bayi baru lahir normal dan asfiksia ringan serta Inisiasi Menyusu Dini (IMD)',
+      'Pemeriksaan Cardiotocography (CTG) dan interpretasi kesejahteraan janin intrapartum',
+      'Perawatan payudara/SADARI/SADARNIS, rawat tali pusat, dan konseling ASI eksklusif'
+    ]
+  },
+  onkologi: {
+    title: 'Onkologi & Kemoterapi (Ruang Camar / Kanker)',
+    actions: [
+      'Pengkajian performa fisik (skor ECOG / Karnofsky) dan derajat nyeri kanker',
+      'Pemeriksaan area penusukan infus dan identifikasi risiko ekstravasasi sitostatika',
+      'Penerapan kewaspadaan standar sitotoksik dan spill kit management tumpahan kemoterapi',
+      'Edukasi pasien terkait efek samping kemoterapi (alopesia, mual-muntah, neutropenia, stomatitis)',
+      'Pemberian terapi premedikasi kemoterapi (antiemetik, deksametason, antihistamin)',
+      'Pemberian hidrasi pre-kemoterapi dan post-kemoterapi dengan balans cairan ketat',
+      'Pemberian obat kemoterapi jalur intravena perifer dan central line dengan APD kemo level 3',
+      'Pemantauan vital sign dan reaksi anafilaksis selama infus sitostatika berlangsung',
+      'Perawatan jalur vena sentral (PICC / Chemoport) dengan teknik heparinisasi berkala',
+      'Tatalaksana ekstravasasi obat kemoterapi & pencegahan cedera pansitopenia'
+    ]
+  },
+  neurosains: {
+    title: 'Neurologi / Neurosains & Stroke Unit (Ruang Ruai)',
+    actions: [
+      'Penilaian tingkat kesadaran GCS dan evaluasi refleks pupil berkala',
+      'Pengkajian defisit neurologis akut dengan skala NIHSS (National Institutes of Health Stroke Scale)',
+      'Skrining disfagia (tes menelan) sebelum pemberian nutrisi atau obat per oral',
+      'Penerapan protokol pencegahan peningkatan tekanan intrakranial (elevasi kepala 30 derajat, head in midline)',
+      'Penerapan bundle pencegahan dekubitus dan kontraktur pada pasien hemiparesis/plegia',
+      'Pemantauan tekanan darah, gula darah, dan suhu tubuh pada fase akut stroke',
+      'Pemberian terapi oksigen dan pembersihan jalan napas pada pasien gangguan menelan/aspirasi',
+      'Latihan mobilisasi bertahap (ROM pasif dan aktif) serta pencegahan Deep Vein Thrombosis (DVT)',
+      'Pemberian obat antiplatelet, antikoagulan, neuroprotektor, dan manitol infus teratur',
+      'Perawatan drain ventrikulostomi (EVD), VP Shunt, dan luka bedah saraf anak (spina bifida/hidrosefalus)'
+    ]
+  },
+  nefrologi_hd: {
+    title: 'Nefrologi & Hemodialisa (Unit Dialisis / Ginjal)',
+    actions: [
+      'Pengkajian pre-dialisis (tanda overload cairan, edema perifer, ronkhi paru)',
+      'Penimbangan berat badan pre-HD dan perhitungan dry weight serta Ultrafiltrasi (UF Goal)',
+      'Pemeriksaan kepatenan akses vaskular (bruit dan thrill pada AV Shunt / Cimino)',
+      'Setting mesin hemodialisa, priming sirkuit darah dengan NaCl steril dan heparinisasi',
+      'Kanulasi fistula arteriovena (Cimino) atau penyambungan ke Catheter Double Lumen (CDL)',
+      'Pemantauan tanda vital dan tekanan sirkuit (Arterial Pressure, Venous Pressure, TMP) berkala',
+      'Tatalaksana hipotensi intra-dialitik, kram otot, dan disequilibrium syndrome',
+      'Terminasi hemodialisa, pengembalian darah (washback), dan penekanan lokasi penusukan kanul',
+      'Perawatan exit site CDL dengan teknik steril dan ganti balutan transparan',
+      'Kanulasi cimino, puncture femoral, dan akses Catheter Double Lumen (CDL/tunnel HD)'
+    ]
+  },
+  respirologi: {
+    title: 'Respirologi / Paru & Saluran Pernapasan (TB / Paru)',
+    actions: [
+      'Pengkajian komprehensif penyakit pernapasan akut/kronis dan interpretasi analisa gas darah',
+      'Pengkajian frekuensi napas, pola napas, saturasi oksigen SpO2, dan bunyi napas abnormal (wheezing/ronkhi)',
+      'Edukasi etika batuk efektif dan teknik pengeluaran dahak (fisioterapi dada & clapping)',
+      'Penerapan kewaspadaan transmisi airborne dan kepatuhan masker N95 di ruang isolasi TB',
+      'Pemberian terapi inhalasi / nebulisasi bronkodilator dan mukolitik sesuai instruksi',
+      'Pemberian terapi oksigen fraksi tinggi via Non-Rebreathing Mask (NRM) dan High Flow Nasal Cannula (HFNC)',
+      'Perawatan selang dada dan botol Water Seal Drainage (WSD) serta pemantauan undulasi undulasi',
+      'Pengambilan sampel sputum SPS (Sewaktu-Pagi-Sewaktu) / TCM (Tes Cepat Molekuler)',
+      'Edukasi kepatuhan minum Obat Anti Tuberkulosis (OAT) dan pemantauan efek samping',
+      'Audit kepatuhan bundle ruang isolasi infeksi airborne disease bertekanan negatif'
+    ]
+  },
+  jiwa: {
+    title: 'Psikiatri & Kesehatan Jiwa (Ruang Jiwa / Akut)',
+    actions: [
+      'Pengkajian risiko perilaku kekerasan (RPK), halusinasi, isolasi sosial, defisit perawatan diri, waham',
+      'Penerapan komunikasi terapeutik pada pasien dengan disorientasi dan agitasi',
+      'Manajemen de-eskalasi verbal pada pasien gaduh gelisah / agresif tanpa kekerasan',
+      'Penerapan fiksasi fisik (restraint) sesuai indikasi keselamatan dengan observasi sirkulasi tiap 15 menit',
+      'Pemberian obat antipsikotik, mood stabilizer, dan antidepresan dengan pengawasan minum obat (PMO)',
+      'Pemantauan efek samping ekstra piramidal (EPS: distonia akut, akatisia, parkinsonisme)',
+      'Melatih pasien mengontrol halusinasi dengan cara menghardik, berbincang, dan aktivitas terjadwal',
+      'Melatih pasien mengontrol marah dengan cara tarik napas dalam dan pukul kasur/bantal',
+      'Pelaksanaan Terapi Aktivitas Kelompok (TAK) stimulasi persepsi dan sosialisasi',
+      'Audit etika dan keselamatan tindakan fiksasi fisik (restraint) pasien jiwa'
+    ]
+  },
+  mata: {
+    title: 'Oftalmologi / Mata & THT',
+    actions: [
+      'Pemeriksaan visus kasar, evaluasi tajam penglihatan refraksionis, dan lapor TIO kritis',
+      'Pemeriksaan tajam penglihatan (Snellen Chart) dan tes buta warna (Ishihara)',
+      'Pemberian obat tetes mata dan salep mata dengan teknik aseptik tanpa menyentuh konjungtiva',
+      'Irigasi mata darurat pada kasus trauma kimia mata (asam / basa) dengan cairan saline netral',
+      'Perawatan pre dan post operasi katarak (fakoemulsifikasi) dan glaukoma',
+      'Edukasi pasien post operasi mata: pantangan batuk keras, membungkuk, dan mengangkat beban berat',
+      'Pemeriksaan dan irigasi serumen telinga (spooling telinga) dengan cairan hangat suam kuku',
+      'Pemasangan tampon hidung anterior pada kasus epistaksis anterior dan evaluasi perdarahan',
+      'Pemberian obat tetes telinga dan tetes hidung sesuai posisi anatomi',
+      'Melakukan komunikasi verbal teknik SBAR dalam pelaporan kondisi pasien dengan TBAK'
+    ]
+  },
+  geriatri: {
+    title: 'Geriatri & Rehabilitasi Medik Lansia',
+    actions: [
+      'Pengkajian komprehensif geriatri dasar (risiko jatuh Morse, inkontinensia, dekubitus)',
+      'Pengkajian status fungsional lansia dengan Indeks Barthel (Activities of Daily Living / ADL)',
+      'Penilaian status kognitif lansia dengan Mini Mental State Examination (MMSE) / AMT',
+      'Skrining malnutrisi lansia dengan Mini Nutritional Assessment (MNA) dan status hidrasi',
+      'Penerapan protokol pencegahan jatuh pasien geriatri (bed rail terpasang, lantai tidak licin)',
+      'Latihan Range of Motion (ROM) aktif/pasif dan alih baring berkala tiap 2 jam (repositioning)',
+      'Asuhan eliminasi: bladder training, manajemen inkontinensia urin/fekal, dan perawatan kateter',
+      'Pemberian obat pada lansia dengan prinsip 7 benar dan evaluasi risiko polifarmasi',
+      'Edukasi keluarga dan caregiver mengenai perawatan lansia tirah baring di rumah',
+      'Perawatan luka tekan (Pressure Ulcer) grade III-IV dan ulkus diabetik kronik pada lansia'
+    ]
+  }
+};
+
+function onSelectRumpunLogbook(rumpunKey) {
+  if (!rumpunKey) return;
+  load10ActionsForRumpun(rumpunKey);
+}
+
+function applyRumpunLogbookFromSelect() {
+  const select = document.getElementById('selectRumpunWhiteBook');
+  const val = select ? select.value : '';
+  if (!val) {
+    showToast('Silakan pilih salah satu Rumpun Klinis White Book terlebih dahulu!', 'warning');
+    if (select) select.focus();
+    return;
+  }
+  load10ActionsForRumpun(val);
+}
+
+function load10ActionsForRumpun(rumpunKey) {
+  if (!rumpunKey) return;
+  const rumpunData = WHITE_BOOK_RUMPUN_10_ACTIONS[rumpunKey];
+  if (!rumpunData) {
+    showToast('Data rumpun tidak ditemukan.', 'warning');
+    return;
+  }
+
+  const actions = rumpunData.actions;
+  const sampleRms = ['482105', '482319', '482560', '482781', '483012', '483245', '483490', '483712', '483980', '484215'];
+  const sampleDates = [
+    '06/01/2025', '12/01/2025', '18/01/2025', '24/01/2025', '03/02/2025',
+    '10/02/2025', '17/02/2025', '24/02/2025', '04/03/2025', '12/03/2025'
+  ];
+
+  const items = actions.slice(0, 10).map((act, idx) => ({
+    tgl: sampleDates[idx] || '12/01/2025',
+    rm: sampleRms[idx] || `48${idx + 1}01`,
+    tindakan: act,
+    mandiri: true,
+    supervisi: false,
+    catatan: 'Valid / Terverifikasi Ka. Ru'
+  }));
+
+  renderLogbookItemRows(items);
+
+  const select = document.getElementById('selectRumpunWhiteBook');
+  if (select && select.value !== rumpunKey) {
+    select.value = rumpunKey;
+  }
+
+  showToast(`10 Tindakan Standar White Book Rumpun "${rumpunData.title}" berhasil dimuat ke nomor 1 s.d 10!`, 'success');
+}
+
+function renderRowQuickSelectOptions(currentVal) {
+  const currentRumpun = document.getElementById('selectRumpunWhiteBook')?.value;
+  let html = '';
+  
+  if (currentRumpun && WHITE_BOOK_RUMPUN_10_ACTIONS[currentRumpun]) {
+    const rumpunObj = WHITE_BOOK_RUMPUN_10_ACTIONS[currentRumpun];
+    html += `<optgroup label="Tindakan Rumpun Aktif: ${escapeHtml(rumpunObj.title)}">`;
+    rumpunObj.actions.forEach((act, i) => {
+      const isSel = act === currentVal ? 'selected' : '';
+      html += `<option value="${escapeHtml(act)}" ${isSel}>${i + 1}. ${escapeHtml(act)}</option>`;
+    });
+    html += `</optgroup>`;
+  }
+
+  // Also include general White Book actions
+  const allActions = getAllWhiteBookActionsList();
+  html += `<optgroup label="Pilihan Tindakan White Book Populer Lainnya">`;
+  const baseSample = allActions.slice(0, 35);
+  baseSample.forEach(item => {
+    if (!currentVal || item.name !== currentVal) {
+      html += `<option value="${escapeHtml(item.name)}">[${escapeHtml(item.category)}] ${escapeHtml(item.name)}</option>`;
+    }
+  });
+  html += `</optgroup>`;
+
+  return html;
+}
+
+function onSelectRowWhiteBookAction(selectEl) {
+  if (!selectEl || !selectEl.value) return;
+  const tr = selectEl.closest('tr');
+  if (!tr) return;
+  const input = tr.querySelector('.logbook-item-tindakan');
+  if (input) {
+    input.value = selectEl.value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    const rowNum = tr.querySelector('.logbook-row-num')?.textContent || '';
+    showToast(`Tindakan nomor ${rowNum} diganti: "${selectEl.value.substring(0, 45)}..."`, 'info');
+  }
+}
+
 function ensureWhiteBookDatalist() {
   let datalist = document.getElementById('whiteBookDatalist');
   if (!datalist) {
@@ -3706,7 +4045,13 @@ function renderLogbookItemRows(items = []) {
 
   ensureWhiteBookDatalist();
 
+  // Exactly 10 default rows (No. 1 s.d 10) according to standard official form
   const defaultItems = [
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
+    { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
     { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
     { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
     { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
@@ -3736,7 +4081,7 @@ function renderLogbookItemRows(items = []) {
         <input type="text" class="form-input logbook-item-tglrm" value="${escapeHtml(tglRmCombined)}" placeholder="Contoh: 12/01/2025 (RM: 482910)" style="font-size: 0.78rem; padding: 5px 6px;">
       </td>
       <td style="padding: 6px 4px; position: relative;">
-        <div style="display: flex; align-items: center; gap: 4px; position: relative;">
+        <div style="display: flex; align-items: center; gap: 4px; position: relative; margin-bottom: 3px;">
           <input type="text" 
                  class="form-input logbook-item-tindakan" 
                  list="whiteBookDatalist" 
@@ -3751,6 +4096,15 @@ function renderLogbookItemRows(items = []) {
                   title="Pilih Opsi Tindakan White Book (582 Standar)">
             <i class="fa-solid fa-chevron-down" style="font-size: 0.72rem;"></i>
           </button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <select class="form-select logbook-row-quick-select" 
+                  onchange="onSelectRowWhiteBookAction(this)" 
+                  style="font-size: 0.71rem; padding: 2px 4px; height: 22px; color: #334155; background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 4px; width: 100%; cursor: pointer;" 
+                  title="Ganti tindakan pada baris ini dengan memilih opsi White Book">
+            <option value="">-- Ganti / Pilih Opsi Tindakan White Book --</option>
+            ${renderRowQuickSelectOptions(item.tindakan || '')}
+          </select>
         </div>
       </td>
       <td style="padding: 6px 4px; text-align: center;">
@@ -4413,65 +4767,18 @@ function showQuick10ActionsSelector() {
 }
 
 function applyQuick10Package(pkg) {
-  let items = [];
-  if (pkg === 'kmb_bedah') {
-    items = [
-      { tgl: '08/01/2025', rm: '482910', tindakan: 'Perekaman Elektrokardiografi (EKG) 12 Lead Lengkap & Interpretasi Awal', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '12/01/2025', rm: '483105', tindakan: 'Pemasangan & Penggantian Kateter Urine Menetap (Foley Catheter) dengan Teknik Aseptik', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '15/01/2025', rm: '483320', tindakan: 'Perawatan Luka Post Operasi Bersih & Kotor (Wound Dressing & Modern Dressing)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '19/01/2025', rm: '483512', tindakan: 'Pemberian Obat Kemoterapi / Terapi Sitostatika & Pemantauan Efek Samping', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '22/01/2025', rm: '483789', tindakan: 'Pemasangan Pipa Lambung (Nasogastric Tube / NGT) & Bilas Lambung', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '04/02/2025', rm: '484012', tindakan: 'Pengambilan Sampel Darah Arteri (Analisa Gas Darah / AGD) & Vena', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '09/02/2025', rm: '484230', tindakan: 'Perawatan & Penggantian Balutan Kateter Vena Sentral (CVC / Chemoport)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '14/02/2025', rm: '484501', tindakan: 'Pemberian Transfusi Darah (PRC, TC, FFP) & Pemantauan Reaksi Transfusi', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '20/02/2025', rm: '484780', tindakan: 'Tindakan Suction Saluran Nafas Melalui Tracheostomy / Endotracheal Tube', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '26/02/2025', rm: '485011', tindakan: 'Asuhan Keperawatan Perioperatif: Persiapan Pre, Intra, dan Post Operasi', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
-    ];
-  } else if (pkg === 'generalis') {
-    items = [
-      { tgl: '05/01/2025', rm: '491021', tindakan: 'Pemeriksaan Tanda-Tanda Vital Lengkap & Penilaian Early Warning System (EWS)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '09/01/2025', rm: '491204', tindakan: 'Pemasangan Jalur Intravena (Infus) Perifer & Penggantian Set Infus', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '13/01/2025', rm: '491380', tindakan: 'Pemberian Terapi Injeksi Intravena (IV), Intramuskular (IM), dan Subkutan (SC)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '17/01/2025', rm: '491512', tindakan: 'Pemberian Terapi Oksigen Melalui Nasal Kanul & Non-Rebreathing Mask (NRM)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '21/01/2025', rm: '491705', tindakan: 'Pemasangan Kateter Urine Menetap pada Pasien Dewasa', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '02/02/2025', rm: '492019', tindakan: 'Pemasangan Pipa Lambung (NGT) untuk Dekompresi dan Pemberian Nutrisi Enteral', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '07/02/2025', rm: '492240', tindakan: 'Perawatan Luka Bersih dan Penggantian Perban Aseptik', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '12/02/2025', rm: '492415', tindakan: 'Pengambilan Spesimen Darah Vena untuk Pemeriksaan Laboratorium Rutin', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '18/02/2025', rm: '492650', tindakan: 'Asuhan Keperawatan Pasien Tirah Baring & Pencegahan Luka Tekan (Dekubitus)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '25/02/2025', rm: '492890', tindakan: 'Pendidikan Kesehatan & Rencana Pemulangan Pasien (Discharge Planning)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
-    ];
-  } else if (pkg === 'kritis_igd') {
-    items = [
-      { tgl: '03/01/2025', rm: '470112', tindakan: 'Resusitasi Jantung Paru (RJP / BHD & BHL) pada Kondisi Henti Jantung', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '07/01/2025', rm: '470290', tindakan: 'Pelaksanaan Triase Gawat Darurat Menggunakan Metode Australasian Triage Scale (ATS)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '11/01/2025', rm: '470450', tindakan: 'Asistensi Intubasi Endotrakeal & Pemasangan Ventilator Mekanik Invasif', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '16/01/2025', rm: '470611', tindakan: 'Pengambilan Darah Arteri untuk Analisa Gas Darah (AGD) & Interpretasi Cepat', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '20/01/2025', rm: '470825', tindakan: 'Monitoring Hemodinamik Lanjut (Tekanan Darah Invasif, MAP, CVP)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '01/02/2025', rm: '471030', tindakan: 'Penyiapan & Titrasi Obat-Obat Inotropik / Vasoaktif Menggunakan Syringe Pump', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '06/02/2025', rm: '471250', tindakan: 'Tindakan Defibrilasi dan Kardioversi Sinkronisasi pada Disritmia Mengancam Nyawa', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '10/02/2025', rm: '471480', tindakan: 'Perekaman & Pembacaan Cepat EKG 12 Lead pada Pasien Sindrom Koroner Akut (SKA)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '15/02/2025', rm: '471690', tindakan: 'Asistensi Pemasangan Thorax Drain (WSD) dan Pemantauan Undulasi Undulasi', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '22/02/2025', rm: '471900', tindakan: 'Penyapihan Ventilator (Weaning) & Ekstubasi Terencana pada Pasien Kritis', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
-    ];
-  } else if (pkg === 'kebidanan') {
-    items = [
-      { tgl: '04/01/2025', rm: '460115', tindakan: 'Asuhan Persalinan Normal (APN 60 Langkah) Kala I s.d Kala IV', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '08/01/2025', rm: '460320', tindakan: 'Pemeriksaan Dalam (Vaginal Toucher) & Pemantauan Kemajuan Persalinan dengan Partograf', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '12/01/2025', rm: '460540', tindakan: 'Pemasangan Infus & Pemberian Oksitosin Drip untuk Induksi / Augmentasi Persalinan', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '16/01/2025', rm: '460710', tindakan: 'Penjahitan Luka Episiotomi & Robekan Jalan Lahir (Perineorafi Derajat I dan II)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '20/01/2025', rm: '460925', tindakan: 'Resusitasi Bayi Baru Lahir dengan Asfiksia Sedang dan Pembersihan Jalan Napas', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '03/02/2025', rm: '461150', tindakan: 'Manajemen Aktif Kala III (MAK III) & Penanganan Perdarahan Pasca Persalinan (HPP)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '07/02/2025', rm: '461340', tindakan: 'Pemeriksaan Kesejahteraan Janin Melalui Perekaman Cardiotocography (CTG)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '11/02/2025', rm: '461520', tindakan: 'Pemasangan Alat Kontrasepsi Dalam Rahim (AKDR / IUD) Pasca Plasenta', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '17/02/2025', rm: '461780', tindakan: 'Penatalaksanaan Awal Preeklampsia Berat (PEB) dengan Pemberian MgSO4 Dosis Penuh', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
-      { tgl: '23/02/2025', rm: '461990', tindakan: 'Asuhan Masa Nifas (Puerperium), Perawatan Payudara, & Konseling Menyusui Eksklusif', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
-    ];
-  }
+  let rumpunKey = pkg;
+  if (pkg === 'kebidanan') rumpunKey = 'maternitas_bidan';
+  if (pkg === 'kritis_igd') rumpunKey = 'emergensi_igd';
 
-  renderLogbookItemRows(items);
+  if (WHITE_BOOK_RUMPUN_10_ACTIONS[rumpunKey]) {
+    load10ActionsForRumpun(rumpunKey);
+  } else {
+    load10ActionsForRumpun('kmb_bedah');
+  }
   closeModal('modalQuick10Logbook');
-  showToast(`10 Tindakan Standar White Book (${pkg.replace('_', ' ').toUpperCase()}) berhasil dimuat ke tabel logbook!`, 'success');
 }
+
 
 function getLogbookItemsFromForm() {
   const tbody = document.getElementById('logbookItemsTbody');
@@ -7888,3 +8195,9 @@ window.filterLogbookDropdownCategory = filterLogbookDropdownCategory;
 window.closeLogbookAutocomplete = closeLogbookAutocomplete;
 window.ensureWhiteBookDatalist = ensureWhiteBookDatalist;
 window.getAllWhiteBookActionsList = getAllWhiteBookActionsList;
+window.WHITE_BOOK_RUMPUN_10_ACTIONS = WHITE_BOOK_RUMPUN_10_ACTIONS;
+window.onSelectRumpunLogbook = onSelectRumpunLogbook;
+window.applyRumpunLogbookFromSelect = applyRumpunLogbookFromSelect;
+window.load10ActionsForRumpun = load10ActionsForRumpun;
+window.renderRowQuickSelectOptions = renderRowQuickSelectOptions;
+window.onSelectRowWhiteBookAction = onSelectRowWhiteBookAction;
