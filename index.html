@@ -1998,26 +1998,6 @@
           <strong>Petunjuk Pengisian &amp; Standar Portofolio:</strong> Lengkapi data Identitas Pribadi (A), Legalitas STR/SIPP/SIPB (B), Riwayat Pendidikan Formal (C), Log Pengalaman Kerja Ruangan (D), dan Pelatihan Kompetensi Mandatory White Paper (E). Formulir ini menyusun dokumen <strong>CV Resmi 3 Halaman A4 format baku RSUD dr. Soedarso</strong> yang langsung dapat dicetak/disimpan ke PDF untuk ditandatangani. Data yang Anda isi di sini juga otomatis disinkronkan ke Surat Permohonan Kredensial.
         </div>
 
-        <!-- Quick-Fill Toolbar -->
-        <div style="background: var(--bg-card); border: 1.5px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem;">
-            <div style="font-size: 0.82rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.45rem;">
-              <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i>
-              Isi Cepat / Muat Contoh Profil Portofolio:
-            </div>
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="fillCvPreset('perawat')">
-                <i class="fa-solid fa-user-nurse" style="color: #0d9488;"></i> Ns. Hendra (Perawat PK III)
-              </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="fillCvPreset('bidan')">
-                <i class="fa-solid fa-baby" style="color: #ea580c;"></i> Bdn. Siti (Bidan BK III)
-              </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="resetCvForm()">
-                <i class="fa-solid fa-eraser"></i> Bersihkan Isian
-              </button>
-            </div>
-          </div>
-        </div>
 
         <form id="formCvKredensial" onsubmit="handleCvSubmit(event)">
           <!-- BAGIAN A -->
@@ -2382,7 +2362,12 @@
           </div>
 
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-            <button type="button" class="btn-secondary" onclick="closeModal('modalCvKredensial')">Batal</button>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button type="button" class="btn-secondary" onclick="closeModal('modalCvKredensial')">Batal</button>
+              <button type="button" class="btn-secondary" style="font-size: 0.8rem; color: #dc2626;" onclick="resetCvForm()" title="Bersihkan isian formulir CV">
+                <i class="fa-solid fa-eraser"></i> Bersihkan Isian
+              </button>
+            </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button type="submit" class="btn-primary" style="background: var(--primary-600); border-color: var(--primary-600);">
                 <i class="fa-solid fa-file-pdf"></i> Simpan &amp; Terbitkan CV Resmi (PDF)
