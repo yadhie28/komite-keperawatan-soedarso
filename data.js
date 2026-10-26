@@ -1773,16 +1773,16 @@ window.KOMITE_DATA = {
     pelatihanHasil: "",
     pelatihanNama: "Basic Trauma Cardiac Life Support (BTCLS) & KMB Terpadu",
     pelatihanTanggal: "14 - 18 Mei 2024",
-    buktiPddikti: true,
-    buktiStr: true,
-    buktiSipp: true,
-    buktiPelatihan: true,
+    buktiPddikti: false,
+    buktiStr: false,
+    buktiSipp: false,
+    buktiPelatihan: false,
     kesimpulan: "",
     verifikatorNama: "",
     verifikatorNip: "",
     tanggalPsv: "__________________ 2026",
-    ketuaSubkomiteNama: "",
-    ketuaSubkomiteNip: ""
+    ketuaSubkomiteNama: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep",
+    ketuaSubkomiteNip: "19850612 201001 1 012"
   },
 
   // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)

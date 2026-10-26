@@ -7827,18 +7827,16 @@ function handlePsvSubmit(e) {
     pelatihanInstitusi: getVal('psvPelatihanInstitusi', 'Pusdiklat Kemenkes / Organisasi Profesi (PPNI)'),
     pelatihanNama: getVal('psvPelatihanNama', 'Basic Trauma Cardiac Life Support (BTCLS) & KMB Terpadu'),
     pelatihanTanggal: getVal('psvPelatihanTanggal', '14 - 18 Mei 2024'),
-    pelatihanMetode: getVal('psvPelatihanMetode', 'barcode'),
-    pelatihanHasil: '',
-    buktiPddikti: document.getElementById('chkBuktiPddikti')?.checked ?? true,
-    buktiStr: document.getElementById('chkBuktiStr')?.checked ?? true,
-    buktiSipp: document.getElementById('chkBuktiSipp')?.checked ?? true,
-    buktiPelatihan: document.getElementById('chkBuktiPelatihan')?.checked ?? true,
+    buktiPddikti: false,
+    buktiStr: false,
+    buktiSipp: false,
+    buktiPelatihan: false,
     kesimpulan: '',
     verifikatorNama: '',
     verifikatorNip: '',
     tanggalPsv: getVal('psvTanggal', '__________________ 2026'),
-    ketuaSubkomiteNama: '',
-    ketuaSubkomiteNip: ''
+    ketuaSubkomiteNama: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep',
+    ketuaSubkomiteNip: '19850612 201001 1 012'
   };
 
   state.kredensialPsvGenerated = true;
@@ -7946,11 +7944,11 @@ function generatePsvHVS(mode) {
   const chkTrainDiakui = getBox(false);
   const chkTrainInvalid = getBox(false);
 
-  // Digital Evidence Checkboxes
-  const chkBuktiPddikti = getBox(!isBlank && (d.buktiPddikti !== false));
-  const chkBuktiStr = getBox(!isBlank && (d.buktiStr !== false));
-  const chkBuktiSipp = getBox(!isBlank && (d.buktiSipp !== false));
-  const chkBuktiPelatihan = getBox(!isBlank && (d.buktiPelatihan !== false));
+  // Digital Evidence Checkboxes (Kolom Status Lampiran dikosongkan dari ceklis pengusul karena akan diceklis oleh verifikator)
+  const chkBuktiPddikti = getBox(false);
+  const chkBuktiStr = getBox(false);
+  const chkBuktiSipp = getBox(false);
+  const chkBuktiPelatihan = getBox(false);
 
   // Conclusion Checkboxes (Diisi oleh Verifikator / Subkomite Kredensial)
   const chkSetujuPenuh = getBox(!isBlank && d.kesimpulan === 'disetujui_penuh');
@@ -7960,8 +7958,8 @@ function generatePsvHVS(mode) {
   const verifikatorNama = '___________________________';
   const verifikatorNip = '..................................................';
   const tanggalPsv = isBlank ? '__________________ 2026' : (d.tanggalPsv || '__________________ 2026');
-  const ketuaNama = '___________________________';
-  const ketuaNip = '..................................................';
+  const ketuaNama = isBlank ? '( ___________________________ )' : (d.ketuaSubkomiteNama || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep');
+  const ketuaNip = isBlank ? 'NIP. ..................................................' : (d.ketuaSubkomiteNip ? (d.ketuaSubkomiteNip.startsWith('NIP') ? d.ketuaSubkomiteNip : `NIP. ${d.ketuaSubkomiteNip}`) : 'NIP. 19850612 201001 1 012');
 
   const logoSrc = (window.KOMITE_DATA && window.KOMITE_DATA.logoKalbar) ? window.KOMITE_DATA.logoKalbar : 'logo_kalbar.png';
 
@@ -8185,35 +8183,39 @@ function generatePsvHVS(mode) {
           <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">1</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Tangkapan Layar (Screenshot) Status Mahasiswa / Lulusan</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Pangkalan Data Pendidikan Tinggi (PDDikti / SIVIL) Kemendikbudristek</td>
-          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
-            <span style="font-family: monospace;">${chkBuktiPddikti}</span> Terlampir &amp; Sahih
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: normal; color: #1e293b;">
+            <span style="font-family: monospace; font-weight: bold;">${chkBuktiPddikti}</span> Terlampir &amp; Sahih
           </td>
         </tr>
         <tr>
           <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">2</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Berkas e-STR Aktif dengan QR Code &amp; Tanda Tangan Elektronik</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Balai Sertifikasi Elektronik (BSrE BSSN) / SatuSehat SDMK Kemenkes</td>
-          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
-            <span style="font-family: monospace;">${chkBuktiStr}</span> Terlampir &amp; Sahih
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: normal; color: #1e293b;">
+            <span style="font-family: monospace; font-weight: bold;">${chkBuktiStr}</span> Terlampir &amp; Sahih
           </td>
         </tr>
         <tr>
           <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">3</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Tangkapan Layar Izin Praktik / Rekomendasi Penerbitan</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Sistem SiCantik Cloud / DPMPTSP Online / Dinas Kesehatan</td>
-          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
-            <span style="font-family: monospace;">${chkBuktiSipp}</span> Terlampir &amp; Sahih
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: normal; color: #1e293b;">
+            <span style="font-family: monospace; font-weight: bold;">${chkBuktiSipp}</span> Terlampir &amp; Sahih
           </td>
         </tr>
         <tr>
           <td style="border: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: bold;">4</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Salinan e-Sertifikat Pelatihan Ber-barcode / Akreditasi</td>
           <td style="border: 1px solid #000; padding: 5px 6px;">Plataran Sehat (LMS Kemenkes RI) / Pusdiklat PPNI Terakreditasi</td>
-          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: bold; color: #0f766e;">
-            <span style="font-family: monospace;">${chkBuktiPelatihan}</span> Terlampir &amp; Sahih
+          <td style="border: 1px solid #000; padding: 5px 6px; text-align: center; font-weight: normal; color: #1e293b;">
+            <span style="font-family: monospace; font-weight: bold;">${chkBuktiPelatihan}</span> Terlampir &amp; Sahih
           </td>
         </tr>
       </table>
+
+      <div style="font-size: 7.2pt; color: #555; margin-top: -8px; margin-bottom: 12px; font-style: italic;">
+        *Catatan: Kolom Status Lampiran dikosongkan dari ceklis pengusul karena akan diverifikasi serta diceklis langsung oleh Tim Verifikator Subkomite Kredensial saat telaah keabsahan berkas.
+      </div>
 
       <!-- SECTION IV: KESIMPULAN REKOMENDASI SUBKOMITE KREDENSIAL -->
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 8pt; border: 1.5px solid #000;">
@@ -8270,11 +8272,11 @@ function generatePsvHVS(mode) {
                 <td style="width: 4%;"></td>
                 <td style="width: 48%; text-align: center; vertical-align: top;">
                   Pontianak, ${tanggalPsv}<br>
-                  Ketua Subkomite Kredensial<br>
+                  Ketua Sub Komite Kredensial<br>
                   RSUD dr. Soedarso,
                   <div style="height: 55px;"></div>
-                  ( ___________________________ )<br>
-                  NIP. ..................................................
+                  <div style="font-weight: bold; text-decoration: underline;">${ketuaNama}</div>
+                  <div>${ketuaNip}</div>
                 </td>
               </tr>
             </table>

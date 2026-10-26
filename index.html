@@ -3842,30 +3842,47 @@
 
           <!-- BAGIAN III: KELENGKAPAN BUKTI DOKUMEN DIGITAL (STANDAR AKREDITASI KARS STARKES) -->
           <div style="background: var(--bg-app); border: 1.2px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.1rem; margin-bottom: 1.25rem;">
-            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 6px;">
-              <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">III</span>
-              KELENGKAPAN BUKTI DOKUMEN DIGITAL (KARS STARKES KPS 10-11)
+            <div style="font-size: 0.9rem; font-weight: 800; color: #0e3860; margin-bottom: 0.65rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="background: #0e3860; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">III</span>
+                CHECKLIST KELENGKAPAN BUKTI DOKUMEN DIGITAL (DIGITAL EVIDENCE REPOSITORY - KARS STARKES)
+              </div>
+              <span class="locked-badge" style="font-size: 0.72rem; padding: 2px 8px;">
+                <i class="fa-solid fa-lock"></i> Diceklis oleh Verifikator
+              </span>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem;">
-              Centang bukti digital hasil penelusuran mandiri (Self-Assisted PSV) yang telah dilampirkan pemohon dan diverifikasi oleh Subkomite:
+              <i class="fa-solid fa-circle-info" style="color: #0284c7;"></i> Kolom <strong>Status Lampiran</strong> pada dokumen formulir PSV dikosongkan dari ceklis pengusul karena akan diverifikasi serta diceklis langsung oleh <strong>Tim Verifikator Subkomite Kredensial</strong> saat pemeriksaan berkas:
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.65rem; font-size: 0.84rem;">
-              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
-                <input type="checkbox" id="chkBuktiPddikti" checked style="accent-color: #0d9488;">
-                <span><i class="fa-solid fa-graduation-cap" style="color: #0d9488;"></i> Screenshot Status Lulusan PDDikti / SIVIL</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
-                <input type="checkbox" id="chkBuktiStr" checked style="accent-color: #0d9488;">
-                <span><i class="fa-solid fa-qrcode" style="color: #0284c7;"></i> Bukti e-STR QR BSrE / SatuSehat SDMK</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
-                <input type="checkbox" id="chkBuktiSipp" checked style="accent-color: #0d9488;">
-                <span><i class="fa-solid fa-id-badge" style="color: #d97706;"></i> Tangkapan Layar Izin Praktik SiCantik DPMPTSP</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.5rem; background: #fff; padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-subtle); cursor: pointer;">
-                <input type="checkbox" id="chkBuktiPelatihan" checked style="accent-color: #0d9488;">
-                <span><i class="fa-solid fa-certificate" style="color: #7e22ce;"></i> Bukti Barcode Sertifikat Plataran Sehat</span>
-              </label>
+              <div style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-locked, #f1f5f9); padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle); color: var(--text-muted);">
+                <i class="fa-regular fa-square" style="font-size: 1.15rem; color: #64748b;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-graduation-cap" style="color: #0d9488;"></i> 1. Status Kelulusan PDDikti / SIVIL</div>
+                  <div style="font-size: 0.72rem; color: #64748b;">Status Lampiran: Kosong (Diceklis Verifikator)</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-locked, #f1f5f9); padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle); color: var(--text-muted);">
+                <i class="fa-regular fa-square" style="font-size: 1.15rem; color: #64748b;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-qrcode" style="color: #0284c7;"></i> 2. Bukti e-STR QR BSrE / SatuSehat</div>
+                  <div style="font-size: 0.72rem; color: #64748b;">Status Lampiran: Kosong (Diceklis Verifikator)</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-locked, #f1f5f9); padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle); color: var(--text-muted);">
+                <i class="fa-regular fa-square" style="font-size: 1.15rem; color: #64748b;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-id-badge" style="color: #d97706;"></i> 3. Izin Praktik SiCantik DPMPTSP / Dinkes</div>
+                  <div style="font-size: 0.72rem; color: #64748b;">Status Lampiran: Kosong (Diceklis Verifikator)</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-locked, #f1f5f9); padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid var(--border-subtle); color: var(--text-muted);">
+                <i class="fa-regular fa-square" style="font-size: 1.15rem; color: #64748b;"></i>
+                <div>
+                  <div style="font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-certificate" style="color: #7e22ce;"></i> 4. Sertifikat Plataran Sehat Kemenkes</div>
+                  <div style="font-size: 0.72rem; color: #64748b;">Status Lampiran: Kosong (Diceklis Verifikator)</div>
+                </div>
+              </div>
             </div>
           </div>
 
