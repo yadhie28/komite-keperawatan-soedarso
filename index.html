@@ -2489,17 +2489,27 @@
                 <i class="fa-solid fa-list-check" style="color: #0e3860;"></i>
                 LEMBAR CATATAN DAN VERIFIKASI TINDAKAN KLINIS HARIAN (10 TINDAKAN ASUHAN)
               </div>
-              <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.3rem 0.65rem;" onclick="addLogbookItemRow()">
-                <i class="fa-solid fa-plus"></i> Tambah Tindakan Klinis
-              </button>
+              <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.35rem 0.75rem; background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; font-weight: 700;" onclick="openWhiteBookCatalogModal()" title="Buka dialog pencarian dan katalog lengkap seluruh opsi tindakan Buku Putih 2026">
+                  <i class="fa-solid fa-book-medical"></i> Katalog Opsi White Book (582 Tindakan)
+                </button>
+                <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.35rem 0.75rem; background: #f3e8ff; color: #6b21a8; border-color: #d8b4fe; font-weight: 700;" onclick="showQuick10ActionsSelector()" title="Muat 10 tindakan asuhan terverifikasi standar White Book sesuai jenjang perawat">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Isi Otomatis 10 Tindakan
+                </button>
+                <button type="button" class="btn-secondary" style="font-size: 0.74rem; padding: 0.35rem 0.75rem;" onclick="addLogbookItemRow()">
+                  <i class="fa-solid fa-plus"></i> Tambah Baris
+                </button>
+              </div>
             </div>
 
             <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.45rem;">
               <i class="fa-solid fa-circle-info"></i> Tindakan 1 s.d 5 akan dicetak pada <strong>Halaman 1</strong>, dan Tindakan 6 s.d 10 (beserta lembar pengesahan Ka. Ru) akan dicetak pada <strong>Halaman 2</strong> sesuai format baku 2 halaman.
             </div>
-            <div style="font-size: 0.76rem; color: #044e54; background: #e6fffa; border: 1px solid #2dd4bf; border-left: 3.5px solid var(--primary-600); padding: 5px 9px; border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px;">
-              <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--gold-600);"></i>
-              <span><strong>Pencarian Cepat White Book:</strong> Ketik minimal <strong>2 huruf</strong> pada kolom <em>Rincian Deskripsi Tindakan Klinis</em> untuk memunculkan pilihan tindakan baku Buku Putih RSUD dr. Soedarso.</span>
+            <div style="font-size: 0.76rem; color: #044e54; background: #e6fffa; border: 1px solid #2dd4bf; border-left: 4px solid var(--primary-600); padding: 8px 12px; border-radius: 6px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-book-open-reader" style="color: var(--primary-600); font-size: 1.1rem;"></i>
+                <span><strong>Pilihan Opsi Tindakan White Book:</strong> Klik langsung pada kolom <em>Rincian Deskripsi Tindakan Klinis</em> atau klik tombol panah biru <i class="fa-solid fa-circle-chevron-down" style="color:#0284c7;"></i> untuk memilih langsung dari <strong>582+ opsi tindakan resmi Buku Putih RSUD dr. Soedarso</strong> (Generalis, KMB, Bedah/IBS, ICU, IGD, Maternitas/VK, dll).</span>
+              </div>
             </div>
 
             <div style="overflow-x: auto;">
@@ -2623,6 +2633,73 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: KATALOG LENGKAP OPSI TINDAKAN BUKU PUTIH (WHITE BOOK 2026)
+       582+ STANDAR KEWENANGAN KLINIS KEPERAWATAN & KEBIDANAN RSUD DR. SOEDARSO
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalWhiteBookCatalog">
+    <div class="modal-container modal-container-lg" style="max-width: 980px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #0e3860 0%, #1e40af 100%); color: #fff;">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+          <i class="fa-solid fa-book-medical" style="font-size: 1.35rem; color: #38bdf8;"></i>
+          <div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">
+              Katalog Opsi Tindakan Klinis (Buku Putih / White Book 2026)
+            </div>
+            <div style="font-size: 0.76rem; color: #bae6fd; font-weight: 500;">
+              Standar Baku Rincian Kewenangan Klinis (RKK) RSUD Dr. Soedarso Pontianak (582+ Prosedur Tindakan)
+            </div>
+          </div>
+        </div>
+        <button class="btn-close-modal" style="color: #fff;" onclick="closeModal('modalWhiteBookCatalog')">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1rem 1.25rem; overflow-y: auto; flex: 1;">
+        <!-- Search and Filter Bar -->
+        <div style="margin-bottom: 0.85rem; display: flex; gap: 0.65rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 260px; position: relative;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.85rem;"></i>
+            <input type="text" id="catalogWhiteBookSearch" class="form-input" placeholder="Cari nama tindakan, prosedur, atau kata kunci (contoh: EKG, Infus, Luka, Suction, NGT)..." style="padding-left: 32px; font-size: 0.82rem;" oninput="filterWhiteBookCatalog()">
+          </div>
+          <button type="button" class="btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;" onclick="document.getElementById('catalogWhiteBookSearch').value=''; filterWhiteBookCatalog();">
+            <i class="fa-solid fa-rotate-left"></i> Reset Filter
+          </button>
+        </div>
+
+        <!-- Category Pills -->
+        <div class="autocomplete-filter-bar" id="catalogCategoryPills" style="margin-bottom: 0.85rem; border-radius: 6px; padding: 6px 8px;">
+          <button type="button" class="autocomplete-pill active" data-cat="all" onclick="selectCatalogCategory('all', this)">Semua Rumpun</button>
+          <button type="button" class="autocomplete-pill" data-cat="Generalis" onclick="selectCatalogCategory('Generalis', this)">Generalis &amp; Dasar</button>
+          <button type="button" class="autocomplete-pill" data-cat="KMB" onclick="selectCatalogCategory('KMB', this)">Medikal Bedah (KMB)</button>
+          <button type="button" class="autocomplete-pill" data-cat="Bedah" onclick="selectCatalogCategory('Bedah', this)">Kamar Bedah (IBS/OK)</button>
+          <button type="button" class="autocomplete-pill" data-cat="IGD" onclick="selectCatalogCategory('IGD', this)">Kegawatdaruratan (IGD)</button>
+          <button type="button" class="autocomplete-pill" data-cat="ICU" onclick="selectCatalogCategory('ICU', this)">Perawatan Kritis (ICU/ICCU)</button>
+          <button type="button" class="autocomplete-pill" data-cat="Kardiovaskuler" onclick="selectCatalogCategory('Kardiovaskuler', this)">Kardiovaskuler</button>
+          <button type="button" class="autocomplete-pill" data-cat="Anak" onclick="selectCatalogCategory('Anak', this)">Pediatrik &amp; Perinatologi</button>
+          <button type="button" class="autocomplete-pill" data-cat="Bidan" onclick="selectCatalogCategory('Bidan', this)">Maternitas &amp; Kebidanan</button>
+          <button type="button" class="autocomplete-pill" data-cat="Lainnya" onclick="selectCatalogCategory('Lainnya', this)">Spesialistik Lainnya</button>
+        </div>
+
+        <div style="font-size: 0.78rem; color: #475569; margin-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;">
+          <span id="catalogCountInfo">Menampilkan 582 tindakan White Book</span>
+          <span style="font-style: italic; color: #64748b;"><i class="fa-solid fa-circle-info"></i> Klik <strong>"Gunakan Tindakan Ini"</strong> untuk memasukkan ke baris logbook yang aktif</span>
+        </div>
+
+        <!-- Action Items Container -->
+        <div id="catalogWhiteBookList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 0.65rem; max-height: 480px; overflow-y: auto; padding-right: 4px;">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 0.75rem 1.25rem; background: #f8fafc; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.78rem; color: var(--text-muted);">
+          Buku Putih Komite Keperawatan RSUD Dr. Soedarso &copy; 2026
+        </span>
+        <button type="button" class="btn-secondary" onclick="closeModal('modalWhiteBookCatalog')">Tutup Katalog</button>
       </div>
     </div>
   </div>
