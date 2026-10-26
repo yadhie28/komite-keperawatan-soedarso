@@ -374,7 +374,10 @@ function saveAdminNotifications() {
    ========================================================================== */
 function setupNavigation() {
   const hash = window.location.hash.replace('#', '');
-  if (hash && document.getElementById(`pane-${hash}`)) {
+  if (hash === 'logbook') {
+    switchTab('kredensial');
+    setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 250);
+  } else if (hash && document.getElementById(`pane-${hash}`)) {
     switchTab(hash);
   } else {
     switchTab('kredensial');
@@ -382,7 +385,10 @@ function setupNavigation() {
 
   window.addEventListener('hashchange', () => {
     const newHash = window.location.hash.replace('#', '');
-    if (newHash && document.getElementById(`pane-${newHash}`)) {
+    if (newHash === 'logbook') {
+      switchTab('kredensial');
+      setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 150);
+    } else if (newHash && document.getElementById(`pane-${newHash}`)) {
       switchTab(newHash);
     }
   });
@@ -396,10 +402,13 @@ function setupNavigation() {
     });
   }
 
-  // Handle URL Query Actions (openTracker, previewSurat, openRkk)
+  // Handle URL Query Actions (openTracker, previewSurat, openRkk, openLogbook)
   try {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('openTracker') === '1') {
+    if (urlParams.get('openLogbook') === '1') {
+      switchTab('kredensial');
+      setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 250);
+    } else if (urlParams.get('openTracker') === '1') {
       switchTab('kredensial');
       const box = document.getElementById('boxTrackerKredensial');
       if (box) box.style.display = 'block';
@@ -3671,9 +3680,31 @@ function resetLogbookForm() {
   showToast('Tabel prosedur tindakan logbook dikosongkan. Identitas pemohon tetap tersinkron dan terkunci dari Langkah 1 (CV).', 'info');
 }
 
+function ensureWhiteBookDatalist() {
+  let datalist = document.getElementById('whiteBookDatalist');
+  if (!datalist) {
+    datalist = document.createElement('datalist');
+    datalist.id = 'whiteBookDatalist';
+    document.body.appendChild(datalist);
+  }
+  const allActions = getAllWhiteBookActionsList();
+  if (datalist.children.length === 0 && allActions.length > 0) {
+    const fragment = document.createDocumentFragment();
+    allActions.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.name;
+      opt.label = item.category ? `[${item.category}] ${item.name}` : item.name;
+      fragment.appendChild(opt);
+    });
+    datalist.appendChild(fragment);
+  }
+}
+
 function renderLogbookItemRows(items = []) {
   const tbody = document.getElementById('logbookItemsTbody');
   if (!tbody) return;
+
+  ensureWhiteBookDatalist();
 
   const defaultItems = [
     { tgl: '', rm: '', tindakan: '', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi' },
@@ -3695,16 +3726,32 @@ function renderLogbookItemRows(items = []) {
     const tglVal = item.tgl || '';
     const rmVal = item.rm || '';
     const tglRmCombined = rmVal ? `${tglVal} (${rmVal})` : tglVal;
+    const actionVal = escapeHtml(item.tindakan || '');
 
     tr.innerHTML = `
       <td style="padding: 6px 4px; text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.8rem;">
         <span class="logbook-row-num">${idx + 1}</span>
       </td>
       <td style="padding: 6px 4px;">
-        <input type="text" class="form-input logbook-item-tglrm" value="${tglRmCombined}" placeholder="Contoh: 12/01/2025 (RM: 482910)" style="font-size: 0.78rem; padding: 4px 6px;">
+        <input type="text" class="form-input logbook-item-tglrm" value="${escapeHtml(tglRmCombined)}" placeholder="Contoh: 12/01/2025 (RM: 482910)" style="font-size: 0.78rem; padding: 5px 6px;">
       </td>
       <td style="padding: 6px 4px; position: relative;">
-        <input type="text" class="form-input logbook-item-tindakan" value="${item.tindakan || ''}" placeholder="Ketik min 2 huruf untuk opsi tindakan White Book..." autocomplete="off" style="font-size: 0.78rem; padding: 4px 6px;">
+        <div style="display: flex; align-items: center; gap: 4px; position: relative;">
+          <input type="text" 
+                 class="form-input logbook-item-tindakan" 
+                 list="whiteBookDatalist" 
+                 value="${actionVal}" 
+                 placeholder="-- Klik / Pilih Opsi Tindakan White Book --" 
+                 autocomplete="off" 
+                 style="font-size: 0.78rem; padding: 5px 8px; flex: 1; border-color: #38bdf8; background: #f0f9ff; cursor: pointer;"
+                 title="Klik atau ketik untuk mencari dan memilih dari 582 opsi tindakan White Book">
+          <button type="button" 
+                  class="btn-toggle-whitebook-row" 
+                  onclick="toggleWhiteBookDropdownForRow(this)" 
+                  title="Pilih Opsi Tindakan White Book (582 Standar)">
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.72rem;"></i>
+          </button>
+        </div>
       </td>
       <td style="padding: 6px 4px; text-align: center;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 0.76rem;">
@@ -3717,10 +3764,10 @@ function renderLogbookItemRows(items = []) {
         </div>
       </td>
       <td style="padding: 6px 4px;">
-        <input type="text" class="form-input logbook-item-catatan" value="${item.catatan || 'Valid / Terverifikasi'}" placeholder="Valid / Terverifikasi" style="font-size: 0.78rem; padding: 4px 6px;">
+        <input type="text" class="form-input logbook-item-catatan" value="${escapeHtml(item.catatan || 'Valid / Terverifikasi')}" placeholder="Valid / Terverifikasi" style="font-size: 0.78rem; padding: 5px 6px;">
       </td>
       <td style="padding: 6px 4px; text-align: center;">
-        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 3px 6px; color: #dc2626;" onclick="removeLogbookItemRow(this)" title="Hapus Tindakan">
+        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 4px 6px; color: #dc2626;" onclick="removeLogbookItemRow(this)" title="Hapus Tindakan">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </td>
@@ -3765,8 +3812,22 @@ function removeLogbookItemRow(btn) {
   }
 }
 
+function toggleWhiteBookDropdownForRow(btn) {
+  const tr = btn?.closest('tr');
+  if (!tr) return;
+  const input = tr.querySelector('.logbook-item-tindakan');
+  if (!input) return;
+  const dropdown = document.getElementById('logbookActionAutocomplete');
+  if (dropdown && dropdown.style.display === 'block' && currentAutocompleteInput === input) {
+    closeLogbookAutocomplete();
+  } else {
+    input.focus();
+    handleLogbookActionInput(input, true);
+  }
+}
+
 /* ==========================================================================
-   WHITE BOOK ACTION AUTOCOMPLETE (MIN 2 CHARACTERS)
+   WHITE BOOK ACTION AUTOCOMPLETE & CATALOG (582+ TINDAKAN)
    ========================================================================== */
 function escapeHtml(str) {
   if (str === null || str === undefined) return '';
@@ -3832,8 +3893,11 @@ function getAllWhiteBookActionsList() {
 
 let currentAutocompleteInput = null;
 let currentAutocompleteIndex = -1;
+let currentAutocompleteCategory = 'all';
 
 function initLogbookAutocomplete() {
+  ensureWhiteBookDatalist();
+
   let dropdown = document.getElementById('logbookActionAutocomplete');
   if (!dropdown) {
     dropdown = document.createElement('div');
@@ -3842,19 +3906,24 @@ function initLogbookAutocomplete() {
     document.body.appendChild(dropdown);
   }
 
-  // Delegated input listener for any row's tindakan input
+  // Delegated input listener for typing in row input
   document.addEventListener('input', (e) => {
     if (e.target && e.target.classList && e.target.classList.contains('logbook-item-tindakan')) {
-      handleLogbookActionInput(e.target);
+      handleLogbookActionInput(e.target, true);
     }
   });
 
-  // Re-open if user focuses back on an input with >= 2 characters
+  // Delegated click listener: immediately open dropdown options when clicking an empty or filled input
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('logbook-item-tindakan')) {
+      handleLogbookActionInput(e.target, true);
+    }
+  });
+
+  // Delegated focusin listener
   document.addEventListener('focusin', (e) => {
     if (e.target && e.target.classList && e.target.classList.contains('logbook-item-tindakan')) {
-      if (e.target.value && e.target.value.trim().length >= 2) {
-        handleLogbookActionInput(e.target);
-      }
+      handleLogbookActionInput(e.target, true);
     }
   });
 
@@ -3885,7 +3954,7 @@ function initLogbookAutocomplete() {
   // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (dropdown && dropdown.style.display === 'block') {
-      if (!dropdown.contains(e.target) && e.target !== currentAutocompleteInput) {
+      if (!dropdown.contains(e.target) && e.target !== currentAutocompleteInput && !e.target.closest('.btn-toggle-whitebook-row')) {
         closeLogbookAutocomplete();
       }
     }
@@ -3909,15 +3978,14 @@ function initLogbookAutocomplete() {
   }
 }
 
-function handleLogbookActionInput(input) {
+function handleLogbookActionInput(input, forceShow = false, categoryFilter = null) {
+  if (!input) return;
   const query = (input.value || '').trim();
   const dropdown = document.getElementById('logbookActionAutocomplete');
   if (!dropdown) return;
 
-  // Requirement: Min 2 characters to show options
-  if (query.length < 2) {
-    closeLogbookAutocomplete();
-    return;
+  if (categoryFilter !== null) {
+    currentAutocompleteCategory = categoryFilter;
   }
 
   currentAutocompleteInput = input;
@@ -3926,66 +3994,132 @@ function handleLogbookActionInput(input) {
   const allActions = getAllWhiteBookActionsList();
   const qLower = query.toLowerCase();
 
-  const matches = allActions.filter(item => {
-    return item.name.toLowerCase().includes(qLower) || item.category.toLowerCase().includes(qLower);
-  });
+  let matches = allActions;
 
-  // Sort: actions starting with query first, then alphabetical
-  matches.sort((a, b) => {
-    const aStarts = a.name.toLowerCase().startsWith(qLower);
-    const bStarts = b.name.toLowerCase().startsWith(qLower);
-    if (aStarts && !bStarts) return -1;
-    if (!aStarts && bStarts) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  // Category filter
+  if (currentAutocompleteCategory && currentAutocompleteCategory !== 'all') {
+    const catLower = currentAutocompleteCategory.toLowerCase();
+    matches = matches.filter(item => {
+      const itemCat = (item.category || '').toLowerCase();
+      if (catLower === 'generalis') return itemCat.includes('generalis') || itemCat.includes('dasar');
+      if (catLower === 'kmb') return itemCat.includes('kmb') || itemCat.includes('medikal');
+      if (catLower === 'bedah') return itemCat.includes('bedah') || itemCat.includes('ibs') || itemCat.includes('ok') || itemCat.includes('perioperatif');
+      if (catLower === 'igd') return itemCat.includes('igd') || itemCat.includes('emergensi') || itemCat.includes('gawat');
+      if (catLower === 'icu') return itemCat.includes('icu') || itemCat.includes('kritis') || itemCat.includes('intensif');
+      if (catLower === 'kardio') return itemCat.includes('kardio') || itemCat.includes('jantung');
+      if (catLower === 'anak') return itemCat.includes('anak') || itemCat.includes('pediatrik') || itemCat.includes('perinatologi');
+      if (catLower === 'bidan') return itemCat.includes('bidan') || itemCat.includes('maternitas') || itemCat.includes('kebidanan') || itemCat.includes('vk');
+      return itemCat.includes(catLower);
+    });
+  }
 
-  const topMatches = matches.slice(0, 30);
+  // Query filter
+  if (query.length > 0) {
+    matches = matches.filter(item => {
+      return item.name.toLowerCase().includes(qLower) || item.category.toLowerCase().includes(qLower);
+    });
+
+    matches.sort((a, b) => {
+      const aStarts = a.name.toLowerCase().startsWith(qLower);
+      const bStarts = b.name.toLowerCase().startsWith(qLower);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  const topMatches = matches.slice(0, 35);
+
+  let html = `
+    <div class="action-autocomplete-header">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <i class="fa-solid fa-book-medical" style="color:var(--gold-400);"></i>
+        <span>Pilihan Opsi White Book (${matches.length} Tindakan)</span>
+      </div>
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <button type="button" class="btn-link" onclick="openWhiteBookCatalogModal()" style="color: #38bdf8; font-size: 0.72rem; cursor: pointer; background: rgba(255,255,255,0.15); border: none; padding: 2px 7px; border-radius: 4px; font-weight: 600;" title="Buka dialog katalog lengkap seluruh 582 tindakan White Book">
+          <i class="fa-solid fa-up-right-from-square"></i> Katalog
+        </button>
+        <button type="button" onclick="closeLogbookAutocomplete()" style="background: transparent; border: none; color: #fff; font-size: 1rem; cursor: pointer; line-height: 1;" title="Tutup">&times;</button>
+      </div>
+    </div>
+
+    <!-- Category filter pills inside dropdown -->
+    <div class="autocomplete-filter-bar">
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'all' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('all', event)">Semua</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'generalis' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('generalis', event)">Generalis</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'kmb' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('kmb', event)">KMB</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'bedah' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('bedah', event)">Bedah/OK</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'igd' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('igd', event)">IGD</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'icu' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('icu', event)">ICU</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'kardio' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('kardio', event)">Kardio</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'anak' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('anak', event)">Anak</button>
+      <button type="button" class="autocomplete-pill ${currentAutocompleteCategory === 'bidan' ? 'active' : ''}" onclick="filterLogbookDropdownCategory('bidan', event)">Bidan/VK</button>
+    </div>
+  `;
 
   if (topMatches.length === 0) {
-    dropdown.innerHTML = `
-      <div class="action-autocomplete-header">
-        <span><i class="fa-solid fa-book-medical" style="color:var(--gold-400);"></i> Tindakan White Book</span>
-        <span class="count-badge">0 Opsi</span>
-      </div>
+    html += `
       <div class="autocomplete-no-match">
-        <i class="fa-solid fa-magnifying-glass"></i> Tidak ditemukan tindakan White Book yang cocok dengan "<strong>${escapeHtml(query)}</strong>"
+        <i class="fa-solid fa-magnifying-glass" style="margin-bottom: 6px; font-size: 1.2rem; color: #94a3b8; display: block;"></i>
+        Tidak ditemukan tindakan yang cocok dengan "<strong>${escapeHtml(query)}</strong>"<br>
+        <button type="button" class="btn-secondary" style="margin-top: 8px; font-size: 0.72rem; padding: 4px 8px;" onclick="openWhiteBookCatalogModal()">
+          <i class="fa-solid fa-book-open"></i> Buka Katalog Lengkap White Book
+        </button>
       </div>
     `;
   } else {
-    let html = `
-      <div class="action-autocomplete-header">
-        <span><i class="fa-solid fa-book-medical" style="color:var(--gold-400);"></i> Tindakan White Book (${matches.length} Ditemukan)</span>
-        <span class="count-badge">${matches.length > 30 ? 'Menampilkan 30' : matches.length} Opsi</span>
-      </div>
-    `;
-
+    html += `<div style="max-height: 280px; overflow-y: auto;">`;
     topMatches.forEach((item) => {
-      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-      const highlightedName = escapeHtml(item.name).replace(regex, '<mark>$1</mark>');
+      let displayName = escapeHtml(item.name);
+      if (query.length > 0) {
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        displayName = displayName.replace(regex, '<mark>$1</mark>');
+      }
       const categoryBadge = item.category ? `<span class="autocomplete-item-badge">${escapeHtml(item.category)}</span>` : '';
 
       html += `
         <div class="autocomplete-item" data-action="${escapeHtml(item.name)}">
-          <div class="autocomplete-item-text">${highlightedName}</div>
+          <div class="autocomplete-item-text">${displayName}</div>
           ${categoryBadge}
         </div>
       `;
     });
-    dropdown.innerHTML = html;
+    html += `</div>`;
 
-    dropdown.querySelectorAll('.autocomplete-item').forEach(el => {
-      el.addEventListener('click', () => {
-        selectAutocompleteItem(el);
-      });
-    });
+    html += `
+      <div style="padding: 5px 10px; background: #f1f5f9; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #64748b;">
+        <span>Menampilkan ${topMatches.length} dari ${matches.length} opsi</span>
+        <span style="color: #0369a1; font-weight: 600;">Klik item untuk memilih</span>
+      </div>
+    `;
   }
+
+  dropdown.innerHTML = html;
+
+  dropdown.querySelectorAll('.autocomplete-item').forEach(el => {
+    el.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      selectAutocompleteItem(el);
+    });
+  });
 
   const rect = input.getBoundingClientRect();
   dropdown.style.display = 'block';
   dropdown.style.top = `${rect.bottom + 2}px`;
   dropdown.style.left = `${rect.left}px`;
-  dropdown.style.width = `${Math.max(rect.width, 380)}px`;
-  dropdown.style.maxWidth = '90vw';
+  dropdown.style.width = `${Math.max(rect.width, 420)}px`;
+  dropdown.style.maxWidth = '92vw';
+}
+
+function filterLogbookDropdownCategory(cat, ev) {
+  if (ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+  }
+  if (currentAutocompleteInput) {
+    handleLogbookActionInput(currentAutocompleteInput, true, cat);
+  }
 }
 
 function updateAutocompleteActiveItem(items) {
@@ -4016,6 +4150,327 @@ function closeLogbookAutocomplete() {
   }
   currentAutocompleteInput = null;
   currentAutocompleteIndex = -1;
+}
+
+/* ==========================================================================
+   MODAL: KATALOG OPSI WHITE BOOK (582+ TINDAKAN) & PRESET 10 TINDAKAN
+   ========================================================================== */
+let activeCatalogTargetInput = null;
+
+function openWhiteBookCatalogModal(targetInput = null) {
+  if (targetInput) {
+    activeCatalogTargetInput = targetInput;
+  } else if (currentAutocompleteInput) {
+    activeCatalogTargetInput = currentAutocompleteInput;
+  }
+  closeLogbookAutocomplete();
+  openModal('modalWhiteBookCatalog');
+
+  const searchInput = document.getElementById('catalogWhiteBookSearch');
+  if (searchInput) searchInput.value = '';
+
+  const pills = document.querySelectorAll('#catalogCategoryPills .autocomplete-pill');
+  pills.forEach((p, i) => p.classList.toggle('active', i === 0));
+
+  renderWhiteBookCatalog('all', '');
+}
+
+function renderWhiteBookCatalog(cat = 'all', query = '') {
+  const container = document.getElementById('catalogWhiteBookList');
+  const countInfo = document.getElementById('catalogCountInfo');
+  if (!container) return;
+
+  const allActions = getAllWhiteBookActionsList();
+  const qLower = (query || '').trim().toLowerCase();
+  const catLower = (cat || 'all').toLowerCase();
+
+  let matches = allActions;
+
+  if (catLower !== 'all') {
+    matches = matches.filter(item => {
+      const itemCat = (item.category || '').toLowerCase();
+      if (catLower === 'generalis') return itemCat.includes('generalis') || itemCat.includes('dasar');
+      if (catLower === 'kmb') return itemCat.includes('kmb') || itemCat.includes('medikal');
+      if (catLower === 'bedah') return itemCat.includes('bedah') || itemCat.includes('ibs') || itemCat.includes('ok') || itemCat.includes('perioperatif');
+      if (catLower === 'igd') return itemCat.includes('igd') || itemCat.includes('emergensi') || itemCat.includes('gawat');
+      if (catLower === 'icu') return itemCat.includes('icu') || itemCat.includes('kritis') || itemCat.includes('intensif');
+      if (catLower === 'kardiovaskuler') return itemCat.includes('kardio') || itemCat.includes('jantung');
+      if (catLower === 'anak') return itemCat.includes('anak') || itemCat.includes('pediatrik') || itemCat.includes('perinatologi');
+      if (catLower === 'bidan') return itemCat.includes('bidan') || itemCat.includes('maternitas') || itemCat.includes('kebidanan') || itemCat.includes('vk');
+      if (catLower === 'lainnya') {
+        return !itemCat.includes('generalis') && !itemCat.includes('dasar') &&
+               !itemCat.includes('kmb') && !itemCat.includes('bedah') &&
+               !itemCat.includes('igd') && !itemCat.includes('icu') &&
+               !itemCat.includes('kardio') && !itemCat.includes('anak') &&
+               !itemCat.includes('bidan');
+      }
+      return itemCat.includes(catLower);
+    });
+  }
+
+  if (qLower) {
+    matches = matches.filter(item => {
+      return item.name.toLowerCase().includes(qLower) || (item.category && item.category.toLowerCase().includes(qLower));
+    });
+  }
+
+  if (countInfo) {
+    countInfo.innerHTML = `Menampilkan <strong>${matches.length}</strong> tindakan White Book ${catLower !== 'all' ? `(Kategori: ${cat})` : ''} ${qLower ? `(Pencarian: "${escapeHtml(query)}")` : ''}`;
+  }
+
+  if (matches.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 2.5rem 1rem; text-align: center; color: var(--text-muted);">
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 0.75rem; display: block;"></i>
+        <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Tidak ada tindakan yang sesuai dengan kriteria</div>
+        <div style="font-size: 0.8rem; margin-top: 0.25rem;">Coba gunakan kata kunci lain atau pilih rumpun kategori berbeda.</div>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  matches.forEach((item, idx) => {
+    let catColor = '#0369a1';
+    let catBg = '#e0f2fe';
+    const c = (item.category || '').toLowerCase();
+    if (c.includes('kmb')) { catColor = '#1d4ed8'; catBg = '#dbeafe'; }
+    else if (c.includes('bedah')) { catColor = '#b91c1c'; catBg = '#fee2e2'; }
+    else if (c.includes('icu') || c.includes('kritis')) { catColor = '#c2410c'; catBg = '#ffedd5'; }
+    else if (c.includes('igd')) { catColor = '#dc2626'; catBg = '#fef2f2'; }
+    else if (c.includes('bidan') || c.includes('maternitas')) { catColor = '#be185d'; catBg = '#fce7f3'; }
+    else if (c.includes('anak')) { catColor = '#047857'; catBg = '#d1fae5'; }
+
+    let actionLabel = escapeHtml(item.name);
+    if (qLower) {
+      const reg = new RegExp(`(${qLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      actionLabel = actionLabel.replace(reg, '<mark style="background:#fef08a; padding: 0 2px; border-radius: 2px;">$1</mark>');
+    }
+
+    const jsonAction = JSON.stringify(item.name).replace(/"/g, '&quot;');
+
+    html += `
+      <div style="border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: transform 0.15s ease, box-shadow 0.15s ease;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.68rem; font-weight: 700; background: ${catBg}; color: ${catColor}; padding: 2px 7px; border-radius: 4px; text-transform: uppercase;">
+              ${escapeHtml(item.category || 'Buku Putih')}
+            </span>
+            <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 600;">#${idx + 1}</span>
+          </div>
+          <div style="font-size: 0.83rem; font-weight: 600; color: #0f172a; line-height: 1.4;">
+            ${actionLabel}
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; padding-top: 6px; border-top: 1px dashed #f1f5f9;">
+          <button type="button" class="btn-primary" style="font-size: 0.72rem; padding: 4px 10px; background: #0284c7; border-color: #0284c7;" onclick="useWhiteBookActionInLogbook(${jsonAction})">
+            <i class="fa-solid fa-check"></i> Gunakan Tindakan Ini
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function selectCatalogCategory(cat, btn) {
+  const pills = document.querySelectorAll('#catalogCategoryPills .autocomplete-pill');
+  pills.forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  filterWhiteBookCatalog();
+}
+
+function filterWhiteBookCatalog() {
+  const searchInput = document.getElementById('catalogWhiteBookSearch');
+  const query = searchInput ? searchInput.value : '';
+  const activePill = document.querySelector('#catalogCategoryPills .autocomplete-pill.active');
+  const cat = activePill ? activePill.getAttribute('data-cat') : 'all';
+  renderWhiteBookCatalog(cat, query);
+}
+
+function useWhiteBookActionInLogbook(actionName) {
+  if (!actionName) return;
+
+  let targetInput = activeCatalogTargetInput;
+  if (!targetInput || !document.body.contains(targetInput)) {
+    const tbody = document.getElementById('logbookItemsTbody');
+    if (tbody) {
+      const inputs = tbody.querySelectorAll('.logbook-item-tindakan');
+      for (const inp of inputs) {
+        if (!inp.value || !inp.value.trim()) {
+          targetInput = inp;
+          break;
+        }
+      }
+    }
+  }
+
+  if (targetInput) {
+    targetInput.value = actionName;
+    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+    targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+    const tr = targetInput.closest('tr');
+    const rowNum = tr ? tr.querySelector('.logbook-row-num')?.textContent : '';
+    showToast(`Tindakan White Book "${actionName}" berhasil dimasukkan ke baris ${rowNum || ''}!`, 'success');
+  } else {
+    // If all are filled, add a new row
+    addLogbookItemRow({ tindakan: actionName, mandiri: true });
+    showToast(`Tindakan White Book "${actionName}" berhasil ditambahkan ke baris baru!`, 'success');
+  }
+
+  closeModal('modalWhiteBookCatalog');
+}
+
+function showQuick10ActionsSelector() {
+  let modal = document.getElementById('modalQuick10Logbook');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modalQuick10Logbook';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-container" style="max-width: 650px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #4c1d95 0%, #7e22ce 100%); color: #fff;">
+          <div class="modal-title" style="display: flex; align-items: center; gap: 0.65rem;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 1.25rem; color: #facc15;"></i>
+            <div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">
+                Isi Otomatis 10 Tindakan Standar White Book
+              </div>
+              <div style="font-size: 0.76rem; color: #e9d5ff;">
+                Pilih paket 10 tindakan asuhan klinis harian terverifikasi sesuai rumpun &amp; jenjang
+              </div>
+            </div>
+          </div>
+          <button class="btn-close-modal" style="color: #fff;" onclick="closeModal('modalQuick10Logbook')">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 1.25rem;">
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Pilih rumpun keperawatan atau kebidanan di bawah ini untuk mengisi langsung 10 baris tindakan logbook lengkap dengan nomor RM, status mandiri (M), dan verifikasi resmi:
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <button type="button" class="btn-secondary" style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; text-align: left; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #f8fafc;" onclick="applyQuick10Package('kmb_bedah')">
+              <div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">
+                  <i class="fa-solid fa-stethoscope" style="color: #0284c7; margin-right: 6px;"></i>
+                  Paket 1: Keperawatan Medikal Bedah (KMB &amp; Bedah - PK II / PK III)
+                </div>
+                <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
+                  10 Tindakan: EKG 12 Lead, Foley Catheter, Wound Dressing, Kemoterapi, NGT, AGD, CVC, Transfusi Darah, Suction, Perioperatif.
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-right" style="color: #0284c7;"></i>
+            </button>
+
+            <button type="button" class="btn-secondary" style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; text-align: left; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #f8fafc;" onclick="applyQuick10Package('generalis')">
+              <div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">
+                  <i class="fa-solid fa-user-nurse" style="color: #059669; margin-right: 6px;"></i>
+                  Paket 2: Perawat Generalis / Rawat Inap Dasar (PK I &amp; PK II)
+                </div>
+                <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
+                  10 Tindakan: TTV &amp; EWS, Terapi Injeksi IV/IM, Pasang Infus, Oksigenasi, Kateter Urin, NGT, Perawatan Dekubitus, Discharge Planning.
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-right" style="color: #059669;"></i>
+            </button>
+
+            <button type="button" class="btn-secondary" style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; text-align: left; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #f8fafc;" onclick="applyQuick10Package('kritis_igd')">
+              <div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">
+                  <i class="fa-solid fa-heart-pulse" style="color: #dc2626; margin-right: 6px;"></i>
+                  Paket 3: Gawat Darurat &amp; Perawatan Kritis (IGD / ICU / ICCU - PK III / PK IV)
+                </div>
+                <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
+                  10 Tindakan: RJP/BHD, Triase ATS, Asistensi Intubasi &amp; Ventilator, AGD, Monitoring Invasif, Titrasi Inotropik, Defibrilasi, WSD.
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-right" style="color: #dc2626;"></i>
+            </button>
+
+            <button type="button" class="btn-secondary" style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1rem; text-align: left; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #f8fafc;" onclick="applyQuick10Package('kebidanan')">
+              <div>
+                <div style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">
+                  <i class="fa-solid fa-baby" style="color: #db2777; margin-right: 6px;"></i>
+                  Paket 4: Pelayanan Kebidanan &amp; Ruang Bersalin (VK / BK I / BK II / BK III)
+                </div>
+                <div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">
+                  10 Tindakan: Asuhan Persalinan Normal (APN 60 Langkah), Partograf, Oksitosin Drip, Jahit Perineum, Resusitasi BBL, CTG, AKDR/IUD.
+                </div>
+              </div>
+              <i class="fa-solid fa-arrow-right" style="color: #db2777;"></i>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 0.75rem 1.25rem; display: flex; justify-content: flex-end;">
+          <button type="button" class="btn-secondary" onclick="closeModal('modalQuick10Logbook')">Batal</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  openModal('modalQuick10Logbook');
+}
+
+function applyQuick10Package(pkg) {
+  let items = [];
+  if (pkg === 'kmb_bedah') {
+    items = [
+      { tgl: '08/01/2025', rm: '482910', tindakan: 'Perekaman Elektrokardiografi (EKG) 12 Lead Lengkap & Interpretasi Awal', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '12/01/2025', rm: '483105', tindakan: 'Pemasangan & Penggantian Kateter Urine Menetap (Foley Catheter) dengan Teknik Aseptik', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '15/01/2025', rm: '483320', tindakan: 'Perawatan Luka Post Operasi Bersih & Kotor (Wound Dressing & Modern Dressing)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '19/01/2025', rm: '483512', tindakan: 'Pemberian Obat Kemoterapi / Terapi Sitostatika & Pemantauan Efek Samping', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '22/01/2025', rm: '483789', tindakan: 'Pemasangan Pipa Lambung (Nasogastric Tube / NGT) & Bilas Lambung', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '04/02/2025', rm: '484012', tindakan: 'Pengambilan Sampel Darah Arteri (Analisa Gas Darah / AGD) & Vena', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '09/02/2025', rm: '484230', tindakan: 'Perawatan & Penggantian Balutan Kateter Vena Sentral (CVC / Chemoport)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '14/02/2025', rm: '484501', tindakan: 'Pemberian Transfusi Darah (PRC, TC, FFP) & Pemantauan Reaksi Transfusi', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '20/02/2025', rm: '484780', tindakan: 'Tindakan Suction Saluran Nafas Melalui Tracheostomy / Endotracheal Tube', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '26/02/2025', rm: '485011', tindakan: 'Asuhan Keperawatan Perioperatif: Persiapan Pre, Intra, dan Post Operasi', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
+    ];
+  } else if (pkg === 'generalis') {
+    items = [
+      { tgl: '05/01/2025', rm: '491021', tindakan: 'Pemeriksaan Tanda-Tanda Vital Lengkap & Penilaian Early Warning System (EWS)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '09/01/2025', rm: '491204', tindakan: 'Pemasangan Jalur Intravena (Infus) Perifer & Penggantian Set Infus', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '13/01/2025', rm: '491380', tindakan: 'Pemberian Terapi Injeksi Intravena (IV), Intramuskular (IM), dan Subkutan (SC)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '17/01/2025', rm: '491512', tindakan: 'Pemberian Terapi Oksigen Melalui Nasal Kanul & Non-Rebreathing Mask (NRM)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '21/01/2025', rm: '491705', tindakan: 'Pemasangan Kateter Urine Menetap pada Pasien Dewasa', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '02/02/2025', rm: '492019', tindakan: 'Pemasangan Pipa Lambung (NGT) untuk Dekompresi dan Pemberian Nutrisi Enteral', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '07/02/2025', rm: '492240', tindakan: 'Perawatan Luka Bersih dan Penggantian Perban Aseptik', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '12/02/2025', rm: '492415', tindakan: 'Pengambilan Spesimen Darah Vena untuk Pemeriksaan Laboratorium Rutin', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '18/02/2025', rm: '492650', tindakan: 'Asuhan Keperawatan Pasien Tirah Baring & Pencegahan Luka Tekan (Dekubitus)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '25/02/2025', rm: '492890', tindakan: 'Pendidikan Kesehatan & Rencana Pemulangan Pasien (Discharge Planning)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
+    ];
+  } else if (pkg === 'kritis_igd') {
+    items = [
+      { tgl: '03/01/2025', rm: '470112', tindakan: 'Resusitasi Jantung Paru (RJP / BHD & BHL) pada Kondisi Henti Jantung', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '07/01/2025', rm: '470290', tindakan: 'Pelaksanaan Triase Gawat Darurat Menggunakan Metode Australasian Triage Scale (ATS)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '11/01/2025', rm: '470450', tindakan: 'Asistensi Intubasi Endotrakeal & Pemasangan Ventilator Mekanik Invasif', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '16/01/2025', rm: '470611', tindakan: 'Pengambilan Darah Arteri untuk Analisa Gas Darah (AGD) & Interpretasi Cepat', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '20/01/2025', rm: '470825', tindakan: 'Monitoring Hemodinamik Lanjut (Tekanan Darah Invasif, MAP, CVP)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '01/02/2025', rm: '471030', tindakan: 'Penyiapan & Titrasi Obat-Obat Inotropik / Vasoaktif Menggunakan Syringe Pump', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '06/02/2025', rm: '471250', tindakan: 'Tindakan Defibrilasi dan Kardioversi Sinkronisasi pada Disritmia Mengancam Nyawa', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '10/02/2025', rm: '471480', tindakan: 'Perekaman & Pembacaan Cepat EKG 12 Lead pada Pasien Sindrom Koroner Akut (SKA)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '15/02/2025', rm: '471690', tindakan: 'Asistensi Pemasangan Thorax Drain (WSD) dan Pemantauan Undulasi Undulasi', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '22/02/2025', rm: '471900', tindakan: 'Penyapihan Ventilator (Weaning) & Ekstubasi Terencana pada Pasien Kritis', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
+    ];
+  } else if (pkg === 'kebidanan') {
+    items = [
+      { tgl: '04/01/2025', rm: '460115', tindakan: 'Asuhan Persalinan Normal (APN 60 Langkah) Kala I s.d Kala IV', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '08/01/2025', rm: '460320', tindakan: 'Pemeriksaan Dalam (Vaginal Toucher) & Pemantauan Kemajuan Persalinan dengan Partograf', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '12/01/2025', rm: '460540', tindakan: 'Pemasangan Infus & Pemberian Oksitosin Drip untuk Induksi / Augmentasi Persalinan', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '16/01/2025', rm: '460710', tindakan: 'Penjahitan Luka Episiotomi & Robekan Jalan Lahir (Perineorafi Derajat I dan II)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '20/01/2025', rm: '460925', tindakan: 'Resusitasi Bayi Baru Lahir dengan Asfiksia Sedang dan Pembersihan Jalan Napas', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '03/02/2025', rm: '461150', tindakan: 'Manajemen Aktif Kala III (MAK III) & Penanganan Perdarahan Pasca Persalinan (HPP)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '07/02/2025', rm: '461340', tindakan: 'Pemeriksaan Kesejahteraan Janin Melalui Perekaman Cardiotocography (CTG)', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '11/02/2025', rm: '461520', tindakan: 'Pemasangan Alat Kontrasepsi Dalam Rahim (AKDR / IUD) Pasca Plasenta', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '17/02/2025', rm: '461780', tindakan: 'Penatalaksanaan Awal Preeklampsia Berat (PEB) dengan Pemberian MgSO4 Dosis Penuh', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' },
+      { tgl: '23/02/2025', rm: '461990', tindakan: 'Asuhan Masa Nifas (Puerperium), Perawatan Payudara, & Konseling Menyusui Eksklusif', mandiri: true, supervisi: false, catatan: 'Valid / Terverifikasi Ka. Ru' }
+    ];
+  }
+
+  renderLogbookItemRows(items);
+  closeModal('modalQuick10Logbook');
+  showToast(`10 Tindakan Standar White Book (${pkg.replace('_', ' ').toUpperCase()}) berhasil dimuat ke tabel logbook!`, 'success');
 }
 
 function getLogbookItemsFromForm() {
@@ -7420,3 +7875,16 @@ window.syncAllDownstreamFormsFromCv = syncAllDownstreamFormsFromCv;
 window.syncHpEmailToRkk = syncHpEmailToRkk;
 window.jumpToStep1Cv = jumpToStep1Cv;
 window.parseIndonesianDateToYMD = parseIndonesianDateToYMD;
+window.openWhiteBookCatalogModal = openWhiteBookCatalogModal;
+window.renderWhiteBookCatalog = renderWhiteBookCatalog;
+window.selectCatalogCategory = selectCatalogCategory;
+window.filterWhiteBookCatalog = filterWhiteBookCatalog;
+window.useWhiteBookActionInLogbook = useWhiteBookActionInLogbook;
+window.showQuick10ActionsSelector = showQuick10ActionsSelector;
+window.applyQuick10Package = applyQuick10Package;
+window.toggleWhiteBookDropdownForRow = toggleWhiteBookDropdownForRow;
+window.handleLogbookActionInput = handleLogbookActionInput;
+window.filterLogbookDropdownCategory = filterLogbookDropdownCategory;
+window.closeLogbookAutocomplete = closeLogbookAutocomplete;
+window.ensureWhiteBookDatalist = ensureWhiteBookDatalist;
+window.getAllWhiteBookActionsList = getAllWhiteBookActionsList;
