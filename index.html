@@ -2505,10 +2505,62 @@
             <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.45rem;">
               <i class="fa-solid fa-circle-info"></i> Tindakan 1 s.d 5 akan dicetak pada <strong>Halaman 1</strong>, dan Tindakan 6 s.d 10 (beserta lembar pengesahan Ka. Ru) akan dicetak pada <strong>Halaman 2</strong> sesuai format baku 2 halaman.
             </div>
+            <!-- PILIHAN RUMPUN KLINIS WHITE BOOK: OTOMATIS ISI 10 TINDAKAN ASUHAN -->
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%); border: 1.5px solid #0284c7; border-radius: 8px; padding: 10px 14px; margin-bottom: 0.85rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 6px;">
+                <div style="font-weight: 800; color: #0c4a6e; font-size: 0.86rem; display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-layer-group" style="color: #0284c7; font-size: 1.05rem;"></i>
+                  <span>PILIHAN RUMPUN KLINIS WHITE BOOK (OTOMATIS TERISI 10 TINDAKAN):</span>
+                </div>
+                <div style="font-size: 0.74rem; color: #0369a1; font-weight: 600; background: #e0f2fe; padding: 2px 8px; border-radius: 4px; border: 1px solid #bae6fd;">
+                  <i class="fa-solid fa-bolt" style="color: #0284c7;"></i> Pilih 1 rumpun di bawah &rarr; otomatis terisi 10 tindakan (No. 1 s.d 10)
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                  <select id="selectRumpunWhiteBook" class="form-select" style="font-size: 0.82rem; padding: 7px 10px; border: 1.5px solid #0284c7; background: #ffffff; font-weight: 600; color: #0f172a; border-radius: 6px; cursor: pointer; width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" onchange="onSelectRumpunLogbook(this.value)">
+                    <option value="">-- PILIH 1 RUMPUN (OTOMATIS TERISI 10 TINDAKAN DARI NOMOR 1 s.d 10) --</option>
+                    
+                    <optgroup label="A. RUMPUN KEPERAWATAN MEDIKAL &amp; BEDAH">
+                      <option value="kmb_bedah">&#9877; 1. Keperawatan Medikal Bedah (KMB &amp; Bedah Dewasa - PK II / PK III)</option>
+                      <option value="kamar_bedah">&#9877; 2. Kamar Bedah / Perioperatif (IBS / OK / Anestesi)</option>
+                      <option value="generalis">&#9877; 3. Perawat Generalis / Ruang Rawat Inap Dasar (PK I &amp; PK II)</option>
+                    </optgroup>
+
+                    <optgroup label="B. RUMPUN KEPERAWATAN KRITIS &amp; EMERGENCY">
+                      <option value="intensif_icu">&#9877; 4. Perawatan Intensif &amp; Kritis (ICU / ICCU / HCU)</option>
+                      <option value="emergensi_igd">&#9877; 5. Kegawatdaruratan &amp; Trauma (IGD / Resusitasi / Triase)</option>
+                      <option value="kardiovaskuler">&#9877; 6. Kardiovaskuler &amp; Pelayanan Jantung (Cathlab / CVCU)</option>
+                    </optgroup>
+
+                    <optgroup label="C. RUMPUN PEDIATRIK &amp; KEBIDANAN / MATERNAL">
+                      <option value="pediatrik_anak">&#9877; 7. Pediatrik / Keperawatan Anak (Bangsal Anak &amp; Bedah Anak)</option>
+                      <option value="perinatologi_nicu">&#9877; 8. Perinatologi &amp; Neonatologi (NICU / PICU / Bayi Risiko Tinggi)</option>
+                      <option value="maternitas_bidan">&#9877; 9. Maternitas &amp; Pelayanan Kebidanan (VK / Kamar Bersalin / Ponek)</option>
+                    </optgroup>
+
+                    <optgroup label="D. RUMPUN KEKHUSUSAN &amp; SPESIALISTIK">
+                      <option value="onkologi">&#9877; 10. Onkologi &amp; Kemoterapi (Ruang Camar / Kanker)</option>
+                      <option value="neurosains">&#9877; 11. Neurologi / Neurosains &amp; Stroke Unit (Ruang Ruai)</option>
+                      <option value="nefrologi_hd">&#9877; 12. Nefrologi &amp; Hemodialisa (Unit Dialisis / Ginjal)</option>
+                      <option value="respirologi">&#9877; 13. Respirologi / Paru &amp; Saluran Pernapasan (TB / Paru)</option>
+                      <option value="jiwa">&#9877; 14. Psikiatri &amp; Kesehatan Jiwa (Ruang Jiwa / Akut)</option>
+                      <option value="mata">&#9877; 15. Oftalmologi / Mata &amp; THT</option>
+                      <option value="geriatri">&#9877; 16. Geriatri &amp; Rehabilitasi Medik Lansia</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <button type="button" class="btn-primary" style="font-size: 0.8rem; padding: 7px 14px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); font-weight: 700; white-space: nowrap; border: none; border-radius: 6px; box-shadow: 0 1px 3px rgba(2,132,199,0.3);" onclick="applyRumpunLogbookFromSelect()">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Terapkan 10 Tindakan Rumpun Ini
+                </button>
+              </div>
+            </div>
+
             <div style="font-size: 0.76rem; color: #044e54; background: #e6fffa; border: 1px solid #2dd4bf; border-left: 4px solid var(--primary-600); padding: 8px 12px; border-radius: 6px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-book-open-reader" style="color: var(--primary-600); font-size: 1.1rem;"></i>
-                <span><strong>Pilihan Opsi Tindakan White Book:</strong> Klik langsung pada kolom <em>Rincian Deskripsi Tindakan Klinis</em> atau klik tombol panah biru <i class="fa-solid fa-circle-chevron-down" style="color:#0284c7;"></i> untuk memilih langsung dari <strong>582+ opsi tindakan resmi Buku Putih RSUD dr. Soedarso</strong> (Generalis, KMB, Bedah/IBS, ICU, IGD, Maternitas/VK, dll).</span>
+                <span><strong>Pilihan Opsi Tindakan White Book:</strong> Pilih 1 rumpun di atas untuk langsung mengisi 10 tindakan (nomor 1 s.d 10), atau klik kolom tindakan / tombol panah biru <i class="fa-solid fa-circle-chevron-down" style="color:#0284c7;"></i> untuk memilih tindakan lain secara manual dari <strong>582+ opsi tindakan resmi Buku Putih RSUD dr. Soedarso</strong>.</span>
               </div>
             </div>
 
