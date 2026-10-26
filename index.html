@@ -1369,17 +1369,25 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Jenis Permohonan <span class="req">*</span></label>
-                <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
-                  <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
-                    <input type="radio" name="jenisPermohonan" value="Kredensialing Baru" checked>
-                    <span>Kredensialing Pertama Kali (Baru)</span>
+                <label class="form-label">
+                  Jenis Permohonan <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dan terkunci mengikuti pilihan pada Langkah 3 (Surat Permohonan)"><i class="fa-solid fa-lock"></i> Terkunci</span>
+                </label>
+                <div id="containerRkkJenisPermohonan" style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; pointer-events: none; opacity: 0.95; cursor: not-allowed;">
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; background: var(--bg-locked, #f1f5f9); border: 1px solid var(--border-subtle); padding: 6px 12px; border-radius: 6px; cursor: not-allowed;">
+                    <input type="radio" name="jenisPermohonan" id="rkkJenisBaru" value="Kredensialing Baru" tabindex="-1">
+                    <span><strong>Kredensial</strong> (Perawat Baru / Bidan Baru)</span>
                   </label>
-                  <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem;">
-                    <input type="radio" name="jenisPermohonan" value="Rekredensialing / Kenaikan Jenjang">
-                    <span>Rekredensialing / Kenaikan Jenjang</span>
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; background: var(--bg-locked, #f1f5f9); border: 1.5px solid var(--primary-600, #0d9488); padding: 6px 12px; border-radius: 6px; cursor: not-allowed;">
+                    <input type="radio" name="jenisPermohonan" id="rkkJenisBerkala" value="Re-Kredensial Berkala" checked tabindex="-1">
+                    <span><strong>Re-Kredensial Berkala</strong> (Setiap 3 Tahun)</span>
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; background: var(--bg-locked, #f1f5f9); border: 1px solid var(--border-subtle); padding: 6px 12px; border-radius: 6px; cursor: not-allowed;">
+                    <input type="radio" name="jenisPermohonan" id="rkkJenisKenaikan" value="Rekredensialing / Kenaikan Jenjang" tabindex="-1">
+                    <span><strong>Re-Kredensial Kenaikan Jenjang</strong></span>
                   </label>
                 </div>
+                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-lock"></i> Terkunci otomatis mengikuti pilihan Jenis Permohonan pada Langkah 3 (Surat Permohonan).</span>
               </div>
             </div>
           </div>
@@ -2859,15 +2867,15 @@
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; margin-top: 0.5rem;">
               <label style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-app); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.84rem;">
-                <input type="radio" name="jenisPermohonanRadio" id="optJenisBaru" value="baru">
+                <input type="radio" name="jenisPermohonanRadio" id="optJenisBaru" value="baru" onchange="syncJenisPermohonanToRkk()">
                 <span><strong>Kredensial</strong> (Perawat Baru / Bidan Baru)</span>
               </label>
               <label style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-app); border: 1.5px solid var(--primary-600); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.84rem; background: rgba(20, 148, 142, 0.05);">
-                <input type="radio" name="jenisPermohonanRadio" id="optJenisBerkala" value="berkala" checked>
+                <input type="radio" name="jenisPermohonanRadio" id="optJenisBerkala" value="berkala" checked onchange="syncJenisPermohonanToRkk()">
                 <span><strong>Re-Kredensial Berkala</strong> (Setiap 3 Tahun)</span>
               </label>
               <label style="display: flex; align-items: center; gap: 0.65rem; background: var(--bg-app); border: 1px solid var(--border-subtle); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.84rem;">
-                <input type="radio" name="jenisPermohonanRadio" id="optJenisKenaikan" value="kenaikan">
+                <input type="radio" name="jenisPermohonanRadio" id="optJenisKenaikan" value="kenaikan" onchange="syncJenisPermohonanToRkk()">
                 <span><strong>Re-Kredensial Kenaikan Jenjang</strong> (Pindah Level PK)</span>
               </label>
             </div>
