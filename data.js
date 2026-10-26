@@ -1745,6 +1745,8 @@ window.KOMITE_DATA = {
       tanggal: "21 Oktober",
       tahun: "2026"
     }
+  },
+
   // Preset Format Baku Formulir Verifikasi Sumber Asli (Primary Source Verification - PSV) Dokumen Klinis (2 Halaman RSUD dr. Soedarso)
   samplePsv: {
     nama: "Ns. Hendra Kurniawan, S.Kep",
