@@ -1269,28 +1269,35 @@ function renderUnitDistributionChart() {
    ========================================================================= */
 function openNewKredensialModal() {
   state.wizardStep = 1;
-  const form = document.getElementById('kredensialForm');
-  if (form) form.reset();
 
   // Pastikan data tersinkronisasi penuh dan terkunci dari Langkah 1 (CV) & form sebelumnya
   syncAllDownstreamFormsFromCv();
+  syncJenisPermohonanToRkk();
 
   const jenjangVal = document.getElementById('formJenjang')?.value || 'PK III';
   onJenjangChange(jenjangVal);
 
   // Pastikan Rumpun / Area Kekhususan Klinis terisi dan terkunci sesuai form sebelumnya
   const master = getActiveCvMasterData();
-  const effectiveArea = master.areaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
+  const effectiveArea = master.areaKlinis || state.selectedAreaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
   const selArea = document.getElementById('formAreaKlinis');
   if (selArea) {
-    selArea.value = effectiveArea;
+    if (selArea.querySelector(`option[value="${effectiveArea}"]`)) {
+      selArea.value = effectiveArea;
+    } else if (selArea.options.length > 0) {
+      selArea.selectedIndex = 0;
+    }
     selArea.classList.add('input-locked');
     selArea.setAttribute('tabindex', '-1');
     selArea.style.pointerEvents = 'none';
     selArea.style.background = 'var(--bg-locked, #f1f5f9)';
     selArea.style.cursor = 'not-allowed';
   }
-  onAreaKlinisChange(effectiveArea);
+  if (selArea?.value) {
+    onAreaKlinisChange(selArea.value);
+  }
+
+  syncJenisPermohonanToRkk();
 
   const checkIntegritas = document.getElementById('checkPernyataanIntegritas');
   if (checkIntegritas) checkIntegritas.checked = false;
@@ -1795,11 +1802,30 @@ function populateAreaKlinisDropdown(pkLevel) {
   }
 
   // Tentukan area target dari state, master CV data, atau mapping unit
-  let targetArea = state.selectedAreaKlinis || (typeof getActiveCvMasterData === 'function' ? getActiveCvMasterData()?.areaKlinis : null) || prevValue;
-  if (!targetArea && typeof mapUnitToAreaKlinis === 'function') {
+  let candidateArea = state.selectedAreaKlinis || (typeof getActiveCvMasterData === 'function' ? getActiveCvMasterData()?.areaKlinis : null) || prevValue;
+  if (!candidateArea && typeof mapUnitToAreaKlinis === 'function') {
     const curUnit = document.getElementById('formUnit')?.value || document.getElementById('cvUnit')?.value;
-    targetArea = mapUnitToAreaKlinis(curUnit, pkLevel);
+    candidateArea = mapUnitToAreaKlinis(curUnit, pkLevel);
   }
+
+  // Cari area yang paling cocok di dalam areas (exact match atau cluster match)
+  let targetArea = '';
+  if (candidateArea && areas.some(a => a.key === candidateArea)) {
+    targetArea = candidateArea;
+  } else if (candidateArea) {
+    const targetCluster = getClusterFromAreaKey(candidateArea);
+    const clusterMatch = areas.find(a => getClusterFromAreaKey(a.key) === targetCluster);
+    if (clusterMatch) targetArea = clusterMatch.key;
+  }
+  if (!targetArea && prevValue && areas.some(a => a.key === prevValue)) {
+    targetArea = prevValue;
+  }
+  if (!targetArea && areas.length > 0) {
+    const defaultOpt = areas.find(a => a.key === 'kmb_bedah_pk3' || a.key === 'kmb_medikal_pk3' || a.key === 'generalis' || a.key === 'pmb_kebidanan');
+    targetArea = defaultOpt ? defaultOpt.key : areas[0].key;
+  }
+
+  state.selectedAreaKlinis = targetArea;
 
   // Kelompokkan area klinis ke dalam 9 Rumpun Resmi Buku Putih 2026
   const groups = {};
@@ -1823,6 +1849,9 @@ function populateAreaKlinisDropdown(pkLevel) {
   });
 
   selectArea.innerHTML = html;
+  if (targetArea) {
+    selectArea.value = targetArea;
+  }
 
   // Sinkronkan juga dropdown Step 3 (formRkkAreaFilter) dengan 9 Rumpun yang sama
   if (selectFilter) {
@@ -1838,22 +1867,10 @@ function populateAreaKlinisDropdown(pkLevel) {
       }
     });
     selectFilter.innerHTML = filterHtml;
-    if (prevFilterVal && selectFilter.querySelector(`option[value="${prevFilterVal}"]`)) {
+    if (targetArea && selectFilter.querySelector(`option[value="${targetArea}"]`)) {
+      selectFilter.value = targetArea;
+    } else if (prevFilterVal && selectFilter.querySelector(`option[value="${prevFilterVal}"]`)) {
       selectFilter.value = prevFilterVal;
-    }
-  }
-
-  // Set nilai terpilih dan pastikan selalu terisi
-  if (targetArea && selectArea.querySelector(`option[value="${targetArea}"]`)) {
-    selectArea.value = targetArea;
-  } else if (prevValue && selectArea.querySelector(`option[value="${prevValue}"]`)) {
-    selectArea.value = prevValue;
-  } else if (areas.length > 0) {
-    const defaultOpt = selectArea.querySelector('option[value="kmb_bedah_pk3"]') || selectArea.querySelector('option[value="kmb_medikal_pk3"]') || selectArea.querySelector('option[value="generalis"]') || selectArea.querySelector('option[value="pmb_kebidanan"]');
-    if (defaultOpt) {
-      selectArea.value = defaultOpt.value;
-    } else {
-      selectArea.value = areas[0].key;
     }
   }
 
@@ -2293,6 +2310,7 @@ function generateWizardSummary() {
   const areaSelect = document.getElementById('formAreaKlinis');
   const areaName = areaSelect?.options[areaSelect.selectedIndex]?.text || 'Generalis';
   const unit = document.getElementById('formUnit').value;
+  const selectedJenis = document.querySelector('input[name="jenisPermohonan"]:checked')?.value || 'Re-Kredensial Berkala';
 
   const radios = document.querySelectorAll('#rkkChecklistContainer input[type="radio"]:checked');
   let count1 = 0, count2 = 0, count3 = 0;
@@ -2311,6 +2329,7 @@ function generateWizardSummary() {
     <div><strong>Nama Pegawai:</strong> ${nama}</div>
     <div><strong>NIP / NIK:</strong> ${nip}</div>
     <div><strong>Nomor STR:</strong> ${str} (Berlaku s/d ${formatDate(strExp)})</div>
+    <div><strong>Jenis Permohonan:</strong> <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;"><i class="fa-solid fa-lock"></i> ${selectedJenis}</span></div>
     <div><strong>Jenjang Karir Diajukan:</strong> <span class="badge-pk badge-pk3">${jenjang}</span></div>
     <div><strong>Rumpun / Area Buku Putih:</strong> <strong style="color:#0e3860;">${areaName}</strong></div>
     <div><strong>Unit Pelayanan:</strong> ${unit}</div>
@@ -2346,6 +2365,7 @@ function handleKredensialSubmit(e) {
   const unit = document.getElementById('formUnit').value;
   const selArea = document.getElementById('formAreaKlinis');
   const areaKey = selArea?.value || 'kmb_bedah_pk3';
+  const selectedJenis = document.querySelector('input[name="jenisPermohonan"]:checked')?.value || 'Re-Kredensial Berkala';
   const totalCount = (state.currentWizardRkkList && state.currentWizardRkkList.length) || 10;
   const countM = document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="1"]:checked, #rkkChecklistContainer input[type="radio"][value="M"]:checked').length;
 
@@ -2355,6 +2375,7 @@ function handleKredensialSubmit(e) {
     nip: nip,
     str: str,
     strExpiry: strExp,
+    jenisPermohonan: selectedJenis,
     jenjang: jenjang,
     unit: unit,
     areaKlinis: areaKey,
@@ -3203,6 +3224,9 @@ function syncAllDownstreamFormsFromCv() {
   // --- LANGKAH 6: UPLOAD BERKAS ---
   setVal('uploadNamaPemohon', master.nama);
 
+  // Sinkronkan dan kunci Jenis Permohonan ke Langkah 4
+  syncJenisPermohonanToRkk();
+
   // Update current applicant state
   state.currentApplicant = {
     nama: master.nama,
@@ -3215,6 +3239,47 @@ function syncAllDownstreamFormsFromCv() {
     education: `${master.highestLabel} / ${master.highest.institusi}`,
     timestamp: new Date().toISOString()
   };
+}
+
+function syncJenisPermohonanToRkk() {
+  let jenis = 'berkala';
+  if (document.getElementById('optJenisBaru')?.checked) jenis = 'baru';
+  else if (document.getElementById('optJenisKenaikan')?.checked) jenis = 'kenaikan';
+  else if (document.getElementById('optJenisBerkala')?.checked) jenis = 'berkala';
+  else if (state.jenisPermohonan) jenis = state.jenisPermohonan;
+
+  state.jenisPermohonan = jenis;
+
+  const rkkBaru = document.getElementById('rkkJenisBaru');
+  const rkkBerkala = document.getElementById('rkkJenisBerkala');
+  const rkkKenaikan = document.getElementById('rkkJenisKenaikan');
+
+  if (rkkBaru && rkkBerkala && rkkKenaikan) {
+    rkkBaru.checked = (jenis === 'baru');
+    rkkBerkala.checked = (jenis === 'berkala');
+    rkkKenaikan.checked = (jenis === 'kenaikan');
+
+    [rkkBaru, rkkBerkala, rkkKenaikan].forEach(r => {
+      const parentLabel = r.closest('label');
+      if (parentLabel) {
+        if (r.checked) {
+          parentLabel.style.border = '1.5px solid var(--primary-600, #0d9488)';
+          parentLabel.style.background = 'rgba(13, 148, 136, 0.08)';
+          parentLabel.style.fontWeight = '700';
+        } else {
+          parentLabel.style.border = '1px solid var(--border-subtle)';
+          parentLabel.style.background = 'var(--bg-locked, #f1f5f9)';
+          parentLabel.style.fontWeight = 'normal';
+        }
+      }
+    });
+  }
+
+  const container = document.getElementById('containerRkkJenisPermohonan');
+  if (container) {
+    container.style.pointerEvents = 'none';
+    container.style.cursor = 'not-allowed';
+  }
 }
 
 function syncHpEmailToRkk() {
@@ -5485,6 +5550,15 @@ function handleSuratPermohonanSubmit(e) {
   const unit = document.getElementById('suratUnit')?.value || '';
   const jenjang = document.getElementById('suratJenjang')?.value || 'PK III';
 
+  // Catat jenis permohonan yang dipilih dan sinkronkan ke Langkah 4
+  let jenis = 'berkala';
+  if (document.getElementById('optJenisBaru')?.checked) jenis = 'baru';
+  else if (document.getElementById('optJenisKenaikan')?.checked) jenis = 'kenaikan';
+  else if (document.getElementById('optJenisBerkala')?.checked) jenis = 'berkala';
+  state.jenisPermohonan = jenis;
+  localStorage.setItem('komite_jenis_permohonan', jenis);
+  syncJenisPermohonanToRkk();
+
   // Sinkronkan ke formulir Langkah 2 (Unggah Berkas) & data pemohon aktif
   const pemohonInput = document.getElementById('uploadNamaPemohon');
   if (pemohonInput) pemohonInput.value = nama;
@@ -5496,6 +5570,7 @@ function handleSuratPermohonanSubmit(e) {
     rawNip: nip,
     unit,
     jenjang,
+    jenisPermohonan: (jenis === 'baru' ? 'Kredensialing Baru' : (jenis === 'kenaikan' ? 'Rekredensialing / Kenaikan Jenjang' : 'Re-Kredensial Berkala')),
     timestamp: new Date().toISOString()
   };
   localStorage.setItem('komite_surat_generated', 'true');
@@ -6402,6 +6477,7 @@ function simpanUploadSurat(e) {
 function cekBukaRkkOnline() {
   openNewKredensialModal();
   syncAllDownstreamFormsFromCv();
+  syncJenisPermohonanToRkk();
 
   const suratJenjang = document.getElementById('suratJenjang')?.value;
   if (suratJenjang) {
@@ -8471,3 +8547,4 @@ window.mapRumpunToAreaKlinis = mapRumpunToAreaKlinis;
 window.mapAreaKlinisToRumpun = mapAreaKlinisToRumpun;
 window.onCvJenjangOrUnitChange = onCvJenjangOrUnitChange;
 window.onCvAreaKlinisChange = onCvAreaKlinisChange;
+window.syncJenisPermohonanToRkk = syncJenisPermohonanToRkk;
