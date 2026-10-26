@@ -4341,9 +4341,6 @@ function renderLogbookItemRows(items = []) {
           </label>
         </div>
       </td>
-      <td style="padding: 6px 4px;">
-        <input type="text" class="form-input logbook-item-catatan" value="${escapeHtml(item.catatan || 'Valid / Terverifikasi')}" placeholder="Valid / Terverifikasi" style="font-size: 0.78rem; padding: 5px 6px;">
-      </td>
       <td style="padding: 6px 4px; text-align: center;">
         <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 4px 6px; color: #dc2626;" onclick="removeLogbookItemRow(this)" title="Hapus Tindakan">
           <i class="fa-solid fa-trash-can"></i>
