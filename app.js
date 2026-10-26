@@ -2344,98 +2344,45 @@ function handleKredensialSubmit(e) {
   const strExp = document.getElementById('formStrExpiry').value;
   const jenjang = document.getElementById('formJenjang').value;
   const unit = document.getElementById('formUnit').value;
-  const totalCount = state.currentWizardRkkList.length || 10;
+  const selArea = document.getElementById('formAreaKlinis');
+  const areaKey = selArea?.value || 'kmb_bedah_pk3';
+  const totalCount = (state.currentWizardRkkList && state.currentWizardRkkList.length) || 10;
   const countM = document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="1"]:checked, #rkkChecklistContainer input[type="radio"][value="M"]:checked').length;
 
-  const randomId = 'NURSE-' + String(state.nurses.length + 1).padStart(3, '0');
-  const randomSpk = `800/${Math.floor(1000 + Math.random() * 9000)}/RSUD-DS/KOM-KEP/2026`;
-
-  const newNurse = {
-    id: randomId,
-    name: nama,
+  // Simpan data pemohon ke state aktif
+  state.currentApplicant = {
+    nama: nama,
     nip: nip,
-    strNumber: str,
+    str: str,
     strExpiry: strExp,
+    jenjang: jenjang,
     unit: unit,
-    pkLevel: jenjang,
-    profession: jenjang.includes('PMB') ? 'Bidan Klinis' : 'Perawat Klinis',
-    spkNumber: randomSpk,
-    spkDate: '2026-10-20',
-    spkExpiry: '2029-10-20',
-    credentialStatus: 'Proses Review',
-    peerReviewer: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep',
+    areaKlinis: areaKey,
     approvedCompetencies: countM,
-    totalCompetencies: totalCount,
-    avatar: 'https://images.unsplash.com/photo-1594824813589-4a0b271d50c1?w=150&auto=format&fit=crop&q=80'
+    totalCompetencies: totalCount
   };
 
-  state.nurses.unshift(newNurse);
-  saveNurses();
-  updateHeroStats();
-  renderNursesTable();
-  renderAnalyticsCharts();
-
-  // Mark step 4 as submitted
+  // Mark step 4 as submitted/completed in system
   state.kredensialRkkSubmitted = true;
   localStorage.setItem('komite_rkk_submitted', 'true');
   updateAlurStepStatus();
 
-  renderKredensialTrackerVisual(nip);
-
-  // Rekam & format notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
-  const adminSubject = `[ASESMEN MANDIRI RKK TERKIRIM] ${nama} (${jenjang} - ${unit})`;
-  const adminBody = 
-    `Kepada Yth.\n` +
-    `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
-    `Pemberitahuan Pendaftaran Asesmen Mandiri Rincian Kewenangan Klinis (RKK):\n\n` +
-    `• Nama Lengkap    : ${nama}\n` +
-    `• NIP / NIK       : ${nip}\n` +
-    `• Unit Kerja      : ${unit}\n` +
-    `• Jenjang Klinis  : ${jenjang}\n` +
-    `• Nomor STR       : ${str} (Masa Berlaku s/d: ${formatDate(strExp)})\n` +
-    `• Hasil Asesmen   : ${countM} Kewenangan Mandiri (M) dari ${totalCount} kompetensi yang diajukan\n` +
-    `• Mitra Bestari   : Ns. Yohanes Rindo Ari Wijoyo, S.Kep\n` +
-    `• Status Berkas   : Proses Review Subkomite Kredensial & Mitra Bestari\n` +
-    `• Tanggal Submit  : ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}\n\n` +
-    `Berkas telah masuk dalam antrean review mitra bestari untuk penerbitan Rekomendasi SPK & RKK.\n\n` +
-    `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
-    `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
-
-  recordAdminNotification({
-    eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 4)',
-    subject: adminSubject,
-    applicantName: nama,
-    applicantNip: nip,
-    unit: unit,
-    bodyText: adminBody
-  });
-
   closeModal('modalNewKredensial');
-  showToast(`Permohonan kredensialing atas nama ${nama} berhasil didaftarkan! Notifikasi terkirim ke email Komite & Sekretaris.`, 'success');
+  showToast(`Asesmen Mandiri RKK atas nama ${nama} berhasil disimpan! Dokumen siap dicetak. Silakan lanjutkan ke Langkah 5 (PSV) dan Langkah 6 (Unggah Berkas).`, 'success');
 
-  showAdminEmailNoticeModal({
-    eventType: 'Pendaftaran Asesmen Mandiri RKK Online (Langkah 4)',
-    subject: adminSubject,
-    applicantName: nama,
-    bodyText: adminBody
-  });
-
-  switchTab('kredensial');
-
-  // Lanjut ke Langkah 5: Unggah Berkas Lengkap
+  // Konfirmasi langsung untuk Cetak RKK atau lanjut alur
   setTimeout(() => {
-    const lanjutUpload = confirm(
+    const opsiLanjut = confirm(
       "Alur E-Kredensialing RSUD dr. Soedarso:\n\n" +
-      "Asesmen Mandiri RKK Online telah berhasil didaftarkan!\n\n" +
-      "Langkah selanjutnya adalah LANGKAH 5 (FINAL):\n" +
-      "Cetak dokumen RKK, tanda tangani bersama dokumen CV, Logbook, dan Surat Permohonan, lalu unggah berkas lengkap ke sistem.\n\n" +
-      "Apakah Anda ingin langsung membuka modal Unggah Berkas sekarang?"
+      "Langkah 4 (Pengisian RKK Online) Telah Selesai Tersimpan!\n\n" +
+      "Apakah Anda ingin membuka Pratinjau Dokumen RKK Resmi (PDF 3 Halaman) sekarang untuk dicetak/diunduh?\n\n" +
+      "(Klik 'OK' untuk Cetak RKK, atau 'Cancel' untuk lanjut ke Langkah 5 / Langkah 6)"
     );
-    if (lanjutUpload) {
-      openModalUploadSurat();
+    if (opsiLanjut) {
+      previewRkkHVS('filled');
+      openModal('modalPreviewRkkHVS');
     }
-  }, 450);
+  }, 400);
 }
 
 /* ==========================================================================
@@ -6330,45 +6277,128 @@ function demoSimulasiUploadBerkas() {
 
 function simpanUploadSurat(e) {
   if (e) e.preventDefault();
+
+  const master = getActiveCvMasterData();
+  const pemohon = document.getElementById('uploadNamaPemohon')?.value?.trim() || state.currentApplicant?.nama || master.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  const nip = master.nip || state.currentApplicant?.nip || '19920415 201903 1 004';
+  const str = master.str || state.currentApplicant?.str || '140152119-3284910';
+  const strExp = master.strExpiry || state.currentApplicant?.strExpiry || '2028-11-20';
+  const jenjang = master.jenjangKlinis || state.currentApplicant?.jenjang || document.getElementById('formJenjang')?.value || 'PK III';
+  const unit = master.unitKerja || state.currentApplicant?.unit || document.getElementById('formUnit')?.value || 'Enggang Gading 2';
+  const areaKey = master.areaKlinis || state.currentApplicant?.areaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
+  const areaName = getAreaDisplayName(areaKey, jenjang);
+  const totalCount = (state.currentWizardRkkList && state.currentWizardRkkList.length) || state.currentApplicant?.totalCompetencies || 40;
+  const countM = state.currentApplicant?.approvedCompetencies || document.querySelectorAll('#rkkChecklistContainer input[type="radio"][value="1"]:checked').length || totalCount;
+
+  // Daftarkan atau perbarui data pemohon di state.nurses sebagai pengajuan aktif
+  const randomId = 'NURSE-' + String(state.nurses.length + 1).padStart(3, '0');
+  const randomSpk = `800/${Math.floor(1000 + Math.random() * 9000)}/RSUD-DS/KOM-KEP/2026`;
+
+  let existingNurse = state.nurses.find(n => n.nip === nip || n.name === pemohon);
+  if (!existingNurse) {
+    existingNurse = {
+      id: randomId,
+      name: pemohon,
+      nip: nip,
+      strNumber: str,
+      strExpiry: strExp,
+      unit: unit,
+      pkLevel: jenjang,
+      profession: jenjang.includes('PMB') ? 'Bidan Klinis' : 'Perawat Klinis',
+      spkNumber: randomSpk,
+      spkDate: '2026-10-20',
+      spkExpiry: '2029-10-20',
+      credentialStatus: 'Menunggu Mitra Bestari',
+      peerReviewer: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep',
+      approvedCompetencies: countM,
+      totalCompetencies: totalCount,
+      avatar: 'https://images.unsplash.com/photo-1594824813589-4a0b271d50c1?w=150&auto=format&fit=crop&q=80'
+    };
+    state.nurses.unshift(existingNurse);
+  } else {
+    existingNurse.credentialStatus = 'Menunggu Mitra Bestari';
+    existingNurse.approvedCompetencies = countM;
+    existingNurse.totalCompetencies = totalCount;
+  }
+
+  saveNurses();
+  updateHeroStats();
+  renderNursesTable();
+  renderAnalyticsCharts();
+
+  // Tandai seluruh alur pengajuan telah lengkap terkirim
+  state.kredensialRkkSubmitted = true;
   state.kredensialBerkasUploaded = true;
+  localStorage.setItem('komite_rkk_submitted', 'true');
   localStorage.setItem('komite_berkas_uploaded', 'true');
   updateAlurStepStatus();
-  closeModal('modalUploadBerkasKredensial');
-  renderKredensialTrackerVisual();
+  renderKredensialTrackerVisual(nip);
 
-  const pemohon = state.currentApplicant ? state.currentApplicant.nama : (document.getElementById('uploadNamaPemohon')?.value || 'Tenaga Keperawatan');
-  const unit = state.currentApplicant ? state.currentApplicant.unit : 'Ruang Pelayanan';
-
-  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
-  const adminSubject = `[BERKAS LENGKAP DIUNGGAH] ${pemohon} - 8 Berkas Persyaratan & Dokumen Kredensial (Langkah 6 Selesai)`;
+  // Rekam dan kirim notifikasi resmi ke email Komite & Sekretaris
+  const adminSubject = `[PERMOHONAN KREDENSIALING RESMI TERKIRIM] ${pemohon} (${jenjang} - ${unit}) - 6 Tahap Lengkap`;
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
     `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
-    `Pemberitahuan Unggah Dokumen Kredensial Lengkap (Langkah 6 - Final):\n\n` +
-    `• Nama Pemohon    : ${pemohon}\n` +
-    `• Unit Kerja      : ${unit}\n` +
-    `• Tahapan         : Langkah 6 Selesai (Unggah 8 Berkas Persyaratan Wajib & Dokumen Bertanda Tangan)\n` +
-    `• Status Berkas   : Seluruh 8 Berkas Persyaratan Wajib (Ijazah Terlegalisir, STR Aktif, SIPP/SIPB, Sertifikat Pelatihan Khusus, Bukti PDDikti, Surat Ket. Sehat Dokter Pemerintah, Buku Logbook Kinerja Ka.Ru, CV) beserta Surat Permohonan, RKK Resmi, dan PSV telah lengkap terunggah di sistem.\n` +
-    `• Waktu Unggah    : ${new Date().toLocaleString('id-ID')}\n\n` +
-    `Seluruh tahapan pengajuan mandiri pemohon telah lengkap dan resmi masuk ke antrean verifikasi Subkomite Kredensial & disposisi Mitra Bestari.\n\n` +
+    `PEMBERITAHUAN PENGAJUAN KREDENSIALING LENGKAP (6 TAHAP SELESAI):\n\n` +
+    `Dengan ini diberitahukan bahwa seluruh rangkaian permohonan Kredensialing & Rekredensialing Tenaga Keperawatan telah LENGKAP diajukan dan terunggah di sistem oleh pemohon:\n\n` +
+    `A. DATA IDENTITAS & KUALIFIKASI PEMOHON:\n` +
+    `   • Nama Lengkap       : ${pemohon}\n` +
+    `   • NIP / NIK          : ${nip}\n` +
+    `   • Unit Kerja         : ${unit}\n` +
+    `   • Jenjang Klinis     : ${jenjang}\n` +
+    `   • Area White Book    : ${areaName}\n` +
+    `   • Nomor STR          : ${str} (Masa Berlaku: ${formatDate(strExp)})\n\n` +
+    `B. RINGKASAN ASESMEN MANDIRI RKK (LANGKAH 4):\n` +
+    `   • Capaian Mandiri (M): ${countM} dari ${totalCount} kompetensi klinis White Book 2026\n` +
+    `   • Status Asesmen     : Lengkap terisi mandiri oleh pemohon\n\n` +
+    `C. KELENGKAPAN 8 BERKAS PERSYARATAN WAJIB (LANGKAH 6):\n` +
+    `   [✓] 1. Salinan Ijazah Terakhir Terlegalisir Basah/Elektronik\n` +
+    `   [✓] 2. Salinan e-STR Aktif Secara Hukum (Barcode Valid)\n` +
+    `   [✓] 3. Salinan Surat Izin Praktik (SIPP / SIPB) Aktif di RSUD dr. Soedarso\n` +
+    `   [✓] 4. Sertifikat Pelatihan Khusus Keperawatan / Kebidanan\n` +
+    `   [✓] 5. Tangkapan Layar Bukti Kelulusan PDDikti (PISN Kemdiktisaintek)\n` +
+    `   [✓] 6. Surat Keterangan Sehat Fisik & Jiwa dari Dokter Pemerintah\n` +
+    `   [✓] 7. Logbook Kinerja Klinis Harian Sah Terverifikasi Kepala Ruangan\n` +
+    `   [✓] 8. Curriculum Vitae (CV) & Portofolio Klinis Bertandatangan\n\n` +
+    `D. DOKUMEN PENGAJUAN SISTEM BERTANDATANGAN (LENGKAP):\n` +
+    `   [✓] 9. Surat Permohonan Kredensialing Resmi Bertandatangan Pemohon (Langkah 3)\n` +
+    `   [✓] 10. Dokumen RKK Asesmen Mandiri Bertandatangan Pemohon (Langkah 4)\n` +
+    `   [✓] 11. Formulir Verifikasi Sumber Asli / PSV (Langkah 5)\n\n` +
+    `E. DISPOSISI TINDAK LANJUT:\n` +
+    `   • Status Berkas      : Menunggu Verifikasi Berkas Subkomite & Telaah Mitra Bestari\n` +
+    `   • Reviewer Asesor    : Ns. Yohanes Rindo Ari Wijoyo, S.Kep (Mitra Bestari)\n` +
+    `   • Tanggal Pengiriman : ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})} ${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})} WIB\n\n` +
+    `Seluruh proses permohonan telah selesai dengan terkirimnya permohonan kredensialing beserta kelengkapannya melalui sistem dan email resmi Komite Keperawatan RSUD dr. Soedarso.\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
   recordAdminNotification({
-    eventType: 'Unggah Berkas Kredensial Lengkap (Langkah 6 - Final)',
+    eventType: 'Permohonan Kredensialing & Berkas Lengkap Terkirim (Tahap 6 Selesai)',
     subject: adminSubject,
     applicantName: pemohon,
+    applicantNip: nip,
     unit: unit,
     bodyText: adminBody
   });
 
-  showToast(`Seluruh 8 berkas persyaratan kredensialing (Langkah 6) berhasil diunggah! Berkas masuk ke antrean verifikasi komite.`, 'success');
+  closeModal('modalUploadBerkasKredensial');
+
+  showToast(`Permohonan kredensialing lengkap atas nama ${pemohon} BERHASIL DIKIRIMKAN beserta seluruh berkas kelengkapan! Notifikasi resmi terkirim ke email Komite & Sekretaris.`, 'success');
+
+  showAdminEmailNoticeModal({
+    eventType: 'Permohonan Kredensialing Lengkap Terkirim (Tahap 6 Selesai)',
+    subject: adminSubject,
+    applicantName: pemohon,
+    bodyText: adminBody
+  });
+
+  switchTab('kredensial');
 
   // Buka tracker status berkas secara otomatis
   setTimeout(() => {
     toggleTrackerKredensial();
-  }, 350);
+  }, 450);
 }
 
 function cekBukaRkkOnline() {
