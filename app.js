@@ -6309,7 +6309,7 @@ function simpanUploadSurat(e) {
       spkDate: '2026-10-20',
       spkExpiry: '2029-10-20',
       credentialStatus: 'Menunggu Mitra Bestari',
-      peerReviewer: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep',
+      peerReviewer: 'Tim Mitra Bestari Subkomite Kredensial',
       approvedCompetencies: countM,
       totalCompetencies: totalCount,
       avatar: 'https://images.unsplash.com/photo-1594824813589-4a0b271d50c1?w=150&auto=format&fit=crop&q=80'
@@ -6367,7 +6367,7 @@ function simpanUploadSurat(e) {
     `   [✓] 11. Formulir Verifikasi Sumber Asli / PSV (Langkah 5)\n\n` +
     `E. DISPOSISI TINDAK LANJUT:\n` +
     `   • Status Berkas      : Menunggu Verifikasi Berkas Subkomite & Telaah Mitra Bestari\n` +
-    `   • Reviewer Asesor    : Ns. Yohanes Rindo Ari Wijoyo, S.Kep (Mitra Bestari)\n` +
+    `   • Reviewer Asesor    : Tim Mitra Bestari Subkomite Kredensial\n` +
     `   • Tanggal Pengiriman : ${new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})} ${new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})} WIB\n\n` +
     `Seluruh proses permohonan telah selesai dengan terkirimnya permohonan kredensialing beserta kelengkapannya melalui sistem dan email resmi Komite Keperawatan RSUD dr. Soedarso.\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
@@ -7221,17 +7221,12 @@ function generateRkkHVS(mode) {
       else if (val === '2') mandiri2 = '<strong>&check;</strong>';
       else mandiri3 = '<strong>&check;</strong>';
 
-      // Rekomendasi Mitra Bestari
-      if (val === '1') {
-        mb1 = '<strong style="color:#047857;">&check;</strong>';
-        catatan = 'Kompeten Penuh';
-      } else if (val === '2') {
-        mb2 = '<strong style="color:#b45309;">&check;</strong>';
-        catatan = 'Supervisi';
-      } else {
-        mb3 = '<strong style="color:#64748b;">&check;</strong>';
-        catatan = 'Tidak Diberikan';
-      }
+      // Kolom REKOMENDASI MITRA BESTARI & Catatan harus kosong dari ceklis
+      // karena penilaian diberikan oleh Mitra Bestari bukan pengusul
+      mb1 = '&nbsp;';
+      mb2 = '&nbsp;';
+      mb3 = '&nbsp;';
+      catatan = '&nbsp;';
     }
 
     return `
@@ -7445,10 +7440,10 @@ function generateRkkHVS(mode) {
             <div>NIP / NIPPPK / NIK. ${nip}</div>
           </td>
           <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
-            <div>Pontianak, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}<br>Mitra Bestari (Reviewer Kredensial),</div>
-            <div style="height: 50px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
-            <div>NIP. 19850612 201001 1 012</div>
+            <div>Pontianak, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2026<br>Mitra Bestari (Reviewer Kredensial),</div>
+            <div style="height: 60px;"></div>
+            <div style="font-weight: bold;">( ................................................................ )</div>
+            <div>NIP. ................................................................</div>
           </td>
         </tr>
         <tr>
@@ -7456,16 +7451,16 @@ function generateRkkHVS(mode) {
         </tr>
         <tr>
           <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
-            <div>Ketua Subkomite Kredensial,</div>
+            <div>Ketua Sub Komite Kredensial,</div>
             <div style="height: 60px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Rusmulyadi, S.Kep., MARS</div>
-            <div>NIP. 19780828 200212 1 003</div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
+            <div>NIP. 19850612 201001 1 012</div>
           </td>
           <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
             <div>Mengetahui,<br>Ketua Komite Keperawatan RSUD dr. Soedarso,</div>
-            <div style="height: 50px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Akie Prawira, S.Kep</div>
-            <div>NIP. 19800418 200501 1 008</div>
+            <div style="height: 60px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">M. Separia Russanto, S.Kep., Ns</div>
+            <div>RSUD Dokter Soedarso Pontianak</div>
           </td>
         </tr>
       </table>
