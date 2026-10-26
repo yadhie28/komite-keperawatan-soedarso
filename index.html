@@ -585,20 +585,20 @@
 
           <!-- Step 6 Card: Tanda Tangani & Unggah Berkas Lengkap (CV + Logbook + Surat + RKK + PSV) -->
           <div class="alur-card" id="cardStep6Upload" onclick="openModalUploadSurat()">
-            <div class="alur-card-badge step-6">
-              <i class="fa-solid fa-circle-dot"></i> LANGKAH 6 (FINAL)
+            <div class="alur-card-badge step-6" style="background: #059669; color: #fff;">
+              <i class="fa-solid fa-flag-checkered"></i> LANGKAH 6 (FINAL &amp; PENGIRIMAN RESMI)
             </div>
-            <div class="alur-card-icon" style="color: #d97706;">
-              <i class="fa-solid fa-cloud-arrow-up"></i>
+            <div class="alur-card-icon" style="color: #059669;">
+              <i class="fa-solid fa-paper-plane"></i>
             </div>
-            <div class="alur-card-title">6. Tanda Tangani &amp; Unggah Berkas Lengkap</div>
+            <div class="alur-card-title">6. Tanda Tangani, Upload Berkas &amp; Kirim Permohonan Resmi</div>
             <div class="alur-card-desc">
-              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Nama pemohon otomatis terkunci dari Langkah 1.</span> Unggah 8 berkas persyaratan wajib (Ijazah, STR, SIPP, Pelatihan, PDDikti, Surat Sehat, Logbook Ka.Ru, CV) beserta Surat Permohonan, RKK, dan PSV bertanda tangan.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Nama pemohon otomatis terkunci dari Langkah 1.</span> Unggah 8 berkas persyaratan wajib beserta dokumen bertanda tangan. <strong>Pengiriman final pada tahap ini menandai seluruh proses permohonan selesai dan terkirim ke sistem &amp; email Komite.</strong>
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center;">
-                <span style="font-size: 0.8rem; font-weight: 700; color: #d97706;">
-                  Upload Berkas Lengkap <i class="fa-solid fa-arrow-right"></i>
+                <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">
+                  Kirim Permohonan Lengkap (Final) <i class="fa-solid fa-arrow-right"></i>
                 </span>
               </div>
             </div>
@@ -1573,6 +1573,14 @@
                 </div>
               </label>
             </div>
+
+            <!-- Petunjuk Alur Pengiriman Resmi -->
+            <div style="background: #eff6ff; border: 1.5px solid #38bdf8; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.8rem; color: #0369a1; display: flex; align-items: center; gap: 0.65rem;">
+              <i class="fa-solid fa-circle-info" style="font-size: 1.15rem; color: #0284c7; flex-shrink: 0;"></i>
+              <div>
+                <strong>Catatan Alur:</strong> Menyimpan langkah ini akan mengunci asesmen mandiri RKK Anda dan membuka akses <strong>Cetak Dokumen RKK Resmi (PDF 3 Halaman)</strong>. Pengiriman permohonan resmi ke sistem dan email Komite dilakukan pada <strong>Langkah 6 (Final)</strong> setelah berkas persyaratan lengkap diunggah.
+              </div>
+            </div>
           </div>
         </form>
       </div>
@@ -1584,8 +1592,8 @@
         <button type="button" class="btn-primary" id="btnWizardNext" onclick="wizardNextStep()">
           Lanjutkan <i class="fa-solid fa-arrow-right"></i>
         </button>
-        <button type="submit" form="kredensialForm" class="btn-primary" id="btnWizardSubmit" style="display: none;">
-          <i class="fa-solid fa-check"></i> Kirim Permohonan Kredensialing
+        <button type="submit" form="kredensialForm" class="btn-primary" id="btnWizardSubmit" style="display: none; background: #0e3860; border-color: #0e3860;">
+          <i class="fa-solid fa-circle-check"></i> Selesai &amp; Simpan RKK (Langkah 4)
         </button>
       </div>
     </div>
@@ -4088,10 +4096,19 @@
             <textarea class="form-textarea" id="uploadCatatan" rows="2" placeholder="Tuliskan catatan khusus atau keterangan verifikasi bila diperlukan..."></textarea>
           </div>
 
+          <!-- Indikator Final 6 Tahap Selesai & Email Terkoneksi -->
+          <div style="background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-sm); padding: 0.85rem 1.1rem; margin-top: 0.85rem; margin-bottom: 0.5rem; font-size: 0.82rem; color: #065f46; display: flex; align-items: flex-start; gap: 0.75rem; box-shadow: 0 1px 3px rgba(16,185,129,0.1);">
+            <i class="fa-solid fa-envelope-circle-check" style="font-size: 1.35rem; color: #059669; flex-shrink: 0; margin-top: 2px;"></i>
+            <div style="line-height: 1.55;">
+              <strong style="color: #047857; font-size: 0.86rem; display: block; margin-bottom: 2px;">Penanda Permohonan Kredensialing Selesai (Tahap 6 Final):</strong>
+              Menekan tombol di bawah menandai seluruh rangkaian permohonan telah selesai. Sistem akan secara otomatis mengirimkan <strong>Permohonan Kredensialing Lengkap beserta lampiran 8 berkas persyaratan wajib</strong> ke sistem dan email resmi Komite Keperawatan RSUD dr. Soedarso (<code>komitekeperawatanrsds2023@gmail.com</code> &amp; Sekretaris Komite).
+            </div>
+          </div>
+
           <div class="modal-footer" style="padding: 1rem 0 0 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <button type="button" class="btn-secondary" onclick="closeModal('modalUploadBerkasKredensial')">Batal</button>
-            <button type="submit" class="btn-primary" style="background: #d97706; border-color: #d97706;">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Simpan &amp; Kirim Pengajuan Berkas Lengkap
+            <button type="submit" class="btn-primary" id="btnKirimPermohonanFinal" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); border-color: #047857; font-weight: 700; padding: 0.6rem 1.35rem; box-shadow: 0 2px 6px rgba(5,150,105,0.35); font-size: 0.86rem;">
+              <i class="fa-solid fa-paper-plane"></i> Kirim Permohonan Kredensialing &amp; Berkas Lengkap (Final)
             </button>
           </div>
         </form>
