@@ -1785,6 +1785,142 @@ window.KOMITE_DATA = {
     ketuaSubkomiteNip: "19850612 201001 1 012"
   },
 
+  // Data Master Usulan Permohonan Kredensialing (Antrean Meja Verifikasi Subkomite & Pengawasan Pimpinan)
+  credentialApplications: [
+    {
+      id: "KRED-2026-001",
+      nomorRegistrasi: "KRED/RSUD-DS/2026/0104",
+      tanggalPengajuan: "21 Oktober 2026, 09:15 WIB",
+      nama: "Ns. Hendra Kurniawan, S.Kep",
+      nip: "19920415 201903 1 004",
+      unit: "Enggang Gading 2",
+      jenjang: "PK III",
+      jenisPermohonan: "Re-Kredensial Berkala",
+      areaKlinis: "kmb_bedah_pk3",
+      areaName: "Keperawatan Bedah Dewasa Lanjut (PK III)",
+      strNumber: "140152123-2893812",
+      strExpiry: "2028-08-17",
+      sippNumber: "503/412/Dinkes-PP/SIPP/2023",
+      pendidikan: "S1 Keperawatan & Profesi Ners (Universitas Tanjungpura)",
+      status: "Menunggu Verifikasi Subkomite",
+      totalTindakan: 40,
+      dokumen: { cv: true, logbook: true, surat: true, rkk: true, psv: true, berkas8: true },
+      psvChecklist: { pddikti: false, strBsre: false, sipp: false, pelatihan: false },
+      verifikator: {
+        nama: "",
+        nip: "",
+        tanggal: "",
+        catatan: "",
+        status: "Belum Diverifikasi"
+      },
+      mitraBestari: {
+        nama: "Tim Mitra Bestari Subkomite Kredensial",
+        tanggal: "",
+        rekomendasi: "Belum Ditelaah",
+        catatan: ""
+      },
+      pengawasanPimpinan: {
+        statusReview: "Dalam Pemantauan",
+        catatanKetua: "",
+        catatanSekretaris: "Berkas lengkap terunggah di Langkah 6. Disposisikan ke Tim Subkomite Kredensial untuk verifikasi sumber primer (PSV).",
+        waktuMonitoring: "21 Oktober 2026, 09:30 WIB"
+      },
+      timeline: [
+        { waktu: "21 Oktober 2026, 09:15 WIB", user: "Ns. Hendra Kurniawan, S.Kep (Pengusul)", aksi: "Mengajukan Permohonan Kredensialing & Mengunggah 8 Berkas Persyaratan Lengkap (Tahap 6 Selesai)" },
+        { waktu: "21 Oktober 2026, 09:30 WIB", user: "Ns. Rusmulyadi, S.Kep., MARS (Sekretaris Komite)", aksi: "Monitoring Pengawasan Pimpinan: Berkas masuk tercatat di sistem (Notifikasi terkirim ke email komite & sekretaris)" }
+      ]
+    },
+    {
+      id: "KRED-2026-002",
+      nomorRegistrasi: "KRED/RSUD-DS/2026/0098",
+      tanggalPengajuan: "20 Oktober 2026, 14:00 WIB",
+      nama: "Bdn. Siti Rahmawati, S.Tr.Keb",
+      nip: "19910311 201402 2 003",
+      unit: "Ruang Bersalin (VK) & Maternal",
+      jenjang: "PMB",
+      jenisPermohonan: "Rekredensialing / Kenaikan Jenjang",
+      areaKlinis: "pmb_kebidanan",
+      areaName: "Pelayanan Kebidanan Komprehensif (Bidan Klinis)",
+      strNumber: "140262114-4902183",
+      strExpiry: "2029-03-11",
+      sippNumber: "503/218/Dinkes-PP/SIPB/2024",
+      pendidikan: "D-IV Kebidanan & Profesi Bidan (Poltekkes Pontianak)",
+      status: "Proses Telaah Mitra Bestari",
+      totalTindakan: 25,
+      dokumen: { cv: true, logbook: true, surat: true, rkk: true, psv: true, berkas8: true },
+      psvChecklist: { pddikti: true, strBsre: true, sipp: true, pelatihan: true },
+      verifikator: {
+        nama: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep",
+        nip: "19850612 201001 1 012",
+        tanggal: "20 Oktober 2026",
+        catatan: "Seluruh berkas persyaratan dan dokumen sumber primer (PSV) telah terverifikasi sah. STR aktif BSrE sahih, SIPP SiCantik berlaku, logbook 10 tindakan telah disahkan Ka.Ru. Berkas siap ditelaah Mitra Bestari Kebidanan.",
+        status: "Terverifikasi Memenuhi Syarat"
+      },
+      mitraBestari: {
+        nama: "Bdn. Hj. Maryati, S.ST, M.Kes",
+        tanggal: "20 Oktober 2026",
+        rekomendasi: "Disetujui Penuh",
+        catatan: "Seluruh kewenangan klinis PMB yang diajukan sesuai dengan Buku Putih Kebidanan 2026 dan portofolio kompetensi asuhan maternal."
+      },
+      pengawasanPimpinan: {
+        statusReview: "Proses Asesmen Klinis",
+        catatanKetua: "Telaah berjalan sesuai prosedur akreditasi KARS STARKES.",
+        catatanSekretaris: "Mitra Bestari telah menerima disposisi dan sedang menyelesaikan penilaian rincian kewenangan klinis.",
+        waktuMonitoring: "20 Oktober 2026, 16:15 WIB"
+      },
+      timeline: [
+        { waktu: "20 Oktober 2026, 14:00 WIB", user: "Bdn. Siti Rahmawati (Pengusul)", aksi: "Mengajukan Permohonan Kenaikan Jenjang Klinis" },
+        { waktu: "20 Oktober 2026, 15:30 WIB", user: "Ns. Yohanes Rindo Ari Wijoyo (Ketua Subkomite Kredensial)", aksi: "Melakukan Verifikasi Berkas & Pemeriksaan Sumber Asli (PSV) - Status Sahih" },
+        { waktu: "20 Oktober 2026, 16:15 WIB", user: "Ns. Rusmulyadi (Sekretaris Komite)", aksi: "Monitoring Pengawasan: Menyetujui Disposisi Penelaahan ke Mitra Bestari" }
+      ]
+    },
+    {
+      id: "KRED-2026-003",
+      nomorRegistrasi: "KRED/RSUD-DS/2026/0087",
+      tanggalPengajuan: "19 Oktober 2026, 10:30 WIB",
+      nama: "Ns. Bambang Prasetyo, S.Kep",
+      nip: "19850920 200801 1 007",
+      unit: "ICU Sentral (Intensive Care Unit)",
+      jenjang: "PK IV",
+      jenisPermohonan: "Re-Kredensial Berkala",
+      areaKlinis: "kmb_intensif_pk4",
+      areaName: "Keperawatan Intensif Care / ICU Lanjut (PK IV)",
+      strNumber: "140151108-1928374",
+      strExpiry: "2027-09-20",
+      sippNumber: "503/890/Dinkes-PP/SIPP/2023",
+      pendidikan: "S1 Keperawatan & Ners Spesialis (Universitas Indonesia)",
+      status: "Menunggu Pengesahan Pimpinan",
+      totalTindakan: 40,
+      dokumen: { cv: true, logbook: true, surat: true, rkk: true, psv: true, berkas8: true },
+      psvChecklist: { pddikti: true, strBsre: true, sipp: true, pelatihan: true },
+      verifikator: {
+        nama: "Tri Herda Permana Sari, A.Md.Kep",
+        nip: "19880112 201101 2 004",
+        tanggal: "19 Oktober 2026",
+        catatan: "Dokumen administrasi dan sertifikat ICU KARS lengkap dan terakreditasi.",
+        status: "Terverifikasi Memenuhi Syarat"
+      },
+      mitraBestari: {
+        nama: "Ns. Muhammad Ridwan, M.Kep",
+        tanggal: "19 Oktober 2026",
+        rekomendasi: "Disetujui Penuh",
+        catatan: "Rekomendasi Kewenangan Klinis PK IV Intensive Care: 38 Mandiri, 2 Supervisi tindakan advance."
+      },
+      pengawasanPimpinan: {
+        statusReview: "Menunggu Tanda Tangan Rekomendasi Ketua Komite",
+        catatanKetua: "Telah ditelaah. Rekomendasi penerbitan SPK/RKK memenuhi standar PMK 49/2013.",
+        catatanSekretaris: "Draf berkas rekomendasi penugasan klinis telah disiapkan untuk diteruskan ke Direktur Rumah Sakit.",
+        waktuMonitoring: "19 Oktober 2026, 17:00 WIB"
+      },
+      timeline: [
+        { waktu: "19 Oktober 2026, 10:30 WIB", user: "Ns. Bambang Prasetyo (Pengusul)", aksi: "Mengajukan Permohonan Re-Kredensialing ICU PK IV" },
+        { waktu: "19 Oktober 2026, 13:45 WIB", user: "Tri Herda Permana Sari (Anggota Subkomite Kredensial)", aksi: "Verifikasi Berkas & Checklist PSV - Lengkap Sahih" },
+        { waktu: "19 Oktober 2026, 15:30 WIB", user: "Ns. Yohanes Rindo Ari Wijoyo (Ketua Subkomite Kredensial)", aksi: "Menerbitkan Hasil Rekomendasi Subkomite ke Pimpinan Komite" },
+        { waktu: "19 Oktober 2026, 17:00 WIB", user: "M. Separia Russanto (Ketua Komite Keperawatan)", aksi: "Pemantauan & Review Akhir Berkas: Siap Diteruskan ke Direktur" }
+      ]
+    }
+  ],
+
   // Konfigurasi Notifikasi Administrasi Resmi (Email Komite & Sekretaris)
   administrativeNotification: {
     enabled: true,

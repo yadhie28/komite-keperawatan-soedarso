@@ -632,7 +632,178 @@
         </div>
       </div>
 
-      <!-- Filter and Table Container -->
+      <!-- ======================================================================
+           MEJA KERJA VERIFIKASI SUBKOMITE & MONITORING PIMPINAN KOMITE
+           ====================================================================== -->
+      <div class="meja-verifikasi-wrapper" id="sectionMejaVerifikasi">
+        <div class="meja-header-banner">
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-clipboard-check"></i> Sistem Meja Verifikasi &amp; Monitoring Terpadu
+            </div>
+            <div class="meja-header-title">
+              <i class="fa-solid fa-user-check" style="color: var(--primary-600);"></i>
+              Meja Kerja Verifikasi Subkomite &amp; Monitoring Pimpinan Komite
+            </div>
+            <div class="meja-header-subtitle">
+              Sub Komite Kredensial memverifikasi berkas &amp; PSV; Ketua dan Sekretaris Komite Keperawatan memantau proses secara real-time &amp; mengesahkan rekomendasi.
+            </div>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+              Simulasi Sudut Pandang Peran (Role View):
+            </div>
+            <div class="role-switcher-container">
+              <button type="button" class="role-btn active" id="btnRoleYohanes" onclick="switchMejaRole('yohanes')">
+                <i class="fa-solid fa-user-doctor"></i> Subkomite Kredensial (Ketua)
+              </button>
+              <button type="button" class="role-btn role-sekretaris" id="btnRoleRusmulyadi" onclick="switchMejaRole('rusmulyadi')">
+                <i class="fa-solid fa-user-pen"></i> Sekretaris Komite
+              </button>
+              <button type="button" class="role-btn role-ketua" id="btnRoleSeparia" onclick="switchMejaRole('separia')">
+                <i class="fa-solid fa-user-shield"></i> Ketua Komite
+              </button>
+              <button type="button" class="role-btn role-pengusul" id="btnRolePengusul" onclick="switchMejaRole('pengusul')">
+                <i class="fa-solid fa-user"></i> Pengusul
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="meja-body-content">
+          <!-- Live Role Banner Informative Callout -->
+          <div id="mejaRoleNotice" style="background: rgba(13, 148, 136, 0.07); border: 1px solid rgba(13, 148, 136, 0.2); border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-600); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1rem;" id="mejaRoleAvatar">
+                <i class="fa-solid fa-user-doctor"></i>
+              </div>
+              <div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main);" id="mejaRoleName">
+                  Ns. Yohanes Rindo Ari Wijoyo, S.Kep (Ketua Sub Komite Kredensial)
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);" id="mejaRoleDesc">
+                  Hak Akses: Memeriksa 8 berkas kelengkapan digital, validasi sumber asli (PSV), menetapkan telaah Mitra Bestari, dan menyusun draf rekomendasi kewenangan klinis.
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span class="badge-source-truth"><i class="fa-solid fa-circle" style="font-size: 6px; color: #10b981;"></i> Real-Time Synchronized</span>
+              <button class="btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;" onclick="renderCredentialApplicationsTable()">
+                <i class="fa-solid fa-rotate"></i> Segarkan Data
+              </button>
+            </div>
+          </div>
+
+          <!-- Queue Counters -->
+          <div class="meja-counter-grid">
+            <div class="meja-counter-card active" id="cardCntTotal" onclick="filterCredentialApplications('all')">
+              <div class="meja-counter-icon" style="background: rgba(13, 148, 136, 0.12); color: var(--primary-600);">
+                <i class="fa-solid fa-folder-open"></i>
+              </div>
+              <div>
+                <div class="meja-counter-num" id="cntTotalUsulan">0</div>
+                <div class="meja-counter-label">Semua Usulan Masuk</div>
+              </div>
+            </div>
+
+            <div class="meja-counter-card" id="cardCntSubkomite" onclick="filterCredentialApplications('Menunggu Verifikasi Subkomite')">
+              <div class="meja-counter-icon" style="background: #fef3c7; color: #92400e;">
+                <i class="fa-solid fa-clipboard-check"></i>
+              </div>
+              <div>
+                <div class="meja-counter-num" style="color: #92400e;" id="cntMenungguVerifikasi">0</div>
+                <div class="meja-counter-label">Menunggu Verifikasi Subkomite</div>
+              </div>
+            </div>
+
+            <div class="meja-counter-card" id="cardCntMitra" onclick="filterCredentialApplications('Proses Telaah Mitra Bestari')">
+              <div class="meja-counter-icon" style="background: #e0f2fe; color: #0369a1;">
+                <i class="fa-solid fa-user-gear"></i>
+              </div>
+              <div>
+                <div class="meja-counter-num" style="color: #0369a1;" id="cntProsesMitraBestari">0</div>
+                <div class="meja-counter-label">Proses Mitra Bestari</div>
+              </div>
+            </div>
+
+            <div class="meja-counter-card" id="cardCntPimpinan" onclick="filterCredentialApplications('Menunggu Pengesahan Pimpinan')">
+              <div class="meja-counter-icon" style="background: #f3e8ff; color: #7e22ce;">
+                <i class="fa-solid fa-stamp"></i>
+              </div>
+              <div>
+                <div class="meja-counter-num" style="color: #7e22ce;" id="cntMenungguPengesahan">0</div>
+                <div class="meja-counter-label">Menunggu Pengesahan Pimpinan</div>
+              </div>
+            </div>
+
+            <div class="meja-counter-card" id="cardCntSelesai" onclick="filterCredentialApplications('Selesai / Terbit SPK')">
+              <div class="meja-counter-icon" style="background: #d1fae5; color: #065f46;">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div>
+                <div class="meja-counter-num" style="color: #065f46;" id="cntSelesai">0</div>
+                <div class="meja-counter-label">Selesai / Terbit Rekomendasi</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Horizontal Filter Buttons & Search -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="meja-filter-nav" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <button class="filter-tab-pill active" id="pillFilterAll" onclick="filterCredentialApplications('all')">
+                <i class="fa-solid fa-list-check"></i> Semua Usulan <span class="badge-count" id="badgePillAll">3</span>
+              </button>
+              <button class="filter-tab-pill" id="pillFilterSubkomite" onclick="filterCredentialApplications('Menunggu Verifikasi Subkomite')">
+                <i class="fa-solid fa-clock"></i> Verifikasi Subkomite <span class="badge-count" id="badgePillSubkomite">1</span>
+              </button>
+              <button class="filter-tab-pill" id="pillFilterMitra" onclick="filterCredentialApplications('Proses Telaah Mitra Bestari')">
+                <i class="fa-solid fa-stethoscope"></i> Telaah Mitra Bestari <span class="badge-count" id="badgePillMitra">1</span>
+              </button>
+              <button class="filter-tab-pill" id="pillFilterPimpinan" onclick="filterCredentialApplications('Menunggu Pengesahan Pimpinan')">
+                <i class="fa-solid fa-signature"></i> Pengesahan Pimpinan <span class="badge-count" id="badgePillPimpinan">1</span>
+              </button>
+              <button class="filter-tab-pill" id="pillFilterRevisi" onclick="filterCredentialApplications('Perlu Revisi')">
+                <i class="fa-solid fa-rotate-left"></i> Perlu Revisi <span class="badge-count" id="badgePillRevisi">0</span>
+              </button>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="text" id="inputSearchMejaApp" class="form-input" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; width: 220px;" placeholder="Cari nama pemohon / NIP..." oninput="searchCredentialApplications(this.value)">
+            </div>
+          </div>
+
+          <!-- Applications Table -->
+          <div style="overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+            <table class="data-table" id="tableCredentialApplications" style="margin: 0; width: 100%;">
+              <thead>
+                <tr style="background: var(--bg-main);">
+                  <th style="width: 50px; text-align: center;">No.</th>
+                  <th>Registrasi &amp; Tanggal</th>
+                  <th>Nama Pengusul &amp; NIP</th>
+                  <th>Unit Kerja &amp; Jenjang</th>
+                  <th>Dokumen Digital &amp; PSV</th>
+                  <th>Status Verifikasi Subkomite</th>
+                  <th>Pengawasan Pimpinan Komite</th>
+                  <th style="text-align: center; width: 130px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="credentialApplicationsTableBody">
+                <!-- Rendered dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyMejaVerifikasi" style="display: none; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+            <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.5rem;"></i>
+            <div style="font-size: 0.95rem; font-weight: 700;">Tidak ada usulan permohonan pada kategori ini</div>
+            <div style="font-size: 0.8rem;">Gunakan filter lain atau ajukan permohonan baru pada Langkah 6.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter and Table Container (Registry Tenaga Keperawatan) -->
       <div class="card-table-wrapper">
         <div class="card-table-header">
           <div class="table-filter-bar">
@@ -4122,6 +4293,333 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: MEJA KERJA VERIFIKASI SUBKOMITE & PENGAWASAN PIMPINAN KOMITE
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalMejaVerifikasiKredensial">
+    <div class="modal-container" style="max-width: 960px; max-height: 92vh; overflow-y: auto;">
+      <div class="modal-header" style="background: linear-gradient(135deg, rgba(7, 71, 68, 0.08) 0%, rgba(13, 148, 136, 0.12) 100%); border-bottom: 2px solid rgba(13, 148, 136, 0.25);">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--primary-600); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 2px 6px rgba(13, 148, 136, 0.35);">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">
+              Meja Kerja Verifikasi Kredensial &amp; Pengawasan Pimpinan
+            </div>
+            <div style="font-size: 0.76rem; color: var(--text-muted);">
+              Pemeriksaan Berkas Digital, Validasi Sumber Asli (PSV), Telaah Mitra Bestari &amp; Pengesahan Eksekutif Komite
+            </div>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeModal('modalMejaVerifikasiKredensial')">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+        <!-- Applicant Quick Info Summary Box -->
+        <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--primary-800)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800;" id="modalAppAvatar">
+              <i class="fa-solid fa-user-nurse"></i>
+            </div>
+            <div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);" id="modalAppNama">
+                Ns. Hendra Kurniawan, S.Kep
+              </div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2px;">
+                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="modalAppNip">19920415 201903 1 004</strong></span>
+                <span><i class="fa-solid fa-hospital"></i> Unit: <strong id="modalAppUnit">Enggang Gading 2</strong></span>
+                <span><i class="fa-solid fa-layer-group"></i> Jenjang: <strong id="modalAppJenjang">PK III</strong></span>
+              </div>
+              <div style="font-size: 0.76rem; color: var(--primary-700); font-weight: 700; margin-top: 3px;" id="modalAppArea">
+                Keperawatan Medikal Bedah Lanjut (PK III) &bull; Permohonan: Re-Kredensial Berkala
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
+            <span class="badge-app-status status-subkomite" id="modalAppStatusBadge">Menunggu Verifikasi Subkomite</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted);" id="modalAppRegNum">No. Reg: KRED/RSUD-DS/2026/0104</span>
+            <span style="font-size: 0.7rem; color: var(--text-muted);" id="modalAppDate">Diajukan: 21 Oktober 2026</span>
+          </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="meja-modal-nav-tabs">
+          <button type="button" class="meja-modal-tab-btn active" id="btnMejaTab1" onclick="switchVerificationTab('tabVerif1')">
+            <i class="fa-solid fa-file-circle-check"></i> 1. Verifikasi Berkas &amp; PSV
+          </button>
+          <button type="button" class="meja-modal-tab-btn" id="btnMejaTab2" onclick="switchVerificationTab('tabVerif2')">
+            <i class="fa-solid fa-stethoscope"></i> 2. Telaah Mitra Bestari
+          </button>
+          <button type="button" class="meja-modal-tab-btn" id="btnMejaTab3" onclick="switchVerificationTab('tabVerif3')">
+            <i class="fa-solid fa-signature"></i> 3. Pengawasan &amp; Pengesahan Pimpinan
+          </button>
+          <button type="button" class="meja-modal-tab-btn" id="btnMejaTab4" onclick="switchVerificationTab('tabVerif4')">
+            <i class="fa-solid fa-clock-rotate-left"></i> 4. Audit Trail &amp; Jejak Verifikasi
+          </button>
+        </div>
+
+        <!-- TAB 1: VERIFIKASI BERKAS & PSV -->
+        <div class="meja-modal-tab-content active" id="tabVerif1">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <!-- Left Column: 8 Berkas Digital KARS STARKES Checklist -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="fa-solid fa-folder-closed" style="color: var(--primary-600);"></i> 8 Dokumen Portofolio &amp; Pengajuan</span>
+                <span class="badge-source-truth">Langkah 1 - 6</span>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 1. Curriculum Vitae Resmi</span>
+                  <button type="button" class="btn-preview-link" onclick="openCvModalPreview('filled')"><i class="fa-solid fa-eye"></i> Pratinjau CV</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 2. Logbook Kinerja Klinis Sah Ka.Ru</span>
+                  <button type="button" class="btn-preview-link" onclick="openLogbookModalPreview('filled')"><i class="fa-solid fa-eye"></i> Pratinjau Logbook</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 3. Surat Permohonan Kredensialing</span>
+                  <button type="button" class="btn-preview-link" onclick="openSuratHvsPreview()"><i class="fa-solid fa-eye"></i> Pratinjau Surat</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 4. Draft Rincian Kewenangan Klinis</span>
+                  <button type="button" class="btn-preview-link" onclick="previewRkkResmiHVS()"><i class="fa-solid fa-eye"></i> Pratinjau RKK</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 5. Ijazah Terakhir &amp; Transkrip</span>
+                  <span style="font-weight: 700; color: #047857; font-size: 0.75rem;">Terunggah (Langkah 6)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 6. e-STR Barcode BSrE Aktif</span>
+                  <span style="font-weight: 700; color: #047857; font-size: 0.75rem;">Terunggah (Langkah 6)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 7. SIPP / SIPB Aktif SiCantik Cloud</span>
+                  <span style="font-weight: 700; color: #047857; font-size: 0.75rem;">Terunggah (Langkah 6)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.5rem; background: var(--bg-main); border-radius: 6px;">
+                  <span><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> 8. Sertifikat Pelatihan Keperawatan</span>
+                  <span style="font-weight: 700; color: #047857; font-size: 0.75rem;">Terunggah (Langkah 6)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Primary Source Verification (PSV) Checklist -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+              <div style="font-size: 0.86rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="fa-solid fa-shield-halved" style="color: #0284c7;"></i> Checklist Verifikasi Sumber Asli (PSV)</span>
+                <button type="button" class="btn-preview-link" onclick="openPreviewPsvModal()"><i class="fa-solid fa-file-lines"></i> Form PSV</button>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.8rem;">
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                  <input type="checkbox" id="chkPsvPddikti" style="margin-top: 3px;" checked>
+                  <div>
+                    <strong>1. PDDikti Kemdiktisaintek (Ijazah)</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Data kelulusan dan nomor ijazah terdaftar resmi pada pddikti.kemdikbud.go.id</div>
+                  </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                  <input type="checkbox" id="chkPsvStr" style="margin-top: 3px;" checked>
+                  <div>
+                    <strong>2. KKI / KTKI BSrE (e-STR Aktif)</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Tanda tangan digital BSrE BSSN valid dan masa berlaku STR aktif secara hukum</div>
+                  </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                  <input type="checkbox" id="chkPsvSipp" style="margin-top: 3px;" checked>
+                  <div>
+                    <strong>3. PTSP / Dinkes SiCantik Cloud (SIPP/SIPB)</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Surat Izin Praktik berlaku aktif di fasilitas pelayanan RSUD dr. Soedarso</div>
+                  </div>
+                </label>
+
+                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
+                  <input type="checkbox" id="chkPsvPelatihan" style="margin-top: 3px;" checked>
+                  <div>
+                    <strong>4. Penyelenggara Pelatihan / Kolegium Profesi</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Sertifikat pelatihan tersertifikasi Kemenkes / PPNI / IBI terakreditasi</div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Verifikator Identity -->
+              <div style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Nama Verifikator Sub Komite Kredensial:
+                </label>
+                <select id="selectVerifikatorNama" class="form-input" style="font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                  <option value="Ns. Yohanes Rindo Ari Wijoyo, S.Kep">Ns. Yohanes Rindo Ari Wijoyo, S.Kep (Ketua Sub Komite Kredensial)</option>
+                  <option value="Tri Herda Permana Sari, A.Md.Kep">Tri Herda Permana Sari, A.Md.Kep (Anggota Sub Komite Kredensial)</option>
+                  <option value="Ns. Dwinita Wulan Purnamasari, S.Kep">Ns. Dwinita Wulan Purnamasari, S.Kep (Anggota Sub Komite Kredensial)</option>
+                  <option value="Ns. Ika Yusniarti, S.Kep">Ns. Ika Yusniarti, S.Kep (Anggota Sub Komite Kredensial)</option>
+                  <option value="F. Surayniwaty, S.Tr.Keb">F. Surayniwaty, S.Tr.Keb (Anggota Sub Komite Kredensial)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes and Action Buttons for Tab 1 -->
+          <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+            <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px;">
+              Catatan Verifikator Sub Komite Kredensial:
+            </label>
+            <textarea id="txtCatatanVerifikator" class="form-input" rows="3" style="width: 100%; font-size: 0.82rem;" placeholder="Tuliskan catatan verifikasi kelengkapan berkas fisik, barcode STR, SIPP, dan rekomendasi awal..."></textarea>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem;">
+              <button type="button" class="btn-secondary" style="color: #be123c; border-color: #fca5a5; background: #fff1f2; font-size: 0.82rem; font-weight: 700;" onclick="kembalikanPermohonanRevisi()">
+                <i class="fa-solid fa-rotate-left"></i> Berkas Tidak Lengkap / Kembalikan untuk Revisi
+              </button>
+
+              <button type="button" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); border-color: #047857; font-size: 0.82rem; font-weight: 700; padding: 0.55rem 1.25rem;" onclick="simpanVerifikasiSubkomite()">
+                <i class="fa-solid fa-check-double"></i> Berkas Sah &amp; Teruskan ke Mitra Bestari
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: TELAAH MITRA BESTARI -->
+        <div class="meja-modal-tab-content" id="tabVerif2">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
+            <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-stethoscope" style="color: #0284c7;"></i>
+              Penelaahan Klinis oleh Peer Group / Mitra Bestari (White Book 2026)
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Nama Mitra Bestari / Tim Peer Group:
+                </label>
+                <input type="text" id="inputNamaMitraBestari" class="form-input" style="font-size: 0.82rem;" value="Tim Mitra Bestari Subkomite Kredensial">
+              </div>
+
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                  Rekomendasi Kewenangan Klinis (RKK):
+                </label>
+                <select id="selectRekomendasiMitra" class="form-input" style="font-size: 0.82rem;">
+                  <option value="Disetujui Penuh">Disetujui Penuh (Sesuai Seluruh Tindakan Mandiri Diajukan)</option>
+                  <option value="Disetujui dengan Supervisi">Disetujui dengan Supervisi (Sebagian Mandiri &amp; Supervisi)</option>
+                  <option value="Belum Memenuhi Syarat">Belum Memenuhi Syarat (Perlu Penambahan Logbook/Pelatihan)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                Catatan Telaah Klinis &amp; Rekomendasi Khusus Mitra Bestari:
+              </label>
+              <textarea id="txtCatatanMitraBestari" class="form-input" rows="4" style="width: 100%; font-size: 0.82rem;" placeholder="Uraikan hasil telaah portofolio logbook, kompetensi asuhan keperawatan/kebidanan, dan batas kewenangan klinis yang disetujui..."></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+              <button type="button" class="btn-primary" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-color: #0369a1; font-size: 0.82rem; font-weight: 700; padding: 0.55rem 1.25rem;" onclick="simpanTelaahMitraBestari()">
+                <i class="fa-solid fa-stamp"></i> Simpan Telaah &amp; Teruskan ke Pimpinan Komite
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: PENGAWASAN & PENGESAHAN PIMPINAN KOMITE -->
+        <div class="meja-modal-tab-content" id="tabVerif3">
+          <!-- Executive Info Callout -->
+          <div style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%); border: 1.5px solid rgba(147, 51, 234, 0.3); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #9333ea; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(147, 51, 234, 0.35);">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                Ruang Pengawasan &amp; Monitoring Eksekutif (Ketua &amp; Sekretaris Komite)
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                Memastikan tata kelola kredensial berjalan transparan, akuntabel, dan memenuhi standar akreditasi KARS STARKES &amp; PMK 49/2013 sebelum penerbitan rekomendasi ke Direktur RSUD dr. Soedarso.
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <!-- Box Sekretaris Komite -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.15rem;">
+              <div style="font-size: 0.85rem; font-weight: 800; color: #0284c7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-user-pen"></i>
+                Sekretaris Komite Keperawatan (Ns. Rusmulyadi, S.Kep., MARS)
+              </div>
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Validasi tertib administrasi, kearsipan berkas digital, dan disposisi koordinasi subkomite.
+              </div>
+              <textarea id="txtCatatanSekretaris" class="form-input" rows="3" style="width: 100%; font-size: 0.8rem;" placeholder="Catatan sekretariat &amp; monitoring kepatuhan berkas..."></textarea>
+              <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.75rem;" onclick="simpanCatatanSekretaris()">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Catatan Sekretaris
+                </button>
+              </div>
+            </div>
+
+            <!-- Box Ketua Komite -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.15rem;">
+              <div style="font-size: 0.85rem; font-weight: 800; color: #7e22ce; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-user-shield"></i>
+                Ketua Komite Keperawatan (M. Separia Russanto, S.Kep., Ns)
+              </div>
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Pengesahan akhir dan penerbitan Surat Rekomendasi Kewenangan Klinis kepada Direktur.
+              </div>
+              <textarea id="txtCatatanKetua" class="form-input" rows="3" style="width: 100%; font-size: 0.8rem;" placeholder="Catatan pengesahan Ketua Komite Keperawatan..."></textarea>
+              <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.75rem;" onclick="simpanCatatanKetua()">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Catatan Ketua
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Action: Sahkan & Teruskan ke Direktur -->
+          <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">
+                Pengesahan Rekomendasi Penugasan Klinis (SPK / RKK)
+              </div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">
+                Setelah disahkan, surat rekomendasi resmi siap diterbitkan dan disampaikan kepada Direktur RSUD dr. Soedarso.
+              </div>
+            </div>
+
+            <button type="button" class="btn-primary" style="background: linear-gradient(135deg, #7e22ce 0%, #6b21a8 100%); border-color: #6b21a8; font-size: 0.85rem; font-weight: 800; padding: 0.65rem 1.5rem; box-shadow: 0 2px 8px rgba(126, 34, 206, 0.35);" onclick="sahkanPengawasanPimpinan()">
+              <i class="fa-solid fa-stamp"></i> Sahkan Rekomendasi &amp; Teruskan ke Direktur RSUD dr. Soedarso
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB 4: AUDIT TRAIL TIMELINE -->
+        <div class="meja-modal-tab-content" id="tabVerif4">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem;">
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-timeline" style="color: var(--primary-600);"></i>
+              Jejak Audit &amp; Riwayat Verifikasi Sistem (Audit Trail)
+            </div>
+            <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+              Seluruh riwayat aksi pengusul, verifikator subkomite kredensial, mitra bestari, sekretaris, dan ketua komite tercatat secara kronologis.
+            </div>
+
+            <div class="timeline-audit-list" id="modalAuditTrailList">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="background: var(--bg-main); border-top: 1px solid var(--border-subtle); padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-solid fa-hospital"></i> Komite Keperawatan RSUD dr. Soedarso Pontianak</span>
+        <button type="button" class="btn-secondary" onclick="closeModal('modalMejaVerifikasiKredensial')">Tutup</button>
       </div>
     </div>
   </div>
