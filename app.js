@@ -1272,15 +1272,25 @@ function openNewKredensialModal() {
   const form = document.getElementById('kredensialForm');
   if (form) form.reset();
 
-  // Pastikan data tersinkronisasi penuh dan terkunci dari Langkah 1 (CV)
+  // Pastikan data tersinkronisasi penuh dan terkunci dari Langkah 1 (CV) & form sebelumnya
   syncAllDownstreamFormsFromCv();
 
   const jenjangVal = document.getElementById('formJenjang')?.value || 'PK III';
   onJenjangChange(jenjangVal);
 
-  // Pre-render Step 3 Checklist RKK agar langsung siap dengan seluruh opsi White Book
-  const initialArea = document.getElementById('formRkkAreaFilter')?.value || document.getElementById('formAreaKlinis')?.value || 'kmb_medikal_pk3';
-  onAreaKlinisChange(initialArea);
+  // Pastikan Rumpun / Area Kekhususan Klinis terisi dan terkunci sesuai form sebelumnya
+  const master = getActiveCvMasterData();
+  const effectiveArea = master.areaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
+  const selArea = document.getElementById('formAreaKlinis');
+  if (selArea) {
+    selArea.value = effectiveArea;
+    selArea.classList.add('input-locked');
+    selArea.setAttribute('tabindex', '-1');
+    selArea.style.pointerEvents = 'none';
+    selArea.style.background = 'var(--bg-locked, #f1f5f9)';
+    selArea.style.cursor = 'not-allowed';
+  }
+  onAreaKlinisChange(effectiveArea);
 
   const checkIntegritas = document.getElementById('checkPernyataanIntegritas');
   if (checkIntegritas) checkIntegritas.checked = false;
@@ -1784,6 +1794,13 @@ function populateAreaKlinisDropdown(pkLevel) {
     areas = window.KOMITE_DATA?.whiteBookAreas?.[normalizedLevel] || window.KOMITE_DATA?.whiteBookAreas?.['PK III'] || [];
   }
 
+  // Tentukan area target dari state, master CV data, atau mapping unit
+  let targetArea = state.selectedAreaKlinis || (typeof getActiveCvMasterData === 'function' ? getActiveCvMasterData()?.areaKlinis : null) || prevValue;
+  if (!targetArea && typeof mapUnitToAreaKlinis === 'function') {
+    const curUnit = document.getElementById('formUnit')?.value || document.getElementById('cvUnit')?.value;
+    targetArea = mapUnitToAreaKlinis(curUnit, pkLevel);
+  }
+
   // Kelompokkan area klinis ke dalam 9 Rumpun Resmi Buku Putih 2026
   const groups = {};
   areas.forEach(area => {
@@ -1792,13 +1809,14 @@ function populateAreaKlinisDropdown(pkLevel) {
     groups[rumpunLabel].push(area);
   });
 
-  let html = `<option value="">-- Pilih Area Kekhususan Klinis Sesuai Buku Putih 2026 --</option>`;
+  let html = `<option value="">-- Terisi &amp; Terkunci Otomatis Sesuai Form Sebelumnya --</option>`;
 
   RUMPUN_ORDER_BUKU_PUTIH.forEach(rumpunLabel => {
     if (groups[rumpunLabel] && groups[rumpunLabel].length > 0) {
       html += `<optgroup label="${rumpunLabel}">`;
       groups[rumpunLabel].forEach(area => {
-        html += `<option value="${area.key}">${area.name}</option>`;
+        const isSel = (targetArea && area.key === targetArea) ? 'selected' : '';
+        html += `<option value="${area.key}" ${isSel}>${area.name}</option>`;
       });
       html += `</optgroup>`;
     }
@@ -1825,17 +1843,26 @@ function populateAreaKlinisDropdown(pkLevel) {
     }
   }
 
-  // Pertahankan pilihan sebelumnya jika masih ada di opsi baru
-  if (prevValue && selectArea.querySelector(`option[value="${prevValue}"]`)) {
+  // Set nilai terpilih dan pastikan selalu terisi
+  if (targetArea && selectArea.querySelector(`option[value="${targetArea}"]`)) {
+    selectArea.value = targetArea;
+  } else if (prevValue && selectArea.querySelector(`option[value="${prevValue}"]`)) {
     selectArea.value = prevValue;
   } else if (areas.length > 0) {
-    const defaultOpt = selectArea.querySelector('option[value="kmb_medikal_pk3"]') || selectArea.querySelector('option[value="generalis"]') || selectArea.querySelector('option[value="pmb_kebidanan"]');
+    const defaultOpt = selectArea.querySelector('option[value="kmb_bedah_pk3"]') || selectArea.querySelector('option[value="kmb_medikal_pk3"]') || selectArea.querySelector('option[value="generalis"]') || selectArea.querySelector('option[value="pmb_kebidanan"]');
     if (defaultOpt) {
       selectArea.value = defaultOpt.value;
     } else {
       selectArea.value = areas[0].key;
     }
   }
+
+  // Kunci formAreaKlinis (input-locked & pointer-events none)
+  selectArea.classList.add('input-locked');
+  selectArea.setAttribute('tabindex', '-1');
+  selectArea.style.pointerEvents = 'none';
+  selectArea.style.background = 'var(--bg-locked, #f1f5f9)';
+  selectArea.style.cursor = 'not-allowed';
 
   if (selectFilter && selectArea.value) {
     selectFilter.value = selectArea.value;
@@ -2574,6 +2601,7 @@ function fillCvFormWithData(cv) {
   setVal('cvUnit', cv.unit);
   setVal('cvPkSaatIni', cv.pkSaatIni);
   setVal('cvPkDiusulkan', cv.pkDiusulkan);
+  setVal('cvAreaKlinis', cv.areaKlinis || (typeof mapUnitToAreaKlinis === 'function' ? mapUnitToAreaKlinis(cv.unit, cv.pkDiusulkan) : 'kmb_bedah_pk3'));
 
   setVal('cvStr', cv.str);
   setVal('cvStrBerlaku', cv.strBerlaku);
@@ -2617,6 +2645,8 @@ function resetCvForm() {
   if (pkSaatIniEl) pkSaatIniEl.value = 'PK II';
   const pkDiusulkanEl = document.getElementById('cvPkDiusulkan');
   if (pkDiusulkanEl) pkDiusulkanEl.value = 'PK III';
+  const areaEl = document.getElementById('cvAreaKlinis');
+  if (areaEl) areaEl.value = 'kmb_bedah_pk3';
 
   for (let i = 0; i < 4; i++) {
     const iEl = document.getElementById(`cvEduInst_${i}`);
@@ -2773,6 +2803,8 @@ function handleCvSubmit(e) {
   const pengalamanKerja = getCvExpRowsFromForm();
   const pelatihan = getCvTrainRowsFromForm();
 
+  const areaKlinisVal = getVal('cvAreaKlinis') || (typeof mapUnitToAreaKlinis === 'function' ? mapUnitToAreaKlinis(unit, pkDiusulkan) : 'kmb_bedah_pk3');
+
   const cvData = {
     nama,
     nip,
@@ -2781,6 +2813,7 @@ function handleCvSubmit(e) {
     unit,
     pkSaatIni,
     pkDiusulkan,
+    areaKlinis: areaKlinisVal,
     str,
     strBerlaku,
     sipp,
@@ -2795,6 +2828,7 @@ function handleCvSubmit(e) {
   };
 
   state.cvData = cvData;
+  state.selectedAreaKlinis = areaKlinisVal;
   state.kredensialCvGenerated = true;
   localStorage.setItem('komite_cv_data', JSON.stringify(cvData));
   localStorage.setItem('komite_cv_generated', 'true');
@@ -2869,6 +2903,151 @@ function parseIndonesianDateToYMD(str) {
   return '2028-11-20';
 }
 
+function mapUnitToAreaKlinis(unit, pkLevel = 'PK III') {
+  if (!unit) return 'kmb_bedah_pk3';
+  const u = String(unit).toLowerCase();
+  const lvl = String(pkLevel || '').toUpperCase();
+  const isBidan = lvl.includes('BK') || lvl.includes('BIDAN') || lvl === 'PMB' || u.includes('kebidanan');
+  if (isBidan) return 'pmb_kebidanan';
+
+  if (lvl === 'PK I') {
+    if (u.includes('bedah') || u.includes('enggang')) return 'generalis_kmb';
+    if (u.includes('ok ') || u.includes('ibs') || u.includes('cendana')) return 'generalis_ibs';
+    if (u.includes('igd') || u.includes('darurat')) return 'generalis_igd';
+    if (u.includes('icu') || u.includes('hcu')) return 'generalis_icu';
+    if (u.includes('jantung')) return 'generalis_kardio';
+    if (u.includes('anak') || u.includes('picu') || u.includes('nicu')) return 'generalis_anak';
+    if (u.includes('dialisis') || u.includes('hd ')) return 'generalis_dialisis';
+    if (u.includes('onkologi') || u.includes('kemoterapi') || u.includes('camar')) return 'generalis_onkologi';
+    return 'generalis';
+  }
+
+  if (lvl === 'PK II') {
+    if (u.includes('ok ') || u.includes('ibs') || u.includes('cendana')) return 'perioperatif_pk2';
+    if (u.includes('igd') || u.includes('darurat')) return 'emergensi_pk2';
+    if (u.includes('icu') || u.includes('hcu')) return 'intensif_pk2';
+    if (u.includes('jantung')) return 'kardiovaskuler_pk2';
+    if (u.includes('anak') || u.includes('picu') || u.includes('nicu')) return 'anak_pk2';
+    if (u.includes('dialisis') || u.includes('hd ')) return 'nefrologi_pk2';
+    if (u.includes('onkologi') || u.includes('camar')) return 'onkologi_pk2';
+    if (u.includes('syaraf') || u.includes('ruai')) return 'neurosains_pk2';
+    return 'kmb_dewasa_pk2';
+  }
+
+  // PK III - PK V
+  if (u.includes('enggang gading')) return 'kmb_bedah_pk3';
+  if (u.includes('murai') || u.includes('meranti') || u.includes('mahoni') || u.includes('ramin') || u.includes('ppt') || u.includes('singkut buluh') || u.includes('thalassemia')) return 'kmb_medikal_pk3';
+  if (u.includes('ruai') || u.includes('syaraf') || u.includes('stroke')) return 'neurosains_pk3';
+  if (u.includes('camar') || u.includes('kemoterapi')) return 'onkologi_pk3';
+  if (u.includes('icu') || u.includes('hcu')) return 'intensif_pk3';
+  if (u.includes('darurat') || u.includes('igd')) return 'emergensi_pk3';
+  if (u.includes('ok ') || u.includes('cendana') || u.includes('bedah sentral')) return 'perioperatif_pk3';
+  if (u.includes('picu') || u.includes('hcu anak')) return 'anak_picu_pk3';
+  if (u.includes('nicu') || u.includes('perinatologi')) return 'anak_nicu_pk3';
+  if (u.includes('anak')) return 'anak_medikal_pk3';
+  if (u.includes('jantung')) return 'kardiovaskuler_rawat_pk3';
+  if (u.includes('hd ') || u.includes('dialisis')) return 'nefrologi_pk3';
+  if (u.includes('paru')) return 'respirologi_pk3';
+
+  return 'kmb_bedah_pk3';
+}
+
+function mapRumpunToAreaKlinis(rumpunKey, pkLevel = 'PK III') {
+  if (!rumpunKey) return 'kmb_bedah_pk3';
+  const r = String(rumpunKey).toLowerCase();
+  const lvl = String(pkLevel || '').toUpperCase();
+  const isBidan = lvl.includes('BK') || lvl.includes('BIDAN') || lvl === 'PMB' || r.includes('maternitas') || r.includes('bidan');
+  if (isBidan) return 'pmb_kebidanan';
+
+  if (lvl === 'PK I') {
+    if (r === 'kamar_bedah') return 'generalis_ibs';
+    if (r === 'intensif_icu') return 'generalis_icu';
+    if (r === 'emergensi_igd') return 'generalis_igd';
+    if (r === 'kardiovaskuler') return 'generalis_kardio';
+    if (r === 'pediatrik_anak' || r === 'perinatologi_nicu') return 'generalis_anak';
+    if (r === 'onkologi') return 'generalis_onkologi';
+    if (r === 'nefrologi_hd') return 'generalis_dialisis';
+    return 'generalis';
+  }
+
+  if (lvl === 'PK II') {
+    if (r === 'kamar_bedah') return 'perioperatif_pk2';
+    if (r === 'intensif_icu') return 'intensif_pk2';
+    if (r === 'emergensi_igd') return 'emergensi_pk2';
+    if (r === 'kardiovaskuler') return 'kardiovaskuler_pk2';
+    if (r === 'pediatrik_anak' || r === 'perinatologi_nicu') return 'anak_pk2';
+    if (r === 'onkologi') return 'onkologi_pk2';
+    if (r === 'neurosains') return 'neurosains_pk2';
+    if (r === 'nefrologi_hd') return 'nefrologi_pk2';
+    return 'kmb_dewasa_pk2';
+  }
+
+  const mapPk3 = {
+    'kmb_bedah': 'kmb_bedah_pk3',
+    'kamar_bedah': 'perioperatif_pk3',
+    'generalis': 'generalis',
+    'intensif_icu': 'intensif_pk3',
+    'emergensi_igd': 'emergensi_pk3',
+    'kardiovaskuler': 'kardiovaskuler_rawat_pk3',
+    'pediatrik_anak': 'anak_medikal_pk3',
+    'perinatologi_nicu': 'anak_nicu_pk3',
+    'maternitas_bidan': 'pmb_kebidanan',
+    'onkologi': 'onkologi_pk3',
+    'neurosains': 'neurosains_pk3',
+    'nefrologi_hd': 'nefrologi_pk3',
+    'respirologi': 'respirologi_pk3',
+    'jiwa': 'jiwa_pk3',
+    'mata': 'mata_pk3',
+    'geriatri': 'geriatri_pk3'
+  };
+  return mapPk3[r] || 'kmb_bedah_pk3';
+}
+
+function mapAreaKlinisToRumpun(areaKey) {
+  if (!areaKey) return 'kmb_bedah';
+  const a = String(areaKey).toLowerCase();
+  if (a.includes('kmb_bedah') || a.includes('bedah_pk3')) return 'kmb_bedah';
+  if (a.includes('kmb_medikal') || a.includes('dewasa_pk2')) return 'kmb_bedah';
+  if (a.includes('perioperatif') || a.includes('anestesi') || a.includes('ibs')) return 'kamar_bedah';
+  if (a.includes('intensif') || a.includes('icu')) return 'intensif_icu';
+  if (a.includes('emergensi') || a.includes('igd')) return 'emergensi_igd';
+  if (a.includes('kardiovaskuler') || a.includes('cathlab') || a.includes('perfusi')) return 'kardiovaskuler';
+  if (a.includes('anak_nicu') || a.includes('perinatologi')) return 'perinatologi_nicu';
+  if (a.includes('anak') || a.includes('picu')) return 'pediatrik_anak';
+  if (a.includes('maternitas') || a.includes('pmb') || a.includes('kebidanan') || a.includes('obgyn')) return 'maternitas_bidan';
+  if (a.includes('onkologi') || a.includes('kemoterapi')) return 'onkologi';
+  if (a.includes('neurosains') || a.includes('saraf')) return 'neurosains';
+  if (a.includes('nefrologi') || a.includes('dialisis')) return 'nefrologi_hd';
+  if (a.includes('respirologi') || a.includes('paru')) return 'respirologi';
+  if (a.includes('jiwa')) return 'jiwa';
+  if (a.includes('mata')) return 'mata';
+  if (a.includes('geriatri')) return 'geriatri';
+  if (a.includes('generalis')) return 'generalis';
+  return 'kmb_bedah';
+}
+
+function onCvJenjangOrUnitChange() {
+  const unit = document.getElementById('cvUnit')?.value;
+  const jenjang = document.getElementById('cvPkDiusulkan')?.value;
+  const areaSelect = document.getElementById('cvAreaKlinis');
+  if (areaSelect) {
+    const recommended = mapUnitToAreaKlinis(unit, jenjang);
+    if (recommended && areaSelect.querySelector(`option[value="${recommended}"]`)) {
+      areaSelect.value = recommended;
+      state.selectedAreaKlinis = recommended;
+    }
+  }
+  syncAllDownstreamFormsFromCv();
+}
+
+function onCvAreaKlinisChange(areaVal) {
+  if (state.cvData) {
+    state.cvData.areaKlinis = areaVal;
+  }
+  state.selectedAreaKlinis = areaVal;
+  syncAllDownstreamFormsFromCv();
+}
+
 function getActiveCvMasterData() {
   const getElVal = id => document.getElementById(id)?.value?.trim() || '';
   const stored = state.cvData || (window.KOMITE_DATA?.sampleCv?.perawat || {});
@@ -2880,6 +3059,19 @@ function getActiveCvMasterData() {
   const unit = getElVal('cvUnit') || stored.unit || 'Enggang Gading 2';
   const pkSaatIni = getElVal('cvPkSaatIni') || stored.pkSaatIni || 'PK II';
   const pkDiusulkan = getElVal('cvPkDiusulkan') || stored.pkDiusulkan || 'PK III';
+
+  // Area Kekhususan Klinis (White Book 2026)
+  let areaKlinis = getElVal('cvAreaKlinis') || state.selectedAreaKlinis || stored.areaKlinis;
+  if (!areaKlinis) {
+    const logbookRumpun = getElVal('selectRumpunWhiteBook');
+    if (logbookRumpun) {
+      areaKlinis = mapRumpunToAreaKlinis(logbookRumpun, pkDiusulkan);
+    }
+  }
+  if (!areaKlinis) {
+    areaKlinis = mapUnitToAreaKlinis(unit, pkDiusulkan);
+  }
+
   const str = getElVal('cvStr') || stored.str || '140152119-2849103';
   const strBerlaku = getElVal('cvStrBerlaku') || stored.strBerlaku || '15 April 2028';
   const sipp = getElVal('cvSipp') || stored.sipp || '503/0842/SIPP/DPMPTSP-C/2022';
@@ -2941,6 +3133,7 @@ function getActiveCvMasterData() {
     unit,
     pkSaatIni,
     pkDiusulkan,
+    areaKlinis,
     str,
     strBerlaku,
     sipp,
@@ -2992,6 +3185,8 @@ function syncAllDownstreamFormsFromCv() {
   setSelectFlex('logbookJenjang', master.pkDiusulkan || master.pkSaatIni);
   setSelectFlex('logbookUnit', master.unit);
   setVal('logbookKaRuRuangan', master.unit);
+  const logbookRumpun = mapAreaKlinisToRumpun(master.areaKlinis);
+  setSelectFlex('selectRumpunWhiteBook', logbookRumpun);
 
   // --- LANGKAH 3: SURAT PERMOHONAN ---
   setVal('suratNama', master.nama);
@@ -3018,6 +3213,40 @@ function syncAllDownstreamFormsFromCv() {
   setVal('formStrExpiry', expYMD);
   setSelectFlex('formJenjang', master.pkDiusulkan);
   setSelectFlex('formUnit', master.unit);
+
+  // Kunci formJenjang
+  const formJenjangEl = document.getElementById('formJenjang');
+  if (formJenjangEl) {
+    formJenjangEl.classList.add('input-locked');
+    formJenjangEl.setAttribute('tabindex', '-1');
+    formJenjangEl.style.pointerEvents = 'none';
+    formJenjangEl.style.background = 'var(--bg-locked, #f1f5f9)';
+    formJenjangEl.style.cursor = 'not-allowed';
+  }
+
+  // Isi dan Kunci formAreaKlinis (Rumpun / Area Kekhususan Klinis Buku Putih 2026)
+  populateAreaKlinisDropdown(master.pkDiusulkan);
+  const effectiveArea = master.areaKlinis || mapUnitToAreaKlinis(master.unit, master.pkDiusulkan);
+  const formAreaEl = document.getElementById('formAreaKlinis');
+  if (formAreaEl) {
+    if (formAreaEl.querySelector(`option[value="${effectiveArea}"]`)) {
+      formAreaEl.value = effectiveArea;
+    } else if (formAreaEl.options.length > 1) {
+      formAreaEl.selectedIndex = 1;
+    }
+    formAreaEl.classList.add('input-locked');
+    formAreaEl.setAttribute('tabindex', '-1');
+    formAreaEl.style.pointerEvents = 'none';
+    formAreaEl.style.background = 'var(--bg-locked, #f1f5f9)';
+    formAreaEl.style.cursor = 'not-allowed';
+  }
+  const formFilterEl = document.getElementById('formRkkAreaFilter');
+  if (formFilterEl && formAreaEl?.value) {
+    formFilterEl.value = formAreaEl.value;
+  }
+  if (formAreaEl?.value) {
+    onAreaKlinisChange(formAreaEl.value);
+  }
 
   // Auto-sync Kontak & Email from Langkah 3 to Langkah 4
   const suratHp = document.getElementById('suratHp')?.value;
@@ -3930,6 +4159,17 @@ const WHITE_BOOK_RUMPUN_10_ACTIONS = {
 function onSelectRumpunLogbook(rumpunKey) {
   if (!rumpunKey) return;
   load10ActionsForRumpun(rumpunKey);
+  const master = getActiveCvMasterData();
+  const mappedArea = mapRumpunToAreaKlinis(rumpunKey, master.pkDiusulkan);
+  if (mappedArea) {
+    state.selectedAreaKlinis = mappedArea;
+    const cvAreaEl = document.getElementById('cvAreaKlinis');
+    if (cvAreaEl && cvAreaEl.querySelector(`option[value="${mappedArea}"]`)) {
+      cvAreaEl.value = mappedArea;
+    }
+    if (state.cvData) state.cvData.areaKlinis = mappedArea;
+    syncAllDownstreamFormsFromCv();
+  }
 }
 
 function applyRumpunLogbookFromSelect() {
@@ -6152,6 +6392,8 @@ function simpanUploadSurat(e) {
 
 function cekBukaRkkOnline() {
   openNewKredensialModal();
+  syncAllDownstreamFormsFromCv();
+
   const suratJenjang = document.getElementById('suratJenjang')?.value;
   if (suratJenjang) {
     const formJenjang = document.getElementById('formJenjang');
@@ -6160,6 +6402,25 @@ function cekBukaRkkOnline() {
       onJenjangChange(suratJenjang);
     }
   }
+
+  // Pastikan formAreaKlinis terisi dan terkunci sesuai form sebelumnya
+  const master = getActiveCvMasterData();
+  const effectiveArea = master.areaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
+  const selArea = document.getElementById('formAreaKlinis');
+  if (selArea) {
+    if (selArea.querySelector(`option[value="${effectiveArea}"]`)) {
+      selArea.value = effectiveArea;
+    }
+    selArea.classList.add('input-locked');
+    selArea.setAttribute('tabindex', '-1');
+    selArea.style.pointerEvents = 'none';
+    selArea.style.background = 'var(--bg-locked, #f1f5f9)';
+    selArea.style.cursor = 'not-allowed';
+  }
+  const formFilterEl = document.getElementById('formRkkAreaFilter');
+  if (formFilterEl && effectiveArea) formFilterEl.value = effectiveArea;
+  if (effectiveArea) onAreaKlinisChange(effectiveArea);
+
   goToWizardStep(2);
 }
 
@@ -8201,3 +8462,8 @@ window.applyRumpunLogbookFromSelect = applyRumpunLogbookFromSelect;
 window.load10ActionsForRumpun = load10ActionsForRumpun;
 window.renderRowQuickSelectOptions = renderRowQuickSelectOptions;
 window.onSelectRowWhiteBookAction = onSelectRowWhiteBookAction;
+window.mapUnitToAreaKlinis = mapUnitToAreaKlinis;
+window.mapRumpunToAreaKlinis = mapRumpunToAreaKlinis;
+window.mapAreaKlinisToRumpun = mapAreaKlinisToRumpun;
+window.onCvJenjangOrUnitChange = onCvJenjangOrUnitChange;
+window.onCvAreaKlinisChange = onCvAreaKlinisChange;

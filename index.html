@@ -545,7 +545,7 @@
             </div>
             <div class="alur-card-title">4. Pengisian &amp; Cetak RKK Online (PDF)</div>
             <div class="alur-card-desc">
-              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Nama, NIP, STR, dan jenjang usulan otomatis terisi &amp; terkunci.</span> Anda langsung memilih kewenangan klinis sesuai area White Book 2026, melakukan asesmen mandiri, dan mencetak dokumen <strong>RKK Resmi 3 Halaman A4</strong>.
+              <span style="color: #0369a1; font-weight: 700;"><i class="fa-solid fa-lock"></i> Nama, NIP, STR, jenjang usulan, dan rumpun area klinis otomatis terisi &amp; terkunci.</span> Anda langsung meninjau kewenangan klinis sesuai area White Book 2026, melakukan asesmen mandiri, dan mencetak dokumen <strong>RKK Resmi 3 Halaman A4</strong>.
             </div>
             <div class="alur-card-action">
               <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.35rem;">
@@ -1202,7 +1202,7 @@
             <div class="locked-section-banner info-blue" style="margin-bottom: 1rem;">
               <div>
                 <i class="fa-solid fa-lock" style="color: #0284c7; margin-right: 4px;"></i>
-                <strong>Jenjang &amp; Unit Terkunci:</strong> Jenjang karir usulan dan penempatan ruangan disinkronkan dari <strong>Langkah 1 (CV)</strong>. Silakan tentukan <em>Rumpun Area Kekhususan (Buku Putih)</em>.
+                <strong>Jenjang, Unit &amp; Rumpun Area Terkunci:</strong> Jenjang karir usulan, penempatan ruangan, dan rumpun area kekhususan klinis disinkronkan dan terkunci dari <strong>Formulir Sebelumnya (Langkah 1 CV / Langkah 2 Logbook)</strong>.
               </div>
               <button type="button" class="btn-goto-step1" onclick="jumpToStep1Cv('modalNewKredensial')">
                 <i class="fa-solid fa-pen-to-square"></i> Ubah di Langkah 1 (CV)
@@ -1236,9 +1236,12 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Rumpun / Area Kekhususan Klinis (Buku Putih 2026) <span class="req">*</span></label>
-                <select class="form-select" id="formAreaKlinis" onchange="onAreaKlinisChange(this.value)" required>
-                  <option value="">-- Pilih Area Kekhususan Klinis Sesuai Buku Putih 2026 --</option>
+                <label class="form-label">
+                  Rumpun / Area Kekhususan Klinis (Buku Putih 2026) <span class="req">*</span>
+                  <span class="locked-badge" title="Data ini diambil dan terkunci dari form sebelumnya (Langkah 1 CV / Langkah 2 Logbook)"><i class="fa-solid fa-lock"></i> Terkunci</span>
+                </label>
+                <select class="form-select input-locked" id="formAreaKlinis" tabindex="-1" onchange="onAreaKlinisChange(this.value)" required style="pointer-events: none; background: var(--bg-locked, #f1f5f9); cursor: not-allowed;">
+                  <option value="">-- Terisi &amp; Terkunci Otomatis Sesuai Form Sebelumnya --</option>
 
                   <optgroup label="1. RUMPUN KEPERAWATAN GENERALIS (ASUHAN DASAR)">
                     <option value="generalis">Pelayanan Keperawatan Generalis (19 Elemen Asuhan Dasar)</option>
@@ -1257,7 +1260,7 @@
 
                   <optgroup label="2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)">
                     <option value="kmb_medikal_pk3">KMB - Medikal (Penyakit Dalam Dewasa)</option>
-                    <option value="kmb_bedah_pk3">KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
+                    <option value="kmb_bedah_pk3" selected>KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
                     <option value="kmb_dewasa_pk2">KMB Dewasa (Advance Beginner)</option>
                   </optgroup>
 
@@ -1308,7 +1311,7 @@
                     <option value="jiwa_pk3">Rumpun Keperawatan Jiwa</option>
                   </optgroup>
                 </select>
-                <span class="form-hint" id="areaKlinisDescText">Pilih area spesialisasi sesuai Buku Pedoman (White Book).</span>
+                <span class="form-hint" id="areaKlinisDescText">Terkunci otomatis sesuai pilihan pada form sebelumnya (Langkah 1 CV / Langkah 2 Logbook).</span>
               </div>
             </div>
 
@@ -2034,7 +2037,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Unit Kerja / Penempatan <span class="req">*</span></label>
-                  <select class="form-select" id="cvUnit" required>
+                  <select class="form-select" id="cvUnit" onchange="onCvJenjangOrUnitChange()" required>
                     <option value="">-- Pilih Unit Kerja / Penempatan (Sesuai SK Tempat Tidur) --</option>
                     
                     <optgroup label="A. INSTALASI RAWAT INAP A (545 Tempat Tidur)">
@@ -2107,9 +2110,9 @@
                   </select>
                   <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-book-medical"></i> Sesuai Pedoman Jenjang Karir White Book RSUD dr. Soedarso.</span>
                 </div>
-                <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
+                <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Rencana Jenjang Diusulkan <span class="req">*</span></label>
-                  <select class="form-select" id="cvPkDiusulkan" required>
+                  <select class="form-select" id="cvPkDiusulkan" onchange="onCvJenjangOrUnitChange()" required>
                     <option value="">-- Pilih Rencana Jenjang yang Diusulkan --</option>
                     <optgroup label="A. PERAWAT KLINIS (PK) - BUKU PUTIH 2026">
                       <option value="PK I">Perawat Klinis I (PK I - Novice / Generalis)</option>
@@ -2127,6 +2130,81 @@
                     </optgroup>
                   </select>
                   <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-shield-halved"></i> Master Jenjang Usulan untuk RKK Online, Surat Permohonan &amp; PSV.</span>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Rumpun / Area Kekhususan Klinis (Buku Putih 2026) <span class="req">*</span></label>
+                  <select class="form-select" id="cvAreaKlinis" onchange="onCvAreaKlinisChange(this.value)" required>
+                    <option value="">-- Pilih Area Kekhususan Klinis Sesuai Buku Putih 2026 --</option>
+
+                    <optgroup label="1. RUMPUN KEPERAWATAN GENERALIS (ASUHAN DASAR)">
+                      <option value="generalis">Pelayanan Keperawatan Generalis (19 Elemen Asuhan Dasar)</option>
+                      <option value="generalis_kmb">Generalis - Keperawatan Medikal Bedah (KMB Dasar)</option>
+                      <option value="generalis_ibs">Generalis - Kamar Bedah Sentral (Perioperatif Dasar)</option>
+                      <option value="generalis_igd">Generalis - Gawat Darurat (Emergensi Dasar)</option>
+                      <option value="generalis_icu">Generalis - Intensive Care (Kritis Dasar)</option>
+                      <option value="generalis_kardio">Generalis - Kardiovaskuler (PJT Dasar)</option>
+                      <option value="generalis_anak">Generalis - Keperawatan Anak (Pediatrik Dasar)</option>
+                      <option value="generalis_maternitas">Generalis - Keperawatan Maternitas (Kebidanan Dasar)</option>
+                      <option value="generalis_jiwa">Generalis - Keperawatan Jiwa Dasar</option>
+                      <option value="generalis_dialisis">Generalis - Nefrologi &amp; Hemodialisis Dasar</option>
+                      <option value="generalis_onkologi">Generalis - Onkologi &amp; Kemoterapi Dasar</option>
+                      <option value="generalis_anestesi">Generalis - Keperawatan Anestesi Dasar</option>
+                    </optgroup>
+
+                    <optgroup label="2. RUMPUN KEPERAWATAN MEDIKAL BEDAH (KMB)">
+                      <option value="kmb_medikal_pk3">KMB - Medikal (Penyakit Dalam Dewasa)</option>
+                      <option value="kmb_bedah_pk3" selected>KMB - Bedah (Kasus Bedah Dewasa &amp; Transplantasi)</option>
+                      <option value="kmb_dewasa_pk2">KMB Dewasa (Advance Beginner)</option>
+                    </optgroup>
+
+                    <optgroup label="3. RUMPUN PERIOPERATIF &amp; ANESTESI">
+                      <option value="perioperatif_pk3">Perioperatif (Kamar Bedah Sentral / IBS)</option>
+                      <option value="anestesi_pk3">Keperawatan Anestesi</option>
+                    </optgroup>
+
+                    <optgroup label="4. RUMPUN GAWAT DARURAT (EMERGENSI) &amp; CRITICAL CARE">
+                      <option value="emergensi_pk3">Gawat Darurat / Emergensi (IGD &amp; Trauma)</option>
+                      <option value="intensif_pk3">Intensive Care (ICU / ICCU / HCU / Luka Bakar)</option>
+                    </optgroup>
+
+                    <optgroup label="5. RUMPUN KARDIOVASKULER (PUSAT JANTUNG TERPADU / PJT)">
+                      <option value="kardiovaskuler_rawat_pk3">Kardiovaskuler (Rawat Inap &amp; Jalan PJT)</option>
+                      <option value="kardiovaskuler_cathlab_pk3">Kardiovaskuler (Ruang Kateterisasi / Cathlab)</option>
+                      <option value="kardiovaskuler_perfusi_pk3">Kardiovaskuler (Perfusionist Mesin CPB)</option>
+                    </optgroup>
+
+                    <optgroup label="6. RUMPUN SPESIALISTIK DEWASA &amp; KEKHUSUSAN">
+                      <option value="neurosains_pk3">Neurosains (Neurologi &amp; Bedah Saraf)</option>
+                      <option value="nefrologi_pk3">Nefrologi (Hemodialisis &amp; CAPD)</option>
+                      <option value="onkologi_pk3">Keperawatan Onkologi (Kemoterapi &amp; Radiasi)</option>
+                      <option value="gastro_hepato_pk3">Gastro-Hepato (Endoskopi &amp; Hepatobilier)</option>
+                      <option value="respirologi_pk3">Respirologi (Paru &amp; Bronkoskopi)</option>
+                      <option value="mata_pk3">Keperawatan Mata (Oftalmologi)</option>
+                      <option value="geriatri_pk3">Keperawatan Geriatri (Lanjut Usia)</option>
+                      <option value="radiologi_pk3">Radiologi &amp; Kedokteran Nuklir</option>
+                    </optgroup>
+
+                    <optgroup label="7. RUMPUN KEPERAWATAN ANAK (PEDIATRIK &amp; NEONATUS)">
+                      <option value="anak_medikal_pk3">Rumpun Anak - Medikal Anak</option>
+                      <option value="anak_bedah_pk3">Rumpun Anak - Bedah Anak</option>
+                      <option value="anak_hemato_pk3">Rumpun Anak - Hemato-Onkologi Anak</option>
+                      <option value="anak_nefrologi_pk3">Rumpun Anak - Nefrologi Anak</option>
+                      <option value="anak_picu_pk3">Rumpun Anak - Intensive Anak (PICU)</option>
+                      <option value="anak_nicu_pk3">Rumpun Anak - Neonatologi (NICU)</option>
+                    </optgroup>
+
+                    <optgroup label="8. RUMPUN MATERNITAS &amp; PRAKTIK BIDAN KLINIS (BK)">
+                      <option value="maternitas_obgyn_pk3">Rumpun Maternitas - Obstetri &amp; Ginekologi (Obgyn)</option>
+                      <option value="maternitas_onkologi_pk3">Rumpun Maternitas - Onkologi Kebidanan</option>
+                      <option value="maternitas_fertilitas_pk3">Rumpun Maternitas - Fertilitas &amp; Bayi Tabung (IVF)</option>
+                      <option value="pmb_kebidanan">Pelayanan Kebidanan (Bidan Klinis BK I - BK IV / PMB)</option>
+                    </optgroup>
+
+                    <optgroup label="9. RUMPUN KEPERAWATAN JIWA">
+                      <option value="jiwa_pk3">Rumpun Keperawatan Jiwa</option>
+                    </optgroup>
+                  </select>
+                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-lock"></i> Master Sumber Data: Otomatis mengisi &amp; mengunci RKK Online (Langkah 4) &amp; Logbook (Langkah 2).</span>
                 </div>
               </div>
             </div>
