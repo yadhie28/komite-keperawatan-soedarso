@@ -377,19 +377,19 @@
     </div>
   </div>
 
-  <!-- Mode Administrator Banner (Shown when admin is logged in) -->
+  <!-- Mode Banner Status Sesi Pengguna (Shown when logged in) -->
   <div id="adminModeBanner" class="admin-mode-banner" style="display: none;">
     <div style="display: flex; align-items: center; gap: 0.6rem;">
-      <i class="fa-solid fa-user-shield" style="color: var(--gold-400); font-size: 1rem;"></i>
-      <span>Mode Administrator Aktif: <strong id="adminBannerUser">M. Separia Russanto, S.Kep., Ns</strong> (<span id="adminBannerRole">Ketua Komite</span>) &bull; Akses Penuh Tata Kelola Klinis</span>
+      <i class="fa-solid fa-user-shield" id="adminBannerIcon" style="color: var(--gold-400); font-size: 1rem;"></i>
+      <span><strong id="adminBannerPrefix">Mode Administrator Aktif:</strong> <strong id="adminBannerUser">M. Separia Russanto, S.Kep., Ns</strong> (<span id="adminBannerRole">Ketua Komite</span>) &bull; <span id="adminBannerSub">Akses Penuh Tata Kelola Klinis</span></span>
     </div>
     <div style="display: flex; align-items: center; gap: 0.75rem;">
-      <span class="badge-official" style="font-size: 0.7rem; background: rgba(0,0,0,0.3);">AKSES TERAUTENTIKASI</span>
+      <span class="badge-official" id="adminBannerBadgeTag" style="font-size: 0.7rem; background: rgba(0,0,0,0.3);">AKSES TERAUTENTIKASI</span>
       <button type="button" class="btn-secondary" onclick="openAccountSettingsModal()" title="Pengaturan Akun &amp; Kata Sandi" style="color: #ffffff; background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); font-size: 0.75rem; padding: 0.25rem 0.65rem; display: flex; align-items: center; gap: 5px; font-weight: 600;">
         <i class="fa-solid fa-gear"></i> Pengaturan
       </button>
-      <button class="btn-logout" id="btnBannerLogout" onclick="logoutToPortal()" title="Keluar dari sesi Admin" style="color: #fde68a; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 4px;">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      <button class="btn-banner-logout" id="btnBannerLogout" onclick="logoutToPortal()" title="Keluar / Log Out dari akun ini">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
       </button>
     </div>
   </div>
@@ -484,6 +484,12 @@
             <i class="fa-solid fa-book-bookmark"></i> Pusat Regulasi
           </button>
         </li>
+        <!-- Mobile/Drawer Log Out Tab Item (shown when logged in) -->
+        <li id="navItemLogout" style="display: none;">
+          <button class="nav-tab-btn" onclick="logoutToPortal()" style="color: #ef4444; font-weight: 700;">
+            <i class="fa-solid fa-right-from-bracket"></i> Keluar (Log Out)
+          </button>
+        </li>
       </ul>
 
       <!-- Action Buttons -->
@@ -504,10 +510,15 @@
             <span class="admin-name" id="adminNavName">Ns. Hendra W.</span>
             <span class="admin-role-tag" id="adminNavRole">Super Admin</span>
           </div>
-          <button class="btn-logout" id="btnPortalLogout" onclick="event.stopPropagation(); logoutToPortal()" title="Keluar / Ganti Akun Portal">
-            <i class="fa-solid fa-right-from-bracket"></i>
+          <button class="btn-pill-logout" id="btnPortalLogout" onclick="event.stopPropagation(); logoutToPortal()" title="Keluar / Log Out dari akun ini">
+            <i class="fa-solid fa-right-from-bracket"></i> <span>Keluar</span>
           </button>
         </div>
+
+        <!-- Tombol Log Out Utama di Navbar (Sangat Jelas & Terlihat) -->
+        <button class="btn-nav-logout" id="btnNavLogout" onclick="logoutToPortal()" title="Keluar dari akun Anda dan kembali ke Portal Akses" style="display: none;">
+          <i class="fa-solid fa-right-from-bracket"></i> <span>Log Out</span>
+        </button>
 
         <button class="btn-cta-quick" id="btnQuickKredensial">
           <i class="fa-solid fa-file-circle-plus"></i> + Ajukan Kredensial
