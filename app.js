@@ -947,31 +947,66 @@ function updateAuthUI() {
   const banner = document.getElementById('adminModeBanner');
   const bannerUser = document.getElementById('adminBannerUser');
   const bannerRole = document.getElementById('adminBannerRole');
+  const bannerPrefix = document.getElementById('adminBannerPrefix');
+  const bannerSub = document.getElementById('adminBannerSub');
+  const bannerBadgeTag = document.getElementById('adminBannerBadgeTag');
+  const bannerIcon = document.getElementById('adminBannerIcon');
+
   const adminUserPill = document.getElementById('adminUserPill');
   const adminNavName = document.getElementById('adminNavName');
   const adminNavRole = document.getElementById('adminNavRole');
   const adminAvatar = document.getElementById('adminAvatarText');
   const btnNavSettings = document.getElementById('btnNavSettings');
+  const btnNavLogout = document.getElementById('btnNavLogout');
+  const navItemLogout = document.getElementById('navItemLogout');
 
   if (state.currentUser) {
     hidePortalGateway();
     if (btnNavSettings) btnNavSettings.style.display = 'inline-flex';
+    if (btnNavLogout) btnNavLogout.style.display = 'inline-flex';
+    if (navItemLogout) navItemLogout.style.display = 'block';
+
+    if (banner) banner.style.display = 'flex';
 
     if (state.currentUser.role === 'guest') {
-      if (banner) banner.style.display = 'none';
+      if (bannerPrefix) bannerPrefix.textContent = 'Mode Kunjungan Publik:';
+      if (bannerUser) bannerUser.textContent = 'Tamu Publik';
+      if (bannerRole) bannerRole.textContent = 'Akses Terbuka';
+      if (bannerSub) bannerSub.textContent = 'Dilindungi UU Perlindungan Data Pribadi No. 27/2022';
+      if (bannerBadgeTag) {
+        bannerBadgeTag.textContent = 'UU PDP TERLINDUNGI';
+        bannerBadgeTag.style.background = 'rgba(56, 189, 248, 0.25)';
+        bannerBadgeTag.style.color = '#38bdf8';
+      }
+      if (bannerIcon) {
+        bannerIcon.className = 'fa-solid fa-globe';
+        bannerIcon.style.color = '#38bdf8';
+      }
+
       if (adminUserPill) {
         adminUserPill.style.display = 'flex';
-        adminUserPill.title = 'Akses Tamu Publik (UU PDP No. 27/2022). Klik tombol untuk ganti akun/keluar.';
+        adminUserPill.title = 'Akses Tamu Publik (UU PDP No. 27/2022). Klik untuk membuka pengaturan atau logout.';
       }
-      if (adminNavName) adminNavName.textContent = 'Mode Tamu Publik';
-      if (adminNavRole) adminNavRole.textContent = 'Akses Terbuka (UU PDP)';
+      if (adminNavName) adminNavName.textContent = 'Mode Tamu';
+      if (adminNavRole) adminNavRole.textContent = 'Tamu Publik (UU PDP)';
       if (adminAvatar) {
         adminAvatar.innerHTML = '<i class="fa-solid fa-globe" style="color: #38bdf8;"></i>';
       }
     } else if (state.currentUser.role === 'pengusul') {
-      if (banner) banner.style.display = 'flex';
+      if (bannerPrefix) bannerPrefix.textContent = 'Sesi Tenaga Keperawatan:';
       if (bannerUser) bannerUser.textContent = state.currentUser.name;
-      if (bannerRole) bannerRole.textContent = `${state.currentUser.role} • ${state.currentUser.unit || 'Ruang Kakap'}`;
+      if (bannerRole) bannerRole.textContent = state.currentUser.badge || 'Ruang Kakap';
+      if (bannerSub) bannerSub.textContent = 'Portal Pengusul E-Kredensialing & Logbook Klinis';
+      if (bannerBadgeTag) {
+        bannerBadgeTag.textContent = 'TENAGA KEPERAWATAN';
+        bannerBadgeTag.style.background = 'rgba(16, 185, 129, 0.25)';
+        bannerBadgeTag.style.color = '#6ee7b7';
+      }
+      if (bannerIcon) {
+        bannerIcon.className = 'fa-solid fa-user-nurse';
+        bannerIcon.style.color = '#6ee7b7';
+      }
+
       if (adminUserPill) {
         adminUserPill.style.display = 'flex';
         adminUserPill.title = `Login: ${state.currentUser.name} (${state.currentUser.unit || 'Ruang Kakap'}). Klik untuk membuka dashboard pengusul.`;
@@ -985,12 +1020,24 @@ function updateAuthUI() {
       }
     } else {
       // Super Admin or Admin Komite
-      if (banner) banner.style.display = 'flex';
+      const isSuper = (state.currentUser.badge || '').toLowerCase().includes('super') || (state.currentUser.role || '').toLowerCase().includes('super');
+      if (bannerPrefix) bannerPrefix.textContent = isSuper ? 'Sesi Super Administrator:' : 'Mode Administrator Aktif:';
       if (bannerUser) bannerUser.textContent = state.currentUser.name;
       if (bannerRole) bannerRole.textContent = state.currentUser.role;
+      if (bannerSub) bannerSub.textContent = isSuper ? 'Akses Penuh Pengembang & Tata Kelola Komite' : 'Akses Penuh Tata Kelola Klinis';
+      if (bannerBadgeTag) {
+        bannerBadgeTag.textContent = isSuper ? 'SUPER ADMIN (PIMPINAN)' : 'ADMIN KOMITE';
+        bannerBadgeTag.style.background = 'rgba(245, 158, 11, 0.25)';
+        bannerBadgeTag.style.color = '#fde68a';
+      }
+      if (bannerIcon) {
+        bannerIcon.className = isSuper ? 'fa-solid fa-crown' : 'fa-solid fa-user-shield';
+        bannerIcon.style.color = 'var(--gold-400)';
+      }
+
       if (adminUserPill) {
         adminUserPill.style.display = 'flex';
-        adminUserPill.title = `Login: ${state.currentUser.name} (${state.currentUser.role}). Klik untuk ganti akun/keluar.`;
+        adminUserPill.title = `Login: ${state.currentUser.name} (${state.currentUser.role}). Klik untuk pengaturan atau logout.`;
       }
       if (adminNavName) adminNavName.textContent = state.currentUser.name.split(',')[0];
       if (adminNavRole) adminNavRole.textContent = state.currentUser.badge || 'Admin Komite';
@@ -1005,6 +1052,8 @@ function updateAuthUI() {
     if (banner) banner.style.display = 'none';
     if (adminUserPill) adminUserPill.style.display = 'none';
     if (btnNavSettings) btnNavSettings.style.display = 'none';
+    if (btnNavLogout) btnNavLogout.style.display = 'none';
+    if (navItemLogout) navItemLogout.style.display = 'none';
     state.privacyModeRevealed = false;
   }
   updatePrivacyToggleButton();
