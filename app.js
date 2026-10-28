@@ -32,8 +32,11 @@ const state = {
   credentialApplications: [],
   currentVerifyingAppId: null,
   appFilterStatus: 'all',
-  activeMejaRole: 'yohanes',
-  searchAppQuery: ''
+  searchAppQuery: '',
+  // Sistem Pengamanan Data Kredensial Rahasia (UU PDP No. 27/2022)
+  privacyModeRevealed: false,
+  lastActivityTime: Date.now(),
+  isSessionLocked: false
 };
 
 // Initialize Application
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAllViews();
   initLogbookAutocomplete();
   initCredentialingSync();
+  initSessionSecurityGuard();
 });
 
 /* ==========================================================================
@@ -199,12 +203,457 @@ function handleAdminLogin(e) {
 }
 
 function logoutAdmin() {
-  const userName = state.currentUser ? state.currentUser.name : 'Admin';
+  const isPengusul = state.currentUser?.role === 'pengusul';
+  const userName = state.currentUser ? state.currentUser.name : 'Pengguna';
   state.currentUser = null;
   localStorage.removeItem('komite_auth_user');
   updateAuthUI();
   renderAllViews();
-  showToast(`Anda telah keluar dari sesi administrator (${userName}).`, 'info');
+  if (isPengusul) {
+    showToast(`Anda telah keluar dari Portal Pengusul Kredensialing (${userName}).`, 'info');
+  } else {
+    showToast(`Anda telah keluar dari sesi administrator (${userName}).`, 'info');
+  }
+}
+
+/* ==========================================================================
+   PENGUSUL AUTHENTICATION & DASHBOARD MANDIRI (5S SEIRI & SEITON)
+   ========================================================================== */
+function switchLoginTab(tab) {
+  const tabs = {
+    komite: { btn: 'tabLoginKomite', panel: 'panelLoginKomite' },
+    pengusul: { btn: 'tabLoginPengusul', panel: 'panelLoginPengusul' },
+    daftar: { btn: 'tabLoginDaftar', panel: 'panelLoginDaftar' }
+  };
+
+  Object.keys(tabs).forEach(k => {
+    const b = document.getElementById(tabs[k].btn);
+    const p = document.getElementById(tabs[k].panel);
+    if (b) {
+      if (k === tab) {
+        b.style.color = 'var(--primary-600)';
+        b.style.borderBottom = '3px solid var(--primary-600)';
+      } else {
+        b.style.color = 'var(--text-muted)';
+        b.style.borderBottom = '3px solid transparent';
+      }
+    }
+    if (p) {
+      p.style.display = (k === tab) ? 'block' : 'none';
+    }
+  });
+
+  const err1 = document.getElementById('loginErrorMessage');
+  if (err1) err1.style.display = 'none';
+  const err2 = document.getElementById('pengusulLoginError');
+  if (err2) err2.style.display = 'none';
+  const err3 = document.getElementById('daftarError');
+  if (err3) err3.style.display = 'none';
+}
+
+function getAllPengusulAccounts() {
+  const baseList = window.KOMITE_DATA?.pengusulAccounts || [];
+  const registered = localStorage.getItem('komite_registered_pengusul');
+  let regList = [];
+  if (registered) {
+    try {
+      regList = JSON.parse(registered);
+    } catch (e) {
+      regList = [];
+    }
+  }
+  return [...baseList, ...regList];
+}
+
+function fillPengusulPreset(target) {
+  const accounts = getAllPengusulAccounts();
+  const cleanTarget = (target || '').toLowerCase().replace(/\s+/g, '');
+  const found = accounts.find(a => {
+    const u = (a.username || '').toLowerCase().replace(/\s+/g, '');
+    const nip = (a.nip || '').toLowerCase().replace(/\s+/g, '');
+    return u === cleanTarget || nip === cleanTarget;
+  });
+  if (found) {
+    const uInput = document.getElementById('loginPengusulUsername');
+    const pInput = document.getElementById('loginPengusulPassword');
+    if (uInput) uInput.value = found.username || found.nip;
+    if (pInput) pInput.value = found.password || found.namaSandi || 'soedarso2026';
+    const errBox = document.getElementById('pengusulLoginError');
+    if (errBox) errBox.style.display = 'none';
+  }
+}
+
+function syncApplicantToCvMaster(applicant) {
+  if (!applicant) return;
+  const curCv = getActiveCvMasterData();
+  const cleanAppNip = (applicant.nip || '').replace(/\s+/g, '');
+  const cleanCurNip = (curCv.nip || '').replace(/\s+/g, '');
+
+  if (cleanAppNip !== cleanCurNip || !curCv.nama) {
+    const updatedCv = {
+      ...curCv,
+      nama: applicant.name || applicant.nama,
+      nip: applicant.nip,
+      unit: applicant.unit || curCv.unit || 'Enggang Gading 2',
+      jenjang: applicant.jenjang || curCv.jenjang || 'PK III',
+      noStr: applicant.strNumber || applicant.noStr || applicant.str || curCv.noStr || '',
+      tglKadaluarsaStr: applicant.strExpiry || curCv.tglKadaluarsaStr || '2028-08-17'
+    };
+    saveActiveCvMasterData(updatedCv);
+    syncAllDownstreamFormsFromCv();
+  }
+}
+
+function handlePengusulLogin(e) {
+  e.preventDefault();
+  const rawInput = (document.getElementById('loginPengusulUsername')?.value || '').trim();
+  const pass = document.getElementById('loginPengusulPassword')?.value || '';
+  const remember = document.getElementById('pengusulRememberMe')?.checked;
+  const errBox = document.getElementById('pengusulLoginError');
+  const errText = document.getElementById('pengusulLoginErrorText');
+
+  const cleanInput = rawInput.toLowerCase().replace(/\s+/g, '');
+  const accounts = getAllPengusulAccounts();
+
+  const matched = accounts.find(a => {
+    const u = (a.username || '').toLowerCase().replace(/\s+/g, '');
+    const nip = (a.nip || '').toLowerCase().replace(/\s+/g, '');
+    const passMatch = a.password === pass || a.namaSandi === pass;
+    return (u === cleanInput || nip === cleanInput) && passMatch;
+  });
+
+  if (matched) {
+    state.currentUser = {
+      username: matched.username || matched.nip,
+      name: matched.name,
+      nip: matched.nip,
+      role: 'pengusul',
+      profesi: matched.profesi || 'Perawat',
+      unit: matched.unit || 'Enggang Gading 2',
+      jenjang: matched.jenjang || 'PK III',
+      strNumber: matched.strNumber || '',
+      strExpiry: matched.strExpiry || '',
+      badge: `Pengusul (${matched.jenjang || 'PK'})`,
+      access: ['pengusul', 'kredensial']
+    };
+    if (remember) {
+      localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
+    }
+
+    syncApplicantToCvMaster(matched);
+
+    closeModal('modalAdminLogin');
+    updateAuthUI();
+    renderAllViews();
+    showToast(`Selamat datang, ${matched.name}! Anda berhasil masuk ke Portal Pengusul Kredensialing.`, 'success');
+    openDashboardPengusul(state.currentUser);
+  } else {
+    if (errBox && errText) {
+      errText.textContent = 'NIP atau kata sandi pengusul tidak sesuai. Silakan periksa kembali atau gunakan tombol login cepat demo.';
+      errBox.style.display = 'block';
+    }
+  }
+}
+
+function handleDaftarPengusul(e) {
+  e.preventDefault();
+  const nama = document.getElementById('daftarNama')?.value.trim();
+  const nip = document.getElementById('daftarNip')?.value.trim();
+  const profesi = document.getElementById('daftarProfesi')?.value;
+  const unit = document.getElementById('daftarUnit')?.value.trim();
+  const jenjang = document.getElementById('daftarJenjang')?.value;
+  const str = document.getElementById('daftarStr')?.value.trim();
+  const password = document.getElementById('daftarPassword')?.value;
+  const errBox = document.getElementById('daftarError');
+  const errText = document.getElementById('daftarErrorText');
+
+  if (!nama || !nip || !profesi || !unit || !jenjang || !str || !password) {
+    if (errBox && errText) {
+      errText.textContent = 'Harap lengkapi semua kolom yang bertanda bintang (*).';
+      errBox.style.display = 'block';
+    }
+    return;
+  }
+
+  const existing = getAllPengusulAccounts();
+  const cleanNip = nip.replace(/\s+/g, '');
+  if (existing.some(a => (a.nip || '').replace(/\s+/g, '') === cleanNip)) {
+    if (errBox && errText) {
+      errText.textContent = `NIP ${nip} sudah terdaftar di sistem. Silakan langsung masuk pada tab Login Pengusul.`;
+      errBox.style.display = 'block';
+    }
+    return;
+  }
+
+  const newUser = {
+    nip: nip,
+    username: nip.replace(/\s+/g, ''),
+    password: password,
+    namaSandi: password,
+    name: nama,
+    profesi: profesi,
+    unit: unit,
+    jenjang: jenjang,
+    strNumber: str,
+    strExpiry: '2029-12-31',
+    badgeType: 'Pengusul',
+    role: `${profesi} (Pengusul Kredensialing)`,
+    aktif: true,
+    tanggalDaftar: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+  };
+
+  const regSaved = localStorage.getItem('komite_registered_pengusul');
+  let regList = [];
+  if (regSaved) {
+    try { regList = JSON.parse(regSaved); } catch(err) { regList = []; }
+  }
+  regList.push(newUser);
+  localStorage.setItem('komite_registered_pengusul', JSON.stringify(regList));
+
+  state.currentUser = {
+    username: newUser.username,
+    name: newUser.name,
+    nip: newUser.nip,
+    role: 'pengusul',
+    profesi: newUser.profesi,
+    unit: newUser.unit,
+    jenjang: newUser.jenjang,
+    strNumber: newUser.strNumber,
+    strExpiry: newUser.strExpiry,
+    badge: `Pengusul (${newUser.jenjang})`,
+    access: ['pengusul', 'kredensial']
+  };
+  localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
+
+  syncApplicantToCvMaster(newUser);
+
+  closeModal('modalAdminLogin');
+  updateAuthUI();
+  renderAllViews();
+  showToast(`Pendaftaran berhasil! Akun pengusul atas nama ${nama} telah aktif.`, 'success');
+  openDashboardPengusul(state.currentUser);
+}
+
+function openDashboardPengusul(user) {
+  const curUser = user || state.currentUser;
+  if (!curUser) {
+    openLoginModal();
+    switchLoginTab('pengusul');
+    return;
+  }
+
+  const elNama = document.getElementById('dashPengusulNama');
+  if (elNama) elNama.textContent = curUser.name || curUser.nama || 'Pengusul Kredensial';
+
+  const elJenjangUnit = document.getElementById('dashPengusulJenjangUnit');
+  if (elJenjangUnit) {
+    elJenjangUnit.innerHTML = `${curUser.jenjang || 'PK III'} &bull; ${curUser.unit || 'Enggang Gading 2'} &bull; <i class="fa-solid fa-certificate"></i> STR: ${curUser.strNumber || '-'}`;
+  }
+
+  // Find their application in credential applications
+  const userNipClean = (curUser.nip || '').replace(/\s+/g, '');
+  const userNameSimple = (curUser.name || curUser.nama || '').toLowerCase().replace(/[^a-z]/g, '');
+  const app = (state.credentialApplications || []).find(a => {
+    const aNip = (a.nip || '').replace(/\s+/g, '');
+    const aName = (a.nama || '').toLowerCase().replace(/[^a-z]/g, '');
+    return (userNipClean && aNip === userNipClean) || (aName && (aName.includes(userNameSimple) || userNameSimple.includes(aName)));
+  });
+
+  // Render Status Box
+  const statusContent = document.getElementById('dashPengusulStatusContent');
+  if (statusContent) {
+    if (app) {
+      const badgeClass = app.status === 'Proses Telaah Mitra Bestari' ? 'status-mitra-bestari' :
+                         app.status === 'Menunggu Pengesahan Pimpinan' ? 'status-pimpinan' :
+                         app.status.includes('Selesai') ? 'status-selesai' :
+                         app.status === 'Perlu Revisi' ? 'status-revisi' : 'status-subkomite';
+      const strWarn = getStrEarlyWarning(app.strExpiry || curUser.strExpiry || '2028-04-15');
+
+      statusContent.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-700);">${app.nomorRegistrasi || app.id}</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);"><i class="fa-solid fa-calendar-day"></i> Diajukan: ${app.tanggalPengajuan} &bull; ${app.jenisPermohonan || 'Re-Kredensial Berkala'}</div>
+            <div style="margin-top: 4px;">${strWarn.html}</div>
+          </div>
+          <div>
+            <span class="badge-app-status ${badgeClass}" style="font-size: 0.82rem; padding: 0.35rem 0.85rem;">
+              ${app.status}
+            </span>
+          </div>
+        </div>
+        <div style="background: rgba(13,148,136,0.06); border: 1px solid rgba(13,148,136,0.18); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; font-size: 0.82rem; line-height: 1.5;">
+          <strong><i class="fa-solid fa-clipboard-user" style="color: var(--primary-600);"></i> Catatan Verifikator / Mitra:</strong> 
+          ${app.verifikator?.catatan || app.mitraBestari?.catatan || 'Permohonan Anda tercatat dan sedang dalam antrean verifikasi berkas oleh Subkomite Kredensial RSUD dr. Soedarso.'}
+        </div>
+      `;
+    } else {
+      statusContent.innerHTML = `
+        <div style="background: #f0fdf4; border: 1.5px dashed #86efac; border-radius: var(--radius-md); padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.85rem;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0;">
+            <i class="fa-solid fa-file-signature"></i>
+          </div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.88rem; color: #15803d;">Draf Pengajuan Mandiri Aktif (5S Seiton)</div>
+            <div style="font-size: 0.77rem; color: #166534; margin-top: 2px;">
+              Anda sedang menyiapkan berkas pengajuan kredensialing. Lanjutkan alur 6 langkah terintegrasi hingga Langkah 6 (Unggah Berkas &amp; Kirim).
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Render 6-Step Progress
+  const progressBox = document.getElementById('dashPengusulProgressSteps');
+  if (progressBox) {
+    const stepsData = [
+      { num: 1, title: 'Portofolio & CV Master', done: state.kredensialCvGenerated, action: 'openCvModal()' },
+      { num: 2, title: 'Logbook Praktik Klinis 3 Tahun', done: state.kredensialLogbookGenerated, action: 'openLogbookModal()' },
+      { num: 3, title: 'Surat Permohonan Kredensial', done: state.kredensialSuratGenerated, action: 'openSuratPermohonanModal()' },
+      { num: 4, title: 'Asesmen Mandiri RKK Online', done: state.kredensialRkkSubmitted, action: 'openNewKredensialModal()' },
+      { num: 5, title: 'Verifikasi Sumber Primer (PSV)', done: state.kredensialPsvGenerated, action: 'openPsvModal()' },
+      { num: 6, title: 'Unggah Berkas & Kirim Resmi', done: state.kredensialBerkasUploaded, action: 'openUploadBerkasModal()' }
+    ];
+
+    progressBox.innerHTML = stepsData.map(s => `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; border-radius: var(--radius-sm); background: ${s.done ? '#f0fdf4' : 'var(--bg-main)'}; border: 1px solid ${s.done ? '#bbf7d0' : 'var(--border-subtle)'};">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; background: ${s.done ? '#16a34a' : 'var(--border-subtle)'}; color: ${s.done ? '#fff' : 'var(--text-muted)'};">
+            ${s.done ? '<i class="fa-solid fa-check"></i>' : s.num}
+          </span>
+          <span style="font-size: 0.8rem; font-weight: ${s.done ? '700' : '600'}; color: ${s.done ? '#166534' : 'var(--text-main)'};">
+            Langkah ${s.num}: ${s.title}
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 0.72rem; font-weight: 700; color: ${s.done ? '#15803d' : '#94a3b8'};">
+            ${s.done ? '<i class="fa-solid fa-circle-check"></i> Selesai' : '<i class="fa-solid fa-clock"></i> Belum'}
+          </span>
+          <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 0.25rem 0.55rem;" onclick="closeModal('modalDashboardPengusul'); ${s.action};">
+            ${s.done ? 'Lihat / Edit' : 'Mulai'}
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render Timeline
+  const timelineBox = document.getElementById('dashPengusulTimeline');
+  if (timelineBox) {
+    if (app && app.auditTrail && app.auditTrail.length > 0) {
+      timelineBox.innerHTML = app.auditTrail.map(t => `
+        <div class="timeline-audit-item" style="display: flex; gap: 0.75rem; padding: 0.4rem 0;">
+          <div style="color: var(--primary-600);"><i class="fa-solid fa-circle-dot fa-xs"></i></div>
+          <div style="font-size: 0.78rem;">
+            <div><strong>${t.aktor}</strong> &bull; <span style="color: var(--text-muted);">${t.waktu}</span></div>
+            <div style="color: var(--text-muted);">${t.aksi}${t.catatan ? ': ' + t.catatan : ''}</div>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      timelineBox.innerHTML = `
+        <div style="font-size: 0.78rem; color: var(--text-muted); font-style: italic; padding: 0.4rem 0;">
+          <i class="fa-solid fa-info-circle"></i> Berkas dalam persiapan mandiri oleh pemohon. Riwayat verifikasi akan muncul setelah berkas dikirim pada Langkah 6.
+        </div>
+      `;
+    }
+  }
+
+  openModal('modalDashboardPengusul');
+}
+
+function handleUserPillClick() {
+  if (!state.currentUser) {
+    openLoginModal();
+    return;
+  }
+  if (state.currentUser.role === 'pengusul') {
+    openDashboardPengusul(state.currentUser);
+  } else {
+    showToast(`Sesi aktif: ${state.currentUser.name} (${state.currentUser.role})`, 'info');
+  }
+}
+
+function toggleGantiPasswordForm() {
+  const form = document.getElementById('formGantiPassword');
+  if (form) {
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function simpanGantiPassword() {
+  const p1 = document.getElementById('inputPasswordBaru')?.value;
+  const p2 = document.getElementById('inputPasswordKonfirmasi')?.value;
+  if (!p1 || p1.length < 4) {
+    showToast('Kata sandi baru minimal 4 karakter.', 'warning');
+    return;
+  }
+  if (p1 !== p2) {
+    showToast('Konfirmasi kata sandi tidak cocok. Harap ulangi.', 'warning');
+    return;
+  }
+
+  const curUser = state.currentUser;
+  if (!curUser) return;
+
+  const regSaved = localStorage.getItem('komite_registered_pengusul');
+  let regList = [];
+  if (regSaved) {
+    try { regList = JSON.parse(regSaved); } catch(e) { regList = []; }
+  }
+  const cleanNip = (curUser.nip || '').replace(/\s+/g, '');
+  let found = regList.find(a => (a.nip || '').replace(/\s+/g, '') === cleanNip);
+  if (found) {
+    found.password = p1;
+    found.namaSandi = p1;
+    localStorage.setItem('komite_registered_pengusul', JSON.stringify(regList));
+  } else {
+    const masterAcc = (window.KOMITE_DATA?.pengusulAccounts || []).find(a => (a.nip || '').replace(/\s+/g, '') === cleanNip);
+    const updated = {
+      ...(masterAcc || {}),
+      nip: curUser.nip,
+      username: curUser.username,
+      name: curUser.name,
+      password: p1,
+      namaSandi: p1
+    };
+    regList.push(updated);
+    localStorage.setItem('komite_registered_pengusul', JSON.stringify(regList));
+  }
+
+  const p1El = document.getElementById('inputPasswordBaru');
+  const p2El = document.getElementById('inputPasswordKonfirmasi');
+  if (p1El) p1El.value = '';
+  if (p2El) p2El.value = '';
+  toggleGantiPasswordForm();
+  showToast('Kata sandi akun Anda berhasil diperbarui!', 'success');
+}
+
+/* ==========================================================================
+   ALUR PENGISIAN 5S JEPANG (SEIRI, SEITON, SEISO, SEIKETSU, SHITSUKE)
+   ========================================================================== */
+function mulaiPengajuanKredensial5S() {
+  if (state.currentUser && state.currentUser.role === 'pengusul') {
+    openDashboardPengusul(state.currentUser);
+    return;
+  }
+
+  const master = getActiveCvMasterData();
+  const hasCv = master && master.nama && master.nama.trim().length > 0 && master.nip && master.nip.trim().length > 0;
+
+  switchTab('kredensial');
+
+  if (!hasCv) {
+    showToast('Budaya 5S Seiri: Memulai pengajuan dari Langkah 1 (CV Master) sebagai sumber data tunggal.', 'info');
+    openCvModal();
+  } else {
+    const el = document.getElementById('grid6LangkahKredensial') || document.getElementById('pane-kredensial');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+    showToast('Data CV Master siap. Silakan lanjutkan 6 Langkah Kredensialing (5S Seiton).', 'success');
+  }
 }
 
 function updateAuthUI() {
@@ -234,7 +683,9 @@ function updateAuthUI() {
     if (banner) banner.style.display = 'none';
     if (btnLoginNav) btnLoginNav.style.display = 'inline-flex';
     if (adminUserPill) adminUserPill.style.display = 'none';
+    state.privacyModeRevealed = false;
   }
+  updatePrivacyToggleButton();
 }
 
 function isAdmin() {
@@ -357,7 +808,7 @@ function loadData() {
     saveAdminNotifications();
   }
 
-  // Load Usulan Kredensialing (Antrean Meja Verifikasi Subkomite & Monitoring Pimpinan)
+  // Load Usulan Kredensialing
   const savedApps = localStorage.getItem('komite_credential_applications');
   if (savedApps) {
     try {
@@ -389,9 +840,6 @@ function saveAdminNotifications() {
 
 function saveCredentialApplications() {
   localStorage.setItem('komite_credential_applications', JSON.stringify(state.credentialApplications));
-  if (typeof updateMejaCounters === 'function') {
-    updateMejaCounters();
-  }
 }
 
 /* ==========================================================================
@@ -503,10 +951,10 @@ function setupEventListeners() {
     themeBtn.addEventListener('click', toggleTheme);
   }
 
-  // Quick Action Button
+  // Quick Action Button (5S Seiri & Seiton: Alur Terpadu)
   const btnQuick = document.getElementById('btnQuickKredensial');
   if (btnQuick) {
-    btnQuick.addEventListener('click', openSuratPermohonanModal);
+    btnQuick.addEventListener('click', mulaiPengajuanKredensial5S);
   }
 
   // Table Filters (E-Kredensialing Registry)
@@ -544,8 +992,6 @@ function renderAllViews() {
   renderReturnedRkkBanner();
   updateAlurStepStatus();
   renderKredensialTrackerVisual();
-  renderCredentialApplicationsTable();
-  updateMejaCounters();
 }
 
 function renderStructureSK() {
@@ -617,7 +1063,545 @@ function updateHeroStats() {
 
 
 /* ==========================================================================
-   E-KREDENSIALING REGISTRY & TABLE (WITH ADMIN CONTROLS)
+   SISTEM PENGAMANAN & PELINDUNGAN DATA KREDENSIAL RAHASIA
+   (Kepatuhan UU Pelindungan Data Pribadi No. 27/2022 & Permenkes RI No. 49/2013)
+   ========================================================================== */
+
+// 1. Data Masking Utilities
+function maskNip(nip) {
+  if (!nip) return '-';
+  const clean = String(nip).trim();
+  if (clean.length < 8) return '••••••••';
+  const start = clean.slice(0, 4);
+  const end = clean.slice(-3);
+  const maskLen = Math.max(4, clean.length - 7);
+  return `<span class="masked-data-tag" title="Data Disamarkan untuk Perlindungan Privasi (UU PDP)">` +
+         `<i class="fa-solid fa-shield-halved" style="font-size: 0.62rem; color: #059669;"></i> ` +
+         `${start}${'•'.repeat(maskLen)}${end}</span>`;
+}
+
+function maskStr(str) {
+  if (!str) return '-';
+  const clean = String(str).trim();
+  if (clean.length < 8) return '••••-••••••';
+  const start = clean.slice(0, 5);
+  const end = clean.slice(-2);
+  return `<span class="masked-data-tag" title="Nomor STR Rahasia Tenaga Medis/Keperawatan (UU PDP)">` +
+         `<i class="fa-solid fa-lock" style="font-size: 0.62rem; color: #059669;"></i> ` +
+         `${start}••••-••••${end}</span>`;
+}
+
+function maskPhone(phone) {
+  if (!phone) return '-';
+  const clean = String(phone).trim();
+  if (clean.length < 7) return '••••••••';
+  return clean.slice(0, 4) + '••••' + clean.slice(-3);
+}
+
+// 2. Authorization Evaluation Logic
+function isKomiteAdminUser() {
+  if (!state.currentUser) return false;
+  const role = (state.currentUser.role || '').toLowerCase();
+  const badge = (state.currentUser.badge || '').toLowerCase();
+  return role !== 'pengusul' && (
+    role.includes('komite') ||
+    role.includes('subkomite') ||
+    role.includes('ketua') ||
+    role.includes('sekretaris') ||
+    role.includes('kredensial') ||
+    badge.includes('super') ||
+    badge.includes('admin')
+  );
+}
+
+function canViewFullData(nurse) {
+  if (!nurse) return false;
+  if (!state.currentUser) return false;
+
+  // Komite / Subkomite Admins have authorized oversight access
+  if (isKomiteAdminUser()) return true;
+
+  // Pengusul (Nurse / Midwife) only has access to their own credential dossier
+  if (state.currentUser.role === 'pengusul') {
+    const curNip = (state.currentUser.nip || '').trim();
+    const curName = (state.currentUser.name || '').trim().toLowerCase();
+    const nurseNip = (nurse.nip || '').trim();
+    const nurseName = (nurse.name || '').trim().toLowerCase();
+    return (curNip && curNip === nurseNip) || (curName && curName === nurseName);
+  }
+
+  return false;
+}
+
+function canAccessCredentialDoc(nurse, actionName) {
+  if (!nurse) {
+    return { allowed: false, reason: 'Data tenaga keperawatan tidak ditemukan.', role: 'Sistem', user: 'System' };
+  }
+
+  if (!state.currentUser) {
+    return {
+      allowed: false,
+      reason: `Akses ditolak untuk tindakan "${actionName}". Dokumen kredensial klinis merupakan arsip rahasia tenaga kesehatan yang dilindungi oleh UU PDP No. 27/2022. Anda harus masuk (login) sebagai Pengurus Komite atau Tenaga Keperawatan bersangkutan.`,
+      role: 'Publik / Anonim',
+      user: 'Tamu (Belum Login)'
+    };
+  }
+
+  if (isKomiteAdminUser()) {
+    return {
+      allowed: true,
+      reason: 'Otoritas Pengurus Komite Keperawatan terverifikasi.',
+      role: state.currentUser.role || 'Pengurus Komite',
+      user: state.currentUser.name
+    };
+  }
+
+  if (state.currentUser.role === 'pengusul') {
+    const curNip = (state.currentUser.nip || '').trim();
+    const curName = (state.currentUser.name || '').trim().toLowerCase();
+    const nurseNip = (nurse.nip || '').trim();
+    const nurseName = (nurse.name || '').trim().toLowerCase();
+
+    if ((curNip && curNip === nurseNip) || (curName && curName === nurseName)) {
+      return {
+        allowed: true,
+        reason: 'Hak akses mandiri pemilik berkas terverifikasi.',
+        role: 'Tenaga Keperawatan (Pemilik Berkas)',
+        user: state.currentUser.name
+      };
+    } else {
+      return {
+        allowed: false,
+        reason: `Akses ditolak: Anda masuk sebagai ${state.currentUser.name}. Berdasarkan UU No. 27/2022 tentang Pelindungan Data Pribadi, Anda hanya berhak mengakses dan mengunduh berkas SPK & RKK milik Anda sendiri, bukan milik rekan kerja (${nurse.name}).`,
+        role: 'Pengusul Mandiri',
+        user: state.currentUser.name
+      };
+    }
+  }
+
+  return {
+    allowed: false,
+    reason: 'Peran akun Anda tidak memiliki hak akses kredensial.',
+    role: state.currentUser.role || 'User',
+    user: state.currentUser.name
+  };
+}
+
+// 3. Privacy Mode Toggle (Buka / Samarkan Data)
+function togglePrivacyMode() {
+  if (!state.currentUser) {
+    showToast('Akses Terbatas: Silakan login sebagai Pengurus Komite atau Tenaga Keperawatan untuk mengelola penyamaran data rahasia.', 'warning');
+    openLoginModal();
+    return;
+  }
+
+  state.privacyModeRevealed = !state.privacyModeRevealed;
+  updatePrivacyToggleButton();
+  renderNursesTable();
+
+  recordSecurityAudit({
+    action: state.privacyModeRevealed ? 'Buka Penyamaran Data (Reveal Masked)' : 'Aktifkan Penyamaran Data (Enable Privacy)',
+    targetNurse: 'Seluruh Tenaga Keperawatan',
+    targetNip: '-',
+    status: 'DISETUJUI'
+  });
+
+  if (state.privacyModeRevealed) {
+    showToast('Mode Otoritas Aktif: Data NIP & STR ditampilkan untuk verifikasi resmi.', 'info');
+  } else {
+    showToast('Mode Privasi Aktif: Data kredensial disamarkan secara otomatis.', 'success');
+  }
+}
+
+function updatePrivacyToggleButton() {
+  const btn = document.getElementById('btnTogglePrivacy');
+  const icon = document.getElementById('iconPrivacyToggle');
+  const text = document.getElementById('textPrivacyToggle');
+  if (!btn || !icon || !text) return;
+
+  if (state.privacyModeRevealed) {
+    icon.className = 'fa-solid fa-eye';
+    icon.style.color = '#0284c7';
+    text.textContent = 'Data Terbuka (Otoritas)';
+    btn.style.background = '#e0f2fe';
+    btn.style.borderColor = '#7dd3fc';
+    btn.style.color = '#0369a1';
+  } else {
+    icon.className = 'fa-solid fa-eye-slash';
+    icon.style.color = '#059669';
+    text.textContent = 'Data Disamarkan';
+    btn.style.background = 'white';
+    btn.style.borderColor = '#a7f3d0';
+    btn.style.color = '#065f46';
+  }
+}
+
+// 4. Access Gatekeeper for Nurse Detail & SPK/RKK
+function secureViewNurseDetail(nurseId) {
+  const nurse = state.nurses.find(n => n.id === nurseId);
+  if (!nurse) return;
+
+  const authCheck = canAccessCredentialDoc(nurse, 'Lihat Rekam Jejak Detail');
+
+  recordSecurityAudit({
+    action: 'Lihat Rekam Jejak Detail',
+    targetNurse: nurse.name,
+    targetNip: nurse.nip,
+    status: authCheck.allowed ? 'DISETUJUI' : 'DITOLAK'
+  });
+
+  if (!authCheck.allowed) {
+    const titleEl = document.getElementById('secDeniedTitle');
+    const msgEl = document.getElementById('secDeniedMessage');
+    const infoEl = document.getElementById('secDeniedTargetInfo');
+
+    if (titleEl) titleEl.textContent = 'Akses Rekam Jejak Kredensial Terbatas';
+    if (msgEl) msgEl.textContent = authCheck.reason;
+    if (infoEl) {
+      infoEl.style.display = 'block';
+      infoEl.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 3px;">
+          <i class="fa-solid fa-user-lock"></i> Target Data: ${nurse.name} (${nurse.pkLevel})
+        </div>
+        <div>NIP: ${maskNip(nurse.nip)} &bull; Unit: ${nurse.unit}</div>
+        <div style="margin-top: 4px; font-size: 0.76rem; color: #b45309;">
+          Status Pengguna: <strong>${authCheck.user}</strong> (${authCheck.role})
+        </div>
+      `;
+    }
+
+    openModal('modalSecurityDenied');
+    return;
+  }
+
+  viewNurseDetail(nurseId);
+}
+
+function secureOpenPrintSpkModal(nurseId) {
+  const nurse = state.nurses.find(n => n.id === nurseId);
+  if (!nurse) return;
+
+  const authCheck = canAccessCredentialDoc(nurse, 'Cetak Dokumen SPK & RKK');
+
+  recordSecurityAudit({
+    action: 'Cetak Dokumen SPK & RKK',
+    targetNurse: nurse.name,
+    targetNip: nurse.nip,
+    status: authCheck.allowed ? 'DISETUJUI' : 'DITOLAK'
+  });
+
+  if (!authCheck.allowed) {
+    const titleEl = document.getElementById('secDeniedTitle');
+    const msgEl = document.getElementById('secDeniedMessage');
+    const infoEl = document.getElementById('secDeniedTargetInfo');
+
+    if (titleEl) titleEl.textContent = 'Akses Cetak Dokumen SPK & RKK Terbatas';
+    if (msgEl) msgEl.textContent = authCheck.reason;
+    if (infoEl) {
+      infoEl.style.display = 'block';
+      infoEl.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 3px;">
+          <i class="fa-solid fa-file-shield"></i> Dokumen Resmi: SPK & RKK ${nurse.name}
+        </div>
+        <div>No. SPK: ${nurse.spkNumber || 'Belum Terbit'} &bull; Jenjang: ${nurse.pkLevel}</div>
+        <div style="margin-top: 4px; font-size: 0.76rem; color: #b45309;">
+          Status Pengguna: <strong>${authCheck.user}</strong> (${authCheck.role})
+        </div>
+      `;
+    }
+
+    openModal('modalSecurityDenied');
+    return;
+  }
+
+  // Update Dynamic Digital Audit Footer inside SPK Paper
+  const auditMetaEl = document.getElementById('docSecurityAuditMeta');
+  if (auditMetaEl) {
+    const now = new Date();
+    const timeStr = `${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`;
+    const actorStr = state.currentUser ? `${state.currentUser.name} (${state.currentUser.role || state.currentUser.badge})` : 'System';
+    const auditHash = 'SEC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    auditMetaEl.innerHTML = `Diakses & Dicetak: <strong>${actorStr}</strong> &bull; Waktu: ${timeStr} &bull; Token KARS: ${auditHash}`;
+  }
+
+  openPrintSpkModal(nurseId);
+}
+
+// 5. Digital Security Audit Trail Logger (ISO 27001 & Permenkes RI No. 49/2013)
+function getSecurityAuditLogs() {
+  const saved = localStorage.getItem('komite_security_audit_logs');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Sample default initial audit log records demonstrating security compliance
+  const sampleLogs = [
+    {
+      id: 'AUD-SEC-001',
+      timeDisplay: '27/10/2026, 08:30:15',
+      actor: 'dr. H. Batara Hendarto, Sp.An',
+      role: 'Subkomite Kredensial',
+      action: 'Validasi Berkas Kredensial',
+      target: 'Ns. Hendra Kurniawan, S.Kep',
+      nip: '1992••••••••••004',
+      status: 'DISETUJUI'
+    },
+    {
+      id: 'AUD-SEC-002',
+      timeDisplay: '27/10/2026, 09:12:40',
+      actor: 'Anonim / Publik',
+      role: 'Tamu / Tanpa Login',
+      action: 'Cetak Dokumen SPK & RKK',
+      target: 'Ns. Siti Aminah, S.Kep',
+      nip: '1990••••••••••012',
+      status: 'DITOLAK'
+    },
+    {
+      id: 'AUD-SEC-003',
+      timeDisplay: '27/10/2026, 10:05:22',
+      actor: 'Ns. Hendra Kurniawan, S.Kep',
+      role: 'Pengusul Mandiri',
+      action: 'Unduh Berkas Mandiri RKK',
+      target: 'Ns. Hendra Kurniawan, S.Kep',
+      nip: '1992••••••••••004',
+      status: 'DISETUJUI'
+    }
+  ];
+
+  localStorage.setItem('komite_security_audit_logs', JSON.stringify(sampleLogs));
+  return sampleLogs;
+}
+
+function recordSecurityAudit({ action, targetNurse, targetNip, status }) {
+  const logs = getSecurityAuditLogs();
+  const now = new Date();
+  const newEntry = {
+    id: 'AUD-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random()*900 + 100),
+    timeDisplay: now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'medium' }),
+    actor: state.currentUser ? state.currentUser.name : 'Anonim / Publik',
+    role: state.currentUser ? (state.currentUser.role || state.currentUser.badge) : 'Tamu / Tanpa Login',
+    action: action || 'Akses Data Kredensial',
+    target: targetNurse || 'Sistem Registry',
+    nip: targetNip ? (String(targetNip).length > 8 ? String(targetNip).slice(0, 4) + '••••' + String(targetNip).slice(-3) : targetNip) : '-',
+    status: status || 'DISETUJUI'
+  };
+
+  logs.unshift(newEntry);
+  if (logs.length > 200) logs.pop();
+
+  localStorage.setItem('komite_security_audit_logs', JSON.stringify(logs));
+}
+
+function renderSecurityAuditTable() {
+  const logs = getSecurityAuditLogs();
+  const tbody = document.getElementById('securityAuditTableBody');
+  const statTotal = document.getElementById('secStatTotalAccess');
+  const statAuth = document.getElementById('secStatAuthorized');
+  const statBlock = document.getElementById('secStatBlocked');
+
+  const total = logs.length;
+  const authorized = logs.filter(l => l.status === 'DISETUJUI').length;
+  const blocked = logs.filter(l => l.status === 'DITOLAK').length;
+
+  if (statTotal) statTotal.textContent = total;
+  if (statAuth) statAuth.textContent = authorized;
+  if (statBlock) statBlock.textContent = blocked;
+
+  if (!tbody) return;
+
+  if (logs.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+          <i class="fa-solid fa-folder-open fa-2x" style="margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+          Belum ada catatan log aktivitas audit keamanan digital.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = logs.map(l => {
+    const isApproved = l.status === 'DISETUJUI';
+    const statusBadge = isApproved
+      ? '<span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 9999px; font-weight: 700; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-circle-check"></i> Diizinkan</span>'
+      : '<span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 9999px; font-weight: 700; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-ban"></i> Ditolak</span>';
+
+    return `
+      <tr style="border-bottom: 1px solid var(--border-color);">
+        <td style="padding: 0.65rem 1rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">${l.timeDisplay}</td>
+        <td style="padding: 0.65rem 1rem; font-weight: 600; color: var(--text-main);">${l.actor}</td>
+        <td style="padding: 0.65rem 1rem; font-size: 0.78rem; color: var(--text-muted);">${l.role}</td>
+        <td style="padding: 0.65rem 1rem; font-size: 0.8rem; font-weight: 600;">${l.action}</td>
+        <td style="padding: 0.65rem 1rem; font-size: 0.8rem;">
+          <div style="font-weight: 600; color: var(--primary-700);">${l.target}</div>
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">NIP: ${l.nip}</div>
+        </td>
+        <td style="padding: 0.65rem 1rem; text-align: center;">${statusBadge}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openSecurityAuditModal() {
+  recordSecurityAudit({
+    action: 'Buka Log Jejak Audit Keamanan',
+    targetNurse: 'Seluruh Jejak Akses',
+    targetNip: '-',
+    status: 'DISETUJUI'
+  });
+  renderSecurityAuditTable();
+  openModal('modalSecurityAudit');
+}
+
+function clearSecurityAuditLogs() {
+  if (!confirm('Apakah Anda yakin ingin mengosongkan riwayat jejak audit keamanan digital? Tindakan ini akan dicatat ke log sistem baru.')) {
+    return;
+  }
+  localStorage.setItem('komite_security_audit_logs', JSON.stringify([]));
+  recordSecurityAudit({
+    action: 'Pembersihan Jejak Audit (Log Purged)',
+    targetNurse: 'Arsip Sistem',
+    targetNip: '-',
+    status: 'DISETUJUI'
+  });
+  renderSecurityAuditTable();
+  showToast('Catatan jejak audit berhasil dibersihkan dan reset ke sesi baru.', 'info');
+}
+
+// 6. Inactivity Session Lock Screen Guard (15-Minute Timeout)
+function initSessionSecurityGuard() {
+  const updateActivity = () => {
+    state.lastActivityTime = Date.now();
+  };
+
+  ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+    window.addEventListener(evt, updateActivity, { passive: true });
+  });
+
+  // Check every 30 seconds
+  setInterval(() => {
+    if (!isAdmin() || state.isSessionLocked) return;
+    const idleMs = Date.now() - state.lastActivityTime;
+    const maxIdleMs = 15 * 60 * 1000; // 15 Menit Timeout
+    if (idleMs > maxIdleMs) {
+      lockCurrentSession();
+    }
+  }, 30000);
+}
+
+function lockCurrentSession() {
+  if (!isAdmin() || state.isSessionLocked) return;
+
+  state.isSessionLocked = true;
+  const user = state.currentUser;
+
+  const nameEl = document.getElementById('lockScreenUserName');
+  const roleEl = document.getElementById('lockScreenUserRole');
+  const passInput = document.getElementById('inputUnlockPassword');
+  const errBox = document.getElementById('unlockErrorMessage');
+
+  if (nameEl) nameEl.textContent = user ? user.name : 'Pengguna';
+  if (roleEl) roleEl.textContent = user ? (user.role || user.badge || 'Komite Keperawatan') : 'Pengguna Terdaftar';
+  if (passInput) passInput.value = '';
+  if (errBox) errBox.style.display = 'none';
+
+  recordSecurityAudit({
+    action: 'Layar Terkunci Otomatis (Inaktivitas 15 Menit)',
+    targetNurse: user ? user.name : 'Sesi Aktif',
+    targetNip: user ? user.nip : '-',
+    status: 'DISETUJUI'
+  });
+
+  openModal('modalSessionLock');
+}
+
+function handleUnlockSession(event) {
+  if (event) event.preventDefault();
+
+  const passInput = document.getElementById('inputUnlockPassword');
+  const errBox = document.getElementById('unlockErrorMessage');
+  const enteredPass = (passInput?.value || '').trim();
+
+  if (!enteredPass) {
+    if (errBox) {
+      errBox.textContent = 'Harap masukkan kata sandi.';
+      errBox.style.display = 'block';
+    }
+    return;
+  }
+
+  let isMatch = false;
+
+  // Master bypass for testing / demo
+  if (enteredPass === 'admin123' || enteredPass === 'komite123') {
+    isMatch = true;
+  }
+
+  // Check against admin list
+  if (!isMatch && window.KOMITE_DATA?.adminUsers) {
+    const admin = window.KOMITE_DATA.adminUsers.find(u => {
+      const uUser = (u.username || '').toLowerCase();
+      const uNip = (u.nip || '').trim();
+      const curUser = (state.currentUser?.username || '').toLowerCase();
+      const curNip = (state.currentUser?.nip || '').trim();
+      return (uUser === curUser || uNip === curNip) && u.password === enteredPass;
+    });
+    if (admin) isMatch = true;
+  }
+
+  // Check against applicant list
+  if (!isMatch && window.KOMITE_DATA?.credentialApplicants) {
+    const app = window.KOMITE_DATA.credentialApplicants.find(a => {
+      const aUser = (a.username || '').toLowerCase();
+      const aNip = (a.nip || '').trim();
+      const curUser = (state.currentUser?.username || '').toLowerCase();
+      const curNip = (state.currentUser?.nip || '').trim();
+      const matchIdentity = aUser === curUser || aNip === curNip;
+      return matchIdentity && (a.password === enteredPass || a.namaSandi === enteredPass);
+    });
+    if (app) isMatch = true;
+  }
+
+  if (isMatch) {
+    state.isSessionLocked = false;
+    state.lastActivityTime = Date.now();
+    closeModal('modalSessionLock');
+    showToast(`Kunci layar berhasil dibuka. Selamat bekerja kembali, ${state.currentUser?.name || ''}!`, 'success');
+
+    recordSecurityAudit({
+      action: 'Buka Kunci Layar Sesi Berhasil',
+      targetNurse: state.currentUser?.name || 'Sesi Aktif',
+      targetNip: state.currentUser?.nip || '-',
+      status: 'DISETUJUI'
+    });
+  } else {
+    if (errBox) {
+      errBox.textContent = 'Kata sandi tidak sesuai. Silakan coba lagi atau gunakan "Keluar / Ganti Akun".';
+      errBox.style.display = 'block';
+    }
+
+    recordSecurityAudit({
+      action: 'Gagal Buka Kunci Layar (Kata Sandi Keliru)',
+      targetNurse: state.currentUser?.name || 'Sesi Aktif',
+      targetNip: state.currentUser?.nip || '-',
+      status: 'DITOLAK'
+    });
+  }
+}
+
+function logoutFromLockScreen() {
+  closeModal('modalSessionLock');
+  state.isSessionLocked = false;
+  logoutAdmin();
+}
+
+/* ==========================================================================
+   E-KREDENSIALING REGISTRY & TABLE (DENGAN PROTEKSI DATA RAHASIA)
    ========================================================================== */
 function renderNursesTable() {
   const tbody = document.getElementById('nurseTableBody');
@@ -667,6 +1651,11 @@ function renderNursesTable() {
     const statusBadgeClass = getStatusBadgeClass(nurse.credentialStatus);
     const avatar = nurse.avatar || 'https://images.unsplash.com/photo-1594824813589-4a0b271d50c1?w=150&auto=format&fit=crop&q=80';
 
+    // Privacy & Security Evaluation
+    const canSeeFull = canViewFullData(nurse) || state.privacyModeRevealed;
+    const nipDisplay = canSeeFull ? nurse.nip : maskNip(nurse.nip);
+    const strDisplay = canSeeFull ? nurse.strNumber : maskStr(nurse.strNumber);
+
     let statusContent = `
       <span class="badge-status ${statusBadgeClass}">
         <i class="fa-solid fa-circle" style="font-size: 6px;"></i> ${nurse.credentialStatus}
@@ -688,11 +1677,11 @@ function renderNursesTable() {
     }
 
     let actionButtons = `
-      <button class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="viewNurseDetail('${nurse.id}')" title="Lihat Rekam Jejak">
-        <i class="fa-solid fa-eye"></i> Detail
+      <button class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;" onclick="secureViewNurseDetail('${nurse.id}')" title="${canSeeFull ? 'Lihat Rekam Jejak Detail' : 'Akses Terbatas: Butuh Autentikasi'}">
+        ${canSeeFull ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-lock" style="color: #64748b; font-size: 0.75rem;"></i>'} Detail
       </button>
-      <button class="btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; margin-left: 4px;" onclick="openPrintSpkModal('${nurse.id}')" title="Cetak SPK & RKK Resmi">
-        <i class="fa-solid fa-print"></i> SPK & RKK
+      <button class="${canSeeFull ? 'btn-primary' : 'btn-secondary'}" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; margin-left: 4px; ${!canSeeFull ? 'background: #f1f5f9; border-color: #cbd5e1; color: #475569;' : ''}" onclick="secureOpenPrintSpkModal('${nurse.id}')" title="${canSeeFull ? 'Cetak SPK & RKK Resmi' : 'Akses Terbatas: Butuh Autentikasi'}">
+        ${canSeeFull ? '<i class="fa-solid fa-print"></i>' : '<i class="fa-solid fa-shield-halved" style="color: #dc2626; font-size: 0.75rem;"></i>'} SPK & RKK
       </button>
     `;
 
@@ -715,7 +1704,7 @@ function renderNursesTable() {
           <div style="font-size: 0.78rem; color: var(--text-muted);">${nurse.profession || 'Perawat Klinis'}</div>
         </td>
         <td>
-          <div style="font-family: var(--font-mono); font-size: 0.82rem; font-weight: 600;">${nurse.nip}</div>
+          <div style="font-family: var(--font-mono); font-size: 0.82rem; font-weight: 600;">${nipDisplay}</div>
         </td>
         <td>
           <span style="font-size: 0.84rem; font-weight: 600; color: var(--primary-700);">${nurse.unit}</span>
@@ -724,7 +1713,7 @@ function renderNursesTable() {
           <span class="badge-pk ${pkBadgeClass}">${nurse.pkLevel}</span>
         </td>
         <td>
-          <div style="font-family: var(--font-mono); font-size: 0.8rem;">${nurse.strNumber}</div>
+          <div style="font-family: var(--font-mono); font-size: 0.8rem;">${strDisplay}</div>
           <div style="font-size: 0.74rem; color: var(--text-muted);">s/d ${formatDate(nurse.strExpiry)}</div>
           <div style="margin-top: 3px;">
             <span style="font-size: 0.68rem; color: #0f766e; font-weight: 700; background: rgba(13, 148, 136, 0.1); padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;" title="Verifikasi Sumber Asli (PSV) Bebas Cacat">
@@ -1297,15 +2286,14 @@ function renderUnitDistributionChart() {
 function openNewKredensialModal() {
   state.wizardStep = 1;
 
-  // Pastikan data tersinkronisasi penuh dan terkunci dari Langkah 1 (CV) & form sebelumnya
+  // 5S Seiri: Data tersinkronisasi penuh dari Langkah 1 (CV) sebagai Single Source of Truth
   syncAllDownstreamFormsFromCv();
   syncJenisPermohonanToRkk();
 
-  const jenjangVal = document.getElementById('formJenjang')?.value || 'PK III';
+  const master = getActiveCvMasterData();
+  const jenjangVal = master.jenjang || document.getElementById('formJenjang')?.value || 'PK III';
   onJenjangChange(jenjangVal);
 
-  // Pastikan Rumpun / Area Kekhususan Klinis terisi dan terkunci sesuai form sebelumnya
-  const master = getActiveCvMasterData();
   const effectiveArea = master.areaKlinis || state.selectedAreaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
   const selArea = document.getElementById('formAreaKlinis');
   if (selArea) {
@@ -1314,22 +2302,52 @@ function openNewKredensialModal() {
     } else if (selArea.options.length > 0) {
       selArea.selectedIndex = 0;
     }
-    selArea.classList.add('input-locked');
-    selArea.setAttribute('tabindex', '-1');
-    selArea.style.pointerEvents = 'none';
-    selArea.style.background = 'var(--bg-locked, #f1f5f9)';
-    selArea.style.cursor = 'not-allowed';
-  }
-  if (selArea?.value) {
-    onAreaKlinisChange(selArea.value);
   }
 
-  syncJenisPermohonanToRkk();
+  // Populate Smart 5S Applicant Profile Banner (Zero Redundancy)
+  const hNama = document.getElementById('rkkHeaderNama');
+  const hNip = document.getElementById('rkkHeaderNip');
+  const hStr = document.getElementById('rkkHeaderStr');
+  const hUnit = document.getElementById('rkkHeaderUnit');
+  const hJenjang = document.getElementById('rkkHeaderJenjang');
+  const hArea = document.getElementById('rkkHeaderArea');
+
+  if (hNama) hNama.textContent = master.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (hNip) hNip.textContent = master.nip || '-';
+  if (hStr) hStr.textContent = master.noStr || '-';
+  if (hUnit) hUnit.textContent = master.unit || 'Enggang Gading 2';
+  if (hJenjang) hJenjang.textContent = master.jenjang || 'PK III';
+  if (hArea) {
+    const areaOpt = selArea?.querySelector(`option[value="${selArea.value}"]`);
+    hArea.textContent = 'Rumpun White Book 2026: ' + (areaOpt ? areaOpt.textContent : effectiveArea);
+  }
+
+  // Populate hidden inputs for 100% backward compatibility
+  const fNama = document.getElementById('formNama');
+  const fNip = document.getElementById('formNip');
+  const fStr = document.getElementById('formStr');
+  const fJenjang = document.getElementById('formJenjang');
+  const fUnit = document.getElementById('formUnit');
+  if (fNama) fNama.value = master.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (fNip) fNip.value = master.nip || '-';
+  if (fStr) fStr.value = master.noStr || '-';
+  if (fJenjang) fJenjang.value = master.jenjang || 'PK III';
+  if (fUnit) fUnit.value = master.unit || 'Enggang Gading 2';
+
+  // Sinkronkan filter area ke pilihan aktif
+  const filterAreaEl = document.getElementById('formRkkAreaFilter');
+  if (filterAreaEl && effectiveArea) {
+    if (filterAreaEl.querySelector(`option[value="${effectiveArea}"]`)) {
+      filterAreaEl.value = effectiveArea;
+    }
+  }
+
+  // Muat daftar kewenangan klinis sesuai rumpun & jenjang
+  onAreaKlinisChange(effectiveArea);
 
   const checkIntegritas = document.getElementById('checkPernyataanIntegritas');
   if (checkIntegritas) checkIntegritas.checked = false;
 
-  updateWizardUI();
   openModal('modalNewKredensial');
 }
 
@@ -1339,8 +2357,10 @@ function updateWizardUI() {
   const btnNext = document.getElementById('btnWizardNext');
   const btnSubmit = document.getElementById('btnWizardSubmit');
 
-  const pct = ((state.wizardStep - 1) / 3) * 100;
-  if (progressLine) progressLine.style.width = `${pct}%`;
+  if (progressLine) {
+    const pct = ((state.wizardStep - 1) / 3) * 100;
+    progressLine.style.width = `${pct}%`;
+  }
 
   for (let i = 1; i <= 4; i++) {
     const stepEl = document.getElementById(`stepIndicator${i}`);
@@ -6434,7 +7454,7 @@ function simpanUploadSurat(e) {
   updateAlurStepStatus();
   renderKredensialTrackerVisual(nip);
 
-  // Otomatis masukkan permohonan ke Antrean Meja Verifikasi Subkomite & Monitoring Pimpinan
+  // Masukkan permohonan ke riwayat usulan kredensialing
   const regNumber = `KRED/RSUD-DS/2026/${String(Math.floor(100 + Math.random() * 900))}`;
   const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
   
@@ -6487,7 +7507,7 @@ function simpanUploadSurat(e) {
         {
           waktu: nowFormatted,
           user: 'Sistem Terpadu Komite Keperawatan',
-          aksi: 'Berkas masuk ke antrean Meja Verifikasi Sub Komite Kredensial & Terpantau Pimpinan Komite'
+          aksi: 'Berkas permohonan kredensialing terkirim lengkap ke sistem Komite Keperawatan'
         }
       ]
     };
@@ -6503,7 +7523,6 @@ function simpanUploadSurat(e) {
     });
   }
   saveCredentialApplications();
-  renderCredentialApplicationsTable();
 
   // Rekam dan kirim notifikasi resmi ke email Komite & Sekretaris
   const adminSubject = `[PERMOHONAN KREDENSIALING RESMI TERKIRIM] ${pemohon} (${jenjang} - ${unit}) - 6 Tahap Lengkap`;
@@ -6916,13 +7935,17 @@ function viewNurseDetail(nurseId) {
   if (btnPrint) {
     btnPrint.onclick = () => {
       closeModal('modalNurseDetail');
-      openPrintSpkModal(nurse.id);
+      secureOpenPrintSpkModal(nurse.id);
     };
   }
 
   const pkBadgeClass = getPkBadgeClass(nurse.pkLevel);
   const statusBadgeClass = getStatusBadgeClass(nurse.credentialStatus);
   const avatar = nurse.avatar || 'https://images.unsplash.com/photo-1594824813589-4a0b271d50c1?w=150&auto=format&fit=crop&q=80';
+
+  const canSeeFull = canViewFullData(nurse) || state.privacyModeRevealed;
+  const nipDisplay = canSeeFull ? nurse.nip : maskNip(nurse.nip);
+  const strDisplay = canSeeFull ? nurse.strNumber : maskStr(nurse.strNumber);
 
   if (modalBody) {
     modalBody.innerHTML = `
@@ -6941,11 +7964,11 @@ function viewNurseDetail(nurseId) {
       <div class="form-grid-2">
         <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
           <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Nomor Induk Pegawai (NIP)</div>
-          <div style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; margin-top: 3px;">${nurse.nip}</div>
+          <div style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; margin-top: 3px;">${nipDisplay}</div>
         </div>
         <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
           <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Surat Tanda Registrasi (STR)</div>
-          <div style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; margin-top: 3px;">${nurse.strNumber}</div>
+          <div style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; margin-top: 3px;">${strDisplay}</div>
           <div style="font-size: 0.75rem; color: var(--text-muted);">Berlaku s/d ${formatDate(nurse.strExpiry)}</div>
         </div>
       </div>
@@ -8649,668 +9672,35 @@ window.onCvJenjangOrUnitChange = onCvJenjangOrUnitChange;
 window.onCvAreaKlinisChange = onCvAreaKlinisChange;
 window.syncJenisPermohonanToRkk = syncJenisPermohonanToRkk;
 
-/* ==========================================================================
-   MEJA KERJA VERIFIKASI SUBKOMITE & MONITORING PIMPINAN KOMITE
-   ========================================================================== */
-
-function switchMejaRole(roleKey) {
-  state.activeMejaRole = roleKey;
-  
-  // Update button active state
-  ['yohanes', 'rusmulyadi', 'separia', 'pengusul'].forEach(r => {
-    const btn = document.getElementById(`btnRole${r.charAt(0).toUpperCase() + r.slice(1)}`);
-    if (btn) {
-      if (r === roleKey) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    }
-  });
-
-  const roleName = document.getElementById('mejaRoleName');
-  const roleDesc = document.getElementById('mejaRoleDesc');
-  const roleAvatar = document.getElementById('mejaRoleAvatar');
-
-  if (roleKey === 'yohanes') {
-    if (roleName) roleName.innerHTML = 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep (Ketua Sub Komite Kredensial)';
-    if (roleDesc) roleDesc.textContent = 'Hak Akses: Memeriksa 8 berkas kelengkapan digital, validasi sumber asli (PSV), menetapkan telaah Mitra Bestari, dan menyusun draf rekomendasi kewenangan klinis.';
-    if (roleAvatar) {
-      roleAvatar.style.background = 'var(--primary-600)';
-      roleAvatar.innerHTML = '<i class="fa-solid fa-user-doctor"></i>';
-    }
-  } else if (roleKey === 'rusmulyadi') {
-    if (roleName) roleName.innerHTML = 'Ns. Rusmulyadi, S.Kep., MARS (Sekretaris Komite Keperawatan)';
-    if (roleDesc) roleDesc.textContent = 'Hak Akses: Monitoring Real-Time antrean permohonan, verifikasi kelengkapan administrasi, kepatuhan audit STARKES, dan disposisi tindak lanjut.';
-    if (roleAvatar) {
-      roleAvatar.style.background = '#0284c7';
-      roleAvatar.innerHTML = '<i class="fa-solid fa-user-pen"></i>';
-    }
-  } else if (roleKey === 'separia') {
-    if (roleName) roleName.innerHTML = 'M. Separia Russanto, S.Kep., Ns (Ketua Komite Keperawatan)';
-    if (roleDesc) roleDesc.textContent = 'Hak Akses: Pengawasan Eksekutif, review catatan telaah Mitra Bestari, serta pengesahan rekomendasi SPK/RKK untuk diteruskan ke Direktur Rumah Sakit.';
-    if (roleAvatar) {
-      roleAvatar.style.background = '#9333ea';
-      roleAvatar.innerHTML = '<i class="fa-solid fa-user-shield"></i>';
-    }
-  } else if (roleKey === 'pengusul') {
-    if (roleName) roleName.innerHTML = 'Tenaga Keperawatan & Kebidanan (Pengusul Mandiri)';
-    if (roleDesc) roleDesc.textContent = 'Mode Pengusul: Memantau progres verifikasi berkas portofolio mandiri dari pengajuan Langkah 1 sampai Langkah 6 hingga terbit rekomendasi.';
-    if (roleAvatar) {
-      roleAvatar.style.background = '#059669';
-      roleAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
-    }
-  }
-
-  renderCredentialApplicationsTable();
-}
-
-function updateMejaCounters() {
-  const apps = state.credentialApplications || [];
-  const total = apps.length;
-  const menungguVerif = apps.filter(a => a.status === 'Menunggu Verifikasi Subkomite').length;
-  const mitraBestari = apps.filter(a => a.status === 'Proses Telaah Mitra Bestari').length;
-  const menungguPimpinan = apps.filter(a => a.status === 'Menunggu Pengesahan Pimpinan').length;
-  const selesai = apps.filter(a => a.status === 'Selesai / Terbit Rekomendasi' || a.status === 'Selesai / Terbit SPK').length;
-  const revisi = apps.filter(a => a.status === 'Perlu Revisi').length;
-
-  const elTotal = document.getElementById('cntTotalUsulan');
-  if (elTotal) elTotal.textContent = total;
-  const elVerif = document.getElementById('cntMenungguVerifikasi');
-  if (elVerif) elVerif.textContent = menungguVerif;
-  const elMitra = document.getElementById('cntProsesMitraBestari');
-  if (elMitra) elMitra.textContent = mitraBestari;
-  const elPimpinan = document.getElementById('cntMenungguPengesahan');
-  if (elPimpinan) elPimpinan.textContent = menungguPimpinan;
-  const elSelesai = document.getElementById('cntSelesai');
-  if (elSelesai) elSelesai.textContent = selesai;
-
-  const bAll = document.getElementById('badgePillAll');
-  if (bAll) bAll.textContent = total;
-  const bSub = document.getElementById('badgePillSubkomite');
-  if (bSub) bSub.textContent = menungguVerif;
-  const bMitra = document.getElementById('badgePillMitra');
-  if (bMitra) bMitra.textContent = mitraBestari;
-  const bPimp = document.getElementById('badgePillPimpinan');
-  if (bPimp) bPimp.textContent = menungguPimpinan;
-  const bRev = document.getElementById('badgePillRevisi');
-  if (bRev) bRev.textContent = revisi;
-}
-
-function filterCredentialApplications(status) {
-  state.appFilterStatus = status;
-
-  // Update pills active
-  ['All', 'Subkomite', 'Mitra', 'Pimpinan', 'Revisi'].forEach(p => {
-    const pill = document.getElementById(`pillFilter${p}`);
-    if (pill) pill.classList.remove('active');
-  });
-
-  if (status === 'all') {
-    document.getElementById('pillFilterAll')?.classList.add('active');
-  } else if (status === 'Menunggu Verifikasi Subkomite') {
-    document.getElementById('pillFilterSubkomite')?.classList.add('active');
-  } else if (status === 'Proses Telaah Mitra Bestari') {
-    document.getElementById('pillFilterMitra')?.classList.add('active');
-  } else if (status === 'Menunggu Pengesahan Pimpinan') {
-    document.getElementById('pillFilterPimpinan')?.classList.add('active');
-  } else if (status === 'Perlu Revisi') {
-    document.getElementById('pillFilterRevisi')?.classList.add('active');
-  }
-
-  // Update counter cards active state
-  ['Total', 'Subkomite', 'Mitra', 'Pimpinan', 'Selesai'].forEach(c => {
-    const card = document.getElementById(`cardCnt${c}`);
-    if (card) card.classList.remove('active');
-  });
-  if (status === 'all') document.getElementById('cardCntTotal')?.classList.add('active');
-  if (status === 'Menunggu Verifikasi Subkomite') document.getElementById('cardCntSubkomite')?.classList.add('active');
-  if (status === 'Proses Telaah Mitra Bestari') document.getElementById('cardCntMitra')?.classList.add('active');
-  if (status === 'Menunggu Pengesahan Pimpinan') document.getElementById('cardCntPimpinan')?.classList.add('active');
-  if (status.includes('Selesai')) document.getElementById('cardCntSelesai')?.classList.add('active');
-
-  renderCredentialApplicationsTable();
-}
-
-function searchCredentialApplications(query) {
-  state.searchAppQuery = (query || '').toLowerCase().trim();
-  renderCredentialApplicationsTable();
-}
-
-function renderCredentialApplicationsTable() {
-  const tbody = document.getElementById('credentialApplicationsTableBody');
-  const emptyState = document.getElementById('emptyMejaVerifikasi');
-  if (!tbody) return;
-
-  updateMejaCounters();
-
-  let apps = state.credentialApplications || [];
-
-  // Filter status
-  if (state.appFilterStatus && state.appFilterStatus !== 'all') {
-    if (state.appFilterStatus === 'Selesai / Terbit SPK') {
-      apps = apps.filter(a => a.status === 'Selesai / Terbit Rekomendasi' || a.status === 'Selesai / Terbit SPK');
-    } else {
-      apps = apps.filter(a => a.status === state.appFilterStatus);
-    }
-  }
-
-  // Search query
-  if (state.searchAppQuery) {
-    apps = apps.filter(a => 
-      (a.nama || '').toLowerCase().includes(state.searchAppQuery) ||
-      (a.nip || '').toLowerCase().includes(state.searchAppQuery) ||
-      (a.unit || '').toLowerCase().includes(state.searchAppQuery) ||
-      (a.nomorRegistrasi || '').toLowerCase().includes(state.searchAppQuery)
-    );
-  }
-
-  if (apps.length === 0) {
-    tbody.innerHTML = '';
-    if (emptyState) emptyState.style.display = 'block';
-    return;
-  }
-
-  if (emptyState) emptyState.style.display = 'none';
-
-  let html = '';
-  apps.forEach((app, idx) => {
-    // Determine status badge class & label
-    let badgeClass = 'status-subkomite';
-    let iconStatus = '<i class="fa-solid fa-clock"></i>';
-    if (app.status === 'Proses Telaah Mitra Bestari') {
-      badgeClass = 'status-mitra-bestari';
-      iconStatus = '<i class="fa-solid fa-user-gear"></i>';
-    } else if (app.status === 'Menunggu Pengesahan Pimpinan') {
-      badgeClass = 'status-pimpinan';
-      iconStatus = '<i class="fa-solid fa-stamp"></i>';
-    } else if (app.status.includes('Selesai')) {
-      badgeClass = 'status-selesai';
-      iconStatus = '<i class="fa-solid fa-circle-check"></i>';
-    } else if (app.status === 'Perlu Revisi') {
-      badgeClass = 'status-revisi';
-      iconStatus = '<i class="fa-solid fa-rotate-left"></i>';
-    }
-
-    // PSV pill
-    const psvCheckedCount = Object.values(app.psvChecklist || {}).filter(Boolean).length;
-    const psvBadge = psvCheckedCount === 4
-      ? `<span style="font-size: 0.72rem; font-weight: 700; color: #065f46; background: #d1fae5; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 999px;"><i class="fa-solid fa-check"></i> PSV Valid (4/4)</span>`
-      : `<span style="font-size: 0.72rem; font-weight: 700; color: #92400e; background: #fef3c7; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 999px;"><i class="fa-solid fa-hourglass-half"></i> PSV (${psvCheckedCount}/4)</span>`;
-
-    // Role-tailored action button label and style
-    let actionBtnHtml = '';
-    if (state.activeMejaRole === 'yohanes') {
-      actionBtnHtml = `
-        <button class="btn-primary" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; white-space: nowrap; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="openMejaVerifikasiModal('${app.id}')">
-          <i class="fa-solid fa-clipboard-check"></i> Verifikasi Berkas
-        </button>
-      `;
-    } else if (state.activeMejaRole === 'rusmulyadi') {
-      actionBtnHtml = `
-        <button class="btn-secondary" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; white-space: nowrap; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; color: #0284c7; border-color: #bae6fd; background: #f0f9ff;" onclick="openMejaVerifikasiModal('${app.id}', 'tabVerif3')">
-          <i class="fa-solid fa-binoculars"></i> Review Sekretaris
-        </button>
-      `;
-    } else if (state.activeMejaRole === 'separia') {
-      actionBtnHtml = `
-        <button class="btn-primary" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; white-space: nowrap; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; background: #9333ea; border-color: #7e22ce;" onclick="openMejaVerifikasiModal('${app.id}', 'tabVerif3')">
-          <i class="fa-solid fa-stamp"></i> Sahkan Ketua
-        </button>
-      `;
-    } else {
-      actionBtnHtml = `
-        <button class="btn-secondary" style="font-size: 0.76rem; padding: 0.35rem 0.75rem; white-space: nowrap; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="openMejaVerifikasiModal('${app.id}')">
-          <i class="fa-solid fa-eye"></i> Lihat Detail
-        </button>
-      `;
-    }
-
-    // Executive oversight pill
-    const pimpinanStatus = app.pengawasanPimpinan?.statusReview || 'Dalam Pemantauan';
-    const pimpinanNote = app.pengawasanPimpinan?.catatanSekretaris || app.pengawasanPimpinan?.catatanKetua || 'Memantau alur verifikasi berkas subkomite.';
-
-    html += `
-      <tr>
-        <td style="text-align: center; font-weight: 700; color: var(--text-muted);">${idx + 1}</td>
-        <td>
-          <div style="font-weight: 700; color: var(--primary-700); font-size: 0.82rem;">${app.nomorRegistrasi || app.id}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-calendar-day"></i> ${app.tanggalPengajuan}</div>
-          <div style="font-size: 0.7rem; font-weight: 600; color: #0369a1; margin-top: 2px;">${app.jenisPermohonan || 'Kredensialing'}</div>
-        </td>
-        <td>
-          <div style="font-weight: 800; color: var(--text-main); font-size: 0.88rem;">${app.nama}</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">NIP: ${app.nip}</div>
-          <div style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-certificate"></i> STR: ${app.strNumber || '-'}</div>
-        </td>
-        <td>
-          <div style="font-weight: 700; color: var(--text-main); font-size: 0.82rem;">${app.unit}</div>
-          <div><span style="font-size: 0.72rem; font-weight: 800; color: var(--primary-700); background: rgba(13, 148, 136, 0.1); padding: 1px 6px; border-radius: 4px;">${app.jenjang}</span></div>
-          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${app.areaName || ''}">${app.areaName || '-'}</div>
-        </td>
-        <td>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div style="display: flex; gap: 4px; align-items: center; font-size: 0.75rem;">
-              <span title="CV" style="color: #10b981;"><i class="fa-solid fa-address-card"></i></span>
-              <span title="Logbook" style="color: #10b981;"><i class="fa-solid fa-book-medical"></i></span>
-              <span title="Surat" style="color: #10b981;"><i class="fa-solid fa-file-signature"></i></span>
-              <span title="RKK" style="color: #10b981;"><i class="fa-solid fa-list-check"></i></span>
-              <span style="font-weight: 700; color: var(--text-muted); font-size: 0.7rem; margin-left: 2px;">8 Berkas Lengkap</span>
-            </div>
-            <div>${psvBadge}</div>
-          </div>
-        </td>
-        <td>
-          <span class="badge-app-status ${badgeClass}">
-            ${iconStatus} ${app.status}
-          </span>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
-            ${app.verifikator?.nama ? `<i class="fa-solid fa-user-check" style="color: #059669;"></i> ${app.verifikator.nama}` : '<i class="fa-solid fa-circle-exclamation" style="color: #f59e0b;"></i> Belum diperiksa'}
-          </div>
-        </td>
-        <td>
-          <div style="font-size: 0.76rem; font-weight: 700; color: #7e22ce; display: flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-eye"></i> ${pimpinanStatus}
-          </div>
-          <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${pimpinanNote}">
-            ${pimpinanNote}
-          </div>
-        </td>
-        <td style="text-align: center;">
-          ${actionBtnHtml}
-        </td>
-      </tr>
-    `;
-  });
-
-  tbody.innerHTML = html;
-}
-
-function openMejaVerifikasiModal(appId, initialTab) {
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) {
-    showToast('Data usulan kredensial tidak ditemukan', 'warning');
-    return;
-  }
-
-  state.currentVerifyingAppId = appId;
-
-  // Populate Header
-  const elNama = document.getElementById('modalAppNama');
-  if (elNama) elNama.textContent = app.nama;
-  const elNip = document.getElementById('modalAppNip');
-  if (elNip) elNip.textContent = app.nip;
-  const elUnit = document.getElementById('modalAppUnit');
-  if (elUnit) elUnit.textContent = app.unit;
-  const elJenjang = document.getElementById('modalAppJenjang');
-  if (elJenjang) elJenjang.textContent = app.jenjang;
-  const elArea = document.getElementById('modalAppArea');
-  if (elArea) elArea.textContent = `${app.areaName || 'Kewenangan Klinis'} • Permohonan: ${app.jenisPermohonan || 'Kredensialing'}`;
-  const elReg = document.getElementById('modalAppRegNum');
-  if (elReg) elReg.textContent = `No. Reg: ${app.nomorRegistrasi || app.id}`;
-  const elDate = document.getElementById('modalAppDate');
-  if (elDate) elDate.textContent = `Diajukan: ${app.tanggalPengajuan}`;
-
-  // Update Status Badge in Header
-  const badgeEl = document.getElementById('modalAppStatusBadge');
-  if (badgeEl) {
-    badgeEl.textContent = app.status;
-    badgeEl.className = 'badge-app-status ' + (
-      app.status === 'Proses Telaah Mitra Bestari' ? 'status-mitra-bestari' :
-      app.status === 'Menunggu Pengesahan Pimpinan' ? 'status-pimpinan' :
-      app.status.includes('Selesai') ? 'status-selesai' :
-      app.status === 'Perlu Revisi' ? 'status-revisi' : 'status-subkomite'
-    );
-  }
-
-  // Tab 1: Checklist PSV
-  const pddikti = document.getElementById('chkPsvPddikti');
-  if (pddikti) pddikti.checked = !!app.psvChecklist?.pddikti;
-  const str = document.getElementById('chkPsvStr');
-  if (str) str.checked = !!app.psvChecklist?.strBsre;
-  const sipp = document.getElementById('chkPsvSipp');
-  if (sipp) sipp.checked = !!app.psvChecklist?.sipp;
-  const pelatihan = document.getElementById('chkPsvPelatihan');
-  if (pelatihan) pelatihan.checked = !!app.psvChecklist?.pelatihan;
-
-  // Verifikator
-  const selectVerifikator = document.getElementById('selectVerifikatorNama');
-  if (selectVerifikator) {
-    selectVerifikator.value = app.verifikator?.nama || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep';
-  }
-  const txtCatatanVerif = document.getElementById('txtCatatanVerifikator');
-  if (txtCatatanVerif) txtCatatanVerif.value = app.verifikator?.catatan || '';
-
-  // Tab 2: Mitra Bestari
-  const inputNamaMitra = document.getElementById('inputNamaMitraBestari');
-  if (inputNamaMitra) inputNamaMitra.value = app.mitraBestari?.nama || 'Tim Mitra Bestari Subkomite Kredensial';
-  const selRekMitra = document.getElementById('selectRekomendasiMitra');
-  if (selRekMitra) selRekMitra.value = app.mitraBestari?.rekomendasi || 'Disetujui Penuh';
-  const txtMitra = document.getElementById('txtCatatanMitraBestari');
-  if (txtMitra) txtMitra.value = app.mitraBestari?.catatan || '';
-
-  // Tab 3: Pimpinan
-  const txtSekretaris = document.getElementById('txtCatatanSekretaris');
-  if (txtSekretaris) txtSekretaris.value = app.pengawasanPimpinan?.catatanSekretaris || '';
-  const txtKetua = document.getElementById('txtCatatanKetua');
-  if (txtKetua) txtKetua.value = app.pengawasanPimpinan?.catatanKetua || '';
-
-  // Tab 4: Audit Trail Timeline
-  renderModalAuditTrailTimeline(app);
-
-  // Switch to initial tab or tabVerif1
-  switchVerificationTab(initialTab || 'tabVerif1');
-
-  openModal('modalMejaVerifikasiKredensial');
-}
-
-function switchVerificationTab(tabId) {
-  ['tabVerif1', 'tabVerif2', 'tabVerif3', 'tabVerif4'].forEach(id => {
-    const pane = document.getElementById(id);
-    if (pane) pane.classList.remove('active');
-  });
-
-  ['btnMejaTab1', 'btnMejaTab2', 'btnMejaTab3', 'btnMejaTab4'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.classList.remove('active');
-  });
-
-  const activePane = document.getElementById(tabId);
-  if (activePane) activePane.classList.add('active');
-
-  const btnIndex = tabId.replace('tabVerif', '');
-  const activeBtn = document.getElementById(`btnMejaTab${btnIndex}`);
-  if (activeBtn) activeBtn.classList.add('active');
-}
-
-function renderModalAuditTrailTimeline(app) {
-  const container = document.getElementById('modalAuditTrailList');
-  if (!container) return;
-
-  const timeline = app.timeline || [];
-  if (timeline.length === 0) {
-    container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem;">Belum ada jejak audit untuk permohonan ini.</div>';
-    return;
-  }
-
-  let html = '';
-  timeline.forEach(item => {
-    let dotClass = '';
-    const userLower = (item.user || '').toLowerCase();
-    if (userLower.includes('ketua komite')) dotClass = 'pimpinan';
-    else if (userLower.includes('sekretaris')) dotClass = 'sekretaris';
-    else if (userLower.includes('subkomite')) dotClass = 'subkomite';
-
-    html += `
-      <div class="timeline-audit-item">
-        <div class="timeline-audit-dot ${dotClass}"></div>
-        <div class="timeline-audit-header">
-          <div class="timeline-audit-user"><i class="fa-solid fa-user-check" style="font-size: 0.75rem;"></i> ${item.user}</div>
-          <div class="timeline-audit-time"><i class="fa-solid fa-clock" style="font-size: 0.7rem;"></i> ${item.waktu}</div>
-        </div>
-        <div class="timeline-audit-action">${item.aksi}</div>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-}
-
-function simpanVerifikasiSubkomite() {
-  const appId = state.currentVerifyingAppId;
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) {
-    showToast('Data usulan tidak ditemukan', 'warning');
-    return;
-  }
-
-  const verifikatorNama = document.getElementById('selectVerifikatorNama')?.value || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep';
-  const catatan = document.getElementById('txtCatatanVerifikator')?.value?.trim() || 'Seluruh berkas persyaratan fisik dan digital serta validasi sumber asli (PSV) telah terverifikasi lengkap dan sahih.';
-  const psvPddikti = document.getElementById('chkPsvPddikti')?.checked;
-  const psvStr = document.getElementById('chkPsvStr')?.checked;
-  const psvSipp = document.getElementById('chkPsvSipp')?.checked;
-  const psvPelatihan = document.getElementById('chkPsvPelatihan')?.checked;
-
-  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
-
-  // Update app fields
-  app.psvChecklist = {
-    pddikti: psvPddikti,
-    strBsre: psvStr,
-    sipp: psvSipp,
-    pelatihan: psvPelatihan
-  };
-
-  app.verifikator = {
-    nama: verifikatorNama,
-    nip: verifikatorNama.includes('Yohanes') ? '19850612 201001 1 012' : '19880112 201101 2 004',
-    tanggal: new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}),
-    catatan: catatan,
-    status: 'Terverifikasi Memenuhi Syarat'
-  };
-
-  app.status = 'Proses Telaah Mitra Bestari';
-  app.timeline = app.timeline || [];
-  app.timeline.unshift({
-    waktu: nowFormatted,
-    user: `${verifikatorNama} (Subkomite Kredensial)`,
-    aksi: `Memverifikasi Berkas Digital & Checklist PSV (Sahih). Disposisi diteruskan ke Tim Mitra Bestari.`
-  });
-
-  saveCredentialApplications();
-  renderCredentialApplicationsTable();
-  renderModalAuditTrailTimeline(app);
-
-  // Update header status badge inside modal
-  const badgeEl = document.getElementById('modalAppStatusBadge');
-  if (badgeEl) {
-    badgeEl.textContent = app.status;
-    badgeEl.className = 'badge-app-status status-mitra-bestari';
-  }
-
-  showToast(`Berkas atas nama ${app.nama} BERHASIL DIVERIFIKASI SAH oleh Subkomite Kredensial! Dilanjutkan ke Telaah Mitra Bestari.`, 'success');
-
-  // Pindah otomatis ke tab 2 (Mitra Bestari)
-  switchVerificationTab('tabVerif2');
-}
-
-function kembalikanPermohonanRevisi() {
-  const appId = state.currentVerifyingAppId;
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) return;
-
-  const txtCatatan = document.getElementById('txtCatatanVerifikator')?.value?.trim();
-  const catatan = txtCatatan || prompt('Masukkan catatan kekurangan / revisi berkas untuk pemohon:');
-  if (!catatan) {
-    showToast('Harap isi catatan revisi berkas yang perlu diperbaiki oleh pengusul', 'warning');
-    return;
-  }
-
-  const verifikatorNama = document.getElementById('selectVerifikatorNama')?.value || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep';
-  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
-
-  app.status = 'Perlu Revisi';
-  app.verifikator = {
-    nama: verifikatorNama,
-    nip: '19850612 201001 1 012',
-    tanggal: new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}),
-    catatan: catatan,
-    status: 'Dikembalikan untuk Revisi'
-  };
-
-  app.timeline = app.timeline || [];
-  app.timeline.unshift({
-    waktu: nowFormatted,
-    user: `${verifikatorNama} (Subkomite Kredensial)`,
-    aksi: `Mengembalikan berkas usulan untuk perbaikan: "${catatan}"`
-  });
-
-  saveCredentialApplications();
-  renderCredentialApplicationsTable();
-  renderModalAuditTrailTimeline(app);
-
-  const badgeEl = document.getElementById('modalAppStatusBadge');
-  if (badgeEl) {
-    badgeEl.textContent = app.status;
-    badgeEl.className = 'badge-app-status status-revisi';
-  }
-
-  showToast(`Berkas atas nama ${app.nama} dikembalikan untuk revisi. Catatan perbaikan telah tercatat di sistem.`, 'warning');
-}
-
-function simpanTelaahMitraBestari() {
-  const appId = state.currentVerifyingAppId;
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) return;
-
-  const namaMitra = document.getElementById('inputNamaMitraBestari')?.value?.trim() || 'Tim Mitra Bestari Subkomite Kredensial';
-  const rekomendasi = document.getElementById('selectRekomendasiMitra')?.value || 'Disetujui Penuh';
-  const catatan = document.getElementById('txtCatatanMitraBestari')?.value?.trim() || 'Seluruh rincian kewenangan klinis yang diajukan sesuai dengan portofolio logbook dan standar Buku Putih 2026.';
-
-  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
-
-  app.mitraBestari = {
-    nama: namaMitra,
-    tanggal: new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}),
-    rekomendasi: rekomendasi,
-    catatan: catatan
-  };
-
-  app.status = 'Menunggu Pengesahan Pimpinan';
-  if (app.pengawasanPimpinan) {
-    app.pengawasanPimpinan.statusReview = 'Menunggu Pengesahan Rekomendasi Pimpinan';
-  }
-
-  app.timeline = app.timeline || [];
-  app.timeline.unshift({
-    waktu: nowFormatted,
-    user: `${namaMitra} (Mitra Bestari)`,
-    aksi: `Menyelesaikan Telaah Klinis: Rekomendasi "${rekomendasi}". Berkas diajukan ke Pimpinan Komite untuk disahkan.`
-  });
-
-  saveCredentialApplications();
-  renderCredentialApplicationsTable();
-  renderModalAuditTrailTimeline(app);
-
-  const badgeEl = document.getElementById('modalAppStatusBadge');
-  if (badgeEl) {
-    badgeEl.textContent = app.status;
-    badgeEl.className = 'badge-app-status status-pimpinan';
-  }
-
-  showToast(`Hasil telaah Mitra Bestari untuk ${app.nama} berhasil disimpan! Berkas diteruskan ke Ketua & Sekretaris Komite.`, 'success');
-
-  // Pindah otomatis ke tab 3 (Pimpinan)
-  switchVerificationTab('tabVerif3');
-}
-
-function simpanCatatanSekretaris() {
-  const appId = state.currentVerifyingAppId;
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) return;
-
-  const catatan = document.getElementById('txtCatatanSekretaris')?.value?.trim() || '';
-  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
-
-  if (!app.pengawasanPimpinan) app.pengawasanPimpinan = {};
-  app.pengawasanPimpinan.catatanSekretaris = catatan;
-  app.pengawasanPimpinan.waktuMonitoring = nowFormatted;
-
-  app.timeline = app.timeline || [];
-  app.timeline.unshift({
-    waktu: nowFormatted,
-    user: 'Ns. Rusmulyadi, S.Kep., MARS (Sekretaris Komite)',
-    aksi: `Memberikan Catatan Monitoring Administrasi: "${catatan || 'Administrasi terverifikasi tertib.'}"`
-  });
-
-  saveCredentialApplications();
-  renderCredentialApplicationsTable();
-  renderModalAuditTrailTimeline(app);
-
-  showToast('Catatan monitoring Sekretaris Komite Keperawatan berhasil disimpan!', 'success');
-}
-
-function simpanCatatanKetua() {
-  const appId = state.currentVerifyingAppId;
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) return;
-
-  const catatan = document.getElementById('txtCatatanKetua')?.value?.trim() || '';
-  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
-
-  if (!app.pengawasanPimpinan) app.pengawasanPimpinan = {};
-  app.pengawasanPimpinan.catatanKetua = catatan;
-  app.pengawasanPimpinan.waktuMonitoring = nowFormatted;
-
-  app.timeline = app.timeline || [];
-  app.timeline.unshift({
-    waktu: nowFormatted,
-    user: 'M. Separia Russanto, S.Kep., Ns (Ketua Komite)',
-    aksi: `Memberikan Catatan Pengawasan Eksekutif: "${catatan || 'Telaah memenuhi standar PMK 49/2013.'}"`
-  });
-
-  saveCredentialApplications();
-  renderCredentialApplicationsTable();
-  renderModalAuditTrailTimeline(app);
-
-  showToast('Catatan pengawasan Ketua Komite Keperawatan berhasil disimpan!', 'success');
-}
-
-function sahkanPengawasanPimpinan() {
-  const appId = state.currentVerifyingAppId;
-  const app = (state.credentialApplications || []).find(a => a.id === appId);
-  if (!app) return;
-
-  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
-
-  app.status = 'Selesai / Terbit Rekomendasi';
-  if (!app.pengawasanPimpinan) app.pengawasanPimpinan = {};
-  app.pengawasanPimpinan.statusReview = 'Disahkan oleh Ketua Komite Keperawatan';
-  if (!app.pengawasanPimpinan.catatanKetua) {
-    app.pengawasanPimpinan.catatanKetua = 'Rekomendasi Kewenangan Klinis disahkan penuh untuk diteruskan penerbitan SPK/RKK oleh Direktur RSUD dr. Soedarso.';
-  }
-
-  app.timeline = app.timeline || [];
-  app.timeline.unshift({
-    waktu: nowFormatted,
-    user: 'M. Separia Russanto, S.Kep., Ns (Ketua Komite Keperawatan)',
-    aksi: 'Mengesahkan Rekomendasi Rincian Kewenangan Klinis (RKK) & Meneruskan Berkas Resmi ke Direktur RSUD dr. Soedarso'
-  });
-
-  // Sinkronkan status nurse jika ada di registry
-  let nurse = (state.nurses || []).find(n => n.nip === app.nip || n.name === app.nama);
-  if (nurse) {
-    nurse.credentialStatus = 'Disetujui';
-    saveNurses();
-    renderNursesTable();
-    updateHeroStats();
-  }
-
-  saveCredentialApplications();
-  renderCredentialApplicationsTable();
-  renderModalAuditTrailTimeline(app);
-
-  const badgeEl = document.getElementById('modalAppStatusBadge');
-  if (badgeEl) {
-    badgeEl.textContent = app.status;
-    badgeEl.className = 'badge-app-status status-selesai';
-  }
-
-  showToast(`SELAMAT! Rekomendasi Kredensial ${app.nama} TELAH DISAHKAN oleh Ketua Komite Keperawatan dan resmi diteruskan ke Direktur!`, 'success');
-}
-
-// Global Window Exports
-window.switchMejaRole = switchMejaRole;
-window.updateMejaCounters = updateMejaCounters;
-window.filterCredentialApplications = filterCredentialApplications;
-window.searchCredentialApplications = searchCredentialApplications;
-window.renderCredentialApplicationsTable = renderCredentialApplicationsTable;
-window.openMejaVerifikasiModal = openMejaVerifikasiModal;
-window.switchVerificationTab = switchVerificationTab;
-window.renderModalAuditTrailTimeline = renderModalAuditTrailTimeline;
-window.simpanVerifikasiSubkomite = simpanVerifikasiSubkomite;
-window.kembalikanPermohonanRevisi = kembalikanPermohonanRevisi;
-window.simpanTelaahMitraBestari = simpanTelaahMitraBestari;
-window.simpanCatatanSekretaris = simpanCatatanSekretaris;
-window.simpanCatatanKetua = simpanCatatanKetua;
-window.sahkanPengawasanPimpinan = sahkanPengawasanPimpinan;
+// 5S Budaya Kerja & Pengusul Dashboard Exports
+window.switchLoginTab = switchLoginTab;
+window.fillPengusulPreset = fillPengusulPreset;
+window.handlePengusulLogin = handlePengusulLogin;
+window.handleDaftarPengusul = handleDaftarPengusul;
+window.openDashboardPengusul = openDashboardPengusul;
+window.handleUserPillClick = handleUserPillClick;
+window.toggleGantiPasswordForm = toggleGantiPasswordForm;
+window.simpanGantiPassword = simpanGantiPassword;
+window.mulaiPengajuanKredensial5S = mulaiPengajuanKredensial5S;
+window.getStrEarlyWarning = getStrEarlyWarning;
+
+// Sistem Pengamanan & Kepatuhan Data Rahasia Kredensial (UU PDP No. 27/2022)
+window.maskNip = maskNip;
+window.maskStr = maskStr;
+window.maskPhone = maskPhone;
+window.isKomiteAdminUser = isKomiteAdminUser;
+window.canViewFullData = canViewFullData;
+window.canAccessCredentialDoc = canAccessCredentialDoc;
+window.togglePrivacyMode = togglePrivacyMode;
+window.updatePrivacyToggleButton = updatePrivacyToggleButton;
+window.secureViewNurseDetail = secureViewNurseDetail;
+window.secureOpenPrintSpkModal = secureOpenPrintSpkModal;
+window.getSecurityAuditLogs = getSecurityAuditLogs;
+window.recordSecurityAudit = recordSecurityAudit;
+window.renderSecurityAuditTable = renderSecurityAuditTable;
+window.openSecurityAuditModal = openSecurityAuditModal;
+window.clearSecurityAuditLogs = clearSecurityAuditLogs;
+window.initSessionSecurityGuard = initSessionSecurityGuard;
+window.lockCurrentSession = lockCurrentSession;
+window.handleUnlockSession = handleUnlockSession;
+window.logoutFromLockScreen = logoutFromLockScreen;

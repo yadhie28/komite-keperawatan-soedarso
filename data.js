@@ -1785,7 +1785,7 @@ window.KOMITE_DATA = {
     ketuaSubkomiteNip: "19850612 201001 1 012"
   },
 
-  // Data Master Usulan Permohonan Kredensialing (Antrean Meja Verifikasi Subkomite & Pengawasan Pimpinan)
+  // Data Master Usulan Permohonan Kredensialing (Riwayat Usulan & Pengawasan Pimpinan)
   credentialApplications: [
     {
       id: "KRED-2026-001",
@@ -1936,6 +1936,63 @@ window.KOMITE_DATA = {
       "Laporan & Konsultasi Etika / Disiplin Profesi",
       "Rekomendasi SPK & RKK Mitra Bestari"
     ]
-  }
+  },
+
+  // Data Akun Pengusul Mandiri (Tenaga Keperawatan & Kebidanan) yang Terdaftar di Sistem Kredensialing
+  // Format: NIP sebagai username, namaSandi = nama depan + tahun lahir (misal: hendra1992) → dapat diganti mandiri
+  // badgeType: "Pengusul" untuk akses pengajuan + tracking berkas sendiri
+  pengusulAccounts: [
+    {
+      nip: "19920415 201903 1 004",
+      username: "hendra.kurniawan",
+      password: "hendra1992",
+      namaSandi: "hendra1992",
+      name: "Ns. Hendra Kurniawan, S.Kep",
+      profesi: "Perawat",
+      unit: "Enggang Gading 2",
+      jenjang: "PK III",
+      strNumber: "140152119-2849103",
+      strExpiry: "2028-04-15",
+      badgeType: "Pengusul",
+      role: "Tenaga Keperawatan (Pengusul Kredensialing)",
+      aktif: true,
+      tanggalDaftar: "20 Oktober 2026",
+      lastLogin: "21 Oktober 2026, 09:10 WIB"
+    },
+    {
+      nip: "19910311 201402 2 003",
+      username: "siti.rahmawati",
+      password: "siti1991",
+      namaSandi: "siti1991",
+      name: "Bdn. Siti Rahmawati, S.Tr.Keb",
+      profesi: "Bidan",
+      unit: "Ruang Bersalin (VK) & Maternal",
+      jenjang: "PMB",
+      strNumber: "140262114-4902183",
+      strExpiry: "2029-03-11",
+      badgeType: "Pengusul",
+      role: "Tenaga Kebidanan (Pengusul Kredensialing)",
+      aktif: true,
+      tanggalDaftar: "19 Oktober 2026",
+      lastLogin: "20 Oktober 2026, 13:55 WIB"
+    },
+    {
+      nip: "19850920 200801 1 007",
+      username: "bambang.prasetyo",
+      password: "bambang1985",
+      namaSandi: "bambang1985",
+      name: "Ns. Bambang Prasetyo, S.Kep",
+      profesi: "Perawat",
+      unit: "ICU Sentral (Intensive Care Unit)",
+      jenjang: "PK IV",
+      strNumber: "140151108-1928374",
+      strExpiry: "2027-09-20",
+      badgeType: "Pengusul",
+      role: "Tenaga Keperawatan (Pengusul Kredensialing)",
+      aktif: true,
+      tanggalDaftar: "18 Oktober 2026",
+      lastLogin: "19 Oktober 2026, 10:25 WIB"
+    }
+  ]
 };
 
