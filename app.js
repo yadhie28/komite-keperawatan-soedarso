@@ -13,6 +13,7 @@ const state = {
   regulations: [],
   ethicsTickets: [],
   adminNotifications: [],
+  workflowNotifications: [],
   wizardStep: 1,
   selectedNurse: null,
   currentWizardRkkList: [],
@@ -50,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLogbookAutocomplete();
   initCredentialingSync();
   initSessionSecurityGuard();
+  updateWorkflowNotificationUI();
 });
 
 /* ==========================================================================
@@ -1088,6 +1090,7 @@ function updateAuthUI() {
     state.privacyModeRevealed = false;
   }
   updatePrivacyToggleButton();
+  updateWorkflowNotificationUI();
 }
 
 function isAdmin() {
@@ -1231,6 +1234,19 @@ function loadData() {
     state.credentialApplications = master.credentialApplications || [];
     saveCredentialApplications();
   }
+
+  // Load Workflow Notifications (Sistem Alur Kerja Subkomite PMK 49/2013)
+  const savedWfNotifs = localStorage.getItem('komite_workflow_notifications');
+  if (savedWfNotifs) {
+    try {
+      state.workflowNotifications = JSON.parse(savedWfNotifs);
+    } catch (e) {
+      state.workflowNotifications = getDefaultWorkflowNotifications();
+    }
+  } else {
+    state.workflowNotifications = getDefaultWorkflowNotifications();
+    saveWorkflowNotifications();
+  }
 }
 
 function saveNurses() {
@@ -1251,6 +1267,10 @@ function saveAdminNotifications() {
 
 function saveCredentialApplications() {
   localStorage.setItem('komite_credential_applications', JSON.stringify(state.credentialApplications));
+}
+
+function saveWorkflowNotifications() {
+  localStorage.setItem('komite_workflow_notifications', JSON.stringify(state.workflowNotifications || []));
 }
 
 /* ==========================================================================
@@ -2509,9 +2529,23 @@ function handleAuditSave(e) {
   }
 
   saveAudits();
+
+  // Berikan notifikasi ke akun ketua subkomite mutu & sekretaris komite keperawatan
+  createWorkflowNotification({
+    category: 'mutu',
+    title: 'Audit Mutu Profesi: Hasil Audit Asuhan Keperawatan Baru',
+    message: `Hasil audit kepatuhan mutu asuhan keperawatan terbaru untuk unit ${unit} (Karu: ${karu}) telah dicatat dengan nilai rata-rata ${avg.toFixed(1)}% predikat ${grade}. Laporan diteruskan ke Ketua Subkomite Mutu untuk evaluasi dan telaah mutu.`,
+    applicantName: `Auditor Mutu (${karu})`,
+    applicantNip: '-',
+    sourceUnit: unit,
+    sourceId: `AUDIT-${unit.replace(/\s+/g, '-').toUpperCase()}`,
+    actionTab: 'mutu',
+    targetDescription: 'Ketua Subkomite Mutu Keperawatan & Sekretaris Komite Keperawatan'
+  });
+
   closeModal('modalAuditInput');
   renderAuditsTable();
-  showToast(`Nilai audit mutu asuhan keperawatan untuk ${unit} berhasil disimpan!`, 'success');
+  showToast(`Nilai audit mutu asuhan keperawatan untuk ${unit} berhasil disimpan! Notifikasi diteruskan ke Ketua Subkomite Mutu & Sekretaris Komite.`, 'success');
 }
 
 /* ==========================================================================
@@ -2589,6 +2623,19 @@ function handleEthicsSubmit(e) {
   state.ethicsTickets.unshift(newTicket);
   saveEthicsTickets();
   renderEthicsTickets();
+
+  // Berikan notifikasi ke akun ketua subkomite etik & sekretaris komite keperawatan
+  createWorkflowNotification({
+    category: 'etik',
+    title: 'Pengaduan Etik & Disiplin: Berkas Perlu Ditindaklanjuti',
+    message: `Berkas pengaduan/konsultasi etik baru nomor ${newTicket.ticketCode} (${category} - Ruang ${unit}) telah diterima dan memerlukan tindak lanjut serta telaah awal berkas oleh Ketua Subkomite Etik & Disiplin Profesi.`,
+    applicantName: `Pelapor (${newTicket.ticketCode})`,
+    applicantNip: '-',
+    sourceUnit: unit,
+    sourceId: newTicket.ticketCode,
+    actionTab: 'etik',
+    targetDescription: 'Ketua Subkomite Etika dan Disiplin (Tindak Lanjut Berkas) & Sekretaris Komite'
+  });
 
   // Format Notifikasi Administrasi Resmi (Komite & Sekretaris)
   const adminSubject = `[RAHASIA - ETIK & DISIPLIN] Laporan Konsultasi Baru: ${newTicket.ticketCode}`;
@@ -4032,6 +4079,19 @@ function handleKredensialSubmit(e) {
   state.kredensialRkkSubmitted = true;
   localStorage.setItem('komite_rkk_submitted', 'true');
   updateAlurStepStatus();
+
+  // Berikan notifikasi ke akun ketua subkomite mutu, ketua kredensial, & sekretaris komite
+  createWorkflowNotification({
+    category: 'kredensial',
+    title: 'Pengusulan Kredensial Baru: Berkas Perlu Diverifikasi',
+    message: `Pengusulan kewenangan klinis (RKK) atas nama ${nama} (${jenjang} - ${unit}) telah diajukan dan membutuhkan verifikasi berkas oleh Subkomite Mutu & Kredensial.`,
+    applicantName: nama,
+    applicantNip: nip,
+    sourceUnit: unit,
+    sourceId: `RKK-2026-${Math.floor(100 + Math.random() * 900)}`,
+    actionTab: 'kredensial',
+    targetDescription: 'Ketua Subkomite Mutu (Verifikasi Berkas), Ketua Subkomite Kredensial, & Sekretaris Komite'
+  });
 
   closeModal('modalNewKredensial');
   showToast(`Asesmen Mandiri RKK atas nama ${nama} berhasil disimpan! Dokumen siap dicetak. Silakan lanjutkan ke Langkah 5 (PSV) dan Langkah 6 (Unggah Berkas).`, 'success');
@@ -8170,6 +8230,19 @@ function simpanUploadSurat(e) {
     bodyText: adminBody
   });
 
+  // Berikan notifikasi ke akun ketua subkomite mutu, ketua kredensial, & sekretaris komite
+  createWorkflowNotification({
+    category: 'kredensial',
+    title: 'Pengusulan Kredensial Baru: Berkas Perlu Diverifikasi',
+    message: `Permohonan kredensialing lengkap atas nama ${pemohon} (${jenjang} - ${unit}) beserta 8 berkas persyaratan wajib telah terunggah dan membutuhkan verifikasi berkas oleh Subkomite Mutu & Kredensial.`,
+    applicantName: pemohon,
+    applicantNip: nip,
+    sourceUnit: unit,
+    sourceId: appItem.id || regNumber,
+    actionTab: 'kredensial',
+    targetDescription: 'Ketua Subkomite Mutu (Verifikasi Berkas), Ketua Subkomite Kredensial, & Sekretaris Komite'
+  });
+
   closeModal('modalUploadBerkasKredensial');
 
   showToast(`Permohonan kredensialing lengkap atas nama ${pemohon} BERHASIL DIKIRIMKAN beserta seluruh berkas kelengkapan! Notifikasi resmi terkirim ke email Komite & Sekretaris.`, 'success');
@@ -8952,6 +9025,538 @@ function openQuickAdminEmailDispatch(type) {
     applicantName: applicant.nama,
     bodyText: bodyText
   });
+}
+
+/* ==========================================================================
+   SISTEM ALUR KERJA NOTIFIKASI SUBKOMITE & SEKRETARIS (PMK 49/2013)
+   - Kredensialing: Notifikasi ke Ketua Subkomite Mutu (verifikasi berkas),
+     Ketua Subkomite Kredensial, & Sekretaris Komite Keperawatan.
+   - Pengaduan Etik: Notifikasi ke Ketua Subkomite Etik (tindak lanjut berkas)
+     & Sekretaris Komite Keperawatan.
+   - Audit Mutu: Notifikasi ke Ketua Subkomite Mutu & Sekretaris Komite Keperawatan.
+   - Sekretaris Komite Keperawatan: Menerima SELURUH notifikasi di atas simultan.
+   ========================================================================== */
+
+let currentWfFilterCategory = 'all';
+let isWfUnreadOnly = false;
+
+function getDefaultWorkflowNotifications() {
+  return [
+    {
+      id: "WF-NOTIF-101",
+      timestamp: "28 Oktober 2026, 08:30 WIB",
+      category: "kredensial",
+      title: "Pengusulan Kredensial Baru: Berkas Perlu Diverifikasi",
+      message: "Berkas pengusulan kredensialing atas nama Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Enggang Gading 2) telah diajukan lengkap (6 tahap) dan membutuhkan verifikasi berkas persyaratan serta verifikasi sumber primer (PSV) oleh Subkomite.",
+      applicantName: "Ns. Hendra Kurniawan, S.Kep",
+      applicantNip: "19920415 201903 1 004",
+      sourceUnit: "Ruang Enggang Gading 2",
+      sourceId: "KRED-2026-001",
+      actionTab: "kredensial",
+      targetRoles: ["mutu", "kredensial", "sekretaris", "pimpinan"],
+      targetAccounts: ["laila", "yohanes", "rusmulyadi", "separia"],
+      targetDescription: "Ketua Subkomite Mutu (Verifikasi Berkas), Ketua Subkomite Kredensial, & Sekretaris Komite",
+      readBy: [],
+      status: "Menunggu Verifikasi"
+    },
+    {
+      id: "WF-NOTIF-102",
+      timestamp: "28 Oktober 2026, 09:15 WIB",
+      category: "kredensial",
+      title: "Pengusulan Rekredensialing Ruang Kakap: Berkas Perlu Diverifikasi",
+      message: "Pengajuan perpanjangan SPK & RKK atas nama Ns. Ratna Juwita, S.Kep (PK II - Ruang Rawat Inap Bedah / Kakap) telah masuk di portal. Berkas siap diverifikasi oleh Subkomite Mutu & Kredensial.",
+      applicantName: "Ns. Ratna Juwita, S.Kep",
+      applicantNip: "19940812 202012 2 007",
+      sourceUnit: "Ruang Bedah / Kakap",
+      sourceId: "KRED-2026-002",
+      actionTab: "kredensial",
+      targetRoles: ["mutu", "kredensial", "sekretaris", "pimpinan"],
+      targetAccounts: ["laila", "yohanes", "rusmulyadi", "separia"],
+      targetDescription: "Ketua Subkomite Mutu (Verifikasi Berkas), Ketua Subkomite Kredensial, & Sekretaris Komite",
+      readBy: [],
+      status: "Menunggu Verifikasi"
+    },
+    {
+      id: "WF-NOTIF-103",
+      timestamp: "28 Oktober 2026, 10:45 WIB",
+      category: "etik",
+      title: "Pengaduan Etik & Disiplin: Berkas Perlu Ditindaklanjuti",
+      message: "Berkas pengaduan/konsultasi etik nomor ETIK-2026-0904 (Kategori: Dugaan Ketidaksesuaian Asuhan - Ruang Pelayanan Rawat) telah diterima sekretariat dan memerlukan tindak lanjut serta telaah awal berkas oleh Ketua Subkomite Etik & Disiplin Profesi.",
+      applicantName: "Pelapor (ETIK-2026-0904)",
+      applicantNip: "-",
+      sourceUnit: "Pelayanan Rawat",
+      sourceId: "ETIK-2026-0904",
+      actionTab: "etik",
+      targetRoles: ["etik", "sekretaris", "pimpinan"],
+      targetAccounts: ["alfonsus", "rusmulyadi", "separia"],
+      targetDescription: "Ketua Subkomite Etika dan Disiplin (Tindak Lanjut Berkas) & Sekretaris Komite Keperawatan",
+      readBy: [],
+      status: "Perlu Ditindaklanjuti"
+    },
+    {
+      id: "WF-NOTIF-104",
+      timestamp: "28 Oktober 2026, 11:20 WIB",
+      category: "mutu",
+      title: "Audit Mutu Profesi: Hasil Audit Asuhan Keperawatan Baru",
+      message: "Laporan audit mutu asuhan keperawatan terbaru untuk Ruang Enggang Gading 2 (Kepala Ruangan: Ns. Desi Ratnasari, S.Kep) telah selesai dicatat dengan skor Kepatuhan CPPT 98.4%, Hand Hygiene 99.1%, predikat A (Sangat Baik). Laporan siap diverifikasi dan ditelaah Ketua Subkomite Mutu.",
+      applicantName: "Auditor Mutu Klinis",
+      applicantNip: "-",
+      sourceUnit: "Ruang Enggang Gading 2",
+      sourceId: "AUDIT-EG2",
+      actionTab: "mutu",
+      targetRoles: ["mutu", "sekretaris", "pimpinan"],
+      targetAccounts: ["laila", "rusmulyadi", "separia"],
+      targetDescription: "Ketua Subkomite Mutu Keperawatan & Sekretaris Komite Keperawatan",
+      readBy: [],
+      status: "Tercatat Baru"
+    }
+  ];
+}
+
+function getWorkflowNotificationsForUser(user = state.currentUser) {
+  const all = state.workflowNotifications || [];
+  if (!user) {
+    return all;
+  }
+
+  const uName = (user.username || '').toLowerCase().replace(/\s+/g, '');
+  const uAlias = (user.alias || '').toLowerCase().replace(/\s+/g, '');
+  const uRole = (user.role || '').toLowerCase();
+  const uBadge = (user.badge || '').toLowerCase();
+
+  const isSekretaris = uName === 'rusmulyadi' || uAlias === 'sekretaris' || (user.devAlias === 'yadhie28') || uRole.includes('sekretaris');
+  const isKetuaKomite = uName === 'separia' || uAlias === 'admin.komite' || uRole.includes('ketua komite') || uBadge.includes('super');
+  const isKetuaMutu = uName === 'laila' || uAlias === 'mutu' || uRole.includes('mutu');
+  const isKetuaEtik = uName === 'alfonsus' || uAlias === 'etik' || uRole.includes('etik') || uRole.includes('etika');
+  const isKetuaKredensial = uName === 'yohanes' || uAlias === 'kredensial' || uRole.includes('kredensial');
+
+  // Sekretaris Komite Keperawatan & Ketua Komite (Super Admin) menerima SELURUH notifikasi secara simultan
+  if (isSekretaris || isKetuaKomite) {
+    return all;
+  }
+
+  // Ketua Subkomite Mutu: menerima Kredensialing (berkas perlu diverifikasi) & Mutu (audit mutu)
+  if (isKetuaMutu) {
+    return all.filter(n => n.category === 'kredensial' || n.category === 'mutu');
+  }
+
+  // Ketua Subkomite Etik: menerima Pengaduan Etik (berkas perlu ditindaklanjuti)
+  if (isKetuaEtik) {
+    return all.filter(n => n.category === 'etik');
+  }
+
+  // Ketua Subkomite Kredensial: menerima Kredensialing
+  if (isKetuaKredensial) {
+    return all.filter(n => n.category === 'kredensial');
+  }
+
+  return all.filter(n => 
+    (n.targetAccounts && n.targetAccounts.includes(uName)) ||
+    (n.applicantName && n.applicantName.toLowerCase().includes((user.name || '').toLowerCase()))
+  );
+}
+
+function isNotifUnreadForUser(notif, user = state.currentUser) {
+  if (!notif) return false;
+  const uId = (user ? (user.username || user.alias || user.name) : 'guest').toLowerCase().replace(/\s+/g, '');
+  return !(notif.readBy && notif.readBy.some(r => r.toLowerCase().replace(/\s+/g, '') === uId));
+}
+
+function createWorkflowNotification({ category, title, message, applicantName, applicantNip, sourceUnit, sourceId, actionTab, targetDescription }) {
+  const notifId = 'WF-NOTIF-' + Date.now();
+  const dateStr = new Date().toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }) + ', ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+  let targets = ['rusmulyadi', 'separia'];
+  let desc = targetDescription;
+
+  if (category === 'kredensial') {
+    targets = ['laila', 'yohanes', 'rusmulyadi', 'separia'];
+    if (!desc) desc = 'Ketua Subkomite Mutu (Verifikasi Berkas), Ketua Subkomite Kredensial, & Sekretaris Komite';
+  } else if (category === 'etik') {
+    targets = ['alfonsus', 'rusmulyadi', 'separia'];
+    if (!desc) desc = 'Ketua Subkomite Etik & Disiplin (Tindak Lanjut Berkas) & Sekretaris Komite';
+  } else if (category === 'mutu') {
+    targets = ['laila', 'rusmulyadi', 'separia'];
+    if (!desc) desc = 'Ketua Subkomite Mutu Keperawatan & Sekretaris Komite Keperawatan';
+  }
+
+  const newNotif = {
+    id: notifId,
+    timestamp: dateStr,
+    category: category,
+    title: title,
+    message: message,
+    applicantName: applicantName || 'Pengusul',
+    applicantNip: applicantNip || '-',
+    sourceUnit: sourceUnit || '-',
+    sourceId: sourceId || '-',
+    actionTab: actionTab || (category === 'kredensial' ? 'kredensial' : category === 'etik' ? 'etik' : 'mutu'),
+    targetRoles: category === 'kredensial' ? ['mutu', 'kredensial', 'sekretaris'] : category === 'etik' ? ['etik', 'sekretaris'] : ['mutu', 'sekretaris'],
+    targetAccounts: targets,
+    targetDescription: desc,
+    readBy: [],
+    status: category === 'kredensial' ? 'Menunggu Verifikasi' : category === 'etik' ? 'Perlu Ditindaklanjuti' : 'Tercatat Baru'
+  };
+
+  if (!state.workflowNotifications) state.workflowNotifications = [];
+  state.workflowNotifications.unshift(newNotif);
+  saveWorkflowNotifications();
+  updateWorkflowNotificationUI();
+
+  return newNotif;
+}
+
+function updateWorkflowNotificationUI() {
+  const userNotifs = getWorkflowNotificationsForUser(state.currentUser);
+  const unreadCount = userNotifs.filter(n => isNotifUnreadForUser(n, state.currentUser)).length;
+
+  // Update pills / badges
+  const navBadge = document.getElementById('navWfBadgeCount');
+  if (navBadge) {
+    navBadge.textContent = unreadCount;
+    navBadge.style.display = unreadCount > 0 ? 'inline-flex' : 'none';
+  }
+
+  const bannerPill = document.getElementById('bannerWfNotifPill');
+  if (bannerPill) {
+    bannerPill.textContent = unreadCount;
+    bannerPill.style.display = 'inline-block';
+    bannerPill.style.background = unreadCount > 0 ? '#dc2626' : 'rgba(255,255,255,0.2)';
+  }
+
+  // Update in-pane subkomite alert banners
+  const kredAlert = document.getElementById('subkomiteKredensialWorkflowAlert');
+  const kredText = document.getElementById('kredensialWorkflowAlertText');
+  const mutuAlert = document.getElementById('subkomiteMutuWorkflowAlert');
+  const mutuText = document.getElementById('mutuWorkflowAlertText');
+  const etikAlert = document.getElementById('subkomiteEtikWorkflowAlert');
+  const etikText = document.getElementById('etikWorkflowAlertText');
+
+  const kredList = (state.workflowNotifications || []).filter(n => n.category === 'kredensial');
+  const unreadKred = kredList.filter(n => isNotifUnreadForUser(n, state.currentUser)).length;
+  if (kredAlert) {
+    kredAlert.style.display = kredList.length > 0 ? 'flex' : 'none';
+    if (kredText) {
+      kredText.innerHTML = `Terdapat <strong>${kredList.length} berkas pengusulan kredensialing</strong> (${unreadKred} belum dibaca). Notifikasi telah diteruskan ke akun <strong>Ketua Subkomite Mutu</strong> untuk verifikasi berkas dan akun <strong>Sekretaris Komite Keperawatan</strong>.`;
+    }
+  }
+
+  const mutuList = (state.workflowNotifications || []).filter(n => n.category === 'mutu');
+  const unreadMutu = mutuList.filter(n => isNotifUnreadForUser(n, state.currentUser)).length;
+  if (mutuAlert) {
+    mutuAlert.style.display = mutuList.length > 0 ? 'flex' : 'none';
+    if (mutuText) {
+      mutuText.innerHTML = `Terdapat <strong>${mutuList.length} laporan audit mutu klinis</strong> (${unreadMutu} belum dibaca). Notifikasi otomatis diteruskan ke akun <strong>Ketua Subkomite Mutu</strong> dan akun <strong>Sekretaris Komite Keperawatan</strong>.`;
+    }
+  }
+
+  const etikList = (state.workflowNotifications || []).filter(n => n.category === 'etik');
+  const unreadEtik = etikList.filter(n => isNotifUnreadForUser(n, state.currentUser)).length;
+  if (etikAlert) {
+    etikAlert.style.display = etikList.length > 0 ? 'flex' : 'none';
+    if (etikText) {
+      etikText.innerHTML = `Terdapat <strong>${etikList.length} berkas pengaduan etik/disiplin</strong> (${unreadEtik} perlu tindak lanjut). Notifikasi telah masuk ke akun <strong>Ketua Subkomite Etik</strong> dan akun <strong>Sekretaris Komite Keperawatan</strong>.`;
+    }
+  }
+}
+
+function openWorkflowNotifModal(filterCategory = 'all') {
+  currentWfFilterCategory = filterCategory;
+  renderWorkflowAuthorityBanner();
+  renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+  openModal('modalWorkflowNotifications');
+}
+
+function filterWorkflowNotifModal(category) {
+  currentWfFilterCategory = category;
+  document.querySelectorAll('.wf-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-cat') === category);
+  });
+  renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+}
+
+function toggleWfUnreadFilter() {
+  isWfUnreadOnly = !isWfUnreadOnly;
+  const btn = document.getElementById('btnToggleWfUnread');
+  const text = document.getElementById('textToggleWfUnread');
+  if (btn) btn.classList.toggle('active', isWfUnreadOnly);
+  if (text) text.textContent = isWfUnreadOnly ? 'Semua Status' : 'Belum Dibaca';
+  renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+}
+
+function renderWorkflowAuthorityBanner() {
+  const box = document.getElementById('wfUserAuthorityBox');
+  if (!box) return;
+
+  const user = state.currentUser;
+  if (!user) {
+    box.innerHTML = `
+      <div class="wf-authority-header">
+        <div class="wf-authority-user">
+          <div class="wf-authority-avatar"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <div class="wf-authority-name">Mode Pratinjau Terbuka (Publik / Demonstrasi Alur Kerja)</div>
+            <div class="wf-authority-role">Sistem Alur Kerja Subkomite Komite Keperawatan RSUD dr. Soedarso</div>
+          </div>
+        </div>
+        <span class="wf-authority-badge badge-sekretaris"><i class="fa-solid fa-diagram-project"></i> PMK 49/2013</span>
+      </div>
+      <div class="wf-authority-desc">
+        Sistem alur kerja mengatur routing otomatis: <strong>Kredensialing</strong> diteruskan ke Ketua Subkomite Mutu & Kredensial untuk verifikasi berkas; <strong>Pengaduan Etik</strong> diteruskan ke Ketua Subkomite Etik untuk tindak lanjut; <strong>Audit Mutu</strong> diteruskan ke Ketua Subkomite Mutu; dan <strong>Sekretaris Komite Keperawatan</strong> menerima seluruh notifikasi tersebut secara simultan.
+      </div>
+      <div class="wf-test-switchers">
+        <strong>Simulasi Tampilan Cepat Akun Pengurus:</strong>
+        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('rusmulyadi')"><i class="fa-solid fa-user-pen"></i> Sekretaris (Semua Notifikasi)</button>
+        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('laila')"><i class="fa-solid fa-award"></i> Ketua Mutu (Kredensial & Mutu)</button>
+        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('alfonsus')"><i class="fa-solid fa-scale-balanced"></i> Ketua Etik (Pengaduan Etik)</button>
+        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('yohanes')"><i class="fa-solid fa-id-card"></i> Ketua Kredensial</button>
+      </div>
+    `;
+    return;
+  }
+
+  const uName = (user.username || '').toLowerCase().replace(/\s+/g, '');
+  const uAlias = (user.alias || '').toLowerCase().replace(/\s+/g, '');
+  const uRole = (user.role || '').toLowerCase();
+  const uBadge = (user.badge || '').toLowerCase();
+
+  const isSekretaris = uName === 'rusmulyadi' || uAlias === 'sekretaris' || (user.devAlias === 'yadhie28') || uRole.includes('sekretaris');
+  const isKetuaKomite = uName === 'separia' || uAlias === 'admin.komite' || uRole.includes('ketua komite') || uBadge.includes('super');
+  const isKetuaMutu = uName === 'laila' || uAlias === 'mutu' || uRole.includes('mutu');
+  const isKetuaEtik = uName === 'alfonsus' || uAlias === 'etik' || uRole.includes('etik') || uRole.includes('etika');
+  const isKetuaKredensial = uName === 'yohanes' || uAlias === 'kredensial' || uRole.includes('kredensial');
+
+  let badgeHtml = '';
+  let descHtml = '';
+
+  if (isSekretaris) {
+    badgeHtml = '<span class="wf-authority-badge badge-sekretaris"><i class="fa-solid fa-crown"></i> SEKRETARIS KOMITE (TERPUSAT)</span>';
+    descHtml = '<strong>Hak Akses Sekretaris Komite:</strong> Anda menerima <strong>SEMUA NOTIFIKASI ALUR KERJA</strong> (Pengusulan Kredensialing, Berkas Pengaduan Etik, & Audit Mutu) secara bersamaan untuk monitoring dan pengarsipan komprehensif.';
+  } else if (isKetuaKomite) {
+    badgeHtml = '<span class="wf-authority-badge badge-sekretaris"><i class="fa-solid fa-crown"></i> KETUA KOMITE (SUPER ADMIN)</span>';
+    descHtml = '<strong>Hak Akses Ketua Komite:</strong> Anda memiliki pengawasan penuh terhadap seluruh alur kerja kredensialing, penegakan etik disiplin, dan penjaminan mutu klinis.';
+  } else if (isKetuaMutu) {
+    badgeHtml = '<span class="wf-authority-badge badge-mutu"><i class="fa-solid fa-award"></i> KETUA SUBKOMITE MUTU</span>';
+    descHtml = '<strong>Hak Akses Subkomite Mutu:</strong> Anda menerima notifikasi <strong>Verifikasi Berkas Pengusulan Kredensialing</strong> dan <strong>Laporan Audit Mutu Asuhan Keperawatan</strong>.';
+  } else if (isKetuaEtik) {
+    badgeHtml = '<span class="wf-authority-badge badge-etik"><i class="fa-solid fa-scale-balanced"></i> KETUA SUBKOMITE ETIK & DISIPLIN</span>';
+    descHtml = '<strong>Hak Akses Subkomite Etik:</strong> Anda menerima notifikasi <strong>Berkas Pengaduan Etik & Disiplin Profesi</strong> yang perlu ditindaklanjuti dan ditelaah awal.';
+  } else if (isKetuaKredensial) {
+    badgeHtml = '<span class="wf-authority-badge badge-kredensial"><i class="fa-solid fa-id-card"></i> KETUA SUBKOMITE KREDENSIAL</span>';
+    descHtml = '<strong>Hak Akses Subkomite Kredensial:</strong> Anda menerima notifikasi <strong>Berkas Pengusulan Kredensialing</strong> yang perlu diverifikasi dan dijadwalkan asesmen Mitra Bestari.';
+  } else {
+    badgeHtml = `<span class="wf-authority-badge badge-kredensial"><i class="fa-solid fa-user"></i> ${user.badge || 'ANGGOTA'}</span>`;
+    descHtml = `Sesi aktif: <strong>${user.name}</strong> (${user.role}). Menampilkan notifikasi alur kerja terkait unit atau penugasan Anda.`;
+  }
+
+  const parts = user.name.replace(/^(Ns\.|Bdn\.|dr\.)\s+/i, '').trim().split(' ');
+  const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : parts[0].substring(0, 2).toUpperCase();
+
+  box.innerHTML = `
+    <div class="wf-authority-header">
+      <div class="wf-authority-user">
+        <div class="wf-authority-avatar">${initials}</div>
+        <div>
+          <div class="wf-authority-name">${user.name}</div>
+          <div class="wf-authority-role">${user.role} &bull; ${user.badge || 'Komite Keperawatan'}</div>
+        </div>
+      </div>
+      ${badgeHtml}
+    </div>
+    <div class="wf-authority-desc">
+      ${descHtml}
+    </div>
+    <div class="wf-test-switchers">
+      <strong>Beralih Cepat Tampilan Uji Coba:</strong>
+      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('rusmulyadi')"><i class="fa-solid fa-user-pen"></i> Sekretaris</button>
+      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('laila')"><i class="fa-solid fa-award"></i> Ketua Mutu</button>
+      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('alfonsus')"><i class="fa-solid fa-scale-balanced"></i> Ketua Etik</button>
+      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('yohanes')"><i class="fa-solid fa-id-card"></i> Ketua Kredensial</button>
+    </div>
+  `;
+}
+
+function renderWorkflowNotifList(filterCategory = 'all', unreadOnly = false) {
+  const container = document.getElementById('workflowNotifListContainer');
+  if (!container) return;
+
+  const userNotifs = getWorkflowNotificationsForUser(state.currentUser);
+
+  // Update badge count in modal tabs
+  const countAll = userNotifs.length;
+  const countKred = userNotifs.filter(n => n.category === 'kredensial').length;
+  const countEtik = userNotifs.filter(n => n.category === 'etik').length;
+  const countMutu = userNotifs.filter(n => n.category === 'mutu').length;
+
+  if (document.getElementById('wfCountAll')) document.getElementById('wfCountAll').textContent = countAll;
+  if (document.getElementById('wfCountKredensial')) document.getElementById('wfCountKredensial').textContent = countKred;
+  if (document.getElementById('wfCountEtik')) document.getElementById('wfCountEtik').textContent = countEtik;
+  if (document.getElementById('wfCountMutu')) document.getElementById('wfCountMutu').textContent = countMutu;
+
+  // Filter list
+  let displayList = userNotifs;
+  if (filterCategory !== 'all') {
+    displayList = displayList.filter(n => n.category === filterCategory);
+  }
+  if (unreadOnly) {
+    displayList = displayList.filter(n => isNotifUnreadForUser(n, state.currentUser));
+  }
+
+  if (displayList.length === 0) {
+    container.innerHTML = `
+      <div class="wf-empty-state">
+        <i class="fa-regular fa-bell-slash wf-empty-icon"></i>
+        <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">Tidak Ada Notifikasi Alur Kerja</div>
+        <div style="font-size: 0.82rem;">Tidak ada berkas yang menunggu tindakan pada kategori ini untuk akun Anda.</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = displayList.map(notif => {
+    const isUnread = isNotifUnreadForUser(notif, state.currentUser);
+    const catClass = notif.category === 'kredensial' ? 'cat-kredensial' : notif.category === 'etik' ? 'cat-etik' : 'cat-mutu';
+    const tagClass = notif.category === 'kredensial' ? 'tag-kredensial' : notif.category === 'etik' ? 'tag-etik' : 'tag-mutu';
+    const iconClass = notif.category === 'kredensial' ? 'fa-clipboard-check' : notif.category === 'etik' ? 'fa-scale-balanced' : 'fa-chart-line';
+    const catLabel = notif.category === 'kredensial' ? 'Kredensialing' : notif.category === 'etik' ? 'Etik & Disiplin' : 'Audit Mutu';
+
+    let actionBtnText = 'Buka Berkas & Verifikasi';
+    if (notif.category === 'etik') actionBtnText = 'Tindak Lanjuti Pengaduan';
+    if (notif.category === 'mutu') actionBtnText = 'Lihat Laporan Audit Mutu';
+
+    return `
+      <div class="wf-notif-card ${catClass} ${isUnread ? 'unread' : 'read'}" id="card-${notif.id}">
+        <div class="wf-card-header">
+          <div class="wf-card-meta-left">
+            <span class="wf-category-tag ${tagClass}">
+              <i class="fa-solid ${iconClass}"></i> ${catLabel}
+            </span>
+            <span class="wf-recipient-tag">
+              <i class="fa-solid fa-paper-plane"></i> Diteruskan: ${notif.targetDescription || 'Subkomite & Sekretaris'}
+            </span>
+          </div>
+          <div class="wf-card-time">
+            <i class="fa-regular fa-clock"></i> ${notif.timestamp}
+          </div>
+        </div>
+
+        <div class="wf-card-title">
+          ${isUnread ? '<span class="wf-unread-dot" title="Belum dibaca"></span>' : ''}
+          <span>${notif.title}</span>
+        </div>
+
+        <div class="wf-card-message">
+          ${notif.message}
+        </div>
+
+        <div class="wf-card-footer">
+          <div class="wf-card-info-badges">
+            ${notif.applicantName ? `<span class="wf-info-chip"><i class="fa-solid fa-user"></i> ${notif.applicantName}</span>` : ''}
+            ${notif.sourceUnit ? `<span class="wf-info-chip"><i class="fa-solid fa-location-dot"></i> ${notif.sourceUnit}</span>` : ''}
+            ${notif.sourceId ? `<span class="wf-info-chip"><i class="fa-solid fa-hashtag"></i> ${notif.sourceId}</span>` : ''}
+          </div>
+
+          <div class="wf-card-actions">
+            <button type="button" class="btn-wf-action-primary" onclick="navigateToWorkflowDoc('${notif.actionTab || notif.category}', '${notif.sourceId}')">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> ${actionBtnText}
+            </button>
+            <button type="button" class="btn-wf-action-toggle" onclick="markWorkflowNotifRead('${notif.id}')" title="${isUnread ? 'Tandai sudah dibaca' : 'Tandai belum dibaca'}">
+              <i class="fa-solid ${isUnread ? 'fa-check' : 'fa-envelope'}"></i> ${isUnread ? 'Tandai Dibaca' : 'Batal Dibaca'}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function markWorkflowNotifRead(notifId) {
+  const notif = (state.workflowNotifications || []).find(n => n.id === notifId);
+  if (!notif) return;
+  const uId = (state.currentUser ? (state.currentUser.username || state.currentUser.alias || state.currentUser.name) : 'guest').toLowerCase().replace(/\s+/g, '');
+  if (!notif.readBy) notif.readBy = [];
+  if (!notif.readBy.some(r => r.toLowerCase().replace(/\s+/g, '') === uId)) {
+    notif.readBy.push(uId);
+  } else {
+    notif.readBy = notif.readBy.filter(r => r.toLowerCase().replace(/\s+/g, '') !== uId);
+  }
+  saveWorkflowNotifications();
+  updateWorkflowNotificationUI();
+  renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+}
+
+function markAllWorkflowNotifsRead() {
+  const userNotifs = getWorkflowNotificationsForUser(state.currentUser);
+  const uId = (state.currentUser ? (state.currentUser.username || state.currentUser.alias || state.currentUser.name) : 'guest').toLowerCase().replace(/\s+/g, '');
+  userNotifs.forEach(n => {
+    if (!n.readBy) n.readBy = [];
+    if (!n.readBy.some(r => r.toLowerCase().replace(/\s+/g, '') === uId)) {
+      n.readBy.push(uId);
+    }
+  });
+  saveWorkflowNotifications();
+  updateWorkflowNotificationUI();
+  renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+  showToast('Seluruh notifikasi alur kerja akun Anda telah ditandai sebagai dibaca.', 'info');
+}
+
+function navigateToWorkflowDoc(category, docId) {
+  closeModal('modalWorkflowNotifications');
+  switchTab(category);
+
+  setTimeout(() => {
+    if (category === 'kredensial') {
+      const target = document.getElementById('credentialApplicationsTable') || document.getElementById('alurKredensialWrapper');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      showToast('Menampilkan Registry Pengusulan Kredensialing untuk verifikasi berkas oleh Subkomite.', 'success');
+    } else if (category === 'etik') {
+      const target = document.getElementById('ethicsTicketsBody') || document.getElementById('formEthicsReport');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      showToast('Menampilkan berkas pengaduan etik & disiplin profesi yang perlu ditindaklanjuti.', 'success');
+    } else if (category === 'mutu') {
+      const target = document.getElementById('auditTableBody') || document.getElementById('btnAdminAddAudit');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      showToast('Menampilkan Tabel Evaluasi & Audit Mutu Asuhan Keperawatan Ruangan.', 'success');
+    }
+  }, 300);
+}
+
+function demoWorkflowLogin(username) {
+  const adminList = window.KOMITE_DATA?.adminUsers || [];
+  const found = adminList.find(u => {
+    const uName = (u.username || '').toLowerCase().replace(/\s+/g, '');
+    const uAlias = (u.alias || '').toLowerCase().replace(/\s+/g, '');
+    const cleanTarget = (username || '').toLowerCase().replace(/\s+/g, '');
+    return uName === cleanTarget || uAlias === cleanTarget;
+  });
+
+  if (found) {
+    state.currentUser = {
+      username: found.username,
+      name: found.name,
+      nip: found.nip,
+      role: found.role,
+      badge: found.badge,
+      access: found.access
+    };
+    localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
+    updateAuthUI();
+    renderAllViews();
+    updateWorkflowNotificationUI();
+    renderWorkflowAuthorityBanner();
+    renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+    showToast(`Beralih login pengujian ke: ${found.name} (${found.role})`, 'success');
+  }
 }
 
 /* ==========================================================================
@@ -10696,4 +11301,17 @@ window.simpanPengaturanPreferensi = simpanPengaturanPreferensi;
 window.updateSettingsThemeLabel = updateSettingsThemeLabel;
 window.setThemeMode = setThemeMode;
 window.getAllAdminAccounts = getAllAdminAccounts;
+
+// Workflow Notifications Exports (PMK 49/2013)
+window.openWorkflowNotifModal = openWorkflowNotifModal;
+window.filterWorkflowNotifModal = filterWorkflowNotifModal;
+window.toggleWfUnreadFilter = toggleWfUnreadFilter;
+window.markWorkflowNotifRead = markWorkflowNotifRead;
+window.markAllWorkflowNotifsRead = markAllWorkflowNotifsRead;
+window.navigateToWorkflowDoc = navigateToWorkflowDoc;
+window.demoWorkflowLogin = demoWorkflowLogin;
+window.createWorkflowNotification = createWorkflowNotification;
+window.updateWorkflowNotificationUI = updateWorkflowNotificationUI;
+window.getWorkflowNotificationsForUser = getWorkflowNotificationsForUser;
+
 

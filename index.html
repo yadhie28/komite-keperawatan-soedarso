@@ -383,7 +383,12 @@
       <i class="fa-solid fa-user-shield" id="adminBannerIcon" style="color: var(--gold-400); font-size: 1rem;"></i>
       <span><strong id="adminBannerPrefix">Mode Administrator Aktif:</strong> <strong id="adminBannerUser">M. Separia Russanto, S.Kep., Ns</strong> (<span id="adminBannerRole">Ketua Komite</span>) &bull; <span id="adminBannerSub">Akses Penuh Tata Kelola Klinis</span></span>
     </div>
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <button type="button" class="btn-banner-workflow-notif" id="btnBannerWorkflowNotif" onclick="openWorkflowNotifModal()" title="Buka Pusat Notifikasi Alur Kerja Subkomite">
+        <i class="fa-solid fa-bell"></i>
+        <span>Notifikasi Alur Kerja</span>
+        <span class="wf-notif-pill" id="bannerWfNotifPill">0</span>
+      </button>
       <span class="badge-official" id="adminBannerBadgeTag" style="font-size: 0.7rem; background: rgba(0,0,0,0.3);">AKSES TERAUTENTIKASI</span>
       <button class="btn-banner-logout" id="btnBannerLogout" onclick="logoutToPortal()" title="Keluar / Log Out dari akun ini">
         <i class="fa-solid fa-right-from-bracket"></i> Log Out
@@ -485,6 +490,12 @@
 
       <!-- Action Buttons -->
       <div class="nav-actions">
+        <!-- Tombol Lonceng Notifikasi Alur Kerja Subkomite -->
+        <button type="button" class="btn-nav-workflow-bell" id="btnNavWorkflowBell" onclick="openWorkflowNotifModal()" title="Pusat Notifikasi Alur Kerja Subkomite &amp; Sekretaris">
+          <i class="fa-solid fa-bell"></i>
+          <span class="nav-wf-badge" id="navWfBadgeCount">0</span>
+        </button>
+
         <!-- Admin / Pengusul User Pill (Profil, Pengaturan Sesi & Tombol Log Out Tunggal) -->
         <div class="admin-user-pill" id="adminUserPill" style="display: none; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk Pengaturan Akun, Kata Sandi &amp; Mode Tampilan">
           <div class="admin-avatar" id="adminAvatarText">HW</div>
@@ -766,6 +777,18 @@
       <!-- Alert RKK Dikembalikan / Perlu Perbaikan (Sesuai Komkep BARI) -->
       <div id="boxRkkDikembalikan" style="display: none; margin-bottom: 1.5rem;">
         <!-- Rendered dynamically via JS if any application is returned -->
+      </div>
+
+      <!-- Alert Alur Kerja Subkomite Kredensial & Mutu -->
+      <div id="subkomiteKredensialWorkflowAlert" class="subkomite-workflow-alert kredensial-alert" style="display: none; margin-bottom: 1.5rem;">
+        <div class="wf-alert-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+        <div class="wf-alert-content">
+          <div class="wf-alert-title">Alur Kerja Kredensialing &amp; Verifikasi Berkas (PMK 49/2013)</div>
+          <div class="wf-alert-text" id="kredensialWorkflowAlertText">Ada berkas pengusulan kredensialing yang perlu diverifikasi oleh Tim Subkomite Kredensial &amp; Ketua Subkomite Mutu.</div>
+        </div>
+        <button type="button" class="btn-wf-alert-action" onclick="openWorkflowNotifModal('kredensial')">
+          <i class="fa-solid fa-bell"></i> Lihat Berkas Menunggu Verifikasi
+        </button>
       </div>
 
 
@@ -1145,6 +1168,18 @@
         </div>
       </div>
 
+      <!-- Alert Alur Kerja Subkomite Mutu Profesi -->
+      <div id="subkomiteMutuWorkflowAlert" class="subkomite-workflow-alert mutu-alert" style="display: none; margin-bottom: 1.5rem;">
+        <div class="wf-alert-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="wf-alert-content">
+          <div class="wf-alert-title">Alur Kerja Subkomite Mutu Profesi (PMK 49/2013)</div>
+          <div class="wf-alert-text" id="mutuWorkflowAlertText">Tersedia laporan audit mutu klinis dan berkas pengusulan kredensialing yang siap ditelaah &amp; diverifikasi oleh Ketua Subkomite Mutu.</div>
+        </div>
+        <button type="button" class="btn-wf-alert-action" onclick="openWorkflowNotifModal('mutu')">
+          <i class="fa-solid fa-bell"></i> Lihat Notifikasi Mutu
+        </button>
+      </div>
+
       <!-- 4 Audit Metric Cards -->
       <div class="audit-cards-grid">
         <div class="audit-metric-card">
@@ -1239,6 +1274,18 @@
             Penegakan Kode Etik Keperawatan & Kebidanan, Perlindungan Hak Pasien, dan Saluran Whistleblowing Aman & Rahasia
           </p>
         </div>
+      </div>
+
+      <!-- Alert Alur Kerja Subkomite Etika & Disiplin Profesi -->
+      <div id="subkomiteEtikWorkflowAlert" class="subkomite-workflow-alert etik-alert" style="display: none; margin-bottom: 1.5rem;">
+        <div class="wf-alert-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+        <div class="wf-alert-content">
+          <div class="wf-alert-title">Alur Kerja Subkomite Etika &amp; Disiplin Profesi (PMK 49/2013)</div>
+          <div class="wf-alert-text" id="etikWorkflowAlertText">Terdapat berkas pengaduan etik baru yang perlu ditindaklanjuti dan telaah awal berkas oleh Ketua Subkomite Etik.</div>
+        </div>
+        <button type="button" class="btn-wf-alert-action" onclick="openWorkflowNotifModal('etik')">
+          <i class="fa-solid fa-bell"></i> Lihat Berkas Pengaduan
+        </button>
       </div>
 
       <!-- 2 Columns: Alur & Form Pengaduan Rahasia -->
@@ -2522,6 +2569,78 @@
             <i class="fa-solid fa-right-from-bracket"></i> Keluar / Ganti Akun
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: PUSAT NOTIFIKASI ALUR KERJA SESUAI SUBKOMITE
+       (PMK 49/2013: Kredensialing -> Subkomite Mutu & Kredensial,
+        Etik -> Subkomite Etik, Mutu -> Subkomite Mutu,
+        Sekretaris Komite -> Menerima Seluruh Notifikasi Simultan)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalWorkflowNotifications" style="z-index: 100005;">
+    <div class="modal-container" style="max-width: 840px; width: 95%;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #063734 0%, #0d5f5b 50%, #064e3b 100%); color: #ffffff; padding: 1.1rem 1.5rem;">
+        <div>
+          <div class="modal-title" style="font-size: 1.15rem; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+            <i class="fa-solid fa-bell" style="color: #fbbf24;"></i>
+            <span>Sistem Alur Kerja Sesuai Subkomite &amp; Notifikasi Terpadu</span>
+          </div>
+          <div style="font-size: 0.78rem; color: #a7f3d0; margin-top: 3px;">
+            RSUD dr. Soedarso &bull; Tata Kelola PMK No. 49/2013 &bull; Distribusi Notifikasi Antar-Subkomite &amp; Sekretaris Komite
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalWorkflowNotifications')" title="Tutup Modal" style="color: white; opacity: 0.85;">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 1.5rem; max-height: calc(85vh - 120px); overflow-y: auto;">
+        <!-- Banner Otoritas Akun Login Saat Ini -->
+        <div id="wfUserAuthorityBox" class="wf-authority-banner">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Filter Subkomite Tabs & Controls -->
+        <div class="wf-toolbar-row">
+          <div class="wf-category-tabs">
+            <button type="button" class="wf-tab-btn active" data-cat="all" onclick="filterWorkflowNotifModal('all')">
+              <i class="fa-solid fa-layer-group"></i> Semua <span class="wf-tab-badge" id="wfCountAll">0</span>
+            </button>
+            <button type="button" class="wf-tab-btn" data-cat="kredensial" onclick="filterWorkflowNotifModal('kredensial')">
+              <i class="fa-solid fa-clipboard-check" style="color: #10b981;"></i> Kredensialing <span class="wf-tab-badge badge-green" id="wfCountKredensial">0</span>
+            </button>
+            <button type="button" class="wf-tab-btn" data-cat="etik" onclick="filterWorkflowNotifModal('etik')">
+              <i class="fa-solid fa-scale-balanced" style="color: #a855f7;"></i> Etik &amp; Disiplin <span class="wf-tab-badge badge-purple" id="wfCountEtik">0</span>
+            </button>
+            <button type="button" class="wf-tab-btn" data-cat="mutu" onclick="filterWorkflowNotifModal('mutu')">
+              <i class="fa-solid fa-chart-line" style="color: #3b82f6;"></i> Audit Mutu <span class="wf-tab-badge badge-blue" id="wfCountMutu">0</span>
+            </button>
+          </div>
+
+          <div class="wf-actions-group">
+            <button type="button" class="btn-wf-action-ghost" onclick="toggleWfUnreadFilter()" id="btnToggleWfUnread" title="Filter hanya notifikasi yang belum dibaca">
+              <i class="fa-solid fa-filter"></i> <span id="textToggleWfUnread">Belum Dibaca</span>
+            </button>
+            <button type="button" class="btn-wf-action-ghost" onclick="markAllWorkflowNotifsRead()" title="Tandai semua notifikasi akun ini sudah dibaca">
+              <i class="fa-solid fa-check-double"></i> Tandai Semua Dibaca
+            </button>
+          </div>
+        </div>
+
+        <!-- Daftar Kartu Notifikasi Alur Kerja -->
+        <div id="workflowNotifListContainer" class="wf-cards-container" style="margin-top: 1rem;">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 0.85rem 1.5rem; background: var(--bg-surface-secondary); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.5rem;">
+        <div style="font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-shield-halved" style="color: var(--primary-600);"></i>
+          <span>Notifikasi tersinkronisasi otomatis dengan email resmi Sekretaris (<code>yadhie28@gmail.com</code>) &amp; Subkomite terkait.</span>
+        </div>
+        <button type="button" class="btn-secondary" onclick="closeModal('modalWorkflowNotifications')" style="font-size: 0.82rem;">Tutup</button>
       </div>
     </div>
   </div>
