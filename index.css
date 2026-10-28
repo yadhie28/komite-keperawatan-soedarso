@@ -2828,388 +2828,350 @@ select.form-select.input-locked {
 }
 
 /* ==========================================================================
-   MEJA KERJA VERIFIKASI SUBKOMITE & MONITORING PIMPINAN KOMITE
+   BUDAYA KERJA 5S JEPANG (SEIRI, SEITON, SEISO, SEIKETSU, SHITSUKE)
+   Sistem Kredensial & Verifikasi Terpadu RSUD dr. Soedarso
    ========================================================================== */
-.meja-verifikasi-wrapper {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  margin-bottom: 2rem;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
 
-.meja-header-banner {
-  background: linear-gradient(135deg, rgba(7, 71, 68, 0.06) 0%, rgba(13, 148, 136, 0.08) 100%);
-  border-bottom: 1px solid var(--border-subtle);
+.banner-5s-wrapper {
+  background: linear-gradient(135deg, #072e2b 0%, #064e3b 50%, #047857 100%);
+  border-radius: var(--radius-lg, 12px);
   padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 14px rgba(6, 78, 59, 0.25);
+  position: relative;
+  overflow: hidden;
 }
 
-.meja-header-title {
-  font-size: 1.15rem;
+.banner-5s-wrapper::after {
+  content: "5S";
+  position: absolute;
+  right: -10px;
+  bottom: -20px;
+  font-size: 7.5rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.banner-5s-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.banner-5s-title {
+  font-size: 1.1rem;
   font-weight: 800;
-  color: var(--text-main);
   display: flex;
   align-items: center;
   gap: 0.6rem;
 }
 
-.meja-header-subtitle {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 3px;
-}
-
-.role-switcher-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--bg-main);
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid var(--border-subtle);
-}
-
-.role-btn {
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.role-btn:hover {
-  color: var(--text-main);
-  background: rgba(0, 0, 0, 0.04);
-}
-
-.role-btn.active {
-  background: var(--primary-600);
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3);
-}
-
-.role-btn.active.role-ketua {
-  background: #9333ea;
-  box-shadow: 0 2px 6px rgba(147, 51, 234, 0.3);
-}
-
-.role-btn.active.role-sekretaris {
-  background: #0284c7;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
-}
-
-.role-btn.active.role-pengusul {
-  background: #059669;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
-}
-
-.meja-body-content {
-  padding: 1.25rem 1.5rem;
-}
-
-/* Metric Counter Grid */
-.meja-counter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.meja-counter-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.meja-counter-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-  border-color: var(--primary-400);
-}
-
-.meja-counter-card.active {
-  border-color: var(--primary-600);
-  background: linear-gradient(135deg, rgba(13, 148, 136, 0.05) 0%, rgba(13, 148, 136, 0.02) 100%);
-}
-
-.meja-counter-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.meja-counter-num {
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  color: var(--text-main);
-}
-
-.meja-counter-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
+.banner-5s-subtitle {
+  font-size: 0.78rem;
+  color: #a7f3d0;
   margin-top: 2px;
 }
 
-/* Status Filter Nav */
-.meja-filter-nav {
+.grid-5s-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.card-5s-pillar {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md, 8px);
+  padding: 0.85rem;
+  transition: all 0.25s ease;
+}
+
+.card-5s-pillar:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.pillar-5s-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6ee7b7;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 0.35rem;
+  margin-bottom: 4px;
 }
 
-.filter-tab-pill {
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
+.pillar-5s-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.pillar-5s-desc {
+  font-size: 0.73rem;
+  color: #e2e8f0;
+  line-height: 1.35;
+}
+
+/* Quick 5S Template Chips */
+.quick-template-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+.quick-template-label {
+  font-size: 0.74rem;
   font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-template-5s {
+  font-size: 0.73rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
   border: 1px solid var(--border-subtle);
   background: var(--bg-card);
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.filter-tab-pill:hover {
-  background: var(--bg-main);
   color: var(--text-main);
-}
-
-.filter-tab-pill.active {
-  background: var(--primary-600);
-  color: #ffffff;
-  border-color: var(--primary-600);
-  box-shadow: 0 2px 5px rgba(13, 148, 136, 0.25);
-}
-
-.filter-tab-pill .badge-count {
-  background: rgba(0, 0, 0, 0.12);
-  color: inherit;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-}
-
-.filter-tab-pill.active .badge-count {
-  background: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-}
-
-/* Badges for Credential Applications */
-.badge-app-status {
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 999px;
-  white-space: nowrap;
+  gap: 4px;
+  transition: all 0.18s ease;
 }
 
-.badge-app-status.status-subkomite {
+.chip-template-5s:hover {
+  background: rgba(13, 148, 136, 0.1);
+  border-color: var(--primary-600);
+  color: var(--primary-700);
+  transform: translateY(-1px);
+}
+
+.chip-template-5s.chip-danger:hover {
+  background: #fff1f2;
+  border-color: #fca5a5;
+  color: #be123c;
+}
+
+/* STR Early Warning Badges */
+.badge-str-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
   background: #fef3c7;
   color: #92400e;
   border: 1px solid #fde68a;
 }
 
-.badge-app-status.status-mitra-bestari {
-  background: #e0f2fe;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
+.badge-str-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
 }
 
-.badge-app-status.status-pimpinan {
-  background: #f3e8ff;
-  color: #7e22ce;
-  border: 1px solid #e9d5ff;
+.badge-str-valid {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
 }
 
-.badge-app-status.status-selesai {
+/* 5S Poka-Yoke Alert */
+.poka-yoke-banner {
+  background: #fffbeb;
+  border: 1.5px solid #f59e0b;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.poka-yoke-icon {
+  font-size: 1.25rem;
+  color: #d97706;
+}
+
+.poka-yoke-text {
+  font-size: 0.8rem;
+  color: #92400e;
+  line-height: 1.45;
+}
+
+/* Smart Applicant Bar for RKK Modal */
+.smart-applicant-header-5s {
+  background: linear-gradient(135deg, rgba(14, 56, 96, 0.05) 0%, rgba(13, 148, 136, 0.08) 100%);
+  border: 1px solid rgba(14, 56, 96, 0.2);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ==========================================================================
+   SECURITY & CREDENTIAL DATA PROTECTION SYSTEM (UU PDP NO. 27/2022)
+   ========================================================================== */
+.security-pdp-banner {
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.08) 0%, rgba(13, 148, 136, 0.12) 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(6, 95, 70, 0.04);
+}
+
+.security-shield-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #065f46 0%, #0d9488 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(6, 95, 70, 0.25);
+}
+
+.badge-security-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
   background: #d1fae5;
   color: #065f46;
   border: 1px solid #a7f3d0;
 }
 
-.badge-app-status.status-revisi {
-  background: #ffe4e6;
-  color: #be123c;
-  border: 1px solid #fecdd3;
-}
-
-/* Timeline Audit List */
-.timeline-audit-list {
-  position: relative;
-  padding-left: 1.5rem;
-  margin: 1rem 0;
-}
-
-.timeline-audit-list::before {
-  content: '';
-  position: absolute;
-  left: 7px;
-  top: 4px;
-  bottom: 4px;
-  width: 2px;
-  background: var(--border-subtle);
-}
-
-.timeline-audit-item {
-  position: relative;
-  margin-bottom: 1.25rem;
-}
-
-.timeline-audit-item:last-child {
-  margin-bottom: 0;
-}
-
-.timeline-audit-dot {
-  position: absolute;
-  left: -1.5rem;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 3px solid var(--primary-600);
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
-}
-
-.timeline-audit-dot.pimpinan {
-  border-color: #9333ea;
-  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.2);
-}
-
-.timeline-audit-dot.sekretaris {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
-}
-
-.timeline-audit-dot.subkomite {
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-}
-
-.timeline-audit-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 2px;
-}
-
-.timeline-audit-user {
-  font-size: 0.8rem;
+.btn-security-action {
+  font-size: 0.76rem;
   font-weight: 700;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
   color: var(--text-main);
-}
-
-.timeline-audit-time {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.timeline-audit-action {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-/* Meja Verifikasi Modal Custom Tab Styling */
-.meja-modal-nav-tabs {
-  display: flex;
-  gap: 0.5rem;
-  border-bottom: 2px solid var(--border-subtle);
-  margin-bottom: 1.25rem;
-  overflow-x: auto;
-}
-
-.meja-modal-tab-btn {
-  padding: 0.65rem 1.15rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
+  border: 1.5px solid var(--border-subtle);
   cursor: pointer;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transition: all 0.2s ease;
 }
 
-.meja-modal-tab-btn:hover {
-  color: var(--text-main);
+.btn-security-action:hover {
+  background: var(--bg-app);
+  border-color: var(--primary-600);
+  color: var(--primary-700);
 }
 
-.meja-modal-tab-btn.active {
-  color: var(--primary-600);
-  border-bottom-color: var(--primary-600);
-  background: rgba(13, 148, 136, 0.04);
+/* Watermark Digital Dokumen Rahasia SPK & RKK */
+.official-doc-paper {
+  position: relative;
+  overflow: hidden;
 }
 
-.meja-modal-tab-content {
-  display: none;
+.doc-security-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: rgba(220, 38, 38, 0.06);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 1;
+  text-align: center;
 }
 
-.meja-modal-tab-content.active {
-  display: block;
+.doc-security-audit-footer {
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 0.68rem;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--font-mono, monospace);
 }
 
-.btn-preview-link {
+.masked-data-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.masked-lock-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #b45309;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 1px 5px;
+  border-radius: 4px;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 0.3rem 0.65rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #cbd5e1;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  gap: 3px;
+  margin-left: 4px;
 }
 
-.btn-preview-link:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
