@@ -154,9 +154,9 @@
         </button>
 
 
-        <!-- Admin Login Button (shown when logged out) -->
-        <button class="btn-secondary" id="btnLoginNav" onclick="openLoginModal()" style="padding: 0.55rem 0.95rem; font-size: 0.82rem; font-weight: 700; gap: 0.4rem;">
-          <i class="fa-solid fa-lock" style="color: var(--gold-600);"></i> Login Admin
+        <!-- Portal Login Button (shown when logged out) -->
+        <button class="btn-secondary" id="btnLoginNav" onclick="openLoginModal()" title="Masuk sebagai Tenaga Keperawatan (Pengusul) atau Pengurus Komite" style="padding: 0.55rem 0.95rem; font-size: 0.82rem; font-weight: 700; gap: 0.45rem;">
+          <i class="fa-solid fa-user-lock" style="color: var(--primary-600);"></i> Masuk / Login Portal
         </button>
 
         <!-- Admin / Pengusul User Pill (shown when logged in) -->
@@ -709,9 +709,12 @@
       </div>
 
       <!-- Filter and Table Container (Registry Tenaga Keperawatan) -->
-      <div class="card-table-wrapper">
-        <div class="card-table-header">
-          <div class="table-filter-bar">
+      <div class="card-table-wrapper" id="cardTableWrapper">
+        <!-- Role Access Notice (Shown when logged in) -->
+        <div id="roleAccessNoticeBox" style="display: none; padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border-subtle);"></div>
+
+        <div class="card-table-header" id="cardTableHeader">
+          <div class="table-filter-bar" id="tableFilterBar">
             <!-- Search Input -->
             <div class="search-input-wrapper">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -794,8 +797,40 @@
           </div>
         </div>
 
-        <!-- Data Table -->
-        <div class="table-responsive">
+        <!-- Privacy Lock Gate for Guests / Unauthenticated Visitors -->
+        <div id="guestPrivacyLockGate" style="display: none; padding: 1.5rem 1rem;">
+          <div class="privacy-lock-card">
+            <div class="privacy-lock-icon">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="privacy-lock-badge">
+              <i class="fa-solid fa-lock"></i> AKSES PRIVAT &bull; DOKUMEN RAHASIA MEDIS
+            </div>
+            <h3 class="privacy-lock-title">
+              Data Kredensial Tenaga Keperawatan & Kebidanan Dilindungi
+            </h3>
+            <p class="privacy-lock-desc">
+              Berdasarkan <strong>Undang-Undang Pelindungan Data Pribadi (UU PDP No. 27/2022)</strong> dan standar akreditasi <strong>KARS STARKES KPS 10-11</strong>, data kredensial (NIP, STR, Jenjang PK, Dokumen SPK, dan RKK) bersifat rahasia dan tidak dapat diakses oleh publik/tamu. Untuk melihat data kredensial, silakan masuk sesuai hak akses Anda:
+            </p>
+            <div class="privacy-lock-actions">
+              <button type="button" class="btn-primary" onclick="openLoginModal('pengusul')" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);">
+                <i class="fa-solid fa-user-nurse"></i> Login Akun Pengusul (Perawat / Bidan)
+              </button>
+              <button type="button" class="btn-secondary" onclick="openLoginModal('komite')" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem; color: #0369a1; border-color: #7dd3fc; background: #f0f9ff;">
+                <i class="fa-solid fa-shield-halved"></i> Login Pengurus Komite
+              </button>
+              <button type="button" class="btn-secondary" onclick="mulaiPengajuanKredensial5S()" style="padding: 0.65rem 1.25rem; font-weight: 700; font-size: 0.88rem;">
+                <i class="fa-solid fa-file-signature"></i> Ajukan E-Kredensialing Baru
+              </button>
+            </div>
+            <div class="privacy-lock-footer">
+              <i class="fa-solid fa-circle-info"></i> Staf perawat & bidan dapat masuk menggunakan NIP untuk memeriksa status kredensial dan mengunduh SPK & RKK mandiri.
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Table Responsive -->
+        <div class="table-responsive" id="nurseTableResponsive">
           <table class="data-table" id="nursesTable">
             <thead>
               <tr>
