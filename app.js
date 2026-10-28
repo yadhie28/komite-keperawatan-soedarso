@@ -998,14 +998,10 @@ function updateAuthUI() {
   const adminNavRole = document.getElementById('adminNavRole');
   const adminAvatar = document.getElementById('adminAvatarText');
   const btnNavSettings = document.getElementById('btnNavSettings');
-  const btnNavLogout = document.getElementById('btnNavLogout');
-  const navItemLogout = document.getElementById('navItemLogout');
 
   if (state.currentUser) {
     hidePortalGateway();
     if (btnNavSettings) btnNavSettings.style.display = 'inline-flex';
-    if (btnNavLogout) btnNavLogout.style.display = 'inline-flex';
-    if (navItemLogout) navItemLogout.style.display = 'block';
 
     if (banner) banner.style.display = 'flex';
 
@@ -1093,8 +1089,6 @@ function updateAuthUI() {
     if (banner) banner.style.display = 'none';
     if (adminUserPill) adminUserPill.style.display = 'none';
     if (btnNavSettings) btnNavSettings.style.display = 'inline-flex';
-    if (btnNavLogout) btnNavLogout.style.display = 'none';
-    if (navItemLogout) navItemLogout.style.display = 'none';
     state.privacyModeRevealed = false;
   }
   updatePrivacyToggleButton();
