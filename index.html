@@ -485,13 +485,8 @@
 
       <!-- Action Buttons -->
       <div class="nav-actions">
-        <!-- Account Settings & Theme Button (Satu-satunya Akses Pengaturan) -->
-        <button class="btn-nav-settings" id="btnNavSettings" onclick="openAccountSettingsModal()" title="Pengaturan Akun &amp; Mode Gelap/Terang (Setting)">
-          <i class="fa-solid fa-gear"></i>
-        </button>
-
-        <!-- Admin / Pengusul User Pill (Profil, Identitas & Tombol Log Out Tunggal) -->
-        <div class="admin-user-pill" id="adminUserPill" style="display: none; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk membuka profil / dashboard">
+        <!-- Admin / Pengusul User Pill (Profil, Pengaturan Sesi & Tombol Log Out Tunggal) -->
+        <div class="admin-user-pill" id="adminUserPill" style="display: none; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk Pengaturan Akun, Kata Sandi &amp; Mode Tampilan">
           <div class="admin-avatar" id="adminAvatarText">HW</div>
           <div class="admin-info">
             <span class="admin-name" id="adminNavName">Ns. Hendra W.</span>
