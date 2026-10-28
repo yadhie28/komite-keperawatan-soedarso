@@ -909,8 +909,45 @@ function simpanPengaturanPreferensi() {
   showToast('Preferensi sistem berhasil diterapkan!', 'success');
 }
 
+function setThemeMode(mode) {
+  state.theme = mode === 'dark' ? 'dark' : 'light';
+  localStorage.setItem('komite_theme', state.theme);
+  document.documentElement.setAttribute('data-theme', state.theme);
+  updateThemeIcon();
+  updateSettingsThemeLabel();
+  renderAnalyticsCharts();
+  showToast(`Mode ${state.theme === 'dark' ? 'Gelap (Dark Mode)' : 'Terang (Light Mode)'} diaktifkan.`, 'info');
+}
+
 function updateSettingsThemeLabel() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const cardLight = document.getElementById('themeCardLight');
+  const cardDark = document.getElementById('themeCardDark');
+  const tagLight = document.getElementById('tagThemeLight');
+  const tagDark = document.getElementById('tagThemeDark');
+
+  if (cardLight && cardDark) {
+    if (isDark) {
+      cardDark.style.borderColor = '#0284c7';
+      cardDark.style.background = 'rgba(2, 132, 199, 0.15)';
+      cardDark.style.boxShadow = '0 0 0 2px rgba(2, 132, 199, 0.35)';
+      cardLight.style.borderColor = 'var(--border-subtle)';
+      cardLight.style.background = 'var(--bg-surface)';
+      cardLight.style.boxShadow = 'none';
+      if (tagDark) tagDark.style.display = 'inline-block';
+      if (tagLight) tagLight.style.display = 'none';
+    } else {
+      cardLight.style.borderColor = '#10b981';
+      cardLight.style.background = 'rgba(16, 185, 129, 0.1)';
+      cardLight.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.35)';
+      cardDark.style.borderColor = 'var(--border-subtle)';
+      cardDark.style.background = 'var(--bg-surface)';
+      cardDark.style.boxShadow = 'none';
+      if (tagLight) tagLight.style.display = 'inline-block';
+      if (tagDark) tagDark.style.display = 'none';
+    }
+  }
+
   const label = document.getElementById('settingsThemeStatusText');
   if (label) {
     label.textContent = isDark ? 'Mode Gelap Aktif (Klik untuk Mode Terang)' : 'Mode Terang Aktif (Klik untuk Mode Gelap)';
@@ -10660,5 +10697,6 @@ window.simpanPengaturanPassword = simpanPengaturanPassword;
 window.simpanPengaturanProfil = simpanPengaturanProfil;
 window.simpanPengaturanPreferensi = simpanPengaturanPreferensi;
 window.updateSettingsThemeLabel = updateSettingsThemeLabel;
+window.setThemeMode = setThemeMode;
 window.getAllAdminAccounts = getAllAdminAccounts;
 
