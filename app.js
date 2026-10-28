@@ -9308,13 +9308,6 @@ function renderWorkflowAuthorityBanner() {
       <div class="wf-authority-desc">
         Sistem alur kerja mengatur routing otomatis: <strong>Kredensialing</strong> diteruskan ke Ketua Subkomite Mutu & Kredensial untuk verifikasi berkas; <strong>Pengaduan Etik</strong> diteruskan ke Ketua Subkomite Etik untuk tindak lanjut; <strong>Audit Mutu</strong> diteruskan ke Ketua Subkomite Mutu; dan <strong>Sekretaris Komite Keperawatan</strong> menerima seluruh notifikasi tersebut secara simultan.
       </div>
-      <div class="wf-test-switchers">
-        <strong>Simulasi Tampilan Cepat Akun Pengurus:</strong>
-        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('rusmulyadi')"><i class="fa-solid fa-user-pen"></i> Sekretaris (Semua Notifikasi)</button>
-        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('laila')"><i class="fa-solid fa-award"></i> Ketua Mutu (Kredensial & Mutu)</button>
-        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('alfonsus')"><i class="fa-solid fa-scale-balanced"></i> Ketua Etik (Pengaduan Etik)</button>
-        <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('yohanes')"><i class="fa-solid fa-id-card"></i> Ketua Kredensial</button>
-      </div>
     `;
     return;
   }
@@ -9369,13 +9362,6 @@ function renderWorkflowAuthorityBanner() {
     </div>
     <div class="wf-authority-desc">
       ${descHtml}
-    </div>
-    <div class="wf-test-switchers">
-      <strong>Beralih Cepat Tampilan Uji Coba:</strong>
-      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('rusmulyadi')"><i class="fa-solid fa-user-pen"></i> Sekretaris</button>
-      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('laila')"><i class="fa-solid fa-award"></i> Ketua Mutu</button>
-      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('alfonsus')"><i class="fa-solid fa-scale-balanced"></i> Ketua Etik</button>
-      <button type="button" class="btn-wf-sim-pill" onclick="demoWorkflowLogin('yohanes')"><i class="fa-solid fa-id-card"></i> Ketua Kredensial</button>
     </div>
   `;
 }
