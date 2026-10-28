@@ -44,7 +44,14 @@
   <!-- ========================================================================
        PORTAL PINTU MASUK AKSES KOMITE KEPERAWATAN (GATEWAY ACCESS PORTAL)
        ======================================================================== -->
-  <div id="portalGatewayOverlay" class="portal-gateway-overlay" style="display: none;">
+  <div id="portalGatewayOverlay" class="portal-gateway-overlay" style="display: none; position: relative;">
+    <!-- Floating Settings / Theme Button on Portal Gateway -->
+    <div style="position: absolute; top: 1.25rem; right: 1.5rem; display: flex; align-items: center; gap: 0.75rem; z-index: 99995;">
+      <button type="button" class="btn-nav-settings" onclick="openAccountSettingsModal()" title="Pengaturan Sistem &amp; Mode Gelap/Terang (Setting)" style="background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); width: 40px; height: 40px; font-size: 1.05rem; cursor: pointer;">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    </div>
+
     <div class="portal-gateway-container">
       
       <!-- Top Branding Header -->
@@ -484,6 +491,12 @@
             <i class="fa-solid fa-book-bookmark"></i> Pusat Regulasi
           </button>
         </li>
+        <!-- Mobile/Drawer Settings Tab Item -->
+        <li id="navItemSettingsMobile">
+          <button class="nav-tab-btn" onclick="openAccountSettingsModal()" style="color: var(--primary-600); font-weight: 700;">
+            <i class="fa-solid fa-gear"></i> Pengaturan &amp; Mode Tampilan
+          </button>
+        </li>
         <!-- Mobile/Drawer Log Out Tab Item (shown when logged in) -->
         <li id="navItemLogout" style="display: none;">
           <button class="nav-tab-btn" onclick="logoutToPortal()" style="color: #ef4444; font-weight: 700;">
@@ -494,8 +507,8 @@
 
       <!-- Action Buttons -->
       <div class="nav-actions">
-        <!-- Account Settings Button (shown when logged in) -->
-        <button class="btn-nav-settings" id="btnNavSettings" onclick="openAccountSettingsModal()" title="Pengaturan Akun &amp; Mode Tampilan (Setting)" style="display: none;">
+        <!-- Account Settings & Theme Button (Selalu dapat diakses) -->
+        <button class="btn-nav-settings" id="btnNavSettings" onclick="openAccountSettingsModal()" title="Pengaturan Akun &amp; Mode Gelap/Terang (Setting)">
           <i class="fa-solid fa-gear"></i>
         </button>
 
@@ -2302,7 +2315,7 @@
   <!-- ========================================================================
        MODAL: PENGATURAN AKUN, KATA SANDI & KEAMANAN (SEMUA PERAN)
        ======================================================================== -->
-  <div class="modal-overlay" id="modalAccountSettings" style="display: none;">
+  <div class="modal-overlay" id="modalAccountSettings" style="z-index: 100005;">
     <div class="modal-container" style="max-width: 680px;">
       <div class="modal-header">
         <div class="modal-title" style="font-size: 1.15rem; display: flex; align-items: center; gap: 0.6rem;">

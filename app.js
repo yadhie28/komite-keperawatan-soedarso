@@ -610,11 +610,15 @@ function handleUserPillClick() {
 }
 
 function openAccountSettingsModal() {
-  if (!state.currentUser) {
-    showPortalGateway();
-    return;
-  }
-  const u = state.currentUser;
+  const u = state.currentUser || {
+    username: 'visitor',
+    name: 'Pengunjung / Tamu Publik',
+    nip: '-',
+    unit: 'Publik (Akses Terbuka)',
+    role: 'guest',
+    badge: 'Tamu Publik',
+    access: ['public']
+  };
 
   // Header identity elements
   const avatarEl = document.getElementById('settingsUserAvatar');
@@ -1088,7 +1092,7 @@ function updateAuthUI() {
     showPortalGateway();
     if (banner) banner.style.display = 'none';
     if (adminUserPill) adminUserPill.style.display = 'none';
-    if (btnNavSettings) btnNavSettings.style.display = 'none';
+    if (btnNavSettings) btnNavSettings.style.display = 'inline-flex';
     if (btnNavLogout) btnNavLogout.style.display = 'none';
     if (navItemLogout) navItemLogout.style.display = 'none';
     state.privacyModeRevealed = false;
@@ -8657,6 +8661,7 @@ function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.add('active');
+    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }
 }
@@ -8665,6 +8670,7 @@ function closeModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('active');
+    modal.style.display = 'none';
     document.body.style.overflow = 'auto';
   }
 }
@@ -8673,6 +8679,7 @@ function closeModal(modalId) {
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('active');
+    e.target.style.display = 'none';
     document.body.style.overflow = 'auto';
   }
 });
