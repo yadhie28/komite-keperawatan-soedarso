@@ -44,14 +44,7 @@
   <!-- ========================================================================
        PORTAL PINTU MASUK AKSES KOMITE KEPERAWATAN (GATEWAY ACCESS PORTAL)
        ======================================================================== -->
-  <div id="portalGatewayOverlay" class="portal-gateway-overlay" style="display: none; position: relative;">
-    <!-- Floating Settings / Theme Button on Portal Gateway -->
-    <div style="position: absolute; top: 1.25rem; right: 1.5rem; display: flex; align-items: center; gap: 0.75rem; z-index: 99995;">
-      <button type="button" class="btn-nav-settings" onclick="openAccountSettingsModal()" title="Pengaturan Sistem &amp; Mode Gelap/Terang (Setting)" style="background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); width: 40px; height: 40px; font-size: 1.05rem; cursor: pointer;">
-        <i class="fa-solid fa-gear"></i>
-      </button>
-    </div>
-
+  <div id="portalGatewayOverlay" class="portal-gateway-overlay" style="display: none;">
     <div class="portal-gateway-container">
       
       <!-- Top Branding Header -->
@@ -392,9 +385,6 @@
     </div>
     <div style="display: flex; align-items: center; gap: 0.75rem;">
       <span class="badge-official" id="adminBannerBadgeTag" style="font-size: 0.7rem; background: rgba(0,0,0,0.3);">AKSES TERAUTENTIKASI</span>
-      <button type="button" class="btn-secondary" onclick="openAccountSettingsModal()" title="Pengaturan Akun &amp; Kata Sandi" style="color: #ffffff; background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.3); font-size: 0.75rem; padding: 0.25rem 0.65rem; display: flex; align-items: center; gap: 5px; font-weight: 600;">
-        <i class="fa-solid fa-gear"></i> Pengaturan
-      </button>
       <button class="btn-banner-logout" id="btnBannerLogout" onclick="logoutToPortal()" title="Keluar / Log Out dari akun ini">
         <i class="fa-solid fa-right-from-bracket"></i> Log Out
       </button>
@@ -489,12 +479,6 @@
         <li>
           <button class="nav-tab-btn" data-tab="regulasi">
             <i class="fa-solid fa-book-bookmark"></i> Pusat Regulasi
-          </button>
-        </li>
-        <!-- Mobile/Drawer Settings Tab Item -->
-        <li id="navItemSettingsMobile">
-          <button class="nav-tab-btn" onclick="openAccountSettingsModal()" style="color: var(--primary-600); font-weight: 700;">
-            <i class="fa-solid fa-gear"></i> Pengaturan &amp; Mode Tampilan
           </button>
         </li>
         <!-- Mobile/Drawer Log Out Tab Item (shown when logged in) -->
