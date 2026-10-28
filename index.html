@@ -481,22 +481,16 @@
             <i class="fa-solid fa-book-bookmark"></i> Pusat Regulasi
           </button>
         </li>
-        <!-- Mobile/Drawer Log Out Tab Item (shown when logged in) -->
-        <li id="navItemLogout" style="display: none;">
-          <button class="nav-tab-btn" onclick="logoutToPortal()" style="color: #ef4444; font-weight: 700;">
-            <i class="fa-solid fa-right-from-bracket"></i> Keluar (Log Out)
-          </button>
-        </li>
       </ul>
 
       <!-- Action Buttons -->
       <div class="nav-actions">
-        <!-- Account Settings & Theme Button (Selalu dapat diakses) -->
+        <!-- Account Settings & Theme Button (Satu-satunya Akses Pengaturan) -->
         <button class="btn-nav-settings" id="btnNavSettings" onclick="openAccountSettingsModal()" title="Pengaturan Akun &amp; Mode Gelap/Terang (Setting)">
           <i class="fa-solid fa-gear"></i>
         </button>
 
-        <!-- Admin / Pengusul User Pill (shown when logged in) -->
+        <!-- Admin / Pengusul User Pill (Profil, Identitas & Tombol Log Out Tunggal) -->
         <div class="admin-user-pill" id="adminUserPill" style="display: none; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk membuka profil / dashboard">
           <div class="admin-avatar" id="adminAvatarText">HW</div>
           <div class="admin-info">
@@ -504,17 +498,12 @@
             <span class="admin-role-tag" id="adminNavRole">Super Admin</span>
           </div>
           <button class="btn-pill-logout" id="btnPortalLogout" onclick="event.stopPropagation(); logoutToPortal()" title="Keluar / Log Out dari akun ini">
-            <i class="fa-solid fa-right-from-bracket"></i> <span>Keluar</span>
+            <i class="fa-solid fa-right-from-bracket"></i> <span>Log Out</span>
           </button>
         </div>
 
-        <!-- Tombol Log Out Utama di Navbar (Sangat Jelas & Terlihat) -->
-        <button class="btn-nav-logout" id="btnNavLogout" onclick="logoutToPortal()" title="Keluar dari akun Anda dan kembali ke Portal Akses" style="display: none;">
-          <i class="fa-solid fa-right-from-bracket"></i> <span>Log Out</span>
-        </button>
-
         <button class="btn-cta-quick" id="btnQuickKredensial">
-          <i class="fa-solid fa-file-circle-plus"></i> + Ajukan Kredensial
+          <i class="fa-solid fa-file-circle-plus"></i> <span class="btn-cta-text">+ Ajukan Kredensial</span>
         </button>
         <button class="btn-mobile-menu" id="mobileMenuBtn" aria-label="Menu Navigasi Mobile">
           <i class="fa-solid fa-bars"></i>
