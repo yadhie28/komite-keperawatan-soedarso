@@ -154,10 +154,6 @@
         </button>
 
 
-        <!-- Portal Login Button (shown when logged out) -->
-        <button class="btn-secondary" id="btnLoginNav" onclick="openLoginModal()" title="Masuk sebagai Tenaga Keperawatan (Pengusul) atau Pengurus Komite" style="padding: 0.55rem 0.95rem; font-size: 0.82rem; font-weight: 700; gap: 0.45rem;">
-          <i class="fa-solid fa-user-lock" style="color: var(--primary-600);"></i> Masuk / Login Portal
-        </button>
 
         <!-- Admin / Pengusul User Pill (shown when logged in) -->
         <div class="admin-user-pill" id="adminUserPill" style="display: none; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk membuka profil / dashboard">
@@ -4565,6 +4561,7 @@
           <li><a href="#kredensial" onclick="switchTab('kredensial')">Pencarian & Verifikasi RKK</a></li>
           <li><a href="#etik" onclick="switchTab('etik')">Whistleblowing & Konsultasi Etik</a></li>
           <li><a href="#regulasi" onclick="switchTab('regulasi')">Unduh Buku Putih RKK</a></li>
+          <li><a href="javascript:void(0)" onclick="openLoginModal()"><i class="fa-solid fa-lock"></i> Masuk Akun Portal</a></li>
         </ul>
       </div>
 
