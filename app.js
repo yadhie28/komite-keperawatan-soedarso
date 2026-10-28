@@ -665,7 +665,6 @@ function updateAuthUI() {
   const banner = document.getElementById('adminModeBanner');
   const bannerUser = document.getElementById('adminBannerUser');
   const bannerRole = document.getElementById('adminBannerRole');
-  const btnLoginNav = document.getElementById('btnLoginNav');
   const adminUserPill = document.getElementById('adminUserPill');
   const adminNavName = document.getElementById('adminNavName');
   const adminNavRole = document.getElementById('adminNavRole');
@@ -675,7 +674,6 @@ function updateAuthUI() {
     if (banner) banner.style.display = 'flex';
     if (bannerUser) bannerUser.textContent = state.currentUser.name;
     if (bannerRole) bannerRole.textContent = state.currentUser.role;
-    if (btnLoginNav) btnLoginNav.style.display = 'none';
     if (adminUserPill) adminUserPill.style.display = 'flex';
     if (adminNavName) adminNavName.textContent = state.currentUser.name.split(',')[0];
     if (adminNavRole) adminNavRole.textContent = state.currentUser.badge || 'Admin';
@@ -686,7 +684,6 @@ function updateAuthUI() {
     }
   } else {
     if (banner) banner.style.display = 'none';
-    if (btnLoginNav) btnLoginNav.style.display = 'inline-flex';
     if (adminUserPill) adminUserPill.style.display = 'none';
     state.privacyModeRevealed = false;
   }
