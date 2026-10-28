@@ -3175,3 +3175,101 @@ select.form-select.input-locked {
   margin-left: 4px;
 }
 
+/* ==========================================================================
+   PRIVACY LOCK CARD & ACCESS GATE (UU PDP NO. 27/2022)
+   ========================================================================== */
+.privacy-lock-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+  border: 2px dashed rgba(220, 38, 38, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 2.75rem 2rem;
+  text-align: center;
+  margin: 1.25rem auto;
+  max-width: 760px;
+  box-shadow: 0 10px 25px -5px rgba(220, 38, 38, 0.05);
+}
+
+.privacy-lock-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  margin: 0 auto 1.15rem;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.18);
+}
+
+.privacy-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+.privacy-lock-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.65rem;
+  line-height: 1.35;
+}
+
+.privacy-lock-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 620px;
+  margin: 0 auto 1.6rem;
+}
+
+.privacy-lock-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+
+.privacy-lock-footer {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.user-role-notice-banner {
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.user-role-notice-banner.pengusul-notice {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.12) 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.35);
+}
+
+.user-role-notice-banner.admin-notice {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(3, 105, 161, 0.12) 100%);
+  border: 1.5px solid rgba(2, 132, 199, 0.35);
+}
+
+

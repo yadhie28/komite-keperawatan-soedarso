@@ -94,12 +94,17 @@ function initAuth() {
   updateAuthUI();
 }
 
-function openLoginModal() {
+function openLoginModal(tab) {
   const errBox = document.getElementById('loginErrorMessage');
   if (errBox) errBox.style.display = 'none';
   const form = document.getElementById('adminLoginForm');
   if (form) form.reset();
   populatePengurusDropdown();
+  if (tab && typeof switchLoginTab === 'function') {
+    switchLoginTab(tab);
+  } else if (typeof switchLoginTab === 'function') {
+    switchLoginTab('pengusul');
+  }
   openModal('modalAdminLogin');
 }
 
@@ -1217,8 +1222,49 @@ function updatePrivacyToggleButton() {
   const btn = document.getElementById('btnTogglePrivacy');
   const icon = document.getElementById('iconPrivacyToggle');
   const text = document.getElementById('textPrivacyToggle');
+  const badge = document.getElementById('badgeSecurityStatus');
+  const desc = document.getElementById('descSecurityStatus');
   if (!btn || !icon || !text) return;
 
+  if (!state.currentUser) {
+    icon.className = 'fa-solid fa-lock';
+    icon.style.color = '#dc2626';
+    text.textContent = 'Akses Terkunci (Login Diperlukan)';
+    btn.style.background = '#fef2f2';
+    btn.style.borderColor = '#fca5a5';
+    btn.style.color = '#991b1b';
+    if (badge) {
+      badge.innerHTML = '<i class="fa-solid fa-user-lock"></i> Akses Publik Dibatasi';
+      badge.style.background = '#fee2e2';
+      badge.style.color = '#991b1b';
+      badge.style.borderColor = '#fca5a5';
+    }
+    if (desc) {
+      desc.textContent = 'Data kredensial klinis bersifat rahasia dan terlindungi UU PDP No. 27/2022. Akses publik/tamu tidak diperkenankan melihat rincian kredensial. Silakan login untuk membuka akses.';
+    }
+    return;
+  }
+
+  if (state.currentUser.role === 'pengusul') {
+    icon.className = 'fa-solid fa-user-check';
+    icon.style.color = '#059669';
+    text.textContent = 'Akses Mandiri (Berkas Pribadi)';
+    btn.style.background = '#ecfdf5';
+    btn.style.borderColor = '#a7f3d0';
+    btn.style.color = '#065f46';
+    if (badge) {
+      badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Hak Akses Pemilik Berkas';
+      badge.style.background = '#d1fae5';
+      badge.style.color = '#065f46';
+      badge.style.borderColor = '#a7f3d0';
+    }
+    if (desc) {
+      desc.textContent = `Masuk sebagai ${state.currentUser.name} (${state.currentUser.unit || 'Pengusul Mandiri'}). Berdasarkan UU PDP, Anda hanya dapat melihat dan mengunduh berkas SPK & RKK milik Anda sendiri.`;
+    }
+    return;
+  }
+
+  // Administrator / Pengurus Komite
   if (state.privacyModeRevealed) {
     icon.className = 'fa-solid fa-eye';
     icon.style.color = '#0284c7';
@@ -1226,6 +1272,15 @@ function updatePrivacyToggleButton() {
     btn.style.background = '#e0f2fe';
     btn.style.borderColor = '#7dd3fc';
     btn.style.color = '#0369a1';
+    if (badge) {
+      badge.innerHTML = '<i class="fa-solid fa-user-gear"></i> Otoritas Pengurus Komite';
+      badge.style.background = '#e0f2fe';
+      badge.style.color = '#0369a1';
+      badge.style.borderColor = '#bae6fd';
+    }
+    if (desc) {
+      desc.textContent = `Mode Otoritas Aktif (${state.currentUser.name}): Seluruh data NIP dan nomor STR ditampilkan lengkap untuk verifikasi keabsahan (PSV) dan penjaminan mutu.`;
+    }
   } else {
     icon.className = 'fa-solid fa-eye-slash';
     icon.style.color = '#059669';
@@ -1233,6 +1288,15 @@ function updatePrivacyToggleButton() {
     btn.style.background = 'white';
     btn.style.borderColor = '#a7f3d0';
     btn.style.color = '#065f46';
+    if (badge) {
+      badge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Pengawasan Komite Terproteksi';
+      badge.style.background = '#d1fae5';
+      badge.style.color = '#065f46';
+      badge.style.borderColor = '#a7f3d0';
+    }
+    if (desc) {
+      desc.textContent = `Masuk sebagai ${state.currentUser.name} (${state.currentUser.role}). Data kredensial disamarkan sebagian untuk proteksi visual display.`;
+    }
   }
 }
 
@@ -1448,6 +1512,11 @@ function renderSecurityAuditTable() {
 }
 
 function openSecurityAuditModal() {
+  if (!state.currentUser || !isKomiteAdminUser()) {
+    showToast('Akses Terbatas: Log jejak audit keamanan data kredensial hanya dapat diakses oleh Administrator / Pengurus Komite.', 'warning');
+    openLoginModal('komite');
+    return;
+  }
   recordSecurityAudit({
     action: 'Buka Log Jejak Audit Keamanan',
     targetNurse: 'Seluruh Jejak Akses',
@@ -1459,6 +1528,10 @@ function openSecurityAuditModal() {
 }
 
 function clearSecurityAuditLogs() {
+  if (!state.currentUser || !isKomiteAdminUser()) {
+    showToast('Akses Ditolak: Hanya Administrator Komite yang berwenang membersihkan jejak audit.', 'error');
+    return;
+  }
   if (!confirm('Apakah Anda yakin ingin mengosongkan riwayat jejak audit keamanan digital? Tindakan ini akan dicatat ke log sistem baru.')) {
     return;
   }
@@ -1606,30 +1679,149 @@ function logoutFromLockScreen() {
 function renderNursesTable() {
   const tbody = document.getElementById('nurseTableBody');
   const countDisplay = document.getElementById('tableCountDisplay');
+  const guestGate = document.getElementById('guestPrivacyLockGate');
+  const tableContainer = document.getElementById('nurseTableResponsive');
+  const roleNoticeBox = document.getElementById('roleAccessNoticeBox');
+  const filterBar = document.getElementById('tableFilterBar');
   if (!tbody) return;
 
-  const q = (document.getElementById('nurseSearchInput')?.value || '').toLowerCase().trim();
-  const unitFilter = document.getElementById('filterUnit')?.value || '';
-  const pkFilter = document.getElementById('filterPkLevel')?.value || '';
-  const statusFilter = document.getElementById('filterStatus')?.value || '';
+  // 1. JIKA PENGGUNA BELUM LOGIN (GUEST / PUBLIK)
+  // Sesuai UU PDP No. 27/2022, data kredensial tidak boleh dilihat oleh publik/tamu biasa.
+  if (!state.currentUser) {
+    if (guestGate) guestGate.style.display = 'block';
+    if (tableContainer) tableContainer.style.display = 'none';
+    if (filterBar) filterBar.style.display = 'none';
+    if (roleNoticeBox) roleNoticeBox.style.display = 'none';
+    if (countDisplay) {
+      countDisplay.innerHTML = `<span style="color: #dc2626; font-weight: 700;"><i class="fa-solid fa-user-lock"></i> Akses Publik Dibatasi</span> &bull; Data Kredensial Terproteksi UU PDP No. 27/2022`;
+    }
+    tbody.innerHTML = '';
+    return;
+  }
 
-  const filtered = state.nurses.filter(n => {
-    const matchQ = !q || 
-      n.name.toLowerCase().includes(q) || 
-      n.nip.toLowerCase().includes(q) || 
-      n.strNumber.toLowerCase().includes(q);
-    const matchUnit = !unitFilter || 
-      n.unit.toLowerCase().includes(unitFilter.toLowerCase()) || 
-      unitFilter.toLowerCase().includes(n.unit.toLowerCase()) ||
-      (unitFilter === 'ICU' && n.unit.includes('ICU')) ||
-      (unitFilter === 'IGD' && n.unit.includes('IGD'));
-    const matchPk = !pkFilter || n.pkLevel === pkFilter;
-    const matchStatus = !statusFilter || n.credentialStatus === statusFilter;
-    return matchQ && matchUnit && matchPk && matchStatus;
-  });
+  // 2. JIKA PENGGUNA SUDAH LOGIN
+  if (guestGate) guestGate.style.display = 'none';
+  if (tableContainer) tableContainer.style.display = 'block';
 
-  if (countDisplay) {
-    countDisplay.textContent = `Menampilkan ${filtered.length} dari ${state.nurses.length} tenaga keperawatan`;
+  let filtered = state.nurses;
+
+  // 2A. JIKA PENGGUNA ADALAH PENGUSUL (TENAGA KEPERAWATAN / KEBIDANAN MANDIRI)
+  // Hanya berhak melihat data kredensial milik diri sendiri (Right to Privacy)
+  if (state.currentUser.role === 'pengusul') {
+    if (filterBar) filterBar.style.display = 'none';
+    if (roleNoticeBox) {
+      roleNoticeBox.style.display = 'block';
+      roleNoticeBox.innerHTML = `
+        <div class="user-role-notice-banner pengusul-notice" style="margin-bottom: 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: #059669; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #065f46;">
+                  Akses Mandiri Terproteksi: ${state.currentUser.name} (${state.currentUser.unit || 'Unit Kerja'})
+                </div>
+                <div style="font-size: 0.75rem; color: #047857; margin-top: 2px;">
+                  Berdasarkan UU PDP No. 27/2022, Anda hanya berhak mengakses rekam kredensial pribadi Anda. Data rekan sejawat lainnya dirahasiakan.
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn-secondary" style="font-size: 0.76rem; padding: 0.4rem 0.85rem;" onclick="openDashboardPengusul()">
+              <i class="fa-solid fa-gauge-high"></i> Buka Dashboard Saya
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    const curNip = (state.currentUser.nip || '').trim().replace(/\s+/g, '');
+    const curName = (state.currentUser.name || '').trim().toLowerCase();
+
+    filtered = filtered.filter(n => {
+      const nNip = (n.nip || '').trim().replace(/\s+/g, '');
+      const nName = (n.name || '').trim().toLowerCase();
+      return (curNip && nNip === curNip) || (curName && nName.includes(curName.split(' ')[0]));
+    });
+
+    if (filtered.length === 0) {
+      // Jika akun pengusul baru/belum ada di sample array, ciptakan item dari state.currentUser
+      filtered = [{
+        id: 'nurse-self',
+        name: state.currentUser.name,
+        profession: state.currentUser.profesi || 'Perawat Klinis',
+        nip: state.currentUser.nip || '-',
+        unit: state.currentUser.unit || 'Enggang Gading 2',
+        pkLevel: state.currentUser.jenjang || 'PK III',
+        strNumber: state.currentUser.strNumber || '140152119-2849103',
+        strExpiry: state.currentUser.strExpiry || '2028-04-15',
+        spkNumber: '445/082/SPK-KOMKEP/2026',
+        spkExpiry: '2029-04-15',
+        credentialStatus: 'Disetujui',
+        avatar: 'https://images.unsplash.com/photo-1594824813589-4a0b271d50c1?w=150&auto=format&fit=crop&q=80'
+      }];
+    }
+
+    if (countDisplay) {
+      countDisplay.innerHTML = `<span style="color: #059669; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Hak Akses Pemilik Berkas</span> &bull; Menampilkan data kredensial aktif Anda`;
+    }
+  } else {
+    // 2B. JIKA PENGGUNA ADALAH PENGURUS KOMITE / ADMIN
+    if (filterBar) filterBar.style.display = 'flex';
+    if (roleNoticeBox) {
+      roleNoticeBox.style.display = 'block';
+      roleNoticeBox.innerHTML = `
+        <div class="user-role-notice-banner admin-notice" style="margin-bottom: 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: #0284c7; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div>
+                <div style="font-weight: 800; font-size: 0.88rem; color: #0369a1;">
+                  Mode Otoritas Pengurus Komite: ${state.currentUser.name} (${state.currentUser.role})
+                </div>
+                <div style="font-size: 0.76rem; color: #0284c7; margin-top: 2px;">
+                  Otoritas penuh untuk penelaahan berkas sumber primer (PSV), audit kepatuhan STARKES, dan rekomendasi klinis seluruh perawat/bidan.
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn-security-action" onclick="togglePrivacyMode()" id="btnTogglePrivacy">
+                <i class="fa-solid fa-eye" id="iconPrivacyToggle"></i> <span id="textPrivacyToggle">${state.privacyModeRevealed ? 'Data Terbuka (Otoritas)' : 'Data Disamarkan'}</span>
+              </button>
+              <button type="button" class="btn-security-action" onclick="openSecurityAuditModal()">
+                <i class="fa-solid fa-user-shield"></i> Log Akses
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const q = (document.getElementById('nurseSearchInput')?.value || '').toLowerCase().trim();
+    const unitFilter = document.getElementById('filterUnit')?.value || '';
+    const pkFilter = document.getElementById('filterPkLevel')?.value || '';
+    const statusFilter = document.getElementById('filterStatus')?.value || '';
+
+    filtered = filtered.filter(n => {
+      const matchQ = !q || 
+        n.name.toLowerCase().includes(q) || 
+        n.nip.toLowerCase().includes(q) || 
+        n.strNumber.toLowerCase().includes(q);
+      const matchUnit = !unitFilter || 
+        n.unit.toLowerCase().includes(unitFilter.toLowerCase()) || 
+        unitFilter.toLowerCase().includes(n.unit.toLowerCase()) ||
+        (unitFilter === 'ICU' && n.unit.includes('ICU')) ||
+        (unitFilter === 'IGD' && n.unit.includes('IGD'));
+      const matchPk = !pkFilter || n.pkLevel === pkFilter;
+      const matchStatus = !statusFilter || n.credentialStatus === statusFilter;
+      return matchQ && matchUnit && matchPk && matchStatus;
+    });
+
+    if (countDisplay) {
+      countDisplay.textContent = `Menampilkan ${filtered.length} dari ${state.nurses.length} tenaga keperawatan (Akses Otoritas Komite)`;
+    }
   }
 
   if (filtered.length === 0) {
@@ -7638,6 +7830,11 @@ function toggleTrackerKredensial() {
 }
 
 function lacakStatusKredensial() {
+  if (!state.currentUser) {
+    showToast('Akses Terbatas: Sesuai UU PDP No. 27/2022, pelacakan berkas kredensial hanya dapat diakses setelah login.', 'warning');
+    openLoginModal('pengusul');
+    return;
+  }
   const query = document.getElementById('trackerSearchNip')?.value.trim();
   renderKredensialTrackerVisual(query);
   const box = document.getElementById('boxTrackerKredensial');
@@ -7648,17 +7845,67 @@ function renderKredensialTrackerVisual(query) {
   const container = document.getElementById('trackerVisualContainer');
   if (!container) return;
 
-  let nurse = null;
-  if (query) {
-    nurse = state.nurses.find(n => 
-      n.name.toLowerCase().includes(query.toLowerCase()) || 
-      n.nip.toLowerCase().includes(query.toLowerCase())
-    );
+  // 1. Jika Belum Login (Guest / Publik)
+  if (!state.currentUser) {
+    container.innerHTML = `
+      <div style="background: var(--bg-card); border: 1.5px dashed #cbd5e1; border-radius: var(--radius-lg); padding: 2.25rem 1.5rem; text-align: center; margin-top: 1rem;">
+        <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(220, 38, 38, 0.1); color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 0.75rem;">
+          <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-main);">Pelacakan Berkas Kredensial Terlindungi</div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); max-width: 520px; margin: 0.4rem auto 1.25rem; line-height: 1.55;">
+          Berdasarkan <strong>UU No. 27/2022 tentang Pelindungan Data Pribadi (UU PDP)</strong>, status pelacakan berkas kredensial klinis bersifat rahasia dan tidak dapat diakses secara publik/anonim. Silakan masuk (login) untuk melacak berkas usulan Anda secara aman.
+        </div>
+        <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+          <button type="button" class="btn-primary" onclick="openLoginModal('pengusul')">
+            <i class="fa-solid fa-user-nurse"></i> Login Pengusul (Perawat / Bidan)
+          </button>
+          <button type="button" class="btn-secondary" onclick="openLoginModal('komite')">
+            <i class="fa-solid fa-shield-halved"></i> Login Pengurus Komite
+          </button>
+        </div>
+      </div>
+    `;
+    return;
   }
 
-  if (!nurse) {
-    if (state.currentUser && !state.currentUser.isSuperAdmin) {
-      nurse = state.nurses.find(n => n.name.toLowerCase().includes(state.currentUser.name.toLowerCase()));
+  let nurse = null;
+
+  // 2. Jika Pengusul Mandiri Login
+  if (state.currentUser.role === 'pengusul') {
+    const curNip = (state.currentUser.nip || '').trim().replace(/\s+/g, '');
+    const curName = (state.currentUser.name || '').trim().toLowerCase();
+
+    if (query) {
+      const qClean = query.trim().replace(/\s+/g, '').toLowerCase();
+      if (!curNip.includes(qClean) && !curName.includes(qClean)) {
+        showToast('Pencarian Dibatasi: Anda hanya berhak melacak berkas kredensial milik Anda sendiri (UU PDP No. 27/2022).', 'warning');
+      }
+    }
+
+    nurse = state.nurses.find(n => {
+      const nNip = (n.nip || '').trim().replace(/\s+/g, '');
+      const nName = (n.name || '').trim().toLowerCase();
+      return (curNip && nNip === curNip) || (curName && nName.includes(curName.split(' ')[0]));
+    });
+
+    if (!nurse) {
+      nurse = {
+        name: state.currentUser.name,
+        nip: state.currentUser.nip || '-',
+        pkLevel: state.currentUser.jenjang || 'PK III',
+        unit: state.currentUser.unit || 'Enggang Gading 2',
+        strNumber: state.currentUser.strNumber || '140152119-2849103',
+        credentialStatus: 'Proses Review'
+      };
+    }
+  } else {
+    // 3. Jika Admin Komite
+    if (query) {
+      nurse = state.nurses.find(n => 
+        n.name.toLowerCase().includes(query.toLowerCase()) || 
+        n.nip.toLowerCase().includes(query.toLowerCase())
+      );
     }
     if (!nurse) {
       nurse = state.nurses.find(n => n.credentialStatus === 'Proses Review') || state.nurses[0];
