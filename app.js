@@ -1495,6 +1495,53 @@ function toggleStructureSK() {
   }
 }
 
+function toggleOrgMemberCollapse(subId) {
+  const map = {
+    'kredensial': { box: 'collapseMembersKredensial', icon: 'iconCollapseKredensial' },
+    'mutu': { box: 'collapseMembersMutu', icon: 'iconCollapseMutu' },
+    'etik': { box: 'collapseMembersEtik', icon: 'iconCollapseEtik' }
+  };
+  const target = map[subId];
+  if (!target) return;
+  const box = document.getElementById(target.box);
+  const icon = document.getElementById(target.icon);
+  if (!box) return;
+
+  const isHidden = box.style.display === 'none' || !box.style.display;
+  box.style.display = isHidden ? 'block' : 'none';
+  if (icon) {
+    icon.className = isHidden ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+  }
+}
+
+function filterStructureSKFromOrg(groupName) {
+  const box = document.getElementById('boxStructureSK');
+  const btn = document.getElementById('btnToggleStructureSK');
+  if (box) {
+    box.style.display = 'block';
+    if (btn) {
+      btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Tutup Susunan Lengkap 24 Pengurus SK Direktur';
+    }
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  const tbody = document.getElementById('tableStructureSKBody');
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll('tr');
+  rows.forEach(tr => {
+    if (!groupName || groupName === 'ALL') {
+      tr.style.display = '';
+      tr.style.backgroundColor = '';
+    } else {
+      const match = tr.textContent.toLowerCase().includes(groupName.toLowerCase());
+      tr.style.display = match ? '' : 'none';
+      if (match) {
+        tr.style.backgroundColor = 'rgba(20, 148, 142, 0.08)';
+      }
+    }
+  });
+}
+
 function updateHeroStats() {
   const total = state.nurses.length;
   const approved = state.nurses.filter(n => n.credentialStatus === 'Disetujui').length;
@@ -11069,6 +11116,8 @@ window.simulateDownload = simulateDownload;
 window.renderAnalyticsCharts = renderAnalyticsCharts;
 window.renderStructureSK = renderStructureSK;
 window.toggleStructureSK = toggleStructureSK;
+window.toggleOrgMemberCollapse = toggleOrgMemberCollapse;
+window.filterStructureSKFromOrg = filterStructureSKFromOrg;
 window.populatePengurusDropdown = populatePengurusDropdown;
 window.showToast = showToast;
 window.openSuratPermohonanModal = openSuratPermohonanModal;
