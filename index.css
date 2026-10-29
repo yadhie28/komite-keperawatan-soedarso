@@ -4458,6 +4458,181 @@ body.portal-gateway-active {
   opacity: 0.6;
 }
 
+/* ==========================================================================
+   MODAL VERIFIKASI BERKAS PENGUSULAN SUBKOMITE (KREDENSIAL / MUTU)
+   ========================================================================== */
+.verif-card-applicant {
+  background: var(--bg-surface-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.verif-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.verif-applicant-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary-700);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verif-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem 1.25rem;
+  font-size: 0.83rem;
+}
+
+.verif-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.verif-meta-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.verif-meta-value {
+  font-weight: 600;
+  color: var(--text-main);
+  word-break: break-word;
+}
+
+/* Dokumen 6 Tahap Grid */
+.verif-docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.verif-doc-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.verif-doc-btn:hover {
+  border-color: var(--primary-600);
+  background: rgba(13, 148, 136, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.verif-doc-icon {
+  font-size: 1.1rem;
+  color: var(--primary-600);
+}
+
+.verif-doc-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.verif-doc-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Checklist PSV */
+.verif-psv-box {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.verif-psv-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #065f46;
+  margin-bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verif-psv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verif-psv-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  cursor: pointer;
+  user-select: none;
+}
+
+.verif-psv-checkbox input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: #059669;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Form Keputusan Subkomite */
+.verif-decision-box {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--primary-500);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.verif-decision-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--primary-800);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verif-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+
 
 
 
