@@ -44,334 +44,131 @@
   <!-- ========================================================================
        PORTAL PINTU MASUK AKSES KOMITE KEPERAWATAN (GATEWAY ACCESS PORTAL)
        ======================================================================== -->
+  <!-- ========================================================================
+       PORTAL PINTU MASUK AKSES KOMITE KEPERAWATAN (GATEWAY ACCESS PORTAL)
+       Desain Elegan, Bersih, & Mengikat Terinspirasi dari SIMRS Rawat Inap RSUD dr. Soedarso
+       ======================================================================== -->
   <div id="portalGatewayOverlay" class="portal-gateway-overlay" style="display: none;">
-    <div class="portal-gateway-container">
+    <div class="portal-login-card">
       
-      <!-- Top Branding Header -->
-      <div class="portal-gateway-header">
-        <div class="portal-logos-strip">
-          <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" class="portal-logo-img">
-          <img src="logo_komite.png" alt="Logo RSUD dr. Soedarso" class="portal-logo-img">
+      <!-- Sisi Kiri: Identitas Rumah Sakit & Teks Sambutan Resmi -->
+      <div class="portal-login-left">
+        <div class="portal-hospital-logo">
+          <img src="logo_komite.png" alt="Logo Komite Keperawatan RSUD dr. Soedarso">
         </div>
-        <div class="portal-gov-badge">
-          <i class="fa-solid fa-shield-halved"></i> PEMPROV KALBAR &bull; RSUD DR. SOEDARSO PONTIANAK &bull; KARS PARIPURNA ⭐⭐⭐⭐⭐
+        <div class="portal-welcome-text">
+          <h2>Selamat Datang</h2>
+          <h4>KOMITE KEPERAWATAN</h4>
+          <p>
+            Sistem Informasi Terpadu Kredensialing, Penjaminan Mutu &amp; Disiplin Etika Profesi<br>
+            <strong>RSUD Dr. Soedarso Pontianak</strong><br>
+            <span style="font-size: 0.8rem; opacity: 0.95;">Profesional, Cepat, Ramah &bull; PMK No. 49/2013</span>
+          </p>
         </div>
-        <h1 class="portal-gateway-title">
-          PORTAL TERPADU KOMITE KEPERAWATAN
-        </h1>
-        <div class="portal-gateway-subtitle">
-          RSUD DR. SOEDARSO PONTIANAK &bull; RUMAH SAKIT KELAS A PENDIDIKAN &amp; RUJUKAN UTAMA
+        <div class="portal-left-badge">
+          <i class="fa-solid fa-shield-halved" style="color: #fbbf24;"></i>
+          <span>KARS PARIPURNA ⭐⭐⭐⭐⭐</span>
         </div>
-        <p class="portal-gateway-lead">
-          Pintu masuk gerbang akses resmi sistem kredensialing kewenangan klinis (SPK/RKK), penjaminan mutu keperawatan, dan disiplin profesi. Silakan login atau pilih pintu masuk sesuai kewenangan dan peran Anda:
-        </p>
       </div>
 
-      <!-- 4 Role Channel Cards -->
-      <div class="portal-channels-grid">
-        
-        <!-- 1. Super Admin -->
-        <div class="portal-channel-card channel-card-super active" id="channelCardSuper" onclick="switchGatewayChannel('super')">
-          <div>
-            <div class="portal-channel-header">
-              <div class="portal-channel-icon">
-                <i class="fa-solid fa-user-shield"></i>
-              </div>
-              <span class="portal-channel-badge" style="color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.12);">
-                Super Admin
-              </span>
-            </div>
-            <div class="portal-channel-title">Super Admin</div>
-            <div class="portal-channel-sub">Sekretaris Komite / Developer</div>
-            <div class="portal-channel-desc">
-              Otoritas penuh pimpinan, manajemen 24 pengurus SK, pengawasan audit ISO/KARS, konfigurasi master regulasi &amp; sistem.
-            </div>
-          </div>
-          <div class="portal-channel-status" style="color: #fbbf24;">
-            <i class="fa-solid fa-circle-dot fa-xs"></i> 2 Akun Pimpinan Terdaftar
-          </div>
+      <!-- Sisi Kanan: Formulir Login Bersih & Mengikat -->
+      <div class="portal-login-right">
+        <div class="portal-login-header">
+          <h3>LOGIN PORTAL</h3>
+          <p>Silakan masukkan kredensial Anda untuk mengakses sistem</p>
         </div>
 
-        <!-- 2. Admin Pengurus Komite -->
-        <div class="portal-channel-card channel-card-admin" id="channelCardAdmin" onclick="switchGatewayChannel('admin')">
-          <div>
-            <div class="portal-channel-header">
-              <div class="portal-channel-icon">
-                <i class="fa-solid fa-building-columns"></i>
-              </div>
-              <span class="portal-channel-badge" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.12);">
-                Pengurus SK
-              </span>
-            </div>
-            <div class="portal-channel-title">Admin Komite</div>
-            <div class="portal-channel-sub">24 Pejabat SK Direktur 2026</div>
-            <div class="portal-channel-desc">
-              Subkomite Kredensial, Subkomite Mutu Keperawatan &amp; Kebidanan, serta Subkomite Etika &amp; Disiplin Profesi.
-            </div>
-          </div>
-          <div class="portal-channel-status" style="color: #38bdf8;">
-            <i class="fa-solid fa-circle-dot fa-xs"></i> 3 Subkomite Fungsional
-          </div>
-        </div>
-
-        <!-- 3. Perawat / Bidan RS dr. Soedarso -->
-        <div class="portal-channel-card channel-card-perawat" id="channelCardPerawat" onclick="switchGatewayChannel('perawat')">
-          <div>
-            <div class="portal-channel-header">
-              <div class="portal-channel-icon">
-                <i class="fa-solid fa-user-nurse"></i>
-              </div>
-              <span class="portal-channel-badge" style="color: #34d399; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.12);">
-                Ruang Kakap
-              </span>
-            </div>
-            <div class="portal-channel-title">Perawat / Bidan</div>
-            <div class="portal-channel-sub">Daftar Bertahap: Ruang Kakap</div>
-            <div class="portal-channel-desc">
-              Ruang Rawat Inap Penyakit Dalam Baru (Operasional Nov 2026). Asesmen E-Kredensialing mandiri, logbook &amp; cek SPK/RKK.
-            </div>
-          </div>
-          <div class="portal-channel-status" style="color: #34d399;">
-            <i class="fa-solid fa-circle-dot fa-xs"></i> 25 Staf Terdaftar Siap
-          </div>
-        </div>
-
-        <!-- 4. Guest / Tamu Publik -->
-        <div class="portal-channel-card channel-card-guest" id="channelCardGuest" onclick="switchGatewayChannel('guest')">
-          <div>
-            <div class="portal-channel-header">
-              <div class="portal-channel-icon">
-                <i class="fa-solid fa-globe"></i>
-              </div>
-              <span class="portal-channel-badge" style="color: #94a3b8; border-color: rgba(148,163,184,0.3); background: rgba(148,163,184,0.1);">
-                Akses Publik
-              </span>
-            </div>
-            <div class="portal-channel-title">Guest / Tamu</div>
-            <div class="portal-channel-sub">Pengunjung &amp; Surveior Publik</div>
-            <div class="portal-channel-desc">
-              Akses informasi profil komite, pedoman mutu, dan regulasi. Dokumen kredensial klinis individu diproteksi otomatis (UU PDP 27/2022).
-            </div>
-          </div>
-          <div class="portal-channel-status" style="color: #cbd5e1;">
-            <i class="fa-solid fa-lock fa-xs"></i> Mode Terbuka (Data Rahasia Terproteksi)
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Interaction Form Box -->
-      <div class="portal-interaction-box" id="portalInteractionBox">
-        
-        <!-- PANEL 1: SUPER ADMIN -->
-        <div id="panelGatewaySuper" class="gateway-role-panel">
-          <div class="portal-panel-title">
-            <i class="fa-solid fa-user-shield" style="color: #f59e0b;"></i>
-            <span>Pintu Masuk 1: Super Admin (Sekretaris Komite &amp; Developer Website)</span>
-          </div>
-          <div class="portal-panel-subtitle">
-            Gunakan kredensial akun Sekretaris Komite / Developer untuk masuk dan mengelola seluruh sistem komite keperawatan.
+        <form id="formPortalMain" onsubmit="handleUnifiedPortalLogin(event)" style="max-width: 380px; width: 100%; margin: 0 auto;">
+          <!-- Field 1: Username / NIP -->
+          <div class="portal-form-floating">
+            <i class="fa-solid fa-user portal-input-icon"></i>
+            <input type="text"
+                   class="portal-form-control"
+                   id="portalMainUser"
+                   placeholder="Masukkan NIP atau username Anda"
+                   required
+                   autocomplete="username">
           </div>
 
-          <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-md); padding: 0.9rem 1.15rem; margin-bottom: 1.25rem;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: #fbbf24; margin-bottom: 0.5rem; text-transform: uppercase;">
-              <i class="fa-solid fa-bolt"></i> Pilihan Cepat Akun Super Admin:
-            </div>
-            <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
-              <button type="button" class="btn-table-action" onclick="fillSuperAdminPreset('rusmulyadi')" style="background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.45rem 0.85rem; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">
-                <i class="fa-solid fa-user-pen"></i> Ns. Rusmulyadi, S.Kep., MARS (Sekretaris &amp; Dev)
-              </button>
-              <button type="button" class="btn-table-action" onclick="fillSuperAdminPreset('separia')" style="background: rgba(245, 158, 11, 0.2); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.45rem 0.85rem; border-radius: 8px; font-weight: 700; font-size: 0.82rem;">
-                <i class="fa-solid fa-user-shield"></i> M. Separia Russanto, S.Kep., Ns (Ketua Komite)
-              </button>
-            </div>
-          </div>
-
-          <form id="formGatewaySuper" onsubmit="handleGatewayLogin(event, 'super')" style="max-width: 540px;">
-            <div class="form-group" style="margin-bottom: 1rem;">
-              <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">Username / NIP / Email Super Admin</label>
-              <div style="position: relative;">
-                <input type="text" class="form-input" id="gatewaySuperUser" value="rusmulyadi" placeholder="misal: rusmulyadi, yadhie28, atau 198212282003121005" required style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #fff; padding-left: 2.4rem;">
-                <i class="fa-solid fa-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-              <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">Kata Sandi (Password)</label>
-              <div style="position: relative;">
-                <input type="password" class="form-input" id="gatewaySuperPass" value="soedarso2026" placeholder="Kata sandi..." required style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #fff; padding-left: 2.4rem; padding-right: 2.5rem;">
-                <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                <button type="button" onclick="togglePasswordVisibility('gatewaySuperPass', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-              </div>
-            </div>
-            <div id="gatewaySuperError" style="display: none; background: #fff1f2; border: 1px solid #fecaca; color: #b91c1c; padding: 0.6rem 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 1rem;">
-              Kredensial Super Admin tidak valid.
-            </div>
-            <button type="submit" class="btn-primary" style="background: #f59e0b; border-color: #f59e0b; color: #000; font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.95rem; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);">
-              <i class="fa-solid fa-right-to-bracket"></i> Masuk Sebagai Super Admin
-            </button>
-          </form>
-        </div>
-
-        <!-- PANEL 2: ADMIN PENGURUS KOMITE -->
-        <div id="panelGatewayAdmin" class="gateway-role-panel" style="display: none;">
-          <div class="portal-panel-title">
-            <i class="fa-solid fa-building-columns" style="color: #38bdf8;"></i>
-            <span>Pintu Masuk 2: Admin Pengurus Komite Keperawatan</span>
-          </div>
-          <div class="portal-panel-subtitle">
-            Pintu masuk bagi 24 Pengurus Komite sesuai SK Direktur RSUD dr. Soedarso No. SK/280801/RSUD/2026.
-          </div>
-
-          <div class="form-group" style="max-width: 620px; margin-bottom: 1.25rem;">
-            <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">Pilih Pengurus dari 24 Pejabat Komite (Otomatis Isi Akun):</label>
-            <select class="form-select" id="gatewayAdminSelect" onchange="fillGatewayAdminFromSelect(this.value)" style="background: rgba(15, 23, 42, 0.9); border-color: rgba(56, 189, 248, 0.4); color: #fff; font-size: 0.85rem;">
-              <option value="">-- Pilih Pejabat / Pengurus Komite --</option>
-            </select>
-          </div>
-
-          <form id="formGatewayAdmin" onsubmit="handleGatewayLogin(event, 'admin')" style="max-width: 540px;">
-            <div class="form-group" style="margin-bottom: 1rem;">
-              <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">Username Pengurus</label>
-              <div style="position: relative;">
-                <input type="text" class="form-input" id="gatewayAdminUser" placeholder="username pengurus (misal: yohanes, laila, alfonsus)" required style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #fff; padding-left: 2.4rem;">
-                <i class="fa-solid fa-user-tie" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-              <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">Kata Sandi (Default: soedarso2026)</label>
-              <div style="position: relative;">
-                <input type="password" class="form-input" id="gatewayAdminPass" value="soedarso2026" placeholder="Kata sandi..." required style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #fff; padding-left: 2.4rem; padding-right: 2.5rem;">
-                <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                <button type="button" onclick="togglePasswordVisibility('gatewayAdminPass', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-              </div>
-            </div>
-            <div id="gatewayAdminError" style="display: none; background: #fff1f2; border: 1px solid #fecaca; color: #b91c1c; padding: 0.6rem 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 1rem;">
-              Username atau kata sandi pengurus tidak valid.
-            </div>
-            <button type="submit" class="btn-primary" style="background: #0284c7; border-color: #0284c7; font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.95rem; box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);">
-              <i class="fa-solid fa-right-to-bracket"></i> Masuk Sebagai Admin Pengurus
-            </button>
-          </form>
-        </div>
-
-        <!-- PANEL 3: PERAWAT / BIDAN (RUANG KAKAP NOVEMBER 2026) -->
-        <div id="panelGatewayPerawat" class="gateway-role-panel" style="display: none;">
-          <div class="portal-panel-title">
-            <i class="fa-solid fa-user-nurse" style="color: #10b981;"></i>
-            <span>Pintu Masuk 3: Perawat &amp; Bidan RSUD dr. Soedarso</span>
-          </div>
-          <div class="portal-panel-subtitle">
-            Registrasi dan implementasi kredensialing bertahap, dimulai dari <strong>Ruang Kakap (Ruang Rawat Inap Penyakit Dalam - Operasional November 2026)</strong>.
-          </div>
-
-          <!-- Ruang Kakap Info Strip -->
-          <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.2) 100%); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: var(--radius-md); padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-            <div>
-              <div style="font-weight: 800; color: #6ee7b7; font-size: 0.9rem;">
-                <i class="fa-solid fa-calendar-check"></i> Jadwal Dinas Perawat Ruang Kakap &bull; November 2026
-              </div>
-              <div style="font-size: 0.76rem; color: #cbd5e1; margin-top: 2px;">
-                Kepala Ruangan: <strong>Ns. RUSMULYADI, S.Kep.,MARS</strong> &bull; Mengetahui: <strong>Hj. Ns. MASJANIFAH, S.Kep.</strong> (Ketua Tim Kerja Rawat Inap)
-              </div>
-            </div>
-            <span style="background: #10b981; color: #fff; font-size: 0.74rem; font-weight: 800; padding: 4px 12px; border-radius: 999px;">
-              25 Tenaga Keperawatan Terdaftar
+          <!-- Field 2: Password -->
+          <div class="portal-form-floating" style="position: relative;">
+            <i class="fa-solid fa-lock portal-input-icon"></i>
+            <input type="password"
+                   class="portal-form-control"
+                   id="portalMainPass"
+                   placeholder="Masukkan kata sandi Anda"
+                   required
+                   autocomplete="current-password"
+                   style="padding-right: 40px;">
+            <span class="portal-password-toggle" onclick="togglePortalMainPassword(this)" title="Tampilkan / Sembunyikan password">
+              <i class="fa-solid fa-eye"></i>
             </span>
           </div>
 
-          <!-- Ruang Kakap Interactive Staff Selector -->
-          <div class="portal-kakap-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-              <label style="font-size: 0.82rem; font-weight: 700; color: #cbd5e1;">
-                <i class="fa-solid fa-arrow-pointer"></i> Klik Nama Anda untuk Login Cepat (Ruang Kakap):
-              </label>
-              <span style="font-size: 0.74rem; color: #94a3b8;">Ketik nama di bawah untuk menyaring</span>
-            </div>
-            <input type="text" class="kakap-staff-search" id="kakapSearchInput" oninput="filterKakapStaff(this.value)" placeholder="Cari nama perawat atau NIP Ruang Kakap (misal: Warisya, Restu, Tri Herda, Bella, dll)...">
-            
-            <div class="kakap-staff-grid" id="kakapStaffGrid">
-              <!-- Dynamically populated with 25 staff cards -->
-            </div>
+          <!-- Field 3: Pilihan Unit Pelayanan / Ruangan / Penugasan (Seperti KdRuangan di SIMRS) -->
+          <div class="portal-form-floating">
+            <i class="fa-solid fa-hospital-user portal-input-icon"></i>
+            <select class="portal-form-control" id="portalMainKdRuangan">
+              <option value="">Pilih unit pelayanan / penugasan...</option>
+              <option value="komite" selected>Komite Keperawatan (Sekretariat / Pimpinan)</option>
+              <option value="mutu">Subkomite Mutu Keperawatan</option>
+              <option value="kredensial">Subkomite Kredensial</option>
+              <option value="etik">Subkomite Etika &amp; Disiplin Profesi</option>
+              <option value="enggang2">Ruang Enggang Gading 2</option>
+              <option value="kakap">Ruang Rawat Inap Bedah (Kakap)</option>
+              <option value="vk">Ruang Bersalin (VK) &amp; Maternal</option>
+              <option value="icu">I C U / ICVCU / PICU / NICU</option>
+              <option value="lainnya">Ruang Rawat Inap / Pelayanan Lainnya</option>
+            </select>
           </div>
 
-          <!-- Direct Form for Perawat Login -->
-          <form id="formGatewayPerawat" onsubmit="handleGatewayLogin(event, 'perawat')" style="max-width: 540px; margin-top: 1rem;">
-            <div class="form-group" style="margin-bottom: 1rem;">
-              <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">NIP / Username Perawat Pemohon</label>
-              <div style="position: relative;">
-                <input type="text" class="form-input" id="gatewayPerawatUser" placeholder="NIP atau username (misal: warisya.mifta atau 199608282023212013)" required style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #fff; padding-left: 2.4rem;">
-                <i class="fa-solid fa-id-badge" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-              </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-              <label class="form-label" style="color: #cbd5e1; font-size: 0.82rem; font-weight: 700;">Kata Sandi (Default: soedarso2026)</label>
-              <div style="position: relative;">
-                <input type="password" class="form-input" id="gatewayPerawatPass" value="soedarso2026" placeholder="Kata sandi..." required style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #fff; padding-left: 2.4rem; padding-right: 2.5rem;">
-                <i class="fa-solid fa-key" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                <button type="button" onclick="togglePasswordVisibility('gatewayPerawatPass', this)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer;">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-              </div>
-            </div>
-            <div id="gatewayPerawatError" style="display: none; background: #fff1f2; border: 1px solid #fecaca; color: #b91c1c; padding: 0.6rem 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 1rem;">
-              NIP atau kata sandi tidak sesuai. Silakan pilih nama Anda pada daftar Ruang Kakap di atas.
-            </div>
-            <button type="submit" class="btn-primary" style="background: #10b981; border-color: #10b981; font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.95rem; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);">
-              <i class="fa-solid fa-right-to-bracket"></i> Masuk Sebagai Perawat / Bidan
-            </button>
-          </form>
-        </div>
-
-        <!-- PANEL 4: GUEST / TAMU PUBLIK -->
-        <div id="panelGatewayGuest" class="gateway-role-panel" style="display: none;">
-          <div class="portal-panel-title">
-            <i class="fa-solid fa-globe" style="color: #cbd5e1;"></i>
-            <span>Pintu Masuk 4: Akses Tamu / Pengunjung Publik (Keterbukaan Informasi Publik)</span>
-          </div>
-          <div class="portal-panel-subtitle">
-            Akses publik untuk masyarakat, pasien, akademisi, dan surveior akreditasi rumah sakit.
+          <!-- Pesan Error Dinamis -->
+          <div id="portalMainError" style="display: none; background: #fff1f2; border: 1px solid #fecaca; color: #b91c1c; padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 12px; text-align: left;">
+            <i class="fa-solid fa-circle-exclamation"></i> <span id="portalMainErrorText">Username atau kata sandi tidak valid.</span>
           </div>
 
-          <div style="background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem; max-width: 780px;">
-            <div style="display: flex; gap: 1rem; align-items: flex-start;">
-              <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(56, 189, 248, 0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
-                <i class="fa-solid fa-shield-halved"></i>
-              </div>
-              <div>
-                <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.4rem;">
-                  Ketentuan Akses Publik &amp; Kepatuhan UU Pelindungan Data Pribadi (UU PDP No. 27/2022)
-                </h4>
-                <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 0.85rem;">
-                  Sebagai Tamu / Publik, Anda dapat mengakses seluruh informasi terbuka Rumah Sakit: profil komite keperawatan, 3 pilar subkomite, standar pelayanan mutu klinis, pedoman buku putih umum, dan regulasi resmi rumah sakit.
-                </p>
-                <div style="background: rgba(220, 38, 38, 0.12); border-left: 3px solid #ef4444; padding: 0.65rem 0.85rem; border-radius: 4px; font-size: 0.8rem; color: #fca5a5; line-height: 1.5;">
-                  <strong>Perhatian Privasi Medis:</strong> Arsip dokumen kredensial klinis individu (NIP, STR, dan dokumen RKK/SPK staf perawat) dirahasiakan dan diproteksi secara otomatis. Untuk mengakses dokumen kredensial klinis, silakan login melalui Pintu Masuk Perawat atau Admin.
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Tombol Masuk Sistem -->
+          <button type="submit" class="btn-portal-login" id="btnSubmitPortalMain">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Masuk Sistem</span>
+          </button>
 
-          <div>
-            <button type="button" class="btn-primary" onclick="loginAsGuest()" style="background: #334155; border-color: #475569; font-weight: 800; padding: 0.85rem 1.85rem; font-size: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.3); display: inline-flex; align-items: center; gap: 0.75rem;">
-              <i class="fa-solid fa-door-open" style="color: #38bdf8;"></i> Masuk Sebagai Tamu / Publik (Akses Terbuka)
+          <!-- Opsi Akses Tamu / Publik -->
+          <div style="text-align: center; margin-top: 14px;">
+            <button type="button" class="btn-portal-guest-link" onclick="loginAsGuest()">
+              <i class="fa-solid fa-door-open" style="color: #0d9488;"></i> Masuk sebagai Tamu / Publik (UU PDP Terlindungi)
             </button>
           </div>
-        </div>
 
-      </div>
+          <!-- Bantuan Cepat Masuk Akun (Pilihan Cepat untuk Kemudahan Pengguna) -->
+          <div class="portal-quick-helper">
+            <div class="portal-quick-helper-title">
+              <i class="fa-solid fa-bolt" style="color: #eab308;"></i> Akses Cepat Akun Demo / Pengurus:
+            </div>
+            <div class="portal-quick-chips">
+              <button type="button" class="portal-quick-chip" onclick="quickFillPortal('rusmulyadi', 'soedarso2026', 'komite')">
+                Sekretaris (Rusmulyadi)
+              </button>
+              <button type="button" class="portal-quick-chip" onclick="quickFillPortal('laila', 'soedarso2026', 'mutu')">
+                Ketua Mutu (Laila)
+              </button>
+              <button type="button" class="portal-quick-chip" onclick="quickFillPortal('yohanes', 'soedarso2026', 'kredensial')">
+                Ketua Kredensial (Yohanes)
+              </button>
+              <button type="button" class="portal-quick-chip" onclick="quickFillPortal('alfonsus', 'soedarso2026', 'etik')">
+                Ketua Etik (Alfonsus)
+              </button>
+              <button type="button" class="portal-quick-chip" onclick="quickFillPortal('hendra.kurniawan', 'hendra1992', 'enggang2')">
+                Perawat (Hendra Kurniawan)
+              </button>
+            </div>
+          </div>
 
-      <!-- Portal Gateway Footer -->
-      <div class="portal-gateway-footer">
-        <div>
-          &copy; 2026 Komite Keperawatan RSUD dr. Soedarso Pontianak &bull; Pemerintah Provinsi Kalimantan Barat.
-        </div>
-        <div style="margin-top: 4px; color: #64748b;">
-          Standar PMK RI No. 49/2013 &bull; KARS STARKES KPS 10-11 &bull; UU PDP No. 27/2022 &bull; Sekretariat: <a href="mailto:komitekeperawatanrsds2023@gmail.com">komitekeperawatanrsds2023@gmail.com</a> / <a href="mailto:yadhie28@gmail.com">yadhie28@gmail.com</a>
-        </div>
+          <!-- Versi Kecil -->
+          <div style="text-align: center; margin-top: 14px; color: #94a3b8; font-size: 0.8rem;">
+            v2.4 &bull; RSUD Dr. Soedarso Pontianak
+          </div>
+        </form>
       </div>
 
     </div>
