@@ -3471,22 +3471,6 @@ body.portal-gateway-active {
   color: #f1f5f9;
 }
 
-.portal-left-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 999px;
-  padding: 4px 14px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-top: 18px;
-  position: relative;
-  z-index: 2;
-}
-
 .portal-login-right {
   padding: 35px 32px;
   width: 56%;
