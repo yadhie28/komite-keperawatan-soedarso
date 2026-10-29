@@ -4606,6 +4606,525 @@ body.portal-gateway-active {
   margin-bottom: 0.85rem;
 }
 
+/* ==========================================================================
+   BAGAN STRUKTUR ORGANISASI KOMITE KEPERAWATAN (HIERARCHICAL ORG CHART)
+   Standar Permenkes No. 49 Tahun 2013 & SK Direktur RSUD dr. Soedarso
+   ========================================================================== */
+
+.org-chart-container {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Info Bar & Legend */
+.org-chart-infobar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+}
+
+.org-chart-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.org-badge-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  letter-spacing: 0.2px;
+}
+
+.org-badge-pill.gold {
+  background: var(--gold-100);
+  color: var(--gold-700);
+  border: 1px solid var(--gold-400);
+}
+
+.org-badge-pill.teal {
+  background: var(--primary-100);
+  color: var(--primary-800);
+  border: 1px solid var(--primary-400);
+}
+
+.org-badge-pill.slate {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+[data-theme="dark"] .org-badge-pill.gold {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+[data-theme="dark"] .org-badge-pill.teal {
+  background: rgba(20, 148, 142, 0.15);
+  color: var(--primary-300);
+  border-color: rgba(20, 148, 142, 0.4);
+}
+
+[data-theme="dark"] .org-badge-pill.slate {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+.org-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.org-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.org-legend-line {
+  display: inline-block;
+  width: 22px;
+  height: 2px;
+}
+
+.org-legend-line.solid {
+  background: var(--primary-600);
+  height: 2.5px;
+}
+
+.org-legend-line.dashed {
+  border-top: 2px dashed #0d9488;
+}
+
+.org-legend-line.dotted {
+  border-top: 2px dotted #8b5cf6;
+}
+
+/* Tree Wrapper */
+.org-chart-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+/* Level Rows */
+.org-tree-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+/* Connector Lines - Desktop */
+.org-tree-line-v {
+  width: 2px;
+  height: 34px;
+  background: var(--primary-600);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.org-line-tag {
+  background: var(--bg-surface);
+  border: 1px solid var(--primary-500);
+  border-radius: var(--radius-full);
+  padding: 3px 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--primary-700);
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+[data-theme="dark"] .org-line-tag {
+  background: var(--bg-surface);
+  color: var(--primary-300);
+  border-color: var(--primary-400);
+}
+
+/* Branching Beam */
+.org-branch-wrap {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.org-branch-beam {
+  width: 66.66%;
+  height: 2px;
+  background: var(--primary-600);
+  position: relative;
+}
+
+.org-branch-drops {
+  display: flex;
+  justify-content: space-between;
+  width: 66.66%;
+}
+
+.org-branch-drop {
+  width: 2px;
+  height: 28px;
+  background: var(--primary-600);
+}
+
+/* Org Cards Base */
+.org-node-card {
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  z-index: 3;
+}
+
+.org-node-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Level 0: Direktur */
+.org-node-direktur {
+  max-width: 480px;
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, var(--bg-surface) 100%);
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  text-align: left;
+}
+
+[data-theme="dark"] .org-node-direktur {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, #0f172a 100%);
+  border-color: #f59e0b;
+}
+
+.org-direktur-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border: 2px solid #f59e0b;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+}
+
+/* Level 1: Pimpinan (Ketua & Sekretaris) */
+.org-row-pimpinan {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3.5rem;
+  width: 100%;
+  max-width: 840px;
+  position: relative;
+}
+
+.org-bridge-coord {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  width: 160px;
+}
+
+.org-bridge-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 2px dashed #0d9488;
+}
+
+.org-bridge-badge {
+  position: relative;
+  background: var(--bg-surface);
+  border: 1px dashed #0d9488;
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #0d9488;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.org-node-pimpinan {
+  flex: 1;
+  max-width: 370px;
+  min-width: 290px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  text-align: left;
+}
+
+.org-node-ketua {
+  border-color: var(--primary-500);
+  background: linear-gradient(135deg, rgba(20, 148, 142, 0.05) 0%, var(--bg-surface) 100%);
+}
+
+.org-node-sekretaris {
+  border-color: #0d9488;
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.05) 0%, var(--bg-surface) 100%);
+}
+
+[data-theme="dark"] .org-node-ketua {
+  background: linear-gradient(135deg, rgba(20, 148, 142, 0.12) 0%, var(--bg-surface) 100%);
+}
+
+[data-theme="dark"] .org-node-sekretaris {
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.12) 0%, var(--bg-surface) 100%);
+}
+
+/* Level 2: 3 Subkomite Grid */
+.org-subkomite-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 1140px;
+}
+
+.org-node-subkomite {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  border-radius: var(--radius-lg);
+}
+
+.org-sub-kredensial {
+  border-top: 4px solid #0284c7;
+}
+
+.org-sub-mutu {
+  border-top: 4px solid #10b981;
+}
+
+.org-sub-etik {
+  border-top: 4px solid #d97706;
+}
+
+.org-sub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.org-sub-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.org-sub-ketua-box {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-app);
+  margin-bottom: 0.85rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.org-sub-tugas {
+  font-size: 0.77rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.org-sub-tugas ul {
+  margin: 0.4rem 0 0 1rem;
+  padding: 0;
+}
+
+.org-sub-tugas li {
+  margin-bottom: 0.25rem;
+}
+
+/* Expandable Members Box */
+.org-members-toggle-btn {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.org-members-toggle-btn:hover {
+  background: var(--bg-app);
+  border-color: var(--border-strong);
+}
+
+.org-members-collapse {
+  display: none;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 0.76rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.org-member-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.org-member-item:last-child {
+  border-bottom: none;
+}
+
+/* Level 3: Mitra Bestari & Pelaksana */
+.org-bottom-tier {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.org-card-mitra {
+  width: 100%;
+  padding: 1.15rem 1.35rem;
+  background: var(--bg-surface);
+  border: 1.5px dashed #8b5cf6;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+}
+
+.org-card-tenaga {
+  width: 100%;
+  padding: 1.25rem 1.45rem;
+  background: linear-gradient(135deg, rgba(20, 148, 142, 0.04) 0%, var(--bg-surface) 100%);
+  border: 1.5px solid var(--primary-400);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  text-align: left;
+}
+
+[data-theme="dark"] .org-card-tenaga {
+  background: linear-gradient(135deg, rgba(20, 148, 142, 0.1) 0%, var(--bg-surface) 100%);
+}
+
+.org-unit-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.org-unit-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 992px) {
+  .org-subkomite-grid {
+    grid-template-columns: 1fr;
+  }
+  .org-branch-beam, .org-branch-drops {
+    display: none;
+  }
+  .org-row-pimpinan {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .org-bridge-coord {
+    position: static;
+    transform: none;
+    width: auto;
+    margin: 0.5rem 0;
+  }
+  .org-bridge-line {
+    display: none;
+  }
+  .org-card-mitra, .org-card-tenaga, .org-node-direktur {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  .org-unit-tags {
+    justify-content: center;
+  }
+}
+
+
 
 
 

@@ -411,71 +411,421 @@
 
       <!-- Profil Pimpinan & Struktur Komite -->
       <div class="card-table-wrapper" style="padding: 2rem;">
-        <div class="section-header" style="margin-bottom: 1.5rem;">
+        <div class="section-header" style="margin-bottom: 1.25rem;">
           <div>
             <h3 class="section-title" style="font-size: 1.35rem;">Pimpinan & Struktur Organisasi Komite Keperawatan</h3>
-            <p class="section-subtitle">Masa Bakti 2024 - 2027 &bull; RSUD dr. Soedarso Pontianak</p>
+            <p class="section-subtitle">Bagan Hierarki Tata Kelola Fungsional Berdasarkan Permenkes RI No. 49/2013 & SK Direktur No. SK/ 280801 /RSUD/2026</p>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
-          <!-- 1. Ketua Komite -->
-          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-700), var(--primary-500)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-              <i class="fa-solid fa-user-tie"></i>
+        <div class="org-chart-container">
+          <!-- Info Bar & Legend -->
+          <div class="org-chart-infobar">
+            <div class="org-chart-badges">
+              <span class="org-badge-pill gold"><i class="fa-solid fa-scroll"></i> PMK RI No. 49 / 2013</span>
+              <span class="org-badge-pill teal"><i class="fa-solid fa-calendar-check"></i> Periode 2024 - 2027</span>
+              <span class="org-badge-pill slate"><i class="fa-solid fa-users"></i> 24 Pengurus Resmi</span>
             </div>
-            <div>
-              <div style="font-size: 0.78rem; font-weight: 700; color: var(--gold-600); text-transform: uppercase;">Ketua Komite Keperawatan</div>
-              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">M. Separia Russanto, S.Kep., Ns</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted);">Pimpinan Komite &bull; Super Admin</div>
-            </div>
-          </div>
-
-          <!-- 2. Sekretaris Komite -->
-          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #0d9488, #14b8a6); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-              <i class="fa-solid fa-user-shield"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.78rem; font-weight: 700; color: #0d9488; text-transform: uppercase;">Sekretaris Komite Keperawatan</div>
-              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Ns. Rusmulyadi, S.Kep., MARS</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted);">Pimpinan Komite &bull; Super Admin</div>
-            </div>
-          </div>
-
-          <!-- 3. Sub Komite Kredensial -->
-          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-              <i class="fa-solid fa-id-card"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.78rem; font-weight: 700; color: #0284c7; text-transform: uppercase;">Ketua Sub Komite Kredensial</div>
-              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted);">Divisi Kredensialing & 8 Anggota Tim</div>
+            <div class="org-chart-legend">
+              <div class="org-legend-item">
+                <span class="org-legend-line solid"></span>
+                <span>Garis Pertanggungjawaban (PMK 49/2013)</span>
+              </div>
+              <div class="org-legend-item">
+                <span class="org-legend-line dashed"></span>
+                <span>Garis Koordinasi & Staf</span>
+              </div>
+              <div class="org-legend-item">
+                <span class="org-legend-line dotted"></span>
+                <span>Asistensi Mitra Bestari</span>
+              </div>
             </div>
           </div>
 
-          <!-- 4. Sub Komite Mutu Keperawatan -->
-          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #10b981, #34d399); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-              <i class="fa-solid fa-chart-line"></i>
+          <!-- Bagan Org Chart Hierarki Visual -->
+          <div class="org-chart-tree">
+            <!-- TINGKAT 0: DIREKTUR RSUD (PEMBINA & PENANGGUNG JAWAB) -->
+            <div class="org-tree-row">
+              <div class="org-node-card org-node-direktur">
+                <div class="org-direktur-avatar">
+                  <i class="fa-solid fa-hospital-user"></i>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 3px; flex-wrap: wrap;">
+                    <span class="org-badge-pill gold"><i class="fa-solid fa-crown"></i> Pembina & Penanggung Jawab Tertinggi</span>
+                    <span class="org-badge-pill slate" style="font-size: 0.65rem;">Direksi RSUD</span>
+                  </div>
+                  <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">dr. Hary Agung Tjahyadi</div>
+                  <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-700);">Direktur RSUD Dokter Soedarso Pontianak</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">
+                    <i class="fa-solid fa-id-badge" style="color: var(--gold-600);"></i> NIP. 19710312 199903 1 005 &bull; Penerbit Resmi SK Penugasan Klinis (SPK & RKK)
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <div style="font-size: 0.78rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Ketua Sub Komite Mutu Keperawatan</div>
-              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Laila Istiqomah, S.Kep., Ns</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted);">Divisi Audit Asuhan & 6 Anggota Tim</div>
-            </div>
-          </div>
 
-          <!-- 5. Sub Komite Etika dan Disiplin -->
-          <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 52px; height: 52px; border-radius: var(--radius-full); background: linear-gradient(135deg, #d97706, #fbbf24); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-              <i class="fa-solid fa-gavel"></i>
+            <!-- GARIS KONEKTOR LEVEL 0 -> 1 -->
+            <div class="org-tree-line-v">
+              <span class="org-line-tag"><i class="fa-solid fa-arrow-down"></i> Pertanggungjawaban Langsung (Pasal 4 PMK 49/2013)</span>
             </div>
-            <div>
-              <div style="font-size: 0.78rem; font-weight: 700; color: #d97706; text-transform: uppercase;">Ketua Sub Komite Etika & Disiplin</div>
-              <div style="font-weight: 800; color: var(--text-main); font-size: 0.95rem;">Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH</div>
-              <div style="font-size: 0.78rem; color: var(--text-muted);">Divisi Etik & Disiplin & 5 Anggota Tim</div>
+
+            <!-- TINGKAT 1: PIMPINAN EKSEKUTIF KOMITE (KETUA & SEKRETARIS) -->
+            <div class="org-tree-row">
+              <div class="org-row-pimpinan">
+                <!-- Ketua Komite -->
+                <div class="org-node-card org-node-pimpinan org-node-ketua">
+                  <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-700), var(--primary-500)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: var(--shadow-teal);">
+                    <i class="fa-solid fa-user-tie"></i>
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 2px;">
+                      <span class="org-badge-pill teal"><i class="fa-solid fa-star"></i> Ketua Komite</span>
+                      <span class="badge-role super-admin" style="font-size: 0.65rem;">Super Admin</span>
+                    </div>
+                    <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">M. Separia Russanto, S.Kep., Ns</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Koordinator Utama Tiga Subkomite & Rekomendasi Klinis</div>
+                    <div style="margin-top: 8px; display: flex; gap: 6px;">
+                      <button type="button" class="btn-table-action" onclick="fillAdminPreset('separia'); openLoginModal();" style="font-size: 0.7rem; padding: 2px 8px;">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Login Preset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Garis Jembatan Koordinasi & Staf -->
+                <div class="org-bridge-coord">
+                  <div class="org-bridge-line"></div>
+                  <span class="org-bridge-badge"><i class="fa-solid fa-arrows-left-right"></i> Koordinasi & Staf</span>
+                </div>
+
+                <!-- Sekretaris Komite -->
+                <div class="org-node-card org-node-pimpinan org-node-sekretaris">
+                  <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: linear-gradient(135deg, #0d9488, #14b8a6); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);">
+                    <i class="fa-solid fa-user-shield"></i>
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 2px;">
+                      <span class="org-badge-pill" style="background: #ccfbf1; color: #0f766e; border: 1px solid #5eead4;"><i class="fa-solid fa-file-pen"></i> Sekretaris Komite</span>
+                      <span class="badge-role super-admin" style="font-size: 0.65rem;">Super Admin</span>
+                    </div>
+                    <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">Ns. Rusmulyadi, S.Kep., MARS</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Tata Kelola Administrasi, Regulasi & Sistem IT Digital</div>
+                    <div style="margin-top: 8px; display: flex; gap: 6px;">
+                      <button type="button" class="btn-table-action" onclick="fillAdminPreset('rusmulyadi'); openLoginModal();" style="font-size: 0.7rem; padding: 2px 8px;">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Login Preset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GARIS KONEKTOR LEVEL 1 -> 2 (BEAM CABANG KE 3 SUBKOMITE) -->
+            <div class="org-tree-line-v" style="height: 28px;">
+              <span class="org-line-tag"><i class="fa-solid fa-diagram-project"></i> Tiga Subkomite Fungsional</span>
+            </div>
+            <div class="org-branch-wrap">
+              <div class="org-branch-beam"></div>
+              <div class="org-branch-drops">
+                <div class="org-branch-drop"></div>
+                <div class="org-branch-drop"></div>
+                <div class="org-branch-drop"></div>
+              </div>
+            </div>
+
+            <!-- TINGKAT 2: TIGA PILAR SUBKOMITE FUNGSIONAL (3 KOLOM) -->
+            <div class="org-tree-row">
+              <div class="org-subkomite-grid">
+                <!-- Subkomite 1: Kredensial -->
+                <div class="org-node-card org-node-subkomite org-sub-kredensial">
+                  <div>
+                    <div class="org-sub-header">
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                          <i class="fa-solid fa-certificate"></i>
+                        </span>
+                        <div style="font-weight: 800; font-size: 0.92rem; color: #0369a1;">Subkomite Kredensial</div>
+                      </div>
+                      <span class="org-sub-badge" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">9 Personel</span>
+                    </div>
+
+                    <div class="org-sub-ketua-box">
+                      <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-id-card"></i>
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 0.68rem; font-weight: 700; color: #0284c7; text-transform: uppercase;">Ketua Subkomite</div>
+                        <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Divisi Kredensialing & Rekredensialing</div>
+                      </div>
+                    </div>
+
+                    <div class="org-sub-tugas">
+                      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Tugas & Wewenang Pokok:</div>
+                      <ul>
+                        <li>Menyusun Buku Putih (White Paper) & RKK</li>
+                        <li>E-Kredensialing & Verifikasi Portofolio Klinis</li>
+                        <li>Rekomendasi Penerbitan SPK & RKK oleh Direktur RS</li>
+                        <li>Pemulihan Kewenangan Klinis & Rekredensialing</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Collapsible Members -->
+                  <div>
+                    <button type="button" class="org-members-toggle-btn" onclick="toggleOrgMemberCollapse('kredensial')">
+                      <span><i class="fa-solid fa-users" style="color: #0284c7;"></i> 8 Anggota Subkomite</span>
+                      <i class="fa-solid fa-chevron-down" id="iconCollapseKredensial"></i>
+                    </button>
+                    <div id="collapseMembersKredensial" class="org-members-collapse">
+                      <div class="org-member-item">
+                        <span>1. Tri Herda Permana Sari, A.Md.Kep</span>
+                        <code style="font-size: 0.68rem;">tri.herda</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>2. Ns. Dwinita Wulan Purnamasari, S.Kep</span>
+                        <code style="font-size: 0.68rem;">dwinita</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>3. Ns. Ika Yusniarti, S.Kep</span>
+                        <code style="font-size: 0.68rem;">ika.yusniarti</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>4. F. Surayniwaty, S.ST</span>
+                        <code style="font-size: 0.68rem;">surayniwaty</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>5. Noveriansyah Akbar, S.Kep., Ns</span>
+                        <code style="font-size: 0.68rem;">noveriansyah</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>6. Mushlihuddin, S.Kep., Ns</span>
+                        <code style="font-size: 0.68rem;">mushlihuddin</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>7. Herkulanus Yunus, A.Md.Kep</span>
+                        <code style="font-size: 0.68rem;">herkulanus</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>8. Bdn. Evilita Ratnawati, S.ST</span>
+                        <code style="font-size: 0.68rem;">evilita</code>
+                      </div>
+                      <div style="margin-top: 8px; text-align: right;">
+                        <button type="button" class="btn-table-action" onclick="filterStructureSKFromOrg('Sub Komite Kredensial')" style="font-size: 0.68rem; padding: 2px 8px;">
+                          <i class="fa-solid fa-table-list"></i> Buka di Tabel SK
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subkomite 2: Mutu Keperawatan -->
+                <div class="org-node-card org-node-subkomite org-sub-mutu">
+                  <div>
+                    <div class="org-sub-header">
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: #dcfce7; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                          <i class="fa-solid fa-shield-halved"></i>
+                        </span>
+                        <div style="font-weight: 800; font-size: 0.92rem; color: #047857;">Subkomite Mutu Profesi</div>
+                      </div>
+                      <span class="org-sub-badge" style="background: #dcfce7; color: #059669; border: 1px solid #bbf7d0;">7 Personel</span>
+                    </div>
+
+                    <div class="org-sub-ketua-box">
+                      <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #10b981, #34d399); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-chart-line"></i>
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 0.68rem; font-weight: 700; color: #059669; text-transform: uppercase;">Ketua Subkomite</div>
+                        <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Laila Istiqomah, S.Kep., Ns</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Divisi Audit Asuhan & Mutu Profesi</div>
+                      </div>
+                    </div>
+
+                    <div class="org-sub-tugas">
+                      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Tugas & Wewenang Pokok:</div>
+                      <ul>
+                        <li>Audit Dokumentasi Asuhan Keperawatan & Kebidanan</li>
+                        <li>Rekomendasi Pengembangan Profesional Berkelanjutan (CPD)</li>
+                        <li>Monitoring Indikator Keselamatan Pasien & Ronde Klinis</li>
+                        <li>Evaluasi Kinerja Praktik Berkelanjutan (OPPE/FPPE)</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Collapsible Members -->
+                  <div>
+                    <button type="button" class="org-members-toggle-btn" onclick="toggleOrgMemberCollapse('mutu')">
+                      <span><i class="fa-solid fa-users" style="color: #10b981;"></i> 6 Anggota Subkomite</span>
+                      <i class="fa-solid fa-chevron-down" id="iconCollapseMutu"></i>
+                    </button>
+                    <div id="collapseMembersMutu" class="org-members-collapse">
+                      <div class="org-member-item">
+                        <span>1. Bdn. Ely Lidiawati, S.Tr.Keb</span>
+                        <code style="font-size: 0.68rem;">ely.lidiawati</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>2. Rudy Hartono, S.Kep., Ns</span>
+                        <code style="font-size: 0.68rem;">rudy.hartono</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>3. Stevanus Darmo, A.Md.Kep., SKM</span>
+                        <code style="font-size: 0.68rem;">stevanus</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>4. Ernia Wati, S.Kep., Ns</span>
+                        <code style="font-size: 0.68rem;">ernia.wati</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>5. Munazzil, A.Md.Kep</span>
+                        <code style="font-size: 0.68rem;">munazzil</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>6. Odi Pratama Setiadi, S.Kep., Ns</span>
+                        <code style="font-size: 0.68rem;">odi.pratama</code>
+                      </div>
+                      <div style="margin-top: 8px; text-align: right;">
+                        <button type="button" class="btn-table-action" onclick="filterStructureSKFromOrg('Sub Komite Mutu Keperawatan')" style="font-size: 0.68rem; padding: 2px 8px;">
+                          <i class="fa-solid fa-table-list"></i> Buka di Tabel SK
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subkomite 3: Etika & Disiplin -->
+                <div class="org-node-card org-node-subkomite org-sub-etik">
+                  <div>
+                    <div class="org-sub-header">
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                          <i class="fa-solid fa-scale-balanced"></i>
+                        </span>
+                        <div style="font-weight: 800; font-size: 0.92rem; color: #b45309;">Subkomite Etika & Disiplin</div>
+                      </div>
+                      <span class="org-sub-badge" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a;">6 Personel</span>
+                    </div>
+
+                    <div class="org-sub-ketua-box">
+                      <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: linear-gradient(135deg, #d97706, #fbbf24); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-gavel"></i>
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="font-size: 0.68rem; font-weight: 700; color: #d97706; text-transform: uppercase;">Ketua Subkomite</div>
+                        <div style="font-weight: 800; font-size: 0.88rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">Divisi Penegakan Etik & Disiplin Profesi</div>
+                      </div>
+                    </div>
+
+                    <div class="org-sub-tugas">
+                      <div style="font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Tugas & Wewenang Pokok:</div>
+                      <ul>
+                        <li>Sosialisasi Kode Etik Profesi Keperawatan & Kebidanan</li>
+                        <li>Pembinaan Karakter, Sikap Profesional & Disiplin Kerja</li>
+                        <li>Investigasi & Rekomendasi Sanksi Disiplin Profesi</li>
+                        <li>Advokasi Perlindungan Hukum & Whistleblowing System</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Collapsible Members -->
+                  <div>
+                    <button type="button" class="org-members-toggle-btn" onclick="toggleOrgMemberCollapse('etik')">
+                      <span><i class="fa-solid fa-users" style="color: #d97706;"></i> 5 Anggota Subkomite</span>
+                      <i class="fa-solid fa-chevron-down" id="iconCollapseEtik"></i>
+                    </button>
+                    <div id="collapseMembersEtik" class="org-members-collapse">
+                      <div class="org-member-item">
+                        <span>1. Ns. Gunawan, S.Tr.Kep., SKM</span>
+                        <code style="font-size: 0.68rem;">gunawan</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>2. Ns. Marianto, S.Kep</span>
+                        <code style="font-size: 0.68rem;">marianto</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>3. Andri Muzayyin, S.Kep., Ns</span>
+                        <code style="font-size: 0.68rem;">andri.muzayyin</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>4. Diana Rachmawati, S.ST</span>
+                        <code style="font-size: 0.68rem;">diana</code>
+                      </div>
+                      <div class="org-member-item">
+                        <span>5. Nur'aini Ratnasari, S.T.Keb</span>
+                        <code style="font-size: 0.68rem;">nuraini</code>
+                      </div>
+                      <div style="margin-top: 8px; text-align: right;">
+                        <button type="button" class="btn-table-action" onclick="filterStructureSKFromOrg('Sub Komite Etika dan Disiplin')" style="font-size: 0.68rem; padding: 2px 8px;">
+                          <i class="fa-solid fa-table-list"></i> Buka di Tabel SK
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GARIS KONEKTOR LEVEL 2 -> 3 -->
+            <div class="org-tree-line-v" style="height: 28px;">
+              <span class="org-line-tag"><i class="fa-solid fa-arrow-down"></i> Asistensi Keahlian Klinis & Ruang Lingkup Asuhan</span>
+            </div>
+
+            <!-- TINGKAT 3: MITRA BESTARI (PEER GROUP) & SELURUH TENAGA KEPERAWATAN -->
+            <div class="org-tree-row">
+              <div class="org-bottom-tier">
+                <!-- Mitra Bestari -->
+                <div class="org-node-card org-card-mitra">
+                  <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: #f3e8ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-users-gear"></i>
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                      <div style="font-weight: 800; font-size: 0.95rem; color: #6d28d9;">
+                        <i class="fa-solid fa-handshake-angle"></i> Mitra Bestari (Peer Review Group)
+                      </div>
+                      <span class="org-badge-pill" style="background: #f3e8ff; color: #6d28d9; border: 1px solid #d8b4fe;">Panel Ad-Hoc Independen</span>
+                    </div>
+                    <div style="font-size: 0.77rem; color: var(--text-muted); margin-top: 3px; line-height: 1.45;">
+                      Dokter Spesialis Konsultan, Perawat Spesialis (KMB, Anak, Kritis, Maternitas), Bidan Senior, Dosen Pembimbing Klinis, & Perwakilan Organisasi Profesi (PPNI & IBI). Memberikan telaah keahlian klinis independen dalam asesmen kewenangan klinis (kredensial), audit mutu mediko-legal, dan sidang etik.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Garis Panah Penerapan Asuhan -->
+                <div style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.72rem; font-weight: 600;">
+                  <i class="fa-solid fa-arrow-down"></i> Penerapan Kewenangan Klinis (SPK/RKK), Standar Mutu Asuhan & Disiplin Pelayanan <i class="fa-solid fa-arrow-down"></i>
+                </div>
+
+                <!-- Seluruh Tenaga Keperawatan & Kebidanan -->
+                <div class="org-node-card org-card-tenaga">
+                  <div style="width: 50px; height: 50px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--primary-700), var(--primary-500)); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; box-shadow: var(--shadow-teal);">
+                    <i class="fa-solid fa-user-nurse"></i>
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                      <div style="font-weight: 800; font-size: 0.98rem; color: var(--primary-800);">
+                        Tenaga Keperawatan & Kebidanan RSUD Dokter Soedarso
+                      </div>
+                      <span class="org-badge-pill teal">&gt; 700 Tenaga Klinis Aktif</span>
+                    </div>
+                    <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 3px;">
+                      Seluruh staf perawat dan bidan pelaksana asuhan pada seluruh instalasi pelayanan klinis terakreditasi:
+                    </div>
+                    <div class="org-unit-tags">
+                      <span class="org-unit-pill"><i class="fa-solid fa-bed"></i> Rawat Inap (Dewasa, Bedah, Non-Bedah)</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-heart-pulse"></i> Ruang Intensif (ICU, ICCU, HCU, PICU, NICU)</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-truck-medical"></i> IGD & Trauma Center 24 Jam</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-syringe"></i> Kamar Bedah Sentral (IBS / OK)</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-baby"></i> Instalasi Maternitas & VK Bersalin</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-stethoscope"></i> Poliklinik Rawat Jalan Terpadu</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-notes-medical"></i> Pusat Jantung Terpadu (PJT & Cathlab)</span>
+                      <span class="org-unit-pill"><i class="fa-solid fa-droplet"></i> Hemodialisis & Unit Khusus</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
