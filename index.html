@@ -786,9 +786,14 @@
           <div class="wf-alert-title">Alur Kerja Kredensialing &amp; Verifikasi Berkas (PMK 49/2013)</div>
           <div class="wf-alert-text" id="kredensialWorkflowAlertText">Ada berkas pengusulan kredensialing yang perlu diverifikasi oleh Tim Subkomite Kredensial &amp; Ketua Subkomite Mutu.</div>
         </div>
-        <button type="button" class="btn-wf-alert-action" onclick="openWorkflowNotifModal('kredensial')">
-          <i class="fa-solid fa-bell"></i> Lihat Berkas Menunggu Verifikasi
-        </button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn-wf-alert-action" onclick="openVerifikasiBerkasSubkomite('KRED-2026-001')" style="background: #ffffff; color: #047857; font-weight: 800; border: 1.5px solid #059669;">
+            <i class="fa-solid fa-clipboard-check"></i> Verifikasi Berkas (Sample: Ns. Hendra Kurniawan)
+          </button>
+          <button type="button" class="btn-wf-alert-action" onclick="openWorkflowNotifModal('kredensial')">
+            <i class="fa-solid fa-bell"></i> Semua Notifikasi
+          </button>
+        </div>
       </div>
 
 
@@ -2641,6 +2646,213 @@
           <span>Notifikasi tersinkronisasi otomatis dengan email resmi Sekretaris (<code>yadhie28@gmail.com</code>) &amp; Subkomite terkait.</span>
         </div>
         <button type="button" class="btn-secondary" onclick="closeModal('modalWorkflowNotifications')" style="font-size: 0.82rem;">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL VERIFIKASI BERKAS PENGUSULAN SUBKOMITE (TANGGAPAN NYATA)
+       Alur Verifikasi PMK 49/2013 & KARS STARKES KPS 10-11
+       Dapat ditanggapi oleh: Ketua Subkomite Mutu, Ketua Kredensial, & Sekretaris
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalVerifikasiBerkasSubkomite" style="z-index: 100010;">
+    <div class="modal-container" style="max-width: 900px; width: 95%;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 50%, #064e3b 100%); color: #ffffff; padding: 1.15rem 1.5rem;">
+        <div>
+          <div class="modal-title" style="font-size: 1.18rem; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+            <i class="fa-solid fa-clipboard-check" style="color: #34d399;"></i>
+            <span>Verifikasi Berkas Pengusulan Kredensialing (Subkomite)</span>
+          </div>
+          <div style="font-size: 0.78rem; color: #a7f3d0; margin-top: 3px;">
+            PMK No. 49 Tahun 2013 &bull; Standar Akreditasi KARS STARKES KPS 10-11 &bull; Verifikasi Administrasi &amp; Sumber Primer (PSV)
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalVerifikasiBerkasSubkomite')" title="Tutup Modal" style="color: white; opacity: 0.85;">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 1.5rem; max-height: calc(85vh - 120px); overflow-y: auto;">
+        <!-- Card Profil Pengusul & Rincian Registrasi -->
+        <div class="verif-card-applicant">
+          <div class="verif-card-header">
+            <div>
+              <div class="verif-applicant-title">
+                <i class="fa-solid fa-user-nurse"></i> <span id="verifNamaPemohon">Ns. Hendra Kurniawan, S.Kep</span>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                <span id="verifPendidikan">S1 Keperawatan &amp; Profesi Ners (Universitas Tanjungpura)</span> &bull; 
+                No. Registrasi: <strong id="verifNomorReg" style="color: var(--primary-700);">KRED/RSUD-DS/2026/0104</strong>
+              </div>
+            </div>
+            <div>
+              <span id="verifStatusBadge" class="badge-app-status status-subkomite" style="font-size: 0.82rem; padding: 0.35rem 0.85rem;">
+                Menunggu Verifikasi Subkomite
+              </span>
+            </div>
+          </div>
+
+          <div class="verif-meta-grid">
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-id-badge"></i> NIP / NIK</span>
+              <span class="verif-meta-value" id="verifNip">19920415 201903 1 004</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-hospital-user"></i> Unit Penempatan</span>
+              <span class="verif-meta-value" id="verifUnit">Ruang Enggang Gading 2</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-award"></i> Jenjang Karir Klinis</span>
+              <span class="verif-meta-value" id="verifJenjang" style="color: var(--primary-700); font-weight: 800;">Perawat Klinis III (PK III)</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-book-medical"></i> Area Buku Putih</span>
+              <span class="verif-meta-value" id="verifArea">Keperawatan Bedah Dewasa Lanjut</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-certificate"></i> STR Perawat (BSrE)</span>
+              <span class="verif-meta-value" id="verifStr">140152123-2893812 (Berlaku s.d. 17-08-2028)</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-file-shield"></i> SIPP SiCantik Cloud</span>
+              <span class="verif-meta-value" id="verifSipp">503/412/Dinkes-PP/SIPP/2023</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-regular fa-calendar-check"></i> Waktu Pengajuan</span>
+              <span class="verif-meta-value" id="verifTglPengajuan">21 Oktober 2026, 09:15 WIB</span>
+            </div>
+            <div class="verif-meta-item">
+              <span class="verif-meta-label"><i class="fa-solid fa-list-check"></i> Total Rincian RKK</span>
+              <span class="verif-meta-value" id="verifTotalTindakan">40 Rincian Tindakan Mandiri (PK III)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dokumen 6 Tahap Lengkap (Dapat Ditinjau / Dibuka) -->
+        <div style="margin-bottom: 0.5rem;">
+          <div style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-folder-open" style="color: var(--primary-600);"></i> Dokumen Pengusulan Lengkap (6 Tahap Terintegrasi)</span>
+            <span style="font-size: 0.75rem; color: #059669; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Semua Berkas Tersedia &amp; Siap Diperiksa</span>
+          </div>
+
+          <div class="verif-docs-grid">
+            <button type="button" class="verif-doc-btn" onclick="bukaPratinjauSuratVerifikasi()" title="Buka Formulir Permohonan Kredensialing HVS">
+              <div class="verif-doc-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+              <div class="verif-doc-name">1. Surat Permohonan</div>
+              <div class="verif-doc-sub">Formulir A Resmi PMK 49</div>
+            </button>
+            <button type="button" class="verif-doc-btn" onclick="bukaPratinjauRkkVerifikasi()" title="Buka Dokumen Asesmen Mandiri RKK 40 Tindakan">
+              <div class="verif-doc-icon" style="color: #059669;"><i class="fa-solid fa-clipboard-list"></i></div>
+              <div class="verif-doc-name">2. RKK Asesmen Mandiri</div>
+              <div class="verif-doc-sub">40 Tindakan Klinis PK III</div>
+            </button>
+            <button type="button" class="verif-doc-btn" onclick="bukaPratinjauPsvVerifikasi()" title="Buka Lembar Verifikasi Sumber Primer">
+              <div class="verif-doc-icon" style="color: #2563eb;"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="verif-doc-name">3. Lembar PSV</div>
+              <div class="verif-doc-sub">Primary Source Verification</div>
+            </button>
+            <button type="button" class="verif-doc-btn" onclick="bukaPratinjauCvVerifikasi()" title="Buka Portofolio &amp; Curriculum Vitae Master">
+              <div class="verif-doc-icon" style="color: #d97706;"><i class="fa-solid fa-address-card"></i></div>
+              <div class="verif-doc-name">4. CV / Portofolio</div>
+              <div class="verif-doc-sub">Riwayat Diklat &amp; Klinis</div>
+            </button>
+            <button type="button" class="verif-doc-btn" onclick="bukaPratinjauLogbookVerifikasi()" title="Buka Logbook Praktik Klinis">
+              <div class="verif-doc-icon" style="color: #7c3aed;"><i class="fa-solid fa-book-medical"></i></div>
+              <div class="verif-doc-name">5. Logbook Praktik</div>
+              <div class="verif-doc-sub">Kinerja 3 Thn Tervalidasi</div>
+            </button>
+            <button type="button" class="verif-doc-btn" onclick="bukaModalUploadBerkasVerifikasi()" title="Buka Berkas Persyaratan Administrasi Lengkap">
+              <div class="verif-doc-icon" style="color: #db2777;"><i class="fa-solid fa-file-zipper"></i></div>
+              <div class="verif-doc-name">6. 8 Berkas Persyaratan</div>
+              <div class="verif-doc-sub">Ijazah, STR, SIPP, dsb</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Checklist Verifikasi Sumber Primer (PSV) -->
+        <div class="verif-psv-box">
+          <div class="verif-psv-title">
+            <i class="fa-solid fa-stamp"></i> Checklist Verifikasi Sumber Primer (Primary Source Verification) &amp; Berkas Administrasi
+          </div>
+          <div class="verif-psv-list">
+            <label class="verif-psv-checkbox">
+              <input type="checkbox" id="verifChkPddikti" checked>
+              <span><strong>Keabsahan Ijazah &amp; Profesi Ners:</strong> Terverifikasi terdaftar aktif di PDDikti Kemdikbud Dikti / Pangkalan Data Dikti (NIM/NIRM valid).</span>
+            </label>
+            <label class="verif-psv-checkbox">
+              <input type="checkbox" id="verifChkStr" checked>
+              <span><strong>Keabsahan STR Perawat:</strong> e-STR Tenaga Keperawatan aktif dan sahih berkeabsahan TTE Balai Sertifikasi Elektronik (BSrE BSSN / SatuSehat SDMK).</span>
+            </label>
+            <label class="verif-psv-checkbox">
+              <input type="checkbox" id="verifChkSipp" checked>
+              <span><strong>Keabsahan SIPP / SIPB:</strong> Berlaku sah pada RSUD dr. Soedarso terbitan DPMPTSP / Dinas Kesehatan Kota Pontianak.</span>
+            </label>
+            <label class="verif-psv-checkbox">
+              <input type="checkbox" id="verifChkLogbook" checked>
+              <span><strong>Logbook Praktik Klinis:</strong> Logbook kinerja 3 tahun terakhir (40 tindakan PK III) telah diverifikasi dan ditandatangani sah oleh Kepala Ruangan Enggang Gading 2.</span>
+            </label>
+            <label class="verif-psv-checkbox">
+              <input type="checkbox" id="verifChkBerkas8" checked>
+              <span><strong>Kelengkapan 8 Berkas Wajib:</strong> SK Pengangkatan, Surat Keterangan Sehat Fisik/Jiwa, Bebas Narkoba, Sertifikat BTCLS/ICRN, dan Surat Rekomendasi Kepala Ruangan lengkap &amp; valid.</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Form Keputusan Tanggapan Nyata Subkomite -->
+        <div class="verif-decision-box">
+          <div class="verif-decision-title">
+            <i class="fa-solid fa-gavel"></i> Keputusan &amp; Rekomendasi Subkomite (Tanggapan Nyata)
+          </div>
+
+          <div style="margin-bottom: 0.85rem;">
+            <label for="verifDecisionStatus" style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">
+              Status Keputusan Hasil Telaah Berkas:
+            </label>
+            <select id="verifDecisionStatus" class="form-input" style="font-weight: 700; color: var(--primary-800); background: #f0fdf4; border-color: #86efac;">
+              <option value="Proses Telaah Mitra Bestari" selected>Disetujui untuk Asesmen Mitra Bestari (Memenuhi Syarat Administratif &amp; PSV)</option>
+              <option value="Perlu Perbaikan Berkas">Perlu Perbaikan Berkas (Dikembalikan ke Pengusul untuk Dilengkapi)</option>
+              <option value="Disetujui Penuh &amp; Rekomendasi SPK/RKK Terbit">Disetujui Penuh &amp; Rekomendasi SPK/RKK Terbit (Fast-Track Mutu)</option>
+            </select>
+          </div>
+
+          <div class="verif-form-row">
+            <div>
+              <label for="verifNamaVerifikator" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
+                Nama &amp; Jabatan Verifikator Subkomite:
+              </label>
+              <input type="text" id="verifNamaVerifikator" class="form-input" value="Ns. Laila Istiqomah, S.Kep (Ketua Subkomite Mutu)" readonly style="font-weight: 700; background: var(--bg-surface-secondary);">
+            </div>
+            <div>
+              <label for="verifNipVerifikator" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
+                NIP Verifikator:
+              </label>
+              <input type="text" id="verifNipVerifikator" class="form-input" value="19830514 200801 2 011" readonly style="background: var(--bg-surface-secondary);">
+            </div>
+            <div>
+              <label for="verifTanggalAksi" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
+                Tanggal Verifikasi:
+              </label>
+              <input type="text" id="verifTanggalAksi" class="form-input" value="28 Oktober 2026" readonly style="background: var(--bg-surface-secondary);">
+            </div>
+          </div>
+
+          <div>
+            <label for="verifCatatanTelaah" style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">
+              Catatan Telaah / Rekomendasi Verifikator Subkomite:
+            </label>
+            <textarea id="verifCatatanTelaah" class="form-input" rows="3" style="font-size: 0.84rem; line-height: 1.45;" placeholder="Masukkan catatan telaah verifikasi...">Berkas permohonan kredensialing, dokumen RKK asesmen mandiri (40 tindakan), dan verifikasi sumber primer (PSV) dinyatakan LENGKAP, SAH, dan MEMENUHI SYARAT. Berkas direkomendasikan untuk segera dijadwalkan asesmen kompetensi klinis oleh Tim Mitra Bestari Keperawatan Bedah.</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 0.85rem 1.5rem; background: var(--bg-surface-secondary); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 0.75rem;">
+        <button type="button" class="btn-secondary" onclick="closeModal('modalVerifikasiBerkasSubkomite')" style="font-size: 0.82rem;">
+          Batal / Tutup
+        </button>
+        <button type="button" class="btn-primary" id="btnSimpanVerifikasiNyata" onclick="simpanTanggapanVerifikasiSubkomite(event)" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); border-color: #047857; font-weight: 800; padding: 0.6rem 1.35rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-circle-check"></i> Simpan Tanggapan Verifikasi Subkomite
+        </button>
       </div>
     </div>
   </div>

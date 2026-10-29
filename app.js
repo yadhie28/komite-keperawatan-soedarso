@@ -1234,6 +1234,12 @@ function loadData() {
     state.credentialApplications = master.credentialApplications || [];
     saveCredentialApplications();
   }
+  // Pastikan sampel master KRED-2026-001 (Ns. Hendra Kurniawan) selalu tersedia untuk verifikasi
+  const sampleHendra = (master.credentialApplications || []).find(a => a.id === 'KRED-2026-001');
+  if (sampleHendra && !state.credentialApplications.some(a => a.id === 'KRED-2026-001')) {
+    state.credentialApplications.unshift(sampleHendra);
+    saveCredentialApplications();
+  }
 
   // Load Workflow Notifications (Sistem Alur Kerja Subkomite PMK 49/2013)
   const savedWfNotifs = localStorage.getItem('komite_workflow_notifications');
@@ -1247,6 +1253,16 @@ function loadData() {
     state.workflowNotifications = getDefaultWorkflowNotifications();
     saveWorkflowNotifications();
   }
+  // Pastikan notifikasi sampel WF-NOTIF-101 selalu ada jika belum ada
+  const defaultNotifs = getDefaultWorkflowNotifications();
+  let hasNewWf = false;
+  defaultNotifs.forEach(dn => {
+    if (!state.workflowNotifications.some(n => n.id === dn.id)) {
+      state.workflowNotifications.push(dn);
+      hasNewWf = true;
+    }
+  });
+  if (hasNewWf) saveWorkflowNotifications();
 }
 
 function saveNurses() {
@@ -9490,18 +9506,22 @@ function markAllWorkflowNotifsRead() {
   showToast('Seluruh notifikasi alur kerja akun Anda telah ditandai sebagai dibaca.', 'info');
 }
 
+let currentVerifyingAppId = 'KRED-2026-001';
+
 function navigateToWorkflowDoc(category, docId) {
   closeModal('modalWorkflowNotifications');
+  if (category === 'kredensial') {
+    switchTab('kredensial');
+    setTimeout(() => {
+      openVerifikasiBerkasSubkomite(docId || 'KRED-2026-001');
+    }, 350);
+    return;
+  }
+  
   switchTab(category);
 
   setTimeout(() => {
-    if (category === 'kredensial') {
-      const target = document.getElementById('credentialApplicationsTable') || document.getElementById('alurKredensialWrapper');
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-      showToast('Menampilkan Registry Pengusulan Kredensialing untuk verifikasi berkas oleh Subkomite.', 'success');
-    } else if (category === 'etik') {
+    if (category === 'etik') {
       const target = document.getElementById('ethicsTicketsBody') || document.getElementById('formEthicsReport');
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -9515,6 +9535,255 @@ function navigateToWorkflowDoc(category, docId) {
       showToast('Menampilkan Tabel Evaluasi & Audit Mutu Asuhan Keperawatan Ruangan.', 'success');
     }
   }, 300);
+}
+
+function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
+  currentVerifyingAppId = appId;
+  let app = (state.credentialApplications || []).find(a => a.id === appId);
+  if (!app) {
+    const masterApp = (window.KOMITE_DATA?.credentialApplications || []).find(a => a.id === appId);
+    if (masterApp) {
+      app = JSON.parse(JSON.stringify(masterApp));
+      if (!state.credentialApplications) state.credentialApplications = [];
+      state.credentialApplications.unshift(app);
+      saveCredentialApplications();
+    } else {
+      app = state.credentialApplications && state.credentialApplications[0];
+    }
+  }
+
+  if (!app) {
+    showToast('Berkas pengusulan kredensialing tidak ditemukan.', 'warning');
+    return;
+  }
+
+  // Populate data pemohon di modal
+  const elNama = document.getElementById('verifNamaPemohon');
+  const elReg = document.getElementById('verifNomorReg');
+  const elStatus = document.getElementById('verifStatusBadge');
+  const elNip = document.getElementById('verifNip');
+  const elUnit = document.getElementById('verifUnit');
+  const elJenjang = document.getElementById('verifJenjang');
+  const elArea = document.getElementById('verifArea');
+  const elStr = document.getElementById('verifStr');
+  const elSipp = document.getElementById('verifSipp');
+  const elTgl = document.getElementById('verifTglPengajuan');
+  const elPendidikan = document.getElementById('verifPendidikan');
+  const elTotalTindakan = document.getElementById('verifTotalTindakan');
+
+  if (elNama) elNama.textContent = app.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (elReg) elReg.textContent = app.nomorRegistrasi || app.id;
+  if (elStatus) {
+    elStatus.textContent = app.status;
+    elStatus.className = 'badge-app-status ' + (
+      app.status === 'Proses Telaah Mitra Bestari' ? 'status-mitra-bestari' :
+      app.status === 'Disetujui Penuh' || app.status.includes('Selesai') ? 'status-selesai' :
+      app.status === 'Perlu Revisi' || app.status.includes('Perbaikan') ? 'status-revisi' : 'status-subkomite'
+    );
+  }
+  if (elNip) elNip.textContent = app.nip || '19920415 201903 1 004';
+  if (elUnit) elUnit.textContent = app.unit || 'Ruang Enggang Gading 2';
+  if (elJenjang) elJenjang.textContent = app.jenjang ? `${app.jenjang} (${app.jenjang === 'PK III' ? 'Perawat Klinis III' : app.jenjang})` : 'Perawat Klinis III (PK III)';
+  if (elArea) elArea.textContent = app.areaName || 'Keperawatan Bedah Dewasa Lanjut (PK III)';
+  if (elStr) elStr.textContent = `${app.strNumber || '140152123-2893812'} (Berlaku s.d. ${app.strExpiry || '2028-08-17'})`;
+  if (elSipp) elSipp.textContent = app.sippNumber || '503/412/Dinkes-PP/SIPP/2023';
+  if (elTgl) elTgl.textContent = app.tanggalPengajuan || '28 Oktober 2026, 08:30 WIB';
+  if (elPendidikan) elPendidikan.textContent = app.pendidikan || 'S1 Keperawatan & Profesi Ners (Universitas Tanjungpura)';
+  if (elTotalTindakan) elTotalTindakan.textContent = `${app.totalTindakan || 40} Rincian Tindakan Mandiri (PK III)`;
+
+  // Tentukan verifikator berdasarkan sesi pengguna login
+  const curUser = state.currentUser;
+  let verifNama = 'Ns. Laila Istiqomah, S.Kep (Ketua Subkomite Mutu)';
+  let verifNip = '19830514 200801 2 011';
+
+  if (curUser) {
+    const uName = (curUser.username || '').toLowerCase().replace(/\s+/g, '');
+    const uAlias = (curUser.alias || '').toLowerCase().replace(/\s+/g, '');
+    const uRole = (curUser.role || '').toLowerCase();
+
+    if (uName === 'yohanes' || uAlias === 'kredensial' || uRole.includes('kredensial')) {
+      verifNama = (curUser.name || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep') + ' (Ketua Subkomite Kredensial)';
+      verifNip = curUser.nip || '19850612 201001 1 012';
+    } else if (uName === 'rusmulyadi' || uAlias === 'sekretaris' || (curUser.devAlias === 'yadhie28') || uRole.includes('sekretaris')) {
+      verifNama = (curUser.name || 'Ns. Rusmulyadi, S.Kep., MARS') + ' (Sekretaris Komite Keperawatan)';
+      verifNip = curUser.nip || '19820315 200604 1 008';
+    } else if (uName === 'separia' || uRole.includes('ketua komite')) {
+      verifNama = (curUser.name || 'Ns. Separia, S.Kep') + ' (Ketua Komite Keperawatan)';
+      verifNip = curUser.nip || '19741215 199803 2 004';
+    } else if (uName === 'alfonsus' || uRole.includes('etik')) {
+      verifNama = (curUser.name || 'Ns. Alfonsus, S.Kep') + ' (Ketua Subkomite Etik & Disiplin)';
+      verifNip = curUser.nip || '19790822 200501 1 007';
+    } else if (uName === 'laila' || uAlias === 'mutu' || uRole.includes('mutu')) {
+      verifNama = (curUser.name || 'Ns. Laila Istiqomah, S.Kep') + ' (Ketua Subkomite Mutu)';
+      verifNip = curUser.nip || '19830514 200801 2 011';
+    } else {
+      verifNama = (curUser.name || 'Verifikator Subkomite') + ' (' + (curUser.role || 'Komite Keperawatan') + ')';
+      verifNip = curUser.nip || '-';
+    }
+  }
+
+  const elVerifNama = document.getElementById('verifNamaVerifikator');
+  const elVerifNip = document.getElementById('verifNipVerifikator');
+  const elVerifTgl = document.getElementById('verifTanggalAksi');
+  const elCatatan = document.getElementById('verifCatatanTelaah');
+  const elSelect = document.getElementById('verifDecisionStatus');
+
+  if (elVerifNama) elVerifNama.value = verifNama;
+  if (elVerifNip) elVerifNip.value = verifNip;
+  if (elVerifTgl) {
+    elVerifTgl.value = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  if (app.verifikator && app.verifikator.catatan) {
+    if (elCatatan) elCatatan.value = app.verifikator.catatan;
+    if (elSelect && app.status) elSelect.value = app.status;
+  } else {
+    if (elCatatan) {
+      elCatatan.value = `Berkas permohonan kredensialing, dokumen RKK asesmen mandiri (40 tindakan), dan verifikasi sumber primer (PSV) atas nama ${app.nama} dinyatakan LENGKAP, SAH, dan MEMENUHI SYARAT. Berkas direkomendasikan untuk segera dijadwalkan asesmen kompetensi klinis oleh Tim Mitra Bestari.`;
+    }
+    if (elSelect) elSelect.value = 'Proses Telaah Mitra Bestari';
+  }
+
+  openModal('modalVerifikasiBerkasSubkomite');
+}
+
+function simpanTanggapanVerifikasiSubkomite(event) {
+  if (event) event.preventDefault();
+
+  const appId = currentVerifyingAppId || 'KRED-2026-001';
+  let app = (state.credentialApplications || []).find(a => a.id === appId);
+  if (!app) {
+    const masterApp = (window.KOMITE_DATA?.credentialApplications || []).find(a => a.id === appId);
+    if (masterApp) {
+      app = JSON.parse(JSON.stringify(masterApp));
+      if (!state.credentialApplications) state.credentialApplications = [];
+      state.credentialApplications.unshift(app);
+    } else {
+      showToast('Data aplikasi pengusulan tidak ditemukan.', 'error');
+      return;
+    }
+  }
+
+  const elSelect = document.getElementById('verifDecisionStatus');
+  const elCatatan = document.getElementById('verifCatatanTelaah');
+  const elVerifNama = document.getElementById('verifNamaVerifikator');
+  const elVerifNip = document.getElementById('verifNipVerifikator');
+
+  const selectedStatus = elSelect ? elSelect.value : 'Proses Telaah Mitra Bestari';
+  const catatanTelaah = elCatatan ? elCatatan.value.trim() : 'Berkas memenuhi syarat verifikasi subkomite.';
+  const verifNama = elVerifNama ? elVerifNama.value : 'Ns. Laila Istiqomah, S.Kep (Ketua Subkomite Mutu)';
+  const verifNip = elVerifNip ? elVerifNip.value : '19830514 200801 2 011';
+  const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
+
+  // 1. Update data permohonan kredensialing di state
+  app.status = selectedStatus;
+  app.verifikator = {
+    nama: verifNama,
+    nip: verifNip,
+    tanggal: nowFormatted,
+    catatan: catatanTelaah,
+    status: selectedStatus === 'Perlu Perbaikan Berkas' ? 'Perlu Perbaikan' : 'Terverifikasi Memenuhi Syarat'
+  };
+
+  app.psvChecklist = {
+    pddikti: document.getElementById('verifChkPddikti')?.checked ?? true,
+    strBsre: document.getElementById('verifChkStr')?.checked ?? true,
+    sipp: document.getElementById('verifChkSipp')?.checked ?? true,
+    logbook: document.getElementById('verifChkLogbook')?.checked ?? true,
+    berkas8: document.getElementById('verifChkBerkas8')?.checked ?? true
+  };
+
+  if (!app.timeline) app.timeline = [];
+  app.timeline.unshift({
+    waktu: nowFormatted,
+    user: verifNama,
+    aksi: `Verifikasi Berkas Subkomite: ${selectedStatus}. Catatan: "${catatanTelaah}"`
+  });
+
+  // 2. Update status perawat terkait di state.nurses jika ada
+  if (app.nip && state.nurses) {
+    const targetNurse = state.nurses.find(n => n.nip === app.nip || n.name === app.nama);
+    if (targetNurse) {
+      targetNurse.credentialStatus = selectedStatus;
+    }
+    saveNurses();
+  }
+
+  // 3. Update notifikasi alur kerja terkait di state.workflowNotifications
+  if (state.workflowNotifications) {
+    const relNotif = state.workflowNotifications.find(n => n.sourceId === app.id || n.applicantNip === app.nip);
+    if (relNotif) {
+      relNotif.status = `Selesai Diverifikasi (${selectedStatus})`;
+      relNotif.message = `Berkas pengusulan ${app.nama} (${app.jenjang} - ${app.unit}) telah DIVERIFIKASI oleh ${verifNama}. Rekomendasi: ${selectedStatus}.`;
+      const uId = (state.currentUser ? (state.currentUser.username || state.currentUser.alias || state.currentUser.name) : 'laila').toLowerCase().replace(/\s+/g, '');
+      if (!relNotif.readBy) relNotif.readBy = [];
+      if (!relNotif.readBy.includes(uId)) relNotif.readBy.push(uId);
+    }
+  }
+
+  // 4. Simpan ke localStorage
+  saveCredentialApplications();
+  saveWorkflowNotifications();
+
+  // 5. Update seluruh tampilan antarmuka
+  updateWorkflowNotificationUI();
+  if (typeof renderWorkflowNotifList === 'function') {
+    renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
+  }
+  if (typeof renderKredensialTrackerVisual === 'function') {
+    renderKredensialTrackerVisual(app.nip);
+  }
+  if (typeof updateHeroStats === 'function') {
+    updateHeroStats();
+  }
+  if (typeof renderNursesTable === 'function') {
+    renderNursesTable();
+  }
+
+  closeModal('modalVerifikasiBerkasSubkomite');
+
+  // 6. Notifikasi sukses interaktif
+  showToast(`Tanggapan verifikasi pengusulan berkas ${app.nama} BERHASIL DISIMPAN secara nyata! Status berkas kini: "${selectedStatus}".`, 'success');
+
+  // Rekam log audit keamanan
+  if (typeof logSecurityAccess === 'function') {
+    logSecurityAccess(
+      state.currentUser?.name || verifNama,
+      state.currentUser?.role || 'Subkomite',
+      `Verifikasi Berkas Pengusulan Kredensialing (${selectedStatus})`,
+      `${app.nama} (${app.id})`,
+      'Sukses'
+    );
+  }
+}
+
+// Pratinjau Dokumen 6 Tahap Pengusul pada Modal Verifikasi
+function bukaPratinjauSuratVerifikasi() {
+  document.getElementById('suratNama') && (document.getElementById('suratNama').value = 'Ns. Hendra Kurniawan, S.Kep');
+  document.getElementById('suratNip') && (document.getElementById('suratNip').value = '19920415 201903 1 004');
+  document.getElementById('suratUnit') && (document.getElementById('suratUnit').value = 'Ruang Enggang Gading 2');
+  document.getElementById('suratJenjang') && (document.getElementById('suratJenjang').value = 'PK III');
+  previewSuratKredensialHVS('filled');
+}
+
+function bukaPratinjauRkkVerifikasi() {
+  previewRkkHVS('filled');
+}
+
+function bukaPratinjauPsvVerifikasi() {
+  previewPsvHVS('filled');
+}
+
+function bukaPratinjauCvVerifikasi() {
+  openCvModal();
+}
+
+function bukaPratinjauLogbookVerifikasi() {
+  openLogbookModal();
+}
+
+function bukaModalUploadBerkasVerifikasi() {
+  openUploadBerkasModal();
 }
 
 function demoWorkflowLogin(username) {
@@ -11299,5 +11568,16 @@ window.demoWorkflowLogin = demoWorkflowLogin;
 window.createWorkflowNotification = createWorkflowNotification;
 window.updateWorkflowNotificationUI = updateWorkflowNotificationUI;
 window.getWorkflowNotificationsForUser = getWorkflowNotificationsForUser;
+
+// Verifikasi Berkas Subkomite Exports (PMK 49/2013 & KARS STARKES KPS 10-11)
+window.openVerifikasiBerkasSubkomite = openVerifikasiBerkasSubkomite;
+window.simpanTanggapanVerifikasiSubkomite = simpanTanggapanVerifikasiSubkomite;
+window.bukaPratinjauSuratVerifikasi = bukaPratinjauSuratVerifikasi;
+window.bukaPratinjauRkkVerifikasi = bukaPratinjauRkkVerifikasi;
+window.bukaPratinjauPsvVerifikasi = bukaPratinjauPsvVerifikasi;
+window.bukaPratinjauCvVerifikasi = bukaPratinjauCvVerifikasi;
+window.bukaPratinjauLogbookVerifikasi = bukaPratinjauLogbookVerifikasi;
+window.bukaModalUploadBerkasVerifikasi = bukaModalUploadBerkasVerifikasi;
+
 
 
