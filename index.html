@@ -1734,7 +1734,21 @@
 
       <!-- SUBPANE 2: HASIL REKAPITULASI -->
       <div id="pemilihan-subpane-hasil" style="display: none;">
-        <!-- Metrics -->
+        <!-- Metrics & Tombol Bukti Cetak -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div style="font-size: 0.82rem; font-weight: 700; color: #475569;">
+            <i class="fa-solid fa-chart-pie" style="color: #0d5f5b;"></i> Rekapitulasi Suara &amp; Dokumen Bukti Sah
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn-primary" onclick="window.PemilihanKomkep.openBeritaAcaraModal()" style="font-size: 0.8rem; padding: 6px 14px; background: #0d5f5b; border: none; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; box-shadow: var(--shadow-sm);">
+              <i class="fa-solid fa-file-signature"></i> Cetak Berita Acara Resmi (A4)
+            </button>
+            <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.sendEmailLaporan()" style="font-size: 0.8rem; padding: 6px 12px; background: #ffffff; color: #0d5f5b; border: 1.5px solid #0d5f5b; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem;">
+              <i class="fa-solid fa-envelope"></i> Kirim ke Email Komite
+            </button>
+          </div>
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
             <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Total Suara Masuk</div>
@@ -6033,6 +6047,197 @@
           </button>
           <button type="button" class="btn-primary" style="flex: 1; justify-content: center; padding: 0.7rem; font-size: 0.85rem; font-weight: 800; background: #0d5f5b; border: none;" onclick="window.PemilihanKomkep.confirmVote()">
             <i class="fa-solid fa-check"></i> Ya, Kirim Suara!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL DOKUMEN RESMI A4: BERITA ACARA REKAPITULASI HASIL PEMILIHAN
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalBeritaAcaraPemilihan" style="display: none; align-items: center; justify-content: center; z-index: 99999; padding: 1.5rem;">
+    <div class="modal-container" style="max-width: 860px; width: 100%; max-height: 90vh; overflow-y: auto; background: #ffffff; border-radius: 16px; padding: 0; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+      <!-- Top Action Bar -->
+      <div style="background: #0d5f5b; color: #ffffff; padding: 0.85rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
+        <div style="font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-file-contract"></i> Dokumen Berita Acara Resmi (Siap Cetak A4)
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn-secondary" style="background: #2dd4bf; color: #042f2e; font-weight: 800; border: none; padding: 5px 12px; font-size: 0.8rem; border-radius: 6px;" onclick="window.PemilihanKomkep.printBeritaAcara()">
+            <i class="fa-solid fa-print"></i> Cetak Dokumen (PDF)
+          </button>
+          <button type="button" class="btn-secondary" style="background: rgba(255, 255, 255, 0.2); color: #ffffff; border: none; padding: 5px 12px; font-size: 0.8rem; border-radius: 6px;" onclick="window.PemilihanKomkep.closeBeritaAcaraModal()">
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Sheet A4 Area -->
+      <div id="beritaAcaraPrintArea" style="padding: 2.5rem; background: #ffffff; color: #0f172a; font-family: 'Times New Roman', Times, serif; line-height: 1.45;">
+        <!-- Kop Surat Rumah Sakit -->
+        <div class="kop" style="display: flex; align-items: center; border-bottom: 3px double #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
+          <img src="logo_kalbar.png" alt="Pemprov Kalbar" style="width: 72px; height: auto; margin-right: 18px;" />
+          <div class="kop-text" style="text-align: center; flex: 1;">
+            <h4 style="margin: 0; font-size: 13pt; font-weight: normal; letter-spacing: 0.5px;">PEMERINTAH PROVINSI KALIMANTAN BARAT</h4>
+            <h2 style="margin: 3px 0; font-size: 15pt; font-weight: bold; letter-spacing: 0.5px;">RUMAH SAKIT UMUM DAERAH DOKTER SOEDARSO</h2>
+            <div style="font-size: 12pt; font-weight: bold; margin: 2px 0;">KOMITE KEPERAWATAN</div>
+            <p style="margin: 2px 0; font-size: 9.5pt; font-family: Arial, sans-serif;">Jalan DR. Soedarso No. 1 Pontianak Tenggara, Kota Pontianak, Kalimantan Barat 78124</p>
+            <p style="margin: 1px 0; font-size: 9pt; font-family: Arial, sans-serif;">Laman: rsudsoedarso.kalbarprov.go.id | Email: komitekeperawatanrsds2023@gmail.com</p>
+          </div>
+          <img src="logo_komite.png" alt="Logo Komite" style="width: 72px; height: auto; margin-left: 18px;" />
+        </div>
+
+        <!-- Judul Berita Acara -->
+        <div class="judul" style="text-align: center; margin-bottom: 22px;">
+          <h3 style="margin: 0; font-size: 13pt; font-weight: bold; text-decoration: underline; text-transform: uppercase;">
+            BERITA ACARA REKAPITULASI HASIL PEMILIHAN KETUA KOMITE KEPERAWATAN
+          </h3>
+          <p style="margin: 3px 0 0 0; font-size: 11pt;">
+            Nomor: <span id="baNomorSurat">400.7.2/ 1428 /KOMKEP-RSDS/2026</span>
+          </p>
+          <p style="margin: 1px 0 0 0; font-size: 11pt; font-weight: bold;">
+            PERIODE MASA BAKTI 2027 – 2030
+          </p>
+        </div>
+
+        <p style="font-size: 11.5pt; text-align: justify; text-indent: 2rem; margin-bottom: 12px;">
+          Pada hari ini, <strong id="baTanggalLengkap">Rabu, 18 November 2026</strong>, bertempat di RSUD dr. Soedarso Pontianak, telah dilaksanakan pemungutan dan perhitungan suara secara elektronik (E-Voting) dalam rangka <strong>Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso Periode 2027–2030</strong>. Pemilihan diselenggarakan secara langsung, umum, bebas, rahasia, jujur, dan adil oleh seluruh tenaga keperawatan dan kebidanan rumah sakit yang terdaftar.
+        </p>
+
+        <p style="font-size: 11.5pt; margin-bottom: 10px;">
+          Berdasarkan hasil rekapitulasi data perolehan suara sah yang tercatat dalam sistem audit digital, diperoleh hasil resmi sebagai berikut:
+        </p>
+
+        <!-- Tabel Rekapitulasi Suara -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11pt;">
+          <thead>
+            <tr style="background: #f1f5f9;">
+              <th style="border: 1px solid #334155; padding: 8px; text-align: center; width: 60px;">No. Urut</th>
+              <th style="border: 1px solid #334155; padding: 8px; text-align: left;">Nama Lengkap Calon Ketua</th>
+              <th style="border: 1px solid #334155; padding: 8px; text-align: left;">NIP</th>
+              <th style="border: 1px solid #334155; padding: 8px; text-align: left;">Unit Kerja Asal</th>
+              <th style="border: 1px solid #334155; padding: 8px; text-align: center; width: 90px;">Perolehan Suara</th>
+              <th style="border: 1px solid #334155; padding: 8px; text-align: center; width: 80px;">Persentase</th>
+              <th style="border: 1px solid #334155; padding: 8px; text-align: center; width: 100px;">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="baTabelHasilBody">
+            <!-- Diisi via JS -->
+          </tbody>
+          <tfoot>
+            <tr style="font-weight: bold; background: #f8fafc;">
+              <td colspan="4" style="border: 1px solid #334155; padding: 8px; text-align: right;">TOTAL SUARA SAH MASUK:</td>
+              <td id="baTotalSuara" style="border: 1px solid #334155; padding: 8px; text-align: center;">-</td>
+              <td style="border: 1px solid #334155; padding: 8px; text-align: center;">100.00%</td>
+              <td style="border: 1px solid #334155; padding: 8px; text-align: center;">SAH</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 24px; font-size: 11pt;">
+          <div><strong>PENETAPAN KETUA TERPILIH:</strong></div>
+          <div style="margin-top: 4px; font-size: 11.5pt;">
+            Berdasarkan perolehan suara terbanyak, calon yang ditetapkan sebagai <strong>Ketua Komite Keperawatan RSUD dr. Soedarso Periode 2027–2030</strong> adalah:
+          </div>
+          <div id="baKetuaTerpilih" style="font-size: 12pt; font-weight: bold; color: #0f172a; margin-top: 4px; text-decoration: underline;">
+            -
+          </div>
+        </div>
+
+        <p style="font-size: 11.5pt; text-align: justify; text-indent: 2rem; margin-bottom: 28px;">
+          Demikian Berita Acara Rekapitulasi ini dibuat dengan sebenar-benarnya dalam keadaan sehat dan penuh tanggung jawab untuk digunakan sebagai bahan pertimbangan penerbitan Surat Keputusan (SK) Direktur RSUD dr. Soedarso tentang Pengangkatan Ketua Komite Keperawatan Periode 2027–2030.
+        </p>
+
+        <!-- Tanda Tangan Panitia & Saksi -->
+        <div class="ttd-box" style="display: flex; justify-content: space-between; font-size: 11pt; margin-top: 25px;">
+          <div style="width: 45%; text-align: center;">
+            <div>Sekretaris Panitia Pemilihan,</div>
+            <div style="height: 65px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Hendra Kurniawan, S.Kep.</div>
+            <div>NIP. 000000000000000000</div>
+          </div>
+
+          <div style="width: 45%; text-align: center;">
+            <div>Ketua Panitia Pemilihan,</div>
+            <div style="height: 65px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Agus Supriyanto, S.Kep., M.Kes.</div>
+            <div>NIP. 000000000000000000</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 35px; text-align: center; font-size: 11pt;">
+          <div>Mengetahui / Mengesahkan,</div>
+          <div><strong>Direktur RSUD dr. Soedarso Pontianak</strong></div>
+          <div style="height: 70px;"></div>
+          <div style="font-weight: bold; text-decoration: underline;">drg. Harry Agung Tjahyadi, M.Kes.</div>
+          <div>Pembina Utama Muda / NIP. 000000000000000000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL KARTU BUKTI TANDA TERIMA SUARA PEMILIH (DIGITAL VOTING SLIP)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modalSlipBuktiSuara" style="display: none; align-items: center; justify-content: center; z-index: 99999; padding: 1rem;">
+    <div class="modal-container" style="max-width: 480px; width: 100%; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);">
+      <div style="background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 100%); color: #ffffff; padding: 1.25rem 1.5rem; text-align: center; position: relative;">
+        <span style="background: #2dd4bf; color: #042f2e; font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; text-transform: uppercase;">
+          Tanda Terima Pemilih Sah
+        </span>
+        <h3 style="font-size: 1.1rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 2px;">
+          KARTU BUKTI VOTING ELEKTRONIK
+        </h3>
+        <p style="font-size: 0.78rem; color: #ccfbf1; margin: 0;">
+          Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso (2027–2030)
+        </p>
+      </div>
+
+      <div style="padding: 1.5rem;">
+        <div style="border: 2px dashed #99f6e4; background: #f0fdfa; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <div style="text-align: center; margin-bottom: 1rem;">
+            <div style="font-size: 0.72rem; color: #0d5f5b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+              Nomor Token Bukti Sah:
+            </div>
+            <div id="slipTokenBukti" style="font-size: 1.35rem; font-family: monospace; font-weight: 900; color: #042f2e; letter-spacing: 1px; margin-top: 2px;">
+              VOTE-2026-RSDS-0000
+            </div>
+            <div style="display: inline-flex; align-items: center; gap: 4px; background: #dcfce7; color: #166534; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; margin-top: 4px;">
+              <i class="fa-solid fa-circle-check"></i> Terverifikasi &amp; Sah Masuk Database
+            </div>
+          </div>
+
+          <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 6px 0; color: #64748b; width: 120px;">Nama Pemilih:</td>
+              <td id="slipNamaPemilih" style="padding: 6px 0; font-weight: 700; color: #0f172a;">-</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 6px 0; color: #64748b;">NIP Pemilih:</td>
+              <td id="slipNipPemilih" style="padding: 6px 0; font-family: monospace; color: #334155;">-</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 6px 0; color: #64748b;">Unit Kerja / Ruang:</td>
+              <td id="slipUnitPemilih" style="padding: 6px 0; color: #334155;">-</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Waktu Pemilihan:</td>
+              <td id="slipWaktuPemilihan" style="padding: 6px 0; font-size: 0.78rem; color: #334155;">-</td>
+            </tr>
+          </table>
+        </div>
+
+        <p style="font-size: 0.75rem; color: #64748b; line-height: 1.5; text-align: center; margin-bottom: 1.25rem;">
+          Simpan kartu ini sebagai bukti bahwa Anda telah berpartisipasi dalam pemungutan suara resmi Komite Keperawatan RSUD dr. Soedarso.
+        </p>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn-primary" style="flex: 1; justify-content: center; padding: 0.7rem; font-size: 0.82rem; background: #0d5f5b; border: none; font-weight: 800;" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Cetak / Simpan Slip
+          </button>
+          <button type="button" class="btn-secondary" style="justify-content: center; padding: 0.7rem 1rem; font-size: 0.82rem;" onclick="window.PemilihanKomkep.closeSlipBuktiModal()">
+            Tutup
           </button>
         </div>
       </div>
