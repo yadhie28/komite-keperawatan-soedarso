@@ -1091,6 +1091,9 @@ function updateAuthUI() {
   }
   updatePrivacyToggleButton();
   updateWorkflowNotificationUI();
+  if (window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
+    window.PemilihanKomkep.init();
+  }
 }
 
 function isAdmin() {
@@ -1377,6 +1380,9 @@ function switchTab(tabId) {
   // Trigger chart re-draw when navigating to analytics
   if (tabId === 'analitik') {
     setTimeout(renderAnalyticsCharts, 100);
+  }
+  if (tabId === 'pemilihan' && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
+    window.PemilihanKomkep.init();
   }
 }
 

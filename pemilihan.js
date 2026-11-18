@@ -2,11 +2,12 @@
  * ============================================================================
  * MODUL E-VOTING PEMILIHAN KETUA KOMITE KEPERAWATAN RSUD DR. SOEDARSO
  * Periode Masa Bakti 2027 - 2030
+ * Terintegrasi Penuh dengan Sistem Autentikasi Tunggal Portal Komite
  * ============================================================================
  */
 
 (function () {
-  const STORAGE_KEY = 'komkep_pemilihan_2027_state_v1';
+  const STORAGE_KEY = 'komkep_pemilihan_2027_state_v2';
 
   const DEFAULT_STATE = {
     election: {
@@ -15,14 +16,6 @@
       isActive: true,
       startDate: '2026-11-01',
       endDate: '2026-12-15'
-    },
-    currentUser: {
-      id: 'voter-1',
-      nip: '199205142015012001',
-      name: 'Ns. Rina Marlina, S.Kep.',
-      unit: 'Ruang Rawat Inap Penyakit Dalam',
-      role: 'VOTER',
-      hasVoted: false
     },
     candidates: [
       {
@@ -80,13 +73,12 @@
         votes: 14
       }
     ],
-    voters: [
-      { id: 'voter-1', nip: '199205142015012001', name: 'Ns. Rina Marlina, S.Kep.', unit: 'Rawat Inap Penyakit Dalam', hasVoted: false, votedFor: null },
-      { id: 'voter-2', nip: '198811032014021002', name: 'Ns. Bambang Irawan, S.Kep.', unit: 'Instalasi Gawat Darurat (IGD)', hasVoted: true, votedFor: 'cand-3' },
-      { id: 'voter-3', nip: '199408202019032004', name: 'Ns. Nurul Hidayati, S.Kep.', unit: 'Instalasi Bedah Sentral (OK)', hasVoted: true, votedFor: 'cand-1' },
-      { id: 'voter-4', nip: '198604122010011003', name: 'Ns. Hendra Gunawan, S.Kep.', unit: 'Rawat Inap Anak', hasVoted: false, votedFor: null },
-      { id: 'voter-5', nip: '199512012020122006', name: 'Ns. Sri Wahyuni, A.Md.Kep.', unit: 'Poliklinik Rawat Jalan', hasVoted: true, votedFor: 'cand-3' }
-    ],
+    // Map catatan voting tersimpan berdasarkan kunci pemilih (NIP bersih)
+    voterRecords: {
+      '198811032014021002': { hasVoted: true, votedFor: 'cand-3', voterName: 'Ns. Bambang Irawan, S.Kep.', voterNip: '198811032014021002', voterUnit: 'Instalasi Gawat Darurat (IGD)' },
+      '199408202019032004': { hasVoted: true, votedFor: 'cand-1', voterName: 'Ns. Nurul Hidayati, S.Kep.', voterNip: '199408202019032004', voterUnit: 'Instalasi Bedah Sentral (OK)' },
+      '199512012020122006': { hasVoted: true, votedFor: 'cand-3', voterName: 'Ns. Sri Wahyuni, A.Md.Kep.', voterNip: '199512012020122006', voterUnit: 'Poliklinik Rawat Jalan' }
+    },
     activeSubTab: 'voting', // 'voting', 'hasil', 'profil', 'admin'
     pendingVoteCandidateId: null
   };
@@ -122,7 +114,74 @@
     }
   }
 
-  // Window global object
+  /**
+   * Mengambil data akun yang sedang login di portal secara real-time
+   */
+  function getActivePortalUser() {
+    // 1. Cek dari window.state portal
+    if (window.state && window.state.currentUser) {
+      return window.state.currentUser;
+    }
+    // 2. Cek fallback dari localStorage auth portal
+    try {
+      const saved = localStorage.getItem('komite_auth_user');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  /**
+   * Menghasilkan identifier unik pemilih
+   */
+  function getUserKey(user) {
+    if (!user) return '';
+    const raw = (user.nip && user.nip !== '-') ? user.nip : (user.username || user.name || '');
+    return String(raw).replace(/[\s\.\-]/g, '').toLowerCase();
+  }
+
+  /**
+   * Menilai tipe akses akun login
+   */
+  function resolveUserStatus() {
+    const user = getActivePortalUser();
+    if (!user || user.role === 'guest') {
+      return {
+        type: 'GUEST',
+        user: user || { name: 'Tamu Publik', role: 'guest' },
+        hasVoted: false,
+        votedFor: null
+      };
+    }
+
+    const roleLower = String(user.role || '').toLowerCase();
+    const isPengusul = roleLower === 'pengusul' || roleLower === 'perawat' || roleLower === 'bidan';
+
+    // Cek status suara tersimpan
+    const key = getUserKey(user);
+    const voteRecord = key ? state.voterRecords[key] : null;
+
+    if (!isPengusul) {
+      // Akun Pengurus / Panitia / Admin
+      return {
+        type: 'ADMIN',
+        user: user,
+        hasVoted: false,
+        votedFor: null
+      };
+    }
+
+    // Tenaga Keperawatan / Pengusul (Voter)
+    return {
+      type: 'VOTER',
+      user: user,
+      hasVoted: Boolean(voteRecord?.hasVoted),
+      votedFor: voteRecord?.votedFor || null
+    };
+  }
+
+  // Objek Publik
   window.PemilihanKomkep = {
     init: function () {
       renderAll();
@@ -134,48 +193,29 @@
       renderAll();
     },
 
-    loginSimulator: function (nip) {
-      if (nip === 'ADMIN') {
-        state.currentUser = {
-          id: 'admin-1',
-          nip: 'ADMIN001',
-          name: 'Panitia Pemilihan (Admin)',
-          unit: 'Sekretariat Komite Keperawatan',
-          role: 'ADMIN',
-          hasVoted: false
-        };
-        notify('Login sebagai Administrator Panitia Pemilihan', 'success');
-        state.activeSubTab = 'admin';
-      } else {
-        const voter = state.voters.find(v => v.nip === nip);
-        if (voter) {
-          state.currentUser = {
-            id: voter.id,
-            nip: voter.nip,
-            name: voter.name,
-            unit: voter.unit,
-            role: 'VOTER',
-            hasVoted: voter.hasVoted
-          };
-          notify(`Beralih ke akun pemilih: ${voter.name} (${voter.unit})`, 'success');
-          state.activeSubTab = 'voting';
-        }
-      }
-      saveState();
-      renderAll();
-    },
-
     openVoteModal: function (candidateId) {
+      const auth = resolveUserStatus();
+
       if (!state.election.isActive) {
-        notify('Pemilihan sedang dinonaktifkan oleh panitia.', 'warning');
+        notify('Pemilihan sedang dinonaktifkan / dijeda oleh panitia.', 'warning');
         return;
       }
-      if (state.currentUser.role === 'ADMIN') {
-        notify('Akun Panitia/Admin tidak diperbolehkan memberikan suara di bilik suara.', 'warning');
+
+      if (auth.type === 'GUEST') {
+        notify('Anda belum masuk akun portal. Silakan masuk akun terlebih dahulu untuk memberikan suara.', 'warning');
+        if (typeof window.openLoginModal === 'function') {
+          window.openLoginModal();
+        }
         return;
       }
-      if (state.currentUser.hasVoted) {
-        notify('Anda sudah memberikan suara sebelumnya!', 'warning');
+
+      if (auth.type === 'ADMIN') {
+        notify('Akun Panitia / Pengurus Komite bertindak sebagai administrator dan tidak memiliki hak suara di bilik suara pemilih.', 'warning');
+        return;
+      }
+
+      if (auth.hasVoted) {
+        notify('Anda sudah memberikan suara sebelumnya! Setiap perawat hanya berhak atas 1 suara sah.', 'warning');
         return;
       }
 
@@ -202,24 +242,31 @@
     confirmVote: function () {
       if (!state.pendingVoteCandidateId) return;
 
+      const auth = resolveUserStatus();
+      if (auth.type !== 'VOTER' || auth.hasVoted) {
+        window.PemilihanKomkep.closeVoteModal();
+        notify('Penyaluran suara dibatalkan karena status akun tidak valid.', 'error');
+        return;
+      }
+
       const cand = state.candidates.find(c => c.id === state.pendingVoteCandidateId);
       if (cand) {
         cand.votes += 1;
       }
 
-      // Tandai voter saat ini
-      state.currentUser.hasVoted = true;
-
-      // Sinkronkan ke daftar voter
-      const voter = state.voters.find(v => v.id === state.currentUser.id);
-      if (voter) {
-        voter.hasVoted = true;
-        voter.votedFor = state.pendingVoteCandidateId;
-      }
+      const userKey = getUserKey(auth.user);
+      state.voterRecords[userKey] = {
+        hasVoted: true,
+        votedFor: state.pendingVoteCandidateId,
+        votedAt: new Date().toISOString(),
+        voterName: auth.user.name,
+        voterNip: auth.user.nip || '-',
+        voterUnit: auth.user.unit || 'Keperawatan'
+      };
 
       saveState();
       window.PemilihanKomkep.closeVoteModal();
-      notify(`Suara Anda untuk ${cand.name} telah berhasil dicatat secara resmi! Terima kasih.`, 'success');
+      notify(`Suara Anda untuk ${cand.name} telah berhasil dicatat secara resmi ke dalam sistem e-voting. Terima kasih atas partisipasi Anda!`, 'success');
       state.activeSubTab = 'hasil';
       renderAll();
     },
@@ -232,37 +279,27 @@
     },
 
     resetAllVotes: function () {
-      if (!confirm('PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara menjadi 0? Tindakan ini tidak dapat dibatalkan.')) return;
+      if (!confirm('PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara menjadi 0? Tindakan ini akan menghapus semua riwayat pemungutan suara.')) return;
       
       state.candidates.forEach(c => c.votes = 0);
-      state.voters.forEach(v => {
-        v.hasVoted = false;
-        v.votedFor = null;
-      });
-      state.currentUser.hasVoted = false;
+      state.voterRecords = {};
       saveState();
       notify('Semua data perolehan suara berhasil direset ke 0.', 'success');
       renderAll();
     },
 
-    resetVoterStatus: function (voterId) {
-      const v = state.voters.find(x => x.id === voterId);
-      if (!v) return;
+    resetVoterStatus: function (userKey) {
+      const record = state.voterRecords[userKey];
+      if (!record) return;
 
-      if (v.votedFor) {
-        const c = state.candidates.find(cand => cand.id === v.votedFor);
+      if (record.votedFor) {
+        const c = state.candidates.find(cand => cand.id === record.votedFor);
         if (c && c.votes > 0) c.votes -= 1;
       }
 
-      v.hasVoted = false;
-      v.votedFor = null;
-
-      if (state.currentUser.id === voterId) {
-        state.currentUser.hasVoted = false;
-      }
-
+      delete state.voterRecords[userKey];
       saveState();
-      notify(`Status hak suara ${v.name} berhasil direset.`, 'success');
+      notify(`Status hak suara untuk ${record.voterName || userKey} berhasil direset.`, 'success');
       renderAll();
     }
   };
@@ -278,19 +315,57 @@
 
   function renderUserPill() {
     const pill = document.getElementById('pemilihanUserPill');
+    const actionBox = document.getElementById('pemilihanAuthActionBox');
     if (!pill) return;
 
-    if (state.currentUser.role === 'ADMIN') {
+    const auth = resolveUserStatus();
+
+    if (auth.type === 'GUEST') {
       pill.innerHTML = `
-        <span style="background: #fbbf24; color: #78350f; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem;">ADMIN</span>
-        <span style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">${state.currentUser.name}</span>
+        <span style="background: #fef3c7; color: #92400e; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem;">TAMU PUBLIK</span>
+        <span style="font-size: 0.82rem; color: #64748b;">Belum masuk akun perawat RSUD dr. Soedarso</span>
       `;
+      if (actionBox) {
+        actionBox.innerHTML = `
+          <button type="button" class="btn-primary" onclick="openLoginModal()" style="font-size: 0.78rem; padding: 5px 12px; background: #0d5f5b; border: none; color: #fff; font-weight: 700; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem;">
+            <i class="fa-solid fa-right-to-bracket"></i> Masuk Akun Portal
+          </button>
+        `;
+      }
+    } else if (auth.type === 'ADMIN') {
+      pill.innerHTML = `
+        <span style="background: #fbbf24; color: #78350f; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem;">PANITIA / PENGURUS</span>
+        <span style="font-weight: 800; font-size: 0.85rem; color: #0f172a;">${auth.user.name}</span>
+        <span style="font-size: 0.75rem; color: #64748b;">(NIP: ${auth.user.nip || '-'} • ${auth.user.role})</span>
+      `;
+      if (actionBox) {
+        actionBox.innerHTML = `
+          <button type="button" class="btn-secondary" onclick="logoutToPortal()" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff; color: #64748b; border: 1px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem;">
+            <i class="fa-solid fa-right-from-bracket"></i> Ganti Akun
+          </button>
+        `;
+      }
     } else {
+      // VOTER (Tenaga Keperawatan Pengusul)
+      const nipDisplay = auth.user.nip ? `NIP: ${auth.user.nip}` : '';
+      const unitDisplay = auth.user.unit ? `Unit: ${auth.user.unit}` : '';
+      const detail = [nipDisplay, unitDisplay].filter(Boolean).join(' • ');
+
       pill.innerHTML = `
-        <span style="width: 8px; height: 8px; border-radius: 50%; background: ${state.currentUser.hasVoted ? '#10b981' : '#f59e0b'}; display: inline-block;"></span>
-        <span style="font-weight: 700; font-size: 0.85rem; color: #0f172a;">${state.currentUser.name}</span>
-        <span style="font-size: 0.75rem; color: #64748b;">(${state.currentUser.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'})</span>
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: ${auth.hasVoted ? '#10b981' : '#f59e0b'}; display: inline-block;"></span>
+        <span style="font-weight: 800; font-size: 0.85rem; color: #0f172a;">${auth.user.name}</span>
+        <span style="font-size: 0.75rem; color: #64748b;">(${detail})</span>
+        <span style="background: ${auth.hasVoted ? '#dcfce7' : '#fef3c7'}; color: ${auth.hasVoted ? '#166534' : '#92400e'}; font-weight: 800; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; margin-left: 4px;">
+          ${auth.hasVoted ? '✓ Sudah Memilih' : 'Belum Memilih'}
+        </span>
       `;
+      if (actionBox) {
+        actionBox.innerHTML = `
+          <button type="button" class="btn-secondary" onclick="logoutToPortal()" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff; color: #64748b; border: 1px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem;">
+            <i class="fa-solid fa-right-from-bracket"></i> Ganti Akun
+          </button>
+        `;
+      }
     }
   }
 
@@ -320,7 +395,8 @@
     const container = document.getElementById('pemilihanVotingGrid');
     if (!container) return;
 
-    const canVote = state.election.isActive && state.currentUser.role !== 'ADMIN' && !state.currentUser.hasVoted;
+    const auth = resolveUserStatus();
+    const canVote = state.election.isActive && auth.type === 'VOTER' && !auth.hasVoted;
 
     // Status Banner di atas grid voting
     const statusBox = document.getElementById('pemilihanVoterStatusBox');
@@ -335,27 +411,42 @@
             </div>
           </div>
         `;
-      } else if (state.currentUser.role === 'ADMIN') {
+      } else if (auth.type === 'GUEST') {
         statusBox.innerHTML = `
-          <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between;">
+          <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <i class="fa-solid fa-lock" style="color: #d97706; font-size: 1.3rem;"></i>
+              <div>
+                <div style="font-weight: 800; color: #92400e; font-size: 0.9rem;">Autentikasi Diperlukan untuk Memberikan Suara</div>
+                <div style="font-size: 0.8rem; color: #b45309;">Anda saat ini masuk sebagai Tamu Publik. Silakan masuk menggunakan akun perawat Anda untuk membuka bilik suara.</div>
+              </div>
+            </div>
+            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.5rem 1rem; background: #0d5f5b; border: none; font-weight: 700;" onclick="openLoginModal()">
+              <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
+            </button>
+          </div>
+        `;
+      } else if (auth.type === 'ADMIN') {
+        statusBox.innerHTML = `
+          <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <i class="fa-solid fa-shield-halved" style="color: #16a34a; font-size: 1.3rem;"></i>
               <div>
-                <div style="font-weight: 800; color: #166534; font-size: 0.9rem;">Login Sebagai Administrator / Panitia</div>
-                <div style="font-size: 0.8rem; color: #15803d;">Anda dapat memantau perolehan suara atau mengelola DPT pada tab Panel Admin.</div>
+                <div style="font-weight: 800; color: #166534; font-size: 0.9rem;">Login Terverifikasi Sebagai Pengurus / Panitia Pemilihan</div>
+                <div style="font-size: 0.8rem; color: #15803d;">Anda memiliki wewenang untuk memantau rekapitulasi atau mengelola DPT pada tab Panel Admin.</div>
               </div>
             </div>
             <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('admin')">Buka Panel Admin</button>
           </div>
         `;
-      } else if (state.currentUser.hasVoted) {
+      } else if (auth.hasVoted) {
         statusBox.innerHTML = `
-          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between;">
+          <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <i class="fa-solid fa-circle-check" style="color: #059669; font-size: 1.3rem;"></i>
               <div>
                 <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Hak Suara Anda Telah Tersalurkan</div>
-                <div style="font-size: 0.8rem; color: #047857;">Terima kasih atas partisipasi aktif Anda. Pantau perolehan suara secara langsung di tab Hasil Rekapitulasi.</div>
+                <div style="font-size: 0.8rem; color: #047857;">Terima kasih <strong>${auth.user.name}</strong>, suara Anda telah dicatat secara sah. Pantau perolehan suara secara langsung di tab Hasil Rekapitulasi.</div>
               </div>
             </div>
             <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('hasil')">Lihat Hasil Real-time</button>
@@ -366,8 +457,8 @@
           <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
             <i class="fa-solid fa-check-to-slot" style="color: #0284c7; font-size: 1.3rem;"></i>
             <div>
-              <div style="font-weight: 800; color: #075985; font-size: 0.9rem;">Silakan Gunakan Hak Suara Anda</div>
-              <div style="font-size: 0.8rem; color: #0369a1;">Pilihlah salah satu calon di bawah ini. Pilihan bersifat langsung, bebas, rahasia, jujur, dan adil.</div>
+              <div style="font-weight: 800; color: #075985; font-size: 0.9rem;">Selamat Datang, ${auth.user.name}!</div>
+              <div style="font-size: 0.8rem; color: #0369a1;">Silakan gunakan hak suara Anda dengan memilih salah satu calon di bawah ini. Pilihan bersifat langsung, bebas, rahasia, jujur, dan adil.</div>
             </div>
           </div>
         `;
@@ -402,8 +493,8 @@
           </div>
 
           <button class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.88rem; font-weight: 800; border-radius: 10px; background: ${canVote ? '#0d5f5b' : '#cbd5e1'}; cursor: ${canVote ? 'pointer' : 'not-allowed'}; border: none;" onclick="${canVote ? `window.PemilihanKomkep.openVoteModal('${c.id}')` : ''}" ${!canVote ? 'disabled' : ''}>
-            <i class="fa-solid ${state.currentUser.hasVoted ? 'fa-check' : 'fa-check-to-slot'}"></i>
-            ${state.currentUser.hasVoted ? 'Suara Telah Diberikan' : 'PILIH CALON INI'}
+            <i class="fa-solid ${auth.hasVoted ? 'fa-check' : 'fa-check-to-slot'}"></i>
+            ${auth.hasVoted ? 'Suara Telah Diberikan' : (auth.type === 'GUEST' ? 'Masuk Akun untuk Memilih' : 'PILIH CALON INI')}
           </button>
         </div>
       </div>
@@ -412,8 +503,10 @@
 
   function renderResults() {
     const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
-    const totalVoters = state.voters.length;
-    const turnout = totalVoters > 0 ? Math.round((totalVotes / totalVoters) * 100) : 0;
+    const totalRegistered = Object.keys(state.voterRecords).length;
+    // Angka estimasi DPT atau pemilih yang berpartisipasi
+    const totalDpt = Math.max(totalVotes, 35); 
+    const turnout = totalDpt > 0 ? Math.round((totalVotes / totalDpt) * 100) : 0;
 
     // Metrics boxes
     const mTotal = document.getElementById('pemilihanMetricTotalVotes');
@@ -520,29 +613,46 @@
     // DPT Table
     const tbody = document.getElementById('pemilihanDptTableBody');
     if (tbody) {
-      tbody.innerHTML = state.voters.map((v, i) => `
+      const records = Object.entries(state.voterRecords);
+      if (records.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="padding: 1.5rem; text-align: center; color: #94a3b8;">
+              Belum ada riwayat suara pemilih yang tersimpan.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = records.map(([key, v], i) => `
         <tr style="border-bottom: 1px solid #f1f5f9;">
-          <td style="padding: 0.75rem; font-weight: 600; color: #1e293b;">${i + 1}. ${v.name}</td>
-          <td style="padding: 0.75rem; font-family: monospace; color: #64748b; font-size: 0.8rem;">${v.nip}</td>
-          <td style="padding: 0.75rem; color: #475569; font-size: 0.82rem;">${v.unit}</td>
+          <td style="padding: 0.75rem; font-weight: 600; color: #1e293b;">${i + 1}. ${v.voterName || '-'}</td>
+          <td style="padding: 0.75rem; font-family: monospace; color: #64748b; font-size: 0.8rem;">${v.voterNip || key}</td>
+          <td style="padding: 0.75rem; color: #475569; font-size: 0.82rem;">${v.voterUnit || '-'}</td>
           <td style="padding: 0.75rem; text-align: center;">
-            <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 800; background: ${v.hasVoted ? '#dcfce7' : '#fef3c7'}; color: ${v.hasVoted ? '#166534' : '#92400e'};">
-              ${v.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'}
+            <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 800; background: #dcfce7; color: #166534;">
+              Sudah Memilih
             </span>
           </td>
           <td style="padding: 0.75rem; text-align: center;">
-            ${v.hasVoted ? `
-              <button class="btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; color: #b91c1c;" onclick="window.PemilihanKomkep.resetVoterStatus('${v.id}')">
-                <i class="fa-solid fa-rotate-left"></i> Reset Suara
-              </button>
-            ` : '<span style="color: #cbd5e1;">-</span>'}
+            <button class="btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; color: #b91c1c;" onclick="window.PemilihanKomkep.resetVoterStatus('${key}')">
+              <i class="fa-solid fa-rotate-left"></i> Reset Suara
+            </button>
           </td>
         </tr>
       `).join('');
     }
   }
 
-  // Auto init saat DOM siap
+  // Event listener saat tab aktif berganti
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash === '#pemilihan') {
+      renderAll();
+    }
+  });
+
+  // Sinkronisasi otomatis saat DOM siap dan saat auth portal diperbarui
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', window.PemilihanKomkep.init);
   } else {

@@ -1689,23 +1689,19 @@
         </div>
       </div>
 
-      <!-- Simulator Bar & User Status -->
-      <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <span style="background: #f59e0b; color: #fff; font-weight: 800; font-size: 0.72rem; padding: 3px 8px; border-radius: 4px;">
+      <!-- Status Akun Pemilih Terotentikasi Sesuai Login Portal -->
+      <div style="background: #f0fdfa; border: 1.5px solid #99f6e4; border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span style="background: #0d5f5b; color: #fff; font-weight: 800; font-size: 0.72rem; padding: 3px 8px; border-radius: 4px;">
             AKUN PEMILIH
           </span>
-          <div id="pemilihanUserPill" style="display: flex; align-items: center; gap: 0.5rem;">
-            <!-- Diisi via JS -->
+          <div id="pemilihanUserPill" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <!-- Diisi otomatis via JS sesuai akun yang sedang login di portal -->
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-          <span style="font-size: 0.75rem; color: #78350f; font-weight: 700;">Ganti Pemilih (Demo):</span>
-          <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff;" onclick="window.PemilihanKomkep.loginSimulator('199205142015012001')">Ns. Rina (Ranap)</button>
-          <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff;" onclick="window.PemilihanKomkep.loginSimulator('198811032014021002')">Ns. Bambang (IGD)</button>
-          <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff;" onclick="window.PemilihanKomkep.loginSimulator('199408202019032004')">Ns. Nurul (OK)</button>
-          <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px; background: #0e3860; color: #ffffff;" onclick="window.PemilihanKomkep.loginSimulator('ADMIN')">👑 Panitia</button>
+        <div id="pemilihanAuthActionBox" style="display: flex; align-items: center; gap: 0.5rem;">
+          <!-- Tombol login / ganti akun diisi otomatis via JS -->
         </div>
       </div>
 
