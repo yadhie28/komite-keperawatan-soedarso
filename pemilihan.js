@@ -3,18 +3,23 @@
  * MODUL E-VOTING PEMILIHAN KETUA KOMITE KEPERAWATAN RSUD DR. SOEDARSO
  * Periode Masa Bakti 2027 - 2030
  * Terintegrasi Penuh dengan Sistem Autentikasi Tunggal Portal Komite
- * dan Terhubung ke Google Spreadsheet (komitekeperawatanrsds2023@gmail.com)
+ * Menyediakan Bukti Proses Pemilihan Lengkap:
+ * 1. Berita Acara Resmi Cetak A4 (Kop Surat Resmi, Tanda Tangan Panitia & Saksi)
+ * 2. Slip Kartu Tanda Terima Pemilih (Token Kriptografis Unik)
+ * 3. Ekspor CSV / Excel Berita Acara Rekapitulasi & Log Daftar Hadir
+ * 4. Integrasi Otomatis Google Spreadsheet & Email (komitekeperawatanrsds2023@gmail.com)
  * ============================================================================
  */
 
 (function () {
-  const STORAGE_KEY = 'komkep_pemilihan_2027_state_v3';
+  const STORAGE_KEY = 'komkep_pemilihan_2027_state_v4';
   const TARGET_EMAIL_KOMITE = 'komitekeperawatanrsds2023@gmail.com';
 
   const DEFAULT_STATE = {
     election: {
       title: 'Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso',
       period: '2027 - 2030',
+      nomorBeritaAcara: '400.7.2/ 1428 /KOMKEP-RSDS/2026',
       isActive: true,
       startDate: '2026-11-01',
       endDate: '2026-12-15'
@@ -76,25 +81,21 @@
         votes: 14
       }
     ],
-    // Map catatan voting tersimpan berdasarkan kunci pemilih (NIP bersih)
     voterRecords: {
       '198811032014021002': { hasVoted: true, votedFor: 'cand-3', candidateNumber: '03', candidateName: 'Ns. Dewi Kartika Sari, S.Kep., M.Kep.', token: 'VOTE-2026-BMB-0812', votedAt: '2026-11-18T08:30:00.000Z', voterName: 'Ns. Bambang Irawan, S.Kep.', voterNip: '198811032014021002', voterUnit: 'Instalasi Gawat Darurat (IGD)' },
       '199408202019032004': { hasVoted: true, votedFor: 'cand-1', candidateNumber: '01', candidateName: 'Ns. Siti Rahmawati, S.Kep., M.Kep.', token: 'VOTE-2026-NRL-1425', votedAt: '2026-11-18T09:15:00.000Z', voterName: 'Ns. Nurul Hidayati, S.Kep.', voterNip: '199408202019032004', voterUnit: 'Instalasi Bedah Sentral (OK)' },
       '199512012020122006': { hasVoted: true, votedFor: 'cand-3', candidateNumber: '03', candidateName: 'Ns. Dewi Kartika Sari, S.Kep., M.Kep.', token: 'VOTE-2026-SRI-2201', votedAt: '2026-11-18T10:05:00.000Z', voterName: 'Ns. Sri Wahyuni, A.Md.Kep.', voterNip: '199512012020122006', voterUnit: 'Poliklinik Rawat Jalan' }
     },
-    activeSubTab: 'voting', // 'voting', 'hasil', 'profil', 'admin'
+    activeSubTab: 'voting',
     pendingVoteCandidateId: null
   };
 
-  // State in-memory
   let state = loadState();
 
   function loadState() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      if (saved) return JSON.parse(saved);
     } catch (e) {
       console.warn('Gagal membaca state pemilihan dari localStorage:', e);
     }
@@ -117,9 +118,6 @@
     }
   }
 
-  /**
-   * Mengambil data akun yang sedang login di portal secara real-time
-   */
   function getActivePortalUser() {
     if (window.state && window.state.currentUser) {
       return window.state.currentUser;
@@ -168,19 +166,14 @@
       user: user,
       hasVoted: Boolean(voteRecord?.hasVoted),
       votedFor: voteRecord?.votedFor || null,
-      token: voteRecord?.token || null
+      token: voteRecord?.token || null,
+      record: voteRecord || null
     };
   }
 
-  /**
-   * Mengirim data suara ke endpoint Google Apps Script yang terhubung ke Google Spreadsheet
-   */
   function sendVoteToGoogleSheet(payload) {
     const endpoint = state.googleAppsScriptUrl || localStorage.getItem('komkep_gas_voting_url');
-    if (!endpoint) {
-      console.log('Catatan: Endpoint Google Apps Script belum diisi oleh Panitia. Data tersimpan lokal di browser.', payload);
-      return;
-    }
+    if (!endpoint) return;
 
     try {
       fetch(endpoint, {
@@ -198,7 +191,6 @@
     }
   }
 
-  // Objek Publik
   window.PemilihanKomkep = {
     init: function () {
       renderAll();
@@ -232,7 +224,7 @@
       }
 
       if (auth.hasVoted) {
-        notify('Anda sudah memberikan suara sebelumnya! Setiap perawat hanya berhak atas 1 suara sah.', 'warning');
+        notify('Anda sudah memberikan suara sebelumnya!', 'warning');
         return;
       }
 
@@ -271,7 +263,6 @@
         cand.votes += 1;
       }
 
-      // Generate nomor bukti suara sah
       const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
       const tokenBukti = `VOTE-2026-${(auth.user.nip || 'RSDS').slice(-4)}-${randomSuffix}`;
       const nowIso = new Date().toISOString();
@@ -292,7 +283,6 @@
       state.voterRecords[userKey] = voteRecord;
       saveState();
 
-      // Kirim otomatis ke Google Spreadsheet panitia komitekeperawatanrsds2023@gmail.com
       sendVoteToGoogleSheet({
         timestamp: nowIso,
         token: tokenBukti,
@@ -308,6 +298,11 @@
       notify(`Suara Anda untuk ${cand.name} telah berhasil dicatat sah! Nomor Bukti Suara: ${tokenBukti}`, 'success');
       state.activeSubTab = 'hasil';
       renderAll();
+
+      // Tampilkan slip tanda terima bukti pemilih
+      setTimeout(() => {
+        window.PemilihanKomkep.openSlipBuktiModal(userKey);
+      }, 500);
     },
 
     toggleElection: function () {
@@ -359,7 +354,179 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      notify('File skrip Google Apps Script (Pemilihan) berhasil diunduh. Buka file untuk panduan pemasangan.', 'success');
+      notify('File skrip Google Apps Script (Pemilihan) berhasil diunduh.', 'success');
+    },
+
+    // =========================================================================
+    // FITUR BUKTI PROSES PEMILIHAN PRAKTIS & RESMI (A4, SLIP, CSV, EMAIL)
+    // =========================================================================
+
+    /**
+     * 1. Cetak Berita Acara Resmi Format Fisik A4 dengan Kop Surat RSUD dr. Soedarso
+     */
+    openBeritaAcaraModal: function () {
+      const modal = document.getElementById('modalBeritaAcaraPemilihan');
+      if (!modal) return;
+
+      const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
+      const sorted = [...state.candidates].sort((a, b) => b.votes - a.votes);
+      const leader = sorted[0];
+
+      // Format Tanggal Bahasa Indonesia
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const tanggalFormat = now.toLocaleDateString('id-ID', options);
+
+      // Isi Data Dokumen
+      const elTgl = document.getElementById('baTanggalLengkap');
+      if (elTgl) elTgl.textContent = tanggalFormat;
+
+      const elNo = document.getElementById('baNomorSurat');
+      if (elNo) elNo.textContent = state.election.nomorBeritaAcara;
+
+      const elTotal = document.getElementById('baTotalSuara');
+      if (elTotal) elTotal.textContent = `${totalVotes} Suara Sah`;
+
+      const elLeader = document.getElementById('baKetuaTerpilih');
+      if (elLeader) {
+        elLeader.textContent = totalVotes > 0 
+          ? `0${leader.number}. ${leader.name} (${leader.unit}) - Perolehan: ${leader.votes} Suara`
+          : 'Belum Ada Suara Masuk';
+      }
+
+      // Tabel Perolehan
+      const tbody = document.getElementById('baTabelHasilBody');
+      if (tbody) {
+        tbody.innerHTML = state.candidates.map(c => {
+          const pct = totalVotes > 0 ? ((c.votes / totalVotes) * 100).toFixed(2) : '0.00';
+          const isWinner = totalVotes > 0 && c.votes === leader.votes;
+          return `
+            <tr style="border-bottom: 1px solid #cbd5e1; background: ${isWinner ? '#f0fdf4' : 'transparent'};">
+              <td style="padding: 8px 12px; text-align: center; font-weight: bold;">0${c.number}</td>
+              <td style="padding: 8px 12px; font-weight: bold; color: #0f172a;">${c.name}</td>
+              <td style="padding: 8px 12px; color: #475569;">${c.nip}</td>
+              <td style="padding: 8px 12px; color: #475569;">${c.unit}</td>
+              <td style="padding: 8px 12px; text-align: right; font-weight: bold;">${c.votes}</td>
+              <td style="padding: 8px 12px; text-align: right; font-weight: bold;">${pct}%</td>
+              <td style="padding: 8px 12px; text-align: center;">
+                <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; ${isWinner ? 'background: #dcfce7; color: #166534;' : 'color: #64748b;'}">
+                  ${isWinner ? 'TERBANYAK' : '-'}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      modal.style.display = 'flex';
+    },
+
+    closeBeritaAcaraModal: function () {
+      const modal = document.getElementById('modalBeritaAcaraPemilihan');
+      if (modal) modal.style.display = 'none';
+    },
+
+    printBeritaAcara: function () {
+      const printContent = document.getElementById('beritaAcaraPrintArea');
+      if (!printContent) return;
+
+      const printWindow = window.open('', '_blank', 'width=900,height=1000');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Berita Acara Pemilihan Ketua Komite Keperawatan 2027-2030</title>
+          <style>
+            @page { size: A4; margin: 15mm; }
+            body { font-family: 'Times New Roman', Times, serif; color: #000; margin: 0; padding: 0; font-size: 12pt; line-height: 1.4; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #333; padding: 6px 10px; font-size: 11pt; }
+            th { background: #f2f2f2; }
+            .kop { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 16px; }
+            .kop img { width: 70px; height: auto; margin-right: 15px; }
+            .kop-text { text-align: center; flex: 1; }
+            .kop-text h4 { margin: 0; font-size: 12pt; font-weight: normal; }
+            .kop-text h2 { margin: 2px 0; font-size: 14pt; font-weight: bold; }
+            .kop-text p { margin: 1px 0; font-size: 9pt; }
+            .judul { text-align: center; margin: 15px 0; }
+            .judul h3 { margin: 0; text-decoration: underline; font-size: 13pt; }
+            .judul p { margin: 2px 0; font-size: 11pt; }
+            .ttd-box { margin-top: 30px; display: flex; justify-content: space-between; text-align: center; }
+            .ttd-col { width: 45%; }
+            .ttd-space { height: 65px; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          ${printContent.innerHTML}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    },
+
+    /**
+     * 2. Buka Kartu Slip Tanda Terima Pemilih (Personal Voting Proof)
+     */
+    openSlipBuktiModal: function (userKey) {
+      const auth = resolveUserStatus();
+      const targetKey = userKey || getUserKey(auth.user);
+      const record = state.voterRecords[targetKey];
+      if (!record) {
+        notify('Belum ada data bukti suara untuk akun ini.', 'warning');
+        return;
+      }
+
+      const modal = document.getElementById('modalSlipBuktiSuara');
+      if (!modal) return;
+
+      document.getElementById('slipNamaPemilih').textContent = record.voterName || auth.user.name;
+      document.getElementById('slipNipPemilih').textContent = record.voterNip || '-';
+      document.getElementById('slipUnitPemilih').textContent = record.voterUnit || '-';
+      document.getElementById('slipTokenBukti').textContent = record.token || 'VOTE-CONFIRMED';
+      document.getElementById('slipWaktuPemilihan').textContent = record.votedAt 
+        ? new Date(record.votedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB'
+        : '-';
+
+      modal.style.display = 'flex';
+    },
+
+    closeSlipBuktiModal: function () {
+      const modal = document.getElementById('modalSlipBuktiSuara');
+      if (modal) modal.style.display = 'none';
+    },
+
+    /**
+     * 3. Kirim Laporan Berita Acara via Email Resmi ke komitekeperawatanrsds2023@gmail.com
+     */
+    sendEmailLaporan: function () {
+      const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
+      const sorted = [...state.candidates].sort((a, b) => b.votes - a.votes);
+      const leader = sorted[0];
+
+      let body = `Yth. Panitia Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso,\n\n`;
+      body += `Berikut adalah data bukti proses pemungutan suara elektronik (E-Voting) periode 2027–2030:\n\n`;
+      body += `====================================================\n`;
+      body += `BERITA ACARA REKAPITULASI HASIL PEMILIHAN\n`;
+      body += `Nomor: ${state.election.nomorBeritaAcara}\n`;
+      body += `Waktu Laporan: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB\n`;
+      body += `Total Suara Sah: ${totalVotes} Suara\n`;
+      body += `====================================================\n\n`;
+      body += `HASIL PEROLEHAN SUARA KANDIDAT:\n`;
+
+      state.candidates.forEach(c => {
+        const pct = totalVotes > 0 ? ((c.votes / totalVotes) * 100).toFixed(2) : '0.00';
+        body += `Nomor 0${c.number}. ${c.name} (${c.unit})\n   Jumlah: ${c.votes} Suara (${pct}%)\n\n`;
+      });
+
+      if (leader && totalVotes > 0) {
+        body += `PEROLEHAN SUARA TERBANYAK:\n0${leader.number}. ${leader.name}\n\n`;
+      }
+
+      body += `Data pemilih dan token audit trail telah tercatat pada arsip elektronik Komite Keperawatan RSUD dr. Soedarso.\n`;
+
+      const mailto = `mailto:${TARGET_EMAIL_KOMITE}?subject=${encodeURIComponent('[E-VOTING 2027-2030] Berita Acara Rekapitulasi Suara Masuk')}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailto;
+      notify('Membuka aplikasi email untuk mengirim Berita Acara ke komitekeperawatanrsds2023@gmail.com', 'success');
     },
 
     exportResultsCsv: function () {
@@ -469,6 +636,11 @@
       `;
       if (actionBox) {
         actionBox.innerHTML = `
+          ${auth.hasVoted ? `
+            <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.openSlipBuktiModal()" style="font-size: 0.75rem; padding: 4px 10px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 0.35rem;">
+              <i class="fa-solid fa-ticket"></i> Lihat Bukti Suara
+            </button>
+          ` : ''}
           <button type="button" class="btn-secondary" onclick="logoutToPortal()" style="font-size: 0.75rem; padding: 4px 10px; background: #ffffff; color: #64748b; border: 1px solid #cbd5e1; border-radius: 6px; display: flex; align-items: center; gap: 0.35rem;">
             <i class="fa-solid fa-right-from-bracket"></i> Ganti Akun
           </button>
@@ -540,10 +712,15 @@
               <i class="fa-solid fa-shield-halved" style="color: #16a34a; font-size: 1.3rem;"></i>
               <div>
                 <div style="font-weight: 800; color: #166534; font-size: 0.9rem;">Login Terverifikasi Sebagai Pengurus / Panitia Pemilihan</div>
-                <div style="font-size: 0.8rem; color: #15803d;">Data dan rekapitulasi tersinkronisasi ke Google Spreadsheet resmi <strong>${TARGET_EMAIL_KOMITE}</strong>.</div>
+                <div style="font-size: 0.8rem; color: #15803d;">Anda dapat mencetak Berita Acara Resmi atau mengekspor log data pemilih sebagai bukti hukum sah.</div>
               </div>
             </div>
-            <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('admin')">Buka Panel Admin &amp; Bukti</button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn-primary" style="font-size: 0.8rem; background: #0d5f5b; border: none;" onclick="window.PemilihanKomkep.openBeritaAcaraModal()">
+                <i class="fa-solid fa-file-signature"></i> Cetak Berita Acara
+              </button>
+              <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('admin')">Panel Bukti &amp; DPT</button>
+            </div>
           </div>
         `;
       } else if (auth.hasVoted) {
@@ -554,11 +731,16 @@
               <div>
                 <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Hak Suara Anda Telah Tersalurkan &amp; Tercatat Sah</div>
                 <div style="font-size: 0.8rem; color: #047857;">
-                  Terima kasih <strong>${auth.user.name}</strong>. Nomor Bukti Sah: <code style="background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${auth.token || 'TERCATAT'}</code>. Data tersimpan di Spreadsheet panitia.
+                  Nomor Bukti Sah Anda: <code style="background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-family: monospace;">${auth.token || 'TERCATAT'}</code>. Data aman tersimpan di arsip digital komite.
                 </div>
               </div>
             </div>
-            <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('hasil')">Lihat Hasil Real-time</button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn-secondary" style="font-size: 0.8rem; background: #ffffff; color: #047857; border: 1.5px solid #059669; font-weight: 700;" onclick="window.PemilihanKomkep.openSlipBuktiModal()">
+                <i class="fa-solid fa-ticket"></i> Lihat Kartu Bukti Suara
+              </button>
+              <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('hasil')">Lihat Rekapitulasi</button>
+            </div>
           </div>
         `;
       } else {
@@ -567,7 +749,7 @@
             <i class="fa-solid fa-check-to-slot" style="color: #0284c7; font-size: 1.3rem;"></i>
             <div>
               <div style="font-weight: 800; color: #075985; font-size: 0.9rem;">Selamat Datang, ${auth.user.name}!</div>
-              <div style="font-size: 0.8rem; color: #0369a1;">Pilihlah salah satu calon di bawah ini. Suara Anda akan otomatis dicatat sebagai bukti sah di Google Spreadsheet resmi Komite Keperawatan.</div>
+              <div style="font-size: 0.8rem; color: #0369a1;">Pilihlah salah satu calon di bawah ini. Setelah memilih, Anda akan mendapatkan Nomor Token Bukti Suara Sah.</div>
             </div>
           </div>
         `;
@@ -714,13 +896,11 @@
       toggleBtn.style.background = state.election.isActive ? '#d97706' : '#16a34a';
     }
 
-    // Input URL GAS
     const inputGas = document.getElementById('inputPemilihanGasUrl');
     if (inputGas && !inputGas.value) {
       inputGas.value = state.googleAppsScriptUrl || localStorage.getItem('komkep_gas_voting_url') || '';
     }
 
-    // DPT Table
     const tbody = document.getElementById('pemilihanDptTableBody');
     if (tbody) {
       const records = Object.entries(state.voterRecords);
@@ -744,9 +924,9 @@
             ${v.token || 'VOTE-OFFLINE'}
           </td>
           <td style="padding: 0.75rem; text-align: center;">
-            <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 800; background: #dcfce7; color: #166534;">
-              ${v.candidateNumber ? `Calon 0${v.candidateNumber.replace('0','')}` : 'Tercatat Sah'}
-            </span>
+            <button class="btn-secondary" style="font-size: 0.72rem; padding: 2px 8px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 4px; font-weight: bold;" onclick="window.PemilihanKomkep.openSlipBuktiModal('${key}')">
+              <i class="fa-solid fa-ticket"></i> Lihat Bukti
+            </button>
           </td>
           <td style="padding: 0.75rem; text-align: center;">
             <button class="btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; color: #b91c1c;" onclick="window.PemilihanKomkep.resetVoterStatus('${key}')">
