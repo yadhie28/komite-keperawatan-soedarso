@@ -3,11 +3,13 @@
  * MODUL E-VOTING PEMILIHAN KETUA KOMITE KEPERAWATAN RSUD DR. SOEDARSO
  * Periode Masa Bakti 2027 - 2030
  * Terintegrasi Penuh dengan Sistem Autentikasi Tunggal Portal Komite
+ * dan Terhubung ke Google Spreadsheet (komitekeperawatanrsds2023@gmail.com)
  * ============================================================================
  */
 
 (function () {
-  const STORAGE_KEY = 'komkep_pemilihan_2027_state_v2';
+  const STORAGE_KEY = 'komkep_pemilihan_2027_state_v3';
+  const TARGET_EMAIL_KOMITE = 'komitekeperawatanrsds2023@gmail.com';
 
   const DEFAULT_STATE = {
     election: {
@@ -17,6 +19,7 @@
       startDate: '2026-11-01',
       endDate: '2026-12-15'
     },
+    googleAppsScriptUrl: '',
     candidates: [
       {
         id: 'cand-1',
@@ -75,9 +78,9 @@
     ],
     // Map catatan voting tersimpan berdasarkan kunci pemilih (NIP bersih)
     voterRecords: {
-      '000000000000000000': { hasVoted: true, votedFor: 'cand-3', voterName: 'Ns. Bambang Irawan, S.Kep.', voterNip: '000000000000000000', voterUnit: 'Instalasi Gawat Darurat (IGD)' },
-      '000000000000000000': { hasVoted: true, votedFor: 'cand-1', voterName: 'Ns. Nurul Hidayati, S.Kep.', voterNip: '000000000000000000', voterUnit: 'Instalasi Bedah Sentral (OK)' },
-      '000000000000000000': { hasVoted: true, votedFor: 'cand-3', voterName: 'Ns. Sri Wahyuni, A.Md.Kep.', voterNip: '000000000000000000', voterUnit: 'Poliklinik Rawat Jalan' }
+      '000000000000000000': { hasVoted: true, votedFor: 'cand-3', candidateNumber: '03', candidateName: 'Ns. Dewi Kartika Sari, S.Kep., M.Kep.', token: 'VOTE-2026-BMB-0812', votedAt: '2026-11-18T08:30:00.000Z', voterName: 'Ns. Bambang Irawan, S.Kep.', voterNip: '000000000000000000', voterUnit: 'Instalasi Gawat Darurat (IGD)' },
+      '000000000000000000': { hasVoted: true, votedFor: 'cand-1', candidateNumber: '01', candidateName: 'Ns. Siti Rahmawati, S.Kep., M.Kep.', token: 'VOTE-2026-NRL-1425', votedAt: '2026-11-18T09:15:00.000Z', voterName: 'Ns. Nurul Hidayati, S.Kep.', voterNip: '000000000000000000', voterUnit: 'Instalasi Bedah Sentral (OK)' },
+      '000000000000000000': { hasVoted: true, votedFor: 'cand-3', candidateNumber: '03', candidateName: 'Ns. Dewi Kartika Sari, S.Kep., M.Kep.', token: 'VOTE-2026-SRI-2201', votedAt: '2026-11-18T10:05:00.000Z', voterName: 'Ns. Sri Wahyuni, A.Md.Kep.', voterNip: '000000000000000000', voterUnit: 'Poliklinik Rawat Jalan' }
     },
     activeSubTab: 'voting', // 'voting', 'hasil', 'profil', 'admin'
     pendingVoteCandidateId: null
@@ -118,32 +121,22 @@
    * Mengambil data akun yang sedang login di portal secara real-time
    */
   function getActivePortalUser() {
-    // 1. Cek dari window.state portal
     if (window.state && window.state.currentUser) {
       return window.state.currentUser;
     }
-    // 2. Cek fallback dari localStorage auth portal
     try {
       const saved = localStorage.getItem('komite_auth_user');
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      if (saved) return JSON.parse(saved);
     } catch (e) {}
     return null;
   }
 
-  /**
-   * Menghasilkan identifier unik pemilih
-   */
   function getUserKey(user) {
     if (!user) return '';
     const raw = (user.nip && user.nip !== '-') ? user.nip : (user.username || user.name || '');
     return String(raw).replace(/[\s\.\-]/g, '').toLowerCase();
   }
 
-  /**
-   * Menilai tipe akses akun login
-   */
   function resolveUserStatus() {
     const user = getActivePortalUser();
     if (!user || user.role === 'guest') {
@@ -158,12 +151,10 @@
     const roleLower = String(user.role || '').toLowerCase();
     const isPengusul = roleLower === 'pengusul' || roleLower === 'perawat' || roleLower === 'bidan';
 
-    // Cek status suara tersimpan
     const key = getUserKey(user);
     const voteRecord = key ? state.voterRecords[key] : null;
 
     if (!isPengusul) {
-      // Akun Pengurus / Panitia / Admin
       return {
         type: 'ADMIN',
         user: user,
@@ -172,13 +163,39 @@
       };
     }
 
-    // Tenaga Keperawatan / Pengusul (Voter)
     return {
       type: 'VOTER',
       user: user,
       hasVoted: Boolean(voteRecord?.hasVoted),
-      votedFor: voteRecord?.votedFor || null
+      votedFor: voteRecord?.votedFor || null,
+      token: voteRecord?.token || null
     };
+  }
+
+  /**
+   * Mengirim data suara ke endpoint Google Apps Script yang terhubung ke Google Spreadsheet
+   */
+  function sendVoteToGoogleSheet(payload) {
+    const endpoint = state.googleAppsScriptUrl || localStorage.getItem('komkep_gas_voting_url');
+    if (!endpoint) {
+      console.log('Catatan: Endpoint Google Apps Script belum diisi oleh Panitia. Data tersimpan lokal di browser.', payload);
+      return;
+    }
+
+    try {
+      fetch(endpoint, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        console.log('✅ Suara berhasil terkirim ke Google Spreadsheet (komitekeperawatanrsds2023@gmail.com)');
+      }).catch(err => {
+        console.warn('Gagal mengirim ke Google Apps Script:', err);
+      });
+    } catch (e) {
+      console.warn('Error saat mengirim ke Google Sheet:', e);
+    }
   }
 
   // Objek Publik
@@ -254,19 +271,41 @@
         cand.votes += 1;
       }
 
+      // Generate nomor bukti suara sah
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const tokenBukti = `VOTE-2026-${(auth.user.nip || 'RSDS').slice(-4)}-${randomSuffix}`;
+      const nowIso = new Date().toISOString();
+
       const userKey = getUserKey(auth.user);
-      state.voterRecords[userKey] = {
+      const voteRecord = {
         hasVoted: true,
         votedFor: state.pendingVoteCandidateId,
-        votedAt: new Date().toISOString(),
+        candidateNumber: `0${cand.number}`,
+        candidateName: cand.name,
+        token: tokenBukti,
+        votedAt: nowIso,
         voterName: auth.user.name,
         voterNip: auth.user.nip || '-',
         voterUnit: auth.user.unit || 'Keperawatan'
       };
 
+      state.voterRecords[userKey] = voteRecord;
       saveState();
+
+      // Kirim otomatis ke Google Spreadsheet panitia komitekeperawatanrsds2023@gmail.com
+      sendVoteToGoogleSheet({
+        timestamp: nowIso,
+        token: tokenBukti,
+        voterName: auth.user.name,
+        voterNip: auth.user.nip || '-',
+        voterUnit: auth.user.unit || 'Keperawatan',
+        candidateNumber: `0${cand.number}`,
+        candidateName: cand.name,
+        candidateId: cand.id
+      });
+
       window.PemilihanKomkep.closeVoteModal();
-      notify(`Suara Anda untuk ${cand.name} telah berhasil dicatat secara resmi ke dalam sistem e-voting. Terima kasih atas partisipasi Anda!`, 'success');
+      notify(`Suara Anda untuk ${cand.name} telah berhasil dicatat sah! Nomor Bukti Suara: ${tokenBukti}`, 'success');
       state.activeSubTab = 'hasil';
       renderAll();
     },
@@ -301,6 +340,76 @@
       saveState();
       notify(`Status hak suara untuk ${record.voterName || userKey} berhasil direset.`, 'success');
       renderAll();
+    },
+
+    saveGasEndpoint: function () {
+      const input = document.getElementById('inputPemilihanGasUrl');
+      if (!input) return;
+      const url = input.value.trim();
+      state.googleAppsScriptUrl = url;
+      localStorage.setItem('komkep_gas_voting_url', url);
+      saveState();
+      notify('URL Endpoint Google Apps Script berhasil disimpan!', 'success');
+    },
+
+    downloadAppsScriptFile: function () {
+      const link = document.createElement('a');
+      link.href = 'google_apps_script_pemilihan_komkep.js';
+      link.download = 'google_apps_script_pemilihan_komkep.js';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      notify('File skrip Google Apps Script (Pemilihan) berhasil diunduh. Buka file untuk panduan pemasangan.', 'success');
+    },
+
+    exportResultsCsv: function () {
+      const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
+      let csv = 'BERITA ACARA REKAPITULASI HASIL PEMILIHAN KETUA KOMITE KEPERAWATAN RSUD DR. SOEDARSO\n';
+      csv += 'Periode Masa Bakti 2027 - 2030\n';
+      csv += `Dicetak pada: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB\n`;
+      csv += `Akun Pengelola: ${TARGET_EMAIL_KOMITE}\n\n`;
+      csv += 'Nomor Urut,Nama Lengkap Calon Ketua,NIP,Unit Kerja,Perolehan Suara Sah,Persentase (%)\n';
+
+      state.candidates.forEach(c => {
+        const pct = totalVotes > 0 ? ((c.votes / totalVotes) * 100).toFixed(2) : '0.00';
+        csv += `"${c.number}","${c.name}","${c.nip}","${c.unit}","${c.votes}","${pct}%"\n`;
+      });
+
+      csv += `\n"TOTAL SUARA SAH MASUK","","","","${totalVotes}","100.00%"\n`;
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Berita_Acara_Hasil_Pemilihan_Ketua_Komite_2027_2030.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      notify('File Berita Acara Rekapitulasi (.CSV) berhasil diunduh.', 'success');
+    },
+
+    exportLogVotesCsv: function () {
+      const records = Object.values(state.voterRecords);
+      let csv = 'DAFTAR HADIR & BUKTI PENGGUNAAN HAK SUARA E-VOTING (AUDIT TRAIL)\n';
+      csv += 'Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso Periode 2027 - 2030\n';
+      csv += `Database Pengelola: ${TARGET_EMAIL_KOMITE}\n`;
+      csv += `Total Pemilih Tercatat: ${records.length}\n\n`;
+      csv += 'No,Waktu Masuk (WIB),Token Bukti Suara Sah,Nama Lengkap Pemilih,NIP,Unit Kerja / Ruangan,Pilihan Calon\n';
+
+      records.forEach((r, idx) => {
+        const waktu = r.votedAt ? new Date(r.votedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : '-';
+        csv += `"${idx + 1}","${waktu}","${r.token || '-'}","${r.voterName || '-'}","${r.voterNip || '-'}","${r.voterUnit || '-'}","${r.candidateNumber || ''} - ${r.candidateName || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Log_Bukti_Suara_Pemilihan_Komkep_2027_2030.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      notify('File Log Bukti & Daftar Hadir Pemilih (.CSV) berhasil diunduh.', 'success');
     }
   };
 
@@ -346,7 +455,6 @@
         `;
       }
     } else {
-      // VOTER (Tenaga Keperawatan Pengusul)
       const nipDisplay = auth.user.nip ? `NIP: ${auth.user.nip}` : '';
       const unitDisplay = auth.user.unit ? `Unit: ${auth.user.unit}` : '';
       const detail = [nipDisplay, unitDisplay].filter(Boolean).join(' • ');
@@ -398,7 +506,6 @@
     const auth = resolveUserStatus();
     const canVote = state.election.isActive && auth.type === 'VOTER' && !auth.hasVoted;
 
-    // Status Banner di atas grid voting
     const statusBox = document.getElementById('pemilihanVoterStatusBox');
     if (statusBox) {
       if (!state.election.isActive) {
@@ -433,10 +540,10 @@
               <i class="fa-solid fa-shield-halved" style="color: #16a34a; font-size: 1.3rem;"></i>
               <div>
                 <div style="font-weight: 800; color: #166534; font-size: 0.9rem;">Login Terverifikasi Sebagai Pengurus / Panitia Pemilihan</div>
-                <div style="font-size: 0.8rem; color: #15803d;">Anda memiliki wewenang untuk memantau rekapitulasi atau mengelola DPT pada tab Panel Admin.</div>
+                <div style="font-size: 0.8rem; color: #15803d;">Data dan rekapitulasi tersinkronisasi ke Google Spreadsheet resmi <strong>${TARGET_EMAIL_KOMITE}</strong>.</div>
               </div>
             </div>
-            <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('admin')">Buka Panel Admin</button>
+            <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('admin')">Buka Panel Admin &amp; Bukti</button>
           </div>
         `;
       } else if (auth.hasVoted) {
@@ -445,8 +552,10 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <i class="fa-solid fa-circle-check" style="color: #059669; font-size: 1.3rem;"></i>
               <div>
-                <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Hak Suara Anda Telah Tersalurkan</div>
-                <div style="font-size: 0.8rem; color: #047857;">Terima kasih <strong>${auth.user.name}</strong>, suara Anda telah dicatat secara sah. Pantau perolehan suara secara langsung di tab Hasil Rekapitulasi.</div>
+                <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Hak Suara Anda Telah Tersalurkan &amp; Tercatat Sah</div>
+                <div style="font-size: 0.8rem; color: #047857;">
+                  Terima kasih <strong>${auth.user.name}</strong>. Nomor Bukti Sah: <code style="background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${auth.token || 'TERCATAT'}</code>. Data tersimpan di Spreadsheet panitia.
+                </div>
               </div>
             </div>
             <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('hasil')">Lihat Hasil Real-time</button>
@@ -458,7 +567,7 @@
             <i class="fa-solid fa-check-to-slot" style="color: #0284c7; font-size: 1.3rem;"></i>
             <div>
               <div style="font-weight: 800; color: #075985; font-size: 0.9rem;">Selamat Datang, ${auth.user.name}!</div>
-              <div style="font-size: 0.8rem; color: #0369a1;">Silakan gunakan hak suara Anda dengan memilih salah satu calon di bawah ini. Pilihan bersifat langsung, bebas, rahasia, jujur, dan adil.</div>
+              <div style="font-size: 0.8rem; color: #0369a1;">Pilihlah salah satu calon di bawah ini. Suara Anda akan otomatis dicatat sebagai bukti sah di Google Spreadsheet resmi Komite Keperawatan.</div>
             </div>
           </div>
         `;
@@ -503,12 +612,9 @@
 
   function renderResults() {
     const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
-    const totalRegistered = Object.keys(state.voterRecords).length;
-    // Angka estimasi DPT atau pemilih yang berpartisipasi
     const totalDpt = Math.max(totalVotes, 35); 
     const turnout = totalDpt > 0 ? Math.round((totalVotes / totalDpt) * 100) : 0;
 
-    // Metrics boxes
     const mTotal = document.getElementById('pemilihanMetricTotalVotes');
     const mTurnout = document.getElementById('pemilihanMetricTurnout');
     const mLeader = document.getElementById('pemilihanMetricLeader');
@@ -521,7 +627,6 @@
       mLeader.textContent = totalVotes > 0 ? `0${sorted[0].number}. ${sorted[0].name.split(',')[0]}` : '-';
     }
 
-    // Results Bar Chart Container
     const barsContainer = document.getElementById('pemilihanResultsBars');
     if (barsContainer) {
       barsContainer.innerHTML = state.candidates.map(c => {
@@ -597,7 +702,6 @@
   }
 
   function renderAdminPanel() {
-    // Status text
     const statusText = document.getElementById('pemilihanAdminStatusText');
     const toggleBtn = document.getElementById('pemilihanBtnToggleElection');
     if (statusText) {
@@ -610,6 +714,12 @@
       toggleBtn.style.background = state.election.isActive ? '#d97706' : '#16a34a';
     }
 
+    // Input URL GAS
+    const inputGas = document.getElementById('inputPemilihanGasUrl');
+    if (inputGas && !inputGas.value) {
+      inputGas.value = state.googleAppsScriptUrl || localStorage.getItem('komkep_gas_voting_url') || '';
+    }
+
     // DPT Table
     const tbody = document.getElementById('pemilihanDptTableBody');
     if (tbody) {
@@ -617,7 +727,7 @@
       if (records.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="5" style="padding: 1.5rem; text-align: center; color: #94a3b8;">
+            <td colspan="6" style="padding: 1.5rem; text-align: center; color: #94a3b8;">
               Belum ada riwayat suara pemilih yang tersimpan.
             </td>
           </tr>
@@ -630,9 +740,12 @@
           <td style="padding: 0.75rem; font-weight: 600; color: #1e293b;">${i + 1}. ${v.voterName || '-'}</td>
           <td style="padding: 0.75rem; font-family: monospace; color: #64748b; font-size: 0.8rem;">${v.voterNip || key}</td>
           <td style="padding: 0.75rem; color: #475569; font-size: 0.82rem;">${v.voterUnit || '-'}</td>
+          <td style="padding: 0.75rem; font-family: monospace; font-size: 0.75rem; color: #0d5f5b; font-weight: 700;">
+            ${v.token || 'VOTE-OFFLINE'}
+          </td>
           <td style="padding: 0.75rem; text-align: center;">
             <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 800; background: #dcfce7; color: #166534;">
-              Sudah Memilih
+              ${v.candidateNumber ? `Calon 0${v.candidateNumber.replace('0','')}` : 'Tercatat Sah'}
             </span>
           </td>
           <td style="padding: 0.75rem; text-align: center;">
@@ -645,14 +758,12 @@
     }
   }
 
-  // Event listener saat tab aktif berganti
   window.addEventListener('hashchange', () => {
     if (window.location.hash === '#pemilihan') {
       renderAll();
     }
   });
 
-  // Sinkronisasi otomatis saat DOM siap dan saat auth portal diperbarui
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', window.PemilihanKomkep.init);
   } else {
