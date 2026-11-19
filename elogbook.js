@@ -226,7 +226,7 @@
   // =========================================================================
   const state = {
     activeSubtab: 'logbook',
-    isFormOpen: false,
+    isFormOpen: true,
     selectedSdkiCode: 'D.0077',
     selectedEtiology: '',
     catalogCategory: 'Semua',
