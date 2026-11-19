@@ -1384,6 +1384,9 @@ function switchTab(tabId) {
   if (tabId === 'pemilihan' && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
     window.PemilihanKomkep.init();
   }
+  if (tabId === 'mutu' && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
+    window.ELogbookKomkep.init();
+  }
 }
 
 /* ==========================================================================
