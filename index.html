@@ -1302,12 +1302,12 @@
     <!-- ----------------------------------------------------------------------
          TAB 3: MUTU PROFESI & AUDIT
          ---------------------------------------------------------------------- -->
-    <section class="tab-pane" id="pane-mutu">
+        <section class="tab-pane" id="pane-mutu">
       <div class="section-header">
         <div>
-          <h2 class="section-title">Subkomite Mutu Profesi & Audit Klinis</h2>
+          <h2 class="section-title">Subkomite Mutu Profesi &amp; Audit Klinis</h2>
           <p class="section-subtitle">
-            Indikator penjaminan mutu pelayanan asuhan keperawatan dan keselamatan pasien di seluruh ruang perawatan RSUD dr. Soedarso
+            Penjaminan mutu pelayanan asuhan keperawatan &amp; kebidanan, evaluasi kinerja klinis berkelanjutan (OPPE), serta pengembangan keprofesian berkelanjutan (CPD) sesuai standar STARKES KKS 11.
           </p>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
@@ -1332,124 +1332,274 @@
         </button>
       </div>
 
-      <!-- ========== SUB-TAB NAVIGATION: E-Logbook / Audit / Katalog 3S ========== -->
+      <!-- ========== SUB-TAB NAVIGATION (Matching ai.studio 3.1, 3.2, 3.3, 3.4) ========== -->
       <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">
-        <button id="subtab-btn-elogbook" class="btn-secondary active" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--primary-600); color: #ffffff; border-color: var(--primary-600);" onclick="ELogbookKomkep.switchMutuSubtab('elogbook')">
-          <i class="fa-solid fa-book-medical"></i> E-Logbook Harian (3S)
+        <button id="subtab-btn-elogbook" class="btn-secondary active" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--primary-600, #0d9488); color: #ffffff; border-color: var(--primary-600, #0d9488);" onclick="ELogbookKomkep.switchMutuSubtab('logbook')">
+          <i class="fa-solid fa-book-medical"></i> 3.2 E-Logbook Asuhan 3S
           <span id="badgeTotalLogbookCount" style="display: inline-block; min-width: 20px; text-align: center; background: rgba(255,255,255,0.3); color: #fff; padding: 1px 6px; border-radius: 10px; font-size: 0.72rem; font-weight: 800; margin-left: 4px;">0</span>
         </button>
-        <button id="subtab-btn-audit" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg); color: var(--text-muted); border-color: var(--border-color);" onclick="ELogbookKomkep.switchMutuSubtab('audit')">
-          <i class="fa-solid fa-clipboard-check"></i> Audit Klinis Ruangan
+        <button id="subtab-btn-cpd" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('cpd')">
+          <i class="fa-solid fa-graduation-cap"></i> 3.1 Program CPD &amp; Diklat
         </button>
-        <button id="subtab-btn-katalog3s" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg); color: var(--text-muted); border-color: var(--border-color);" onclick="ELogbookKomkep.switchMutuSubtab('katalog3s')">
-          <i class="fa-solid fa-stethoscope"></i> Katalog Standar 3S PPNI
+        <button id="subtab-btn-oppe" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('oppe')">
+          <i class="fa-solid fa-chart-pie"></i> 3.3 Dashboard OPPE &amp; Audit
+        </button>
+        <button id="subtab-btn-katalog3s" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('katalog3s')">
+          <i class="fa-solid fa-stethoscope"></i> 3.4 Katalog Standar 3S PPNI
         </button>
       </div>
 
-      <!-- ========== SUB-PANE: E-LOGBOOK HARIAN ASUHAN KEPERAWATAN ========== -->
+      <!-- ========== 3.2 SUB-PANE: E-LOGBOOK ASUHAN 3S (ACTIVE DEFAULT) ========== -->
       <div id="subpane-mutu-elogbook" style="display: block;">
 
-        <!-- Header & Tombol Input -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
-          <div>
-            <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fa-solid fa-book-medical" style="color: var(--primary-600);"></i>
-              E-Logbook Harian Asuhan Keperawatan (SDKI-SLKI-SIKI)
-            </h3>
-            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">
-              Dokumentasi harian asuhan keperawatan berstandar 3S PPNI &mdash; otomatis ter-linkage dari SDKI → SLKI → SIKI dengan checklist tindakan OTEK.
-            </p>
+        <!-- Banner Card E-Logbook -->
+        <div style="background: #ffffff; border: 1px solid var(--border-color, #e2e8f0); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-book-medical" style="color: #0d9488;"></i>
+                Portal E-Logbook Harian Asuhan Keperawatan &amp; Kebidanan
+              </h3>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Pencatatan tindakan mandiri, kolaboratif, dan edukasi berbasis taksonomi 3S PPNI (SDKI, SIKI, SLKI) untuk syarat rekredensialing berkala.
+              </p>
+            </div>
+            <button id="btnToggleLogbookForm" class="btn-primary" style="background: #0d9488; font-size: 0.88rem; padding: 0.55rem 1.2rem; border-radius: 10px;" onclick="ELogbookKomkep.toggleLogbookForm()">
+              <i class="fa-solid fa-plus"></i> + Catat Kegiatan Logbook Baru
+            </button>
           </div>
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button class="btn-primary" onclick="ELogbookKomkep.openInputModal()" style="font-size: 0.88rem;">
-              <i class="fa-solid fa-plus"></i> Catat E-Logbook Asuhan (3S)
-            </button>
-            <button class="btn-secondary" onclick="ELogbookKomkep.openPrintModal()" style="font-size: 0.88rem;">
-              <i class="fa-solid fa-print"></i> Cetak Laporan
-            </button>
-            <button class="btn-secondary" onclick="ELogbookKomkep.exportCsv()" style="font-size: 0.88rem;">
-              <i class="fa-solid fa-file-csv"></i> Unduh CSV
-            </button>
+
+          <!-- 4 Stats Cards matching ai.studio -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+            <div style="background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 10px; padding: 0.75rem 1rem;">
+              <span style="font-size: 0.72rem; color: #0f766e; font-weight: 700; text-transform: uppercase;">Total Prosedur Bulan Ini</span>
+              <div id="metricLogbookTotal" style="font-size: 1.25rem; font-weight: 800; color: #042f2e; margin-top: 2px;">0 Tindakan</div>
+            </div>
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 0.75rem 1rem;">
+              <span style="font-size: 0.72rem; color: #065f46; font-weight: 700; text-transform: uppercase;">Tindakan Mandiri</span>
+              <div id="metricLogbookMandiri" style="font-size: 1.25rem; font-weight: 800; color: #064e3b; margin-top: 2px;">0 Selesai</div>
+            </div>
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 0.75rem 1rem;">
+              <span style="font-size: 0.72rem; color: #1e40af; font-weight: 700; text-transform: uppercase;">Tindakan Kolaboratif</span>
+              <div id="metricLogbookKolaboratif" style="font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-top: 2px;">0 Terverifikasi</div>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.75rem 1rem;">
+              <span style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Kepatuhan Preseptor</span>
+              <div id="metricLogbookPreseptor" style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-top: 2px;">100% Valid</div>
+            </div>
           </div>
         </div>
 
-        <!-- 4 Metric Cards E-Logbook -->
-        <div class="audit-cards-grid" style="margin-bottom: 1.25rem;">
-          <div class="audit-metric-card">
-            <div class="metric-header">
-              <span class="metric-title">Total Catatan Asuhan</span>
-              <i class="fa-solid fa-book-medical" style="color: var(--primary-600);"></i>
-            </div>
-            <div class="metric-value" id="metricLogbookTotalToday">0</div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);">Semua rekaman E-Logbook</div>
+        <!-- Formulir Entri Baru (Collapsible) -->
+        <div id="formContainerLogbook" style="display: none; background: #ffffff; border: 2px solid #5eead4; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(13,148,136,0.1);">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-notes-medical" style="color: #0d9488;"></i>
+              Formulir Entri Logbook Klinis Baru (Berbasis SDKI, SIKI, SLKI)
+            </h4>
+            <span id="logNurseNameLabel" style="font-size: 0.8rem; font-weight: 700; color: #0f766e;">Oleh: Ns. Siti Rahmah, S.Kep.</span>
           </div>
-          <div class="audit-metric-card">
-            <div class="metric-header">
-              <span class="metric-title">Kepatuhan 3S PPNI</span>
-              <i class="fa-solid fa-stethoscope" style="color: #10b981;"></i>
-            </div>
-            <div class="metric-value" id="metricLogbook3SCompliance">100%</div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);">SDKI → SLKI → SIKI Terlinkage</div>
+
+          <div id="logSubmitSuccessAlert" style="display: none; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-circle-check" style="font-size: 1.1rem; color: #059669;"></i>
+            Entri logbook berhasil dicatat ke dalam rekapitulasi portofolio klinis!
           </div>
-          <div class="audit-metric-card">
-            <div class="metric-header">
-              <span class="metric-title">Rasio Tindakan Mandiri</span>
-              <i class="fa-solid fa-user-nurse" style="color: #0284c7;"></i>
+
+          <form id="formELogbook">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Tanggal Pelaksanaan*</label>
+                <input type="date" id="logDate" class="form-input" required>
+              </div>
+              <div>
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Shift Dinas*</label>
+                <select id="logShift" class="form-input" required>
+                  <option value="Pagi">Pagi (07.00 - 14.00 WIB)</option>
+                  <option value="Sore">Sore (14.00 - 21.00 WIB)</option>
+                  <option value="Malam">Malam (21.00 - 07.00 WIB)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">No. Rekam Medis (RM) Pasien*</label>
+                <input type="text" id="logMrn" class="form-input font-mono" placeholder="contoh: RM-59821" required>
+              </div>
             </div>
-            <div class="metric-value" id="metricLogbookMandiriRatio">0%</div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);">Mandiri vs Delegasi</div>
-          </div>
-          <div class="audit-metric-card">
-            <div class="metric-header">
-              <span class="metric-title">Status Verifikasi Karu</span>
-              <i class="fa-solid fa-circle-check" style="color: var(--gold-600);"></i>
+
+            <!-- Database PPNI 3S Card (matching ai.studio teal container) -->
+            <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; border-bottom: 1px solid #ccfbf1; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-stethoscope" style="color: #0f766e;"></i>
+                    <strong style="color: #042f2e; font-size: 0.95rem;">Diagnosis Keperawatan (SDKI)*</strong>
+                    <span style="background: #ccfbf1; color: #0f766e; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 999px;">Database PPNI 3S</span>
+                  </div>
+                  <p style="font-size: 0.75rem; color: #475569; margin-top: 3px;">
+                    Pilih diagnosis dari database resmi SDKI. Sistem otomatis menautkan intervensi SIKI dan luaran SLKI sehingga Anda tidak perlu mengetik manual.
+                  </p>
+                </div>
+                <button type="button" class="btn-primary" style="background: #0f766e; font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="ELogbookKomkep.openSdkiCatalog()">
+                  <i class="fa-solid fa-book-medical"></i> Katalog &amp; Pencarian SDKI
+                </button>
+              </div>
+
+              <!-- Quick Diagnosis Pills -->
+              <div style="margin-bottom: 0.75rem;">
+                <span style="font-size: 0.7rem; font-weight: 800; color: #042f2e; text-transform: uppercase; display: flex; align-items: center; gap: 4px; margin-bottom: 0.35rem;">
+                  <i class="fa-solid fa-bolt" style="color: #d97706;"></i> Pilihan Cepat (Diagnosis Terbanyak di Bangsal &amp; Ruang Rawat):
+                </span>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                  <button type="button" class="btn-quick-sdki" data-code="D.0077" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0077')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #0f766e; color: #fff; font-weight: 600;">D.0077 Nyeri Akut</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0001" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0001')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0001 Bersihan Jalan Napas</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0142" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0142')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0142 Risiko Infeksi</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0019" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0019')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0019 Defisit Nutrisi</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0054" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0054')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0054 Gangguan Mobilitas</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0143" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0143')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0143 Risiko Jatuh</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0130" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0130')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0130 Hipertermia</button>
+                  <button type="button" class="btn-quick-sdki" data-code="D.0080" onclick="ELogbookKomkep.selectQuickDiagnosis('D.0080')" style="padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; border: 1px solid #99f6e4; background: #fff; color: #134e4a; font-weight: 600;">D.0080 Ansietas</button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">Pilih Diagnosis SDKI (Daftar Lengkap Berdasarkan Kategori)*</label>
+                  <select id="logSdkiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.applySdkiSelection(this.value)" required>
+                    <!-- Populated via elogbook.js -->
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">Etiologi / Faktor Penyebab (b.d)*</label>
+                  <select id="logEtiologySelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onEtiologyChange(this.value)">
+                    <!-- Populated via elogbook.js -->
+                  </select>
+                </div>
+              </div>
+
+              <!-- Live Preview Diagnosis Card -->
+              <div style="background: #ffffff; border: 1px solid #99f6e4; border-radius: 8px; padding: 0.6rem 0.85rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
+                  <span id="previewSdkiCode" style="background: #0f766e; color: #fff; font-size: 0.72rem; font-weight: 800; font-family: monospace; padding: 2px 6px; border-radius: 4px; shrink: 0;">D.0077</span>
+                  <span id="previewSdkiText" style="font-size: 0.82rem; font-weight: 700; color: #042f2e;">D.0077 - Nyeri Akut b.d Agen pencedera fisik</span>
+                </div>
+                <span id="previewSdkiCategory" style="font-size: 0.7rem; color: #0f766e; background: #ccfbf1; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Psikologis • Nyeri dan Kenyamanan</span>
+              </div>
             </div>
-            <div class="metric-value" style="font-size: 1rem;" id="metricLogbookVerifiedCount">0 Disahkan</div>
-            <div style="font-size: 0.82rem; color: var(--text-muted);">Disahkan oleh Kepala Ruangan</div>
-          </div>
+
+            <!-- Intervensi & Luaran Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Kategori Tindakan*</label>
+                <select id="logCategoryAction" class="form-input" required>
+                  <option value="Mandiri">Mandiri (Kewenangan Penuh)</option>
+                  <option value="Kolaboratif">Kolaboratif (Bersama DPJP/Klinisi)</option>
+                  <option value="Edukasi">Edukasi &amp; Konseling Pasien</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Unit Kerja / Ruangan</label>
+                <input type="text" id="logWorkUnit" class="form-input" disabled style="background: #f1f5f9; color: #64748b; font-size: 0.8rem;">
+              </div>
+            </div>
+
+            <!-- SIKI Selector & Box -->
+            <div style="margin-bottom: 1rem;">
+              <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Intervensi Keperawatan (SIKI - Otomatis Tersedia)*</label>
+              <select id="logSikiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSikiChange()" required>
+                <!-- Populated via elogbook.js -->
+              </select>
+              <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 0.65rem 0.85rem; margin-top: 0.4rem;">
+                <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; display: block; margin-bottom: 2px;">
+                  <i class="fa-solid fa-hand-holding-medical"></i> Rincian SIKI:
+                </span>
+                <p id="previewSikiDetail" style="font-size: 0.75rem; color: #064e3b; line-height: 1.4; margin: 0;">-</p>
+              </div>
+            </div>
+
+            <!-- SLKI Selector & Box -->
+            <div style="margin-bottom: 1rem;">
+              <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Luaran yang Diharapkan (SLKI - Target Klinis Terukur)*</label>
+              <select id="logSlkiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSlkiChange()" required>
+                <!-- Populated via elogbook.js -->
+              </select>
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.65rem 0.85rem; margin-top: 0.4rem;">
+                <span style="font-size: 0.72rem; font-weight: 800; color: #1e40af; display: block; margin-bottom: 2px;">
+                  <i class="fa-solid fa-bullseye"></i> Kriteria SLKI:
+                </span>
+                <p id="previewSlkiDetail" style="font-size: 0.75rem; color: #1e3a8a; line-height: 1.4; margin: 0;">-</p>
+              </div>
+            </div>
+
+            <!-- Catatan Evaluasi / SOAP -->
+            <div style="margin-bottom: 1.25rem;">
+              <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Catatan Evaluasi / SOAP Ringkas</label>
+              <input type="text" id="logNotes" class="form-input" placeholder="contoh: Pasien kooperatif, intervensi non-farmakologis dilaksanakan sesuai standar 3S.">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+              <button type="button" class="btn-secondary" onclick="ELogbookKomkep.toggleLogbookForm(false)">Batal</button>
+              <button type="submit" class="btn-primary" style="background: #0d9488; padding: 0.6rem 1.5rem; font-weight: 700;">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Catatan Logbook
+              </button>
+            </div>
+          </form>
         </div>
 
-        <!-- Filter Bar -->
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center;">
-          <select id="filterLogbookShift" style="padding: 0.4rem 0.75rem; font-size: 0.82rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-main);" onchange="ELogbookKomkep.renderTable()">
-            <option value="all">Semua Shift</option>
-            <option value="pagi">Pagi</option>
-            <option value="sore">Sore</option>
-            <option value="malam">Malam</option>
-          </select>
-          <select id="filterLogbookUnit" style="padding: 0.4rem 0.75rem; font-size: 0.82rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-main);" onchange="ELogbookKomkep.renderTable()">
-            <option value="all">Semua Unit</option>
-            <option value="igd">IGD</option>
-            <option value="icu">ICU</option>
-            <option value="rawat inap">Rawat Inap</option>
-            <option value="ok">OK / Bedah</option>
-            <option value="hemodialisa">Hemodialisa</option>
-          </select>
-          <select id="filterLogbookStatus" style="padding: 0.4rem 0.75rem; font-size: 0.82rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-main);" onchange="ELogbookKomkep.renderTable()">
-            <option value="all">Semua Status</option>
-            <option value="verified">Terverifikasi</option>
-            <option value="pending">Menunggu Verifikasi</option>
-          </select>
-          <input type="text" id="searchLogbookInput" placeholder="Cari nama, NIP, RM, diagnosis..." style="flex: 1; min-width: 180px; padding: 0.4rem 0.75rem; font-size: 0.82rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-main);" oninput="ELogbookKomkep.renderTable()">
-          <button class="btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.82rem;" onclick="ELogbookKomkep.verifyBatch()" title="Sahkan semua catatan yang belum diverifikasi (Hak Akses: Karu / Subkomite Mutu)">
-            <i class="fa-solid fa-check-double"></i> Verifikasi Batch
-          </button>
-        </div>
+        <!-- Table Container E-Logbook -->
+        <div class="card-table-wrapper" style="border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div class="card-table-header" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-table-list" style="color: #0d9488;"></i>
+                Daftar Riwayat Asuhan Keperawatan &amp; Verifikasi Preseptor
+              </h4>
+              <span style="font-size: 0.74rem; color: #64748b; font-family: monospace;">Unit: Rawat Inap RSUD dr. Soedarso</span>
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <button class="btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;" onclick="ELogbookKomkep.openPrintModal()" title="Cetak Rekapitulasi Format Resmi A4">
+                <i class="fa-solid fa-print"></i> Cetak Laporan (A4)
+              </button>
+              <button class="btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;" onclick="ELogbookKomkep.exportCsv()" title="Unduh Spreadsheet CSV">
+                <i class="fa-solid fa-file-csv"></i> Unduh CSV
+              </button>
+            </div>
+          </div>
 
-        <!-- Tabel E-Logbook -->
-        <div class="card-table-wrapper">
+          <!-- Filter Bar -->
+          <div style="background: #f8fafc; padding: 0.75rem 1.25rem; border-bottom: 1px solid #e2e8f0; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <select id="filterLogbookShift" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff;" onchange="ELogbookKomkep.renderLogbookTable()">
+              <option value="all">Semua Shift</option>
+              <option value="pagi">Pagi</option>
+              <option value="sore">Sore</option>
+              <option value="malam">Malam</option>
+            </select>
+            <select id="filterLogbookCategory" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff;" onchange="ELogbookKomkep.renderLogbookTable()">
+              <option value="all">Semua Kategori</option>
+              <option value="mandiri">Mandiri</option>
+              <option value="kolaboratif">Kolaboratif</option>
+              <option value="edukasi">Edukasi</option>
+            </select>
+            <select id="filterLogbookStatus" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff;" onchange="ELogbookKomkep.renderLogbookTable()">
+              <option value="all">Semua Status</option>
+              <option value="verified">Disetujui Ka.Ruang</option>
+              <option value="pending">Menunggu Review</option>
+            </select>
+            <input type="text" id="searchLogbookInput" placeholder="Cari nama, RM, diagnosis, unit, catatan..." style="flex: 1; min-width: 180px; padding: 0.35rem 0.65rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff;">
+            <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;" onclick="ELogbookKomkep.verifyBatch()" title="Sahkan semua catatan yang belum diverifikasi">
+              <i class="fa-solid fa-check-double"></i> Verifikasi Batch
+            </button>
+          </div>
+
           <div class="table-responsive">
-            <table class="data-table">
-              <thead>
+            <table class="data-table" style="font-size: 0.8rem;">
+              <thead style="background: #f8fafc; font-size: 0.72rem; text-transform: uppercase;">
                 <tr>
-                  <th>Tanggal / Shift</th>
-                  <th>Perawat</th>
-                  <th>Pasien / Dx. Medis</th>
-                  <th>SDKI (Diagnosis)</th>
-                  <th>SLKI (Luaran)</th>
-                  <th>SIKI (Intervensi)</th>
-                  <th>Status</th>
-                  <th>Aksi</th>
+                  <th style="padding: 0.75rem 1rem;">Tanggal / Shift</th>
+                  <th style="padding: 0.75rem 1rem;">No. RM Pasien</th>
+                  <th style="padding: 0.75rem 1rem;">Diagnosis (SDKI) &amp; Intervensi (SIKI)</th>
+                  <th style="padding: 0.75rem 1rem;">Target Luaran (SLKI)</th>
+                  <th style="padding: 0.75rem 1rem;">Kategori</th>
+                  <th style="padding: 0.75rem 1rem; text-align: center;">Verifikasi</th>
+                  <th style="padding: 0.75rem 1rem; text-align: right;">Aksi</th>
                 </tr>
               </thead>
               <tbody id="tableBodyElogbook">
@@ -1459,102 +1609,106 @@
           </div>
         </div>
       </div>
-      <!-- END SUB-PANE E-LOGBOOK -->
+      <!-- END SUB-PANE 3.2 E-LOGBOOK -->
 
-      <!-- ========== SUB-PANE: AUDIT KLINIS (konten audit asli) ========== -->
-      <div id="subpane-mutu-audit" style="display: none;">
+      <!-- ========== 3.1 SUB-PANE: PROGRAM CPD & DIKLAT TERPADU ========== -->
+      <div id="subpane-mutu-cpd" style="display: none;">
+        <div style="background: #ffffff; border: 1px solid var(--border-color, #e2e8f0); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-graduation-cap" style="color: #0d9488;"></i>
+                Program Pengembangan Keprofesian Berkelanjutan (CPD) Terpadu
+              </h3>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+                Pelatihan, workshop, dan simposium bersertifikat SKP Kemenkes / PPNI / IBI untuk pemenuhan syarat kredensialing 25 SKP per 5 tahun.
+              </p>
+            </div>
+            <div style="padding: 0.5rem 1rem; border-radius: 10px; background: #f0fdfa; border: 1px solid #99f6e4; font-size: 0.82rem; font-weight: 700; color: #0f766e;">
+              Status SKP Anda: <span style="color: #042f2e; font-weight: 800;">22 / 25 SKP Terpenuhi</span>
+            </div>
+          </div>
 
-      <!-- 4 Audit Metric Cards -->
-      <div class="audit-cards-grid">
-        <div class="audit-metric-card">
-          <div class="metric-header">
-            <span class="metric-title">Kepatuhan CPPT & SBAR</span>
-            <i class="fa-solid fa-file-signature" style="color: var(--primary-600);"></i>
-          </div>
-          <div class="metric-value">98.4%</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted);">Target Nasional: ≥90.0%</div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill success" style="width: 98.4%;"></div>
-          </div>
-        </div>
-
-        <div class="audit-metric-card">
-          <div class="metric-header">
-            <span class="metric-title">Kepatuhan Hand Hygiene</span>
-            <i class="fa-solid fa-hands-bubbles" style="color: #0284c7;"></i>
-          </div>
-          <div class="metric-value">98.8%</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted);">6 Langkah & 5 Momen WHO</div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: 98.8%;"></div>
-          </div>
-        </div>
-
-        <div class="audit-metric-card">
-          <div class="metric-header">
-            <span class="metric-title">Bebas Insiden Plebitis</span>
-            <i class="fa-solid fa-heart-pulse" style="color: #10b981;"></i>
-          </div>
-          <div class="metric-value">99.4%</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted);">Insiden: 0.6 per mil (Target &lt; 1.5‰)</div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill success" style="width: 99.4%;"></div>
-          </div>
-        </div>
-
-        <div class="audit-metric-card">
-          <div class="metric-header">
-            <span class="metric-title">Capaian Portofolio CPD/SKP</span>
-            <i class="fa-solid fa-graduation-cap" style="color: var(--gold-600);"></i>
-          </div>
-          <div class="metric-value">94.5%</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted);">Rerata SKP Kemenkes Aktif</div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill gold" style="width: 94.5%;"></div>
+          <div id="cpdCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+            <!-- Rendered via elogbook.js renderCpdSection() -->
           </div>
         </div>
       </div>
+      <!-- END SUB-PANE 3.1 CPD -->
 
-      <!-- Audit Results by Unit Table -->
-      <div class="card-table-wrapper">
-        <div class="card-table-header">
-          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">
-            <i class="fa-solid fa-clipboard-list" style="color: var(--primary-600); margin-right: 0.5rem;"></i>
-            Rekapitulasi Audit Klinis Asuhan Keperawatan per Ruang Perawatan (Oktober 2026)
-          </h3>
-          <span class="badge-status badge-status-approved">Standar Mutu Paripurna</span>
-        </div>
+      <!-- ========== 3.3 SUB-PANE: DASHBOARD OPPE & AUDIT ========== -->
+      <div id="subpane-mutu-oppe" style="display: none;">
+        <div style="background: #ffffff; border: 1px solid var(--border-color, #e2e8f0); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-chart-pie" style="color: #0d9488;"></i>
+              Dashboard OPPE (Ongoing Professional Practice Evaluation) &amp; Audit Mutu
+            </h3>
+            <p style="font-size: 0.82rem; color: #64748b; margin-top: 0.25rem;">
+              Evaluasi praktik klinis berkelanjutan pada 6 domain kompetensi standar STARKES KKS 11 RSUD dr. Soedarso.
+            </p>
+          </div>
 
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Unit / Ruangan Rawat</th>
-                <th>Kepala Ruangan (Karu)</th>
-                <th>Kepatuhan CPPT</th>
-                <th>Hand Hygiene</th>
-                <th>Bebas Plebitis</th>
-                <th>Pencegahan Jatuh</th>
-                <th>Skor CPD</th>
-                <th>Grade Mutu</th>
-              </tr>
-            </thead>
-            <tbody id="auditTableBody">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
+          <!-- 6 Domain Indicators List -->
+          <div id="oppeIndicatorsContainer" style="margin-bottom: 1.5rem;">
+            <!-- Rendered via elogbook.js renderOppeSection() -->
+          </div>
+
+          <!-- Audit Mutu Summary Banner -->
+          <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <div>
+              <span style="font-size: 0.7rem; font-weight: 800; color: #0f766e; text-transform: uppercase;">Laporan Mutu Klinis Terintegrasi</span>
+              <h4 style="font-size: 0.95rem; font-weight: 800; color: #042f2e; margin-top: 2px;">Capaian Indikator Mutu Pelayanan Keperawatan RSUD dr. Soedarso</h4>
+              <p style="font-size: 0.75rem; color: #0f766e; margin-top: 2px;">
+                Tingkat kepatuhan identifikasi pasien 98.4%, kepatuhan kebersihan tangan (hand hygiene) 96.8%, dan dokumentasi asuhan 3S 94.2%.
+              </p>
+            </div>
+            <button class="btn-primary" style="background: #0f766e; font-size: 0.82rem; padding: 0.45rem 1rem;" onclick="showToast('Mengunduh Laporan Rekapitulasi Audit Mutu Klinis...', 'info')">
+              <i class="fa-solid fa-download"></i> Unduh Rekap Audit Mutu
+            </button>
+          </div>
+
+          <!-- Audit Results by Unit Table -->
+          <div class="card-table-wrapper" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-table-header" style="background: #ffffff; padding: 1rem 1.25rem;">
+              <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-main); margin: 0;">
+                <i class="fa-solid fa-clipboard-list" style="color: var(--primary-600); margin-right: 0.5rem;"></i>
+                Rekapitulasi Audit Klinis Asuhan Keperawatan per Ruang Perawatan (Oktober 2026)
+              </h4>
+              <span class="badge-status badge-status-approved">Standar Mutu Paripurna</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table" style="font-size: 0.8rem;">
+                <thead>
+                  <tr>
+                    <th>Unit / Ruangan Rawat</th>
+                    <th>Kepala Ruangan (Karu)</th>
+                    <th>Kepatuhan CPPT</th>
+                    <th>Hand Hygiene</th>
+                    <th>Bebas Plebitis</th>
+                    <th>Pencegahan Jatuh</th>
+                    <th>Skor CPD</th>
+                    <th>Grade Mutu</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTableBody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-      </div>
-      <!-- END SUB-PANE AUDIT -->
+      <!-- END SUB-PANE 3.3 OPPE -->
 
-      <!-- ========== SUB-PANE: KATALOG STANDAR 3S PPNI ========== -->
+      <!-- ========== 3.4 SUB-PANE: KATALOG STANDAR 3S PPNI ========== -->
       <div id="subpane-mutu-katalog3s" style="display: none;">
         <div id="containerKatalog3S">
-          <!-- Rendered via elogbook.js renderKatalog3S() -->
+          <!-- Rendered via elogbook.js renderKatalog3STable() -->
         </div>
       </div>
-      <!-- END SUB-PANE KATALOG 3S -->
+      <!-- END SUB-PANE 3.4 KATALOG 3S -->
 
     </section>
 
@@ -6387,194 +6541,59 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL: INPUT E-LOGBOOK ASUHAN 3S ==================== -->
-  <div class="modal-overlay" id="modalInputELogbook">
-    <div class="modal-container" style="max-width: 900px; width: 95%;">
-      <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-700), #0369a1); color: #fff;">
-        <div>
-          <div class="modal-title" style="color: #fff;"><i class="fa-solid fa-book-medical"></i> Input E-Logbook Harian Asuhan Keperawatan</div>
-          <div style="font-size: 0.82rem; opacity: 0.85; margin-top: 2px;">Standar 3S PPNI: SDKI → SLKI → SIKI (Auto-Linkage)</div>
+  <!-- ==================== MODAL: KATALOG & PENCARIAN SDKI (zR) ==================== -->
+  <div class="modal-overlay" id="modalSdkiCatalog">
+    <div class="modal-container" style="max-width: 960px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; border-radius: 16px;">
+      <!-- Gradient Header -->
+      <div style="background: linear-gradient(135deg, #0f766e, #065f46); color: #ffffff; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div style="background: rgba(255,255,255,0.15); padding: 0.6rem; border-radius: 10px;">
+            <i class="fa-solid fa-book-medical" style="font-size: 1.25rem; color: #99f6e4;"></i>
+          </div>
+          <div>
+            <div style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+              Database Standar Diagnosis Keperawatan Indonesia (SDKI - PPNI)
+              <span style="background: rgba(20,184,166,0.3); color: #ccfbf1; font-size: 0.68rem; font-family: monospace; font-weight: 800; padding: 2px 8px; border-radius: 999px;">
+                30 Entri Resmi
+              </span>
+            </div>
+            <p style="font-size: 0.75rem; color: rgba(255,255,255,0.85); margin: 2px 0 0 0;">
+              Pilih diagnosis untuk pengisian otomatis diagnosis, tautan intervensi (SIKI), dan luaran (SLKI)
+            </p>
+          </div>
         </div>
-        <button class="btn-close-modal" onclick="closeModal('modalInputELogbook')">
+        <button class="btn-close-modal" onclick="closeModal('modalSdkiCatalog')" style="color: #ffffff; background: rgba(255,255,255,0.1); border-radius: 8px; border: none; width: 32px; height: 32px; cursor: pointer;">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div class="modal-body" style="max-height: 72vh; overflow-y: auto;">
-        <form id="formInputELogbook">
-          <!-- Bagian 1: Identitas Perawat & Shift -->
-          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #166534; margin-bottom: 0.75rem;">
-              <i class="fa-solid fa-user-nurse"></i> A. Identitas Perawat Pelaksana
-            </h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Nama Perawat <span style="color: red;">*</span></label>
-                <input type="text" id="inputLogbookNurseName" class="form-input" placeholder="Ns. Nama Lengkap, S.Kep" required>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">NIP / ID Pegawai <span style="color: red;">*</span></label>
-                <input type="text" id="inputLogbookNurseNip" class="form-input" placeholder="19XXXXXXXXXXXXXXXXXX" required>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Jenjang PK</label>
-                <select id="inputLogbookJenjangPk" class="form-input">
-                  <option value="PK I">PK I (Pemula)</option>
-                  <option value="PK II" selected>PK II (Dasar)</option>
-                  <option value="PK III">PK III (Lanjut)</option>
-                  <option value="PK IV">PK IV (Mahir)</option>
-                  <option value="PK V">PK V (Pakar)</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Unit / Ruang Perawatan</label>
-                <select id="inputLogbookUnit" class="form-input">
-                  <option value="Ruang Rawat Inap Enggang Gading 1">Rawat Inap Enggang Gading 1</option>
-                  <option value="Ruang Rawat Inap Enggang Gading 2">Rawat Inap Enggang Gading 2</option>
-                  <option value="Ruang Rawat Inap Jalak Kuning">Rawat Inap Jalak Kuning</option>
-                  <option value="Ruang Rawat Inap Kelawing">Rawat Inap Kelawing</option>
-                  <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
-                  <option value="Intensive Care Unit (ICU)">Intensive Care Unit (ICU)</option>
-                  <option value="Ruang Operasi (OK)">Ruang Operasi (OK)</option>
-                  <option value="Ruang Hemodialisa">Hemodialisa</option>
-                  <option value="Ruang Perinatal / NICU">Perinatal / NICU</option>
-                  <option value="Poliklinik Rawat Jalan">Poliklinik Rawat Jalan</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Tanggal</label>
-                <input type="date" id="inputLogbookDate" class="form-input">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Waktu (Jam)</label>
-                <input type="time" id="inputLogbookTime" class="form-input">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Shift Jaga</label>
-                <select id="inputLogbookShift" class="form-input">
-                  <option value="Pagi">Pagi (07:00-14:00)</option>
-                  <option value="Sore">Sore (14:00-21:00)</option>
-                  <option value="Malam">Malam (21:00-07:00)</option>
-                </select>
-              </div>
-            </div>
-          </div>
 
-          <!-- Bagian 2: Identitas Pasien -->
-          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #1e40af; margin-bottom: 0.75rem;">
-              <i class="fa-solid fa-bed-pulse"></i> B. Identitas Pasien
-            </h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">No. Rekam Medis <span style="color: red;">*</span></label>
-                <input type="text" id="inputLogbookPatientRm" class="form-input" placeholder="RM-XXXXXX" required>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Nama Pasien <span style="color: red;">*</span></label>
-                <input type="text" id="inputLogbookPatientName" class="form-input" placeholder="Nama Pasien (Inisial juga diperbolehkan)" required>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Usia</label>
-                <input type="text" id="inputLogbookPatientAge" class="form-input" placeholder="Contoh: 45 Thn">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Jenis Kelamin</label>
-                <select id="inputLogbookPatientGender" class="form-input">
-                  <option value="Laki-laki">Laki-laki</option>
-                  <option value="Perempuan">Perempuan</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">No. Bed / Kamar</label>
-                <input type="text" id="inputLogbookBedNumber" class="form-input" placeholder="Contoh: Bed 05 / Kamar 2A">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Diagnosis Medis (DPJP)</label>
-                <input type="text" id="inputLogbookDiagnosaMedis" class="form-input" placeholder="Contoh: CHF + DM Tipe 2">
-              </div>
-            </div>
+      <!-- Search & Category Filters Bar -->
+      <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 0.85rem 1.5rem;">
+        <div style="position: relative; margin-bottom: 0.6rem;">
+          <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
+          <input type="text" id="catalogModalSearch" placeholder="Cari kode atau nama diagnosis (misal: D.0077, Nyeri, Bersihan Jalan Napas, Infeksi, Nutrisi)..." 
+            style="width: 100%; padding: 0.5rem 1rem 0.5rem 2.25rem; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 0.82rem; background: #ffffff;"
+            oninput="ELogbookKomkep.onCatalogSearch(this.value)">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;" id="catalogCategoryPills">
+            <!-- Populated via elogbook.js renderCatalogCategoryPills() -->
           </div>
+          <span id="catalogResultsCount" style="font-size: 0.72rem; font-weight: 700; color: #64748b;">30 Diagnosis Ditemukan</span>
+        </div>
+      </div>
 
-          <!-- Bagian 3: Diagnosis & Intervensi 3S PPNI (Auto-Linkage) -->
-          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #991b1b; margin-bottom: 0.75rem;">
-              <i class="fa-solid fa-stethoscope"></i> C. Standar 3S PPNI (Auto-Linkage SDKI → SLKI → SIKI)
-            </h4>
-            <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Diagnosis Keperawatan (SDKI) <span style="color: red;">*</span></label>
-                <select id="inputLogbookSdki" class="form-input" required>
-                  <option value="">-- Pilih Diagnosis Keperawatan (SDKI) --</option>
-                </select>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                <div>
-                  <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Luaran Keperawatan (SLKI)</label>
-                  <select id="inputLogbookSlki" class="form-input">
-                    <option value="">-- Pilih SLKI --</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Intervensi Keperawatan (SIKI)</label>
-                  <select id="inputLogbookSiki" class="form-input">
-                    <option value="">-- Pilih SIKI --</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">Sifat Tindakan</label>
-                <select id="inputLogbookTindakanType" class="form-input">
-                  <option value="Mandiri">Mandiri</option>
-                  <option value="Delegasi">Delegasi</option>
-                  <option value="Mandiri &amp; Delegasi">Mandiri &amp; Delegasi</option>
-                </select>
-              </div>
-            </div>
-          </div>
+      <!-- Dual Column Picker (List + Details) -->
+      <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; padding: 1.25rem 1.5rem; overflow-y: auto; flex: 1; max-height: calc(90vh - 180px);">
+        <!-- Left: Scrollable List of Diagnoses -->
+        <div id="catalogListContainer" style="overflow-y: auto; max-height: 480px; padding-right: 0.5rem;">
+          <!-- Populated via elogbook.js renderCatalogList() -->
+        </div>
 
-          <!-- Bagian 4: Checklist Tindakan OTEK -->
-          <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #5b21b6; margin-bottom: 0.75rem;">
-              <i class="fa-solid fa-list-check"></i> D. Rincian Tindakan OTEK (Observasi - Terapeutik - Edukasi - Kolaborasi)
-            </h4>
-            <div id="inputLogbookOtekChecklist">
-              <div style="color: var(--text-muted); font-size: 0.82rem; font-style: italic;">Pilih Diagnosis SDKI terlebih dahulu untuk menampilkan tindakan OTEK.</div>
-            </div>
-          </div>
-
-          <!-- Bagian 5: Catatan SOAP -->
-          <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #9a3412; margin-bottom: 0.75rem;">
-              <i class="fa-solid fa-notes-medical"></i> E. Catatan Perkembangan (SOAP)
-            </h4>
-            <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">S (Subjektif) — Keluhan Pasien</label>
-                <textarea id="inputLogbookSoapS" class="form-input" rows="2" placeholder="Tuliskan keluhan yang disampaikan pasien..."></textarea>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">O (Objektif) — Hasil Observasi & Pemeriksaan</label>
-                <textarea id="inputLogbookSoapO" class="form-input" rows="2" placeholder="Tuliskan tanda vital, hasil lab, kondisi fisik..."></textarea>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">A (Asesmen) — Analisis Perawat</label>
-                <textarea id="inputLogbookSoapA" class="form-input" rows="2" placeholder="Tuliskan analisis apakah masalah teratasi, sebagian, atau belum..."></textarea>
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 0.8rem; font-weight: 700;">P (Plan) — Rencana Lanjutan</label>
-                <textarea id="inputLogbookSoapP" class="form-input" rows="2" placeholder="Tuliskan rencana tindakan selanjutnya..."></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit -->
-          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
-            <button type="button" class="btn-secondary" onclick="closeModal('modalInputELogbook')">Batal</button>
-            <button type="submit" class="btn-primary" style="font-size: 0.95rem; padding: 0.65rem 1.5rem;">
-              <i class="fa-solid fa-floppy-disk"></i> Simpan E-Logbook Asuhan
-            </button>
-          </div>
-        </form>
+        <!-- Right: Selected Diagnosis Detail Preview -->
+        <div id="catalogDetailContainer" style="max-height: 480px; overflow-y: auto;">
+          <!-- Populated via elogbook.js renderCatalogDetail() -->
+        </div>
       </div>
     </div>
   </div>
