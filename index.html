@@ -1557,15 +1557,21 @@
 
             <!-- SIKI Selector & Box -->
             <div style="margin-bottom: 1rem;">
-              <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Intervensi Keperawatan (SIKI - Otomatis Tersedia)*</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.5rem;">
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700; margin-bottom: 0;">Intervensi Keperawatan (SIKI - Standar Intervensi Keperawatan Indonesia)*</label>
+                <span style="font-size: 0.68rem; font-weight: 800; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 999px;">
+                  <i class="fa-solid fa-book-medical"></i> Standar PPNI Edisi 1 (Observasi, Terapeutik, Edukasi, Kolaborasi)
+                </span>
+              </div>
               <select id="logSikiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSikiChange()" required>
                 <!-- Populated via elogbook.js -->
               </select>
               <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 0.65rem 0.85rem; margin-top: 0.4rem;">
-                <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; display: block; margin-bottom: 2px;">
-                  <i class="fa-solid fa-hand-holding-medical"></i> Rincian SIKI:
+                <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                  <span><i class="fa-solid fa-hand-holding-medical"></i> Rincian Standar Tindakan SIKI:</span>
+                  <span style="font-size: 0.68rem; color: #059669;"><i class="fa-solid fa-check-circle"></i> Berbasis 4 Komponen Asuhan</span>
                 </span>
-                <p id="previewSikiDetail" style="font-size: 0.75rem; color: #064e3b; line-height: 1.4; margin: 0;">-</p>
+                <div id="previewSikiDetail" style="font-size: 0.75rem; color: #064e3b; line-height: 1.4; margin: 0;">-</div>
               </div>
             </div>
 
