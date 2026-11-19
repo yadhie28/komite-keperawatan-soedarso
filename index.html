@@ -1496,8 +1496,62 @@
                 </select>
               </div>
               <div>
-                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Unit Kerja / Ruangan</label>
-                <input type="text" id="logWorkUnit" class="form-input" disabled style="background: #f1f5f9; color: #64748b; font-size: 0.8rem;">
+                <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Unit Kerja / Ruangan <span style="color: red;">*</span></label>
+                <select id="logWorkUnit" class="form-input" style="font-size: 0.8rem;" required>
+                  <option value="">-- Pilih Unit Kerja / Ruangan (SK Tempat Tidur 2026) --</option>
+                  
+                  <optgroup label="A. RAWAT INAP (574 Tempat Tidur)">
+                    <option value="Singkut Buluh">Singkut Buluh (13 TT)</option>
+                    <option value="PPT">PPT (43 TT)</option>
+                    <option value="A (Anak)">A (Anak) (99 TT)</option>
+                    <option value="B (Perinatologi)">B (Perinatologi) (25 TT)</option>
+                    <option value="ULS (Syaraf)">ULS (Syaraf) (38 TT)</option>
+                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi) (35 TT)</option>
+                    <option value="Kerapu (Penyakit Dalam Pria &amp; Wanita)">Kerapu (Penyakit Dalam Pria &amp; Wanita) (41 TT)</option>
+                    <option value="Meranti">Meranti (40 TT)</option>
+                    <option value="Mahoni">Mahoni (41 TT)</option>
+                    <option value="Ramin - Dewasa">Ramin - Dewasa (28 TT)</option>
+                    <option value="Ramin - Bayi">Ramin - Bayi (5 TT)</option>
+                    <option value="ICU">ICU (18 TT)</option>
+                    <option value="HCU Umum">HCU Umum (19 TT)</option>
+                    <option value="PICU">PICU (7 TT)</option>
+                    <option value="HCU Anak">HCU Anak (6 TT)</option>
+                    <option value="NICU">NICU (9 TT)</option>
+                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru (42 TT)</option>
+                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU (4 TT)</option>
+                    <option value="Kakap">Kakap (41 TT)</option>
+                    <option value="Arwana">Arwana (20 TT)</option>
+                  </optgroup>
+
+                  <optgroup label="B. RAWAT INAP JANTUNG TERPADU (50 Tempat Tidur)">
+                    <option value="Rawat Inap Jantung Terpadu - ICVCU">Rawat Inap Jantung Terpadu - ICVCU (14 TT)</option>
+                    <option value="Rawat Inap Jantung Terpadu - HCU">Rawat Inap Jantung Terpadu - HCU (4 TT)</option>
+                    <option value="Rawat Inap Jantung Terpadu - VIP">Rawat Inap Jantung Terpadu - VIP (4 TT)</option>
+                    <option value="Rawat Inap Jantung Terpadu - Kelas 1">Rawat Inap Jantung Terpadu - Kelas 1 (8 TT)</option>
+                    <option value="Rawat Inap Jantung Terpadu - Non Kelas">Rawat Inap Jantung Terpadu - Non Kelas (20 TT)</option>
+                  </optgroup>
+
+                  <optgroup label="C. RUANG TINDAKAN (51 Tempat Tidur)">
+                    <option value="Cendana - Rawat Inap Dewasa">Cendana - Rawat Inap Dewasa (6 TT)</option>
+                    <option value="Cendana - Ruang Tindakan">Cendana - Ruang Tindakan (5 TT)</option>
+                    <option value="Cendana - Bed Bayi Rawat Gabung">Cendana - Bed Bayi Rawat Gabung (5 TT)</option>
+                    <option value="IGD Kebidanan">IGD Kebidanan (2 TT)</option>
+                    <option value="IGD (Instalasi Gawat Darurat)">IGD (Instalasi Gawat Darurat) (16 TT)</option>
+                    <option value="IGD Transit">IGD Transit (12 TT)</option>
+                    <option value="OK Sentral">OK Sentral (8 TT)</option>
+                    <option value="OK IGD">OK IGD (2 TT)</option>
+                  </optgroup>
+
+                  <optgroup label="D. RUANG RAWAT KHUSUS (74 Tempat Tidur)">
+                    <option value="Thalasemia">Thalasemia (20 TT)</option>
+                    <option value="Hemodialisa (HD)">Hemodialisa (HD) (34 TT)</option>
+                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC) (20 TT)</option>
+                  </optgroup>
+
+                  <optgroup label="E. RAWAT JALAN &amp; PENUNJANG">
+                    <option value="Poliklinik Rawat Jalan">Poliklinik Rawat Jalan</option>
+                  </optgroup>
+                </select>
               </div>
             </div>
 
@@ -1582,6 +1636,43 @@
               <option value="all">Semua Status</option>
               <option value="verified">Disetujui Ka.Ruang</option>
               <option value="pending">Menunggu Review</option>
+            </select>
+            <select id="filterLogbookUnit" style="padding: 0.35rem 0.65rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff;" onchange="ELogbookKomkep.renderLogbookTable()">
+              <option value="all">Semua Ruangan</option>
+              <optgroup label="A. Rawat Inap">
+                <option value="Singkut Buluh">Singkut Buluh</option>
+                <option value="PPT">PPT</option>
+                <option value="A (Anak)">A (Anak)</option>
+                <option value="B (Perinatologi)">B (Perinatologi)</option>
+                <option value="ULS (Syaraf)">ULS (Syaraf)</option>
+                <option value="Camar">Camar (Kemoterapi)</option>
+                <option value="Kerapu">Kerapu</option>
+                <option value="Meranti">Meranti</option>
+                <option value="Mahoni">Mahoni</option>
+                <option value="Ramin">Ramin</option>
+                <option value="ICU">ICU</option>
+                <option value="HCU">HCU</option>
+                <option value="PICU">PICU</option>
+                <option value="NICU">NICU</option>
+                <option value="Isolasi Paru">Isolasi Paru</option>
+                <option value="Kakap">Kakap</option>
+                <option value="Arwana">Arwana</option>
+              </optgroup>
+              <optgroup label="B. Jantung Terpadu">
+                <option value="Jantung Terpadu">Semua Jantung Terpadu</option>
+                <option value="ICVCU">ICVCU</option>
+              </optgroup>
+              <optgroup label="C. Ruang Tindakan">
+                <option value="Cendana">Cendana</option>
+                <option value="IGD">IGD</option>
+                <option value="OK Sentral">OK Sentral</option>
+                <option value="OK IGD">OK IGD</option>
+              </optgroup>
+              <optgroup label="D. Rawat Khusus">
+                <option value="Thalasemia">Thalasemia</option>
+                <option value="Hemodialisa">Hemodialisa (HD)</option>
+                <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+              </optgroup>
             </select>
             <input type="text" id="searchLogbookInput" placeholder="Cari nama, RM, diagnosis, unit, catatan..." style="flex: 1; min-width: 180px; padding: 0.35rem 0.65rem; font-size: 0.78rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff;">
             <button class="btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.78rem;" onclick="ELogbookKomkep.verifyBatch()" title="Sahkan semua catatan yang belum diverifikasi">
@@ -3700,31 +3791,32 @@
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Unit Kerja / Penempatan <span class="req">*</span></label>
                   <select class="form-select" id="cvUnit" onchange="onCvJenjangOrUnitChange()" required>
-                    <option value="">-- Pilih Unit Kerja / Penempatan (Sesuai SK Tempat Tidur) --</option>
+                    <option value="">-- Pilih Unit Kerja / Penempatan (Sesuai SK Penetapan Tempat Tidur 2026) --</option>
                     
-                    <optgroup label="A. INSTALASI RAWAT INAP A (545 Tempat Tidur)">
+                    <optgroup label="A. RAWAT INAP (574 Tempat Tidur)">
                       <option value="Singkut Buluh">Singkut Buluh (13 TT)</option>
                       <option value="PPT">PPT (43 TT)</option>
-                      <option value="A (Anak)">A (Anak) (95 TT)</option>
+                      <option value="A (Anak)">A (Anak) (99 TT)</option>
                       <option value="B (Perinatologi)">B (Perinatologi) (25 TT)</option>
-                      <option value="Ruai (Syaraf)">Ruai (Syaraf) (33 TT)</option>
-                      <option value="Camar (Kemoterapi)">Camar (Kemoterapi) (34 TT)</option>
-                      <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita) (37 TT)</option>
+                      <option value="ULS (Syaraf)">ULS (Syaraf) (38 TT)</option>
+                      <option value="Camar (Kemoterapi)">Camar (Kemoterapi) (35 TT)</option>
+                      <option value="Kerapu (Penyakit Dalam Pria &amp; Wanita)">Kerapu (Penyakit Dalam Pria &amp; Wanita) (41 TT)</option>
                       <option value="Meranti">Meranti (40 TT)</option>
                       <option value="Mahoni">Mahoni (41 TT)</option>
-                      <option value="Ramin">Ramin (25 TT)</option>
+                      <option value="Ramin - Dewasa">Ramin - Dewasa (28 TT)</option>
+                      <option value="Ramin - Bayi">Ramin - Bayi (5 TT)</option>
                       <option value="ICU">ICU (18 TT)</option>
                       <option value="HCU Umum">HCU Umum (19 TT)</option>
                       <option value="PICU">PICU (7 TT)</option>
                       <option value="HCU Anak">HCU Anak (6 TT)</option>
                       <option value="NICU">NICU (9 TT)</option>
-                      <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru (38 TT)</option>
+                      <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru (42 TT)</option>
                       <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU (4 TT)</option>
-                      <option value="Enggang Gading 1">Enggang Gading 1 (10 TT)</option>
-                      <option value="Enggang Gading 2" selected>Enggang Gading 2 (48 TT)</option>
+                      <option value="Kakap" selected>Kakap (41 TT)</option>
+                      <option value="Arwana">Arwana (20 TT)</option>
                     </optgroup>
 
-                    <optgroup label="B. INSTALASI JANTUNG TERPADU (50 Tempat Tidur)">
+                    <optgroup label="B. RAWAT INAP JANTUNG TERPADU (50 Tempat Tidur)">
                       <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU (14 TT)</option>
                       <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU (4 TT)</option>
                       <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP (4 TT)</option>
@@ -3732,22 +3824,24 @@
                       <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas (20 TT)</option>
                     </optgroup>
 
-                    <optgroup label="C. RUANG TINDAKAN (43 Tempat Tidur)">
-                      <option value="Cendana">Cendana (16 TT)</option>
-                      <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD) (15 TT)</option>
+                    <optgroup label="C. RUANG TINDAKAN (51 Tempat Tidur)">
+                      <option value="Cendana - Rawat Inap Dewasa">Cendana - Rawat Inap Dewasa (6 TT)</option>
+                      <option value="Cendana - Ruang Tindakan">Cendana - Ruang Tindakan (5 TT)</option>
+                      <option value="Cendana - Bed Bayi Rawat Gabung">Cendana - Bed Bayi Rawat Gabung (5 TT)</option>
+                      <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD) (16 TT)</option>
                       <option value="IGD Kebidanan">IGD Kebidanan (2 TT)</option>
+                      <option value="IGD Transit">IGD Transit (12 TT)</option>
                       <option value="OK Sentral">OK Sentral (8 TT)</option>
                       <option value="OK IGD">OK IGD (2 TT)</option>
                     </optgroup>
 
-                    <optgroup label="D. RUANG RAWAT KHUSUS (66 Tempat Tidur)">
-                      <option value="Thalassemia">Thalassemia (13 TT)</option>
-                      <option value="HD Rawat Jalan">HD Rawat Jalan (27 TT)</option>
-                      <option value="HD Rawat Inap">HD Rawat Inap (6 TT)</option>
+                    <optgroup label="D. RUANG RAWAT KHUSUS (74 Tempat Tidur)">
+                      <option value="Thalasemia">Thalasemia (20 TT)</option>
+                      <option value="Hemodialisa (HD)">Hemodialisa (HD) (34 TT)</option>
                       <option value="Kemoterapi (ODC)">Kemoterapi (ODC) (20 TT)</option>
                     </optgroup>
                   </select>
-                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-bed"></i> Sesuai SK Direktur No: SK/031103/RSUD/2025 Penetapan 704 Tempat Tidur.</span>
+                  <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);"><i class="fa-solid fa-bed"></i> Sesuai SK Direktur No: SK/031103/RSUD/2025 Penetapan 749 Tempat Tidur Tahun 2026.</span>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Jenjang Klinis Saat Ini <span class="req">*</span></label>
@@ -4335,52 +4429,58 @@
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Nama Ruang Rawat / Unit Kerja (Sesuai SK Tempat Tidur) <span class="req">*</span></label>
                 <select class="form-select" id="logbookKaRuRuangan" required>
-                  <option value="">-- Pilih Ruang Rawat / Unit Kerja (Sesuai SK Direktur 2025) --</option>
+                  <option value="">-- Pilih Ruang Rawat / Unit Kerja (Sesuai SK Penetapan Tempat Tidur 2026) --</option>
                   
-                  <optgroup label="A. INSTALASI RAWAT INAP A">
-                    <option value="Singkut Buluh">Singkut Buluh</option>
-                    <option value="PPT">PPT</option>
-                    <option value="A (Anak)">A (Anak)</option>
-                    <option value="B (Perinatologi)">B (Perinatologi)</option>
-                    <option value="Ruai (Syaraf)">Ruai (Syaraf)</option>
-                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi)</option>
-                    <option value="Murai (Penyakit Dalam Pria dan Wanita)">Murai (Penyakit Dalam Pria dan Wanita)</option>
-                    <option value="Meranti">Meranti</option>
-                    <option value="Mahoni">Mahoni</option>
-                    <option value="Ramin">Ramin</option>
-                    <option value="ICU">ICU</option>
-                    <option value="HCU Umum">HCU Umum</option>
-                    <option value="PICU">PICU</option>
-                    <option value="HCU Anak">HCU Anak</option>
-                    <option value="NICU">NICU</option>
-                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru</option>
-                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU</option>
-                    <option value="Enggang Gading 1">Enggang Gading 1</option>
-                    <option value="Ruang Kakap (Penyakit Dalam)">Ruang Kakap (Penyakit Dalam)</option>
-                <option value="Enggang Gading 2">Enggang Gading 2</option>
+                  <optgroup label="A. RAWAT INAP (574 Tempat Tidur)">
+                    <option value="Singkut Buluh">Singkut Buluh (13 TT)</option>
+                    <option value="PPT">PPT (43 TT)</option>
+                    <option value="A (Anak)">A (Anak) (99 TT)</option>
+                    <option value="B (Perinatologi)">B (Perinatologi) (25 TT)</option>
+                    <option value="ULS (Syaraf)">ULS (Syaraf) (38 TT)</option>
+                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi) (35 TT)</option>
+                    <option value="Kerapu (Penyakit Dalam Pria &amp; Wanita)">Kerapu (Penyakit Dalam Pria &amp; Wanita) (41 TT)</option>
+                    <option value="Meranti">Meranti (40 TT)</option>
+                    <option value="Mahoni">Mahoni (41 TT)</option>
+                    <option value="Ramin - Dewasa">Ramin - Dewasa (28 TT)</option>
+                    <option value="Ramin - Bayi">Ramin - Bayi (5 TT)</option>
+                    <option value="ICU">ICU (18 TT)</option>
+                    <option value="HCU Umum">HCU Umum (19 TT)</option>
+                    <option value="PICU">PICU (7 TT)</option>
+                    <option value="HCU Anak">HCU Anak (6 TT)</option>
+                    <option value="NICU">NICU (9 TT)</option>
+                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru (42 TT)</option>
+                    <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU (4 TT)</option>
+                    <option value="Kakap" selected>Kakap (41 TT)</option>
+                    <option value="Arwana">Arwana (20 TT)</option>
                   </optgroup>
 
-                  <optgroup label="B. INSTALASI JANTUNG TERPADU">
-                    <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU</option>
-                    <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU</option>
-                    <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP</option>
-                    <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1</option>
-                    <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas</option>
+                  <optgroup label="B. RAWAT INAP JANTUNG TERPADU (50 Tempat Tidur)">
+                    <option value="Instalasi Jantung Terpadu - ICVCU">Instalasi Jantung Terpadu - ICVCU (14 TT)</option>
+                    <option value="Instalasi Jantung Terpadu - HCU">Instalasi Jantung Terpadu - HCU (4 TT)</option>
+                    <option value="Instalasi Jantung Terpadu - VIP">Instalasi Jantung Terpadu - VIP (4 TT)</option>
+                    <option value="Instalasi Jantung Terpadu - Kelas 1">Instalasi Jantung Terpadu - Kelas 1 (8 TT)</option>
+                    <option value="Instalasi Jantung Terpadu - Non Kelas">Instalasi Jantung Terpadu - Non Kelas (20 TT)</option>
                   </optgroup>
 
-                  <optgroup label="C. RUANG TINDAKAN">
-                    <option value="Cendana">Cendana</option>
-                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD)</option>
-                    <option value="IGD Kebidanan">IGD Kebidanan</option>
-                    <option value="OK Sentral">OK Sentral</option>
-                    <option value="OK IGD">OK IGD</option>
+                  <optgroup label="C. RUANG TINDAKAN (51 Tempat Tidur)">
+                    <option value="Cendana - Rawat Inap Dewasa">Cendana - Rawat Inap Dewasa (6 TT)</option>
+                    <option value="Cendana - Ruang Tindakan">Cendana - Ruang Tindakan (5 TT)</option>
+                    <option value="Cendana - Bed Bayi Rawat Gabung">Cendana - Bed Bayi Rawat Gabung (5 TT)</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD) (16 TT)</option>
+                    <option value="IGD Kebidanan">IGD Kebidanan (2 TT)</option>
+                    <option value="IGD Transit">IGD Transit (12 TT)</option>
+                    <option value="OK Sentral">OK Sentral (8 TT)</option>
+                    <option value="OK IGD">OK IGD (2 TT)</option>
                   </optgroup>
 
-                  <optgroup label="D. RUANG RAWAT KHUSUS">
-                    <option value="Thalassemia">Thalassemia</option>
-                    <option value="HD Rawat Jalan">HD Rawat Jalan</option>
-                    <option value="HD Rawat Inap">HD Rawat Inap</option>
-                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
+                  <optgroup label="D. RUANG RAWAT KHUSUS (74 Tempat Tidur)">
+                    <option value="Thalasemia">Thalasemia (20 TT)</option>
+                    <option value="Hemodialisa (HD)">Hemodialisa (HD) (34 TT)</option>
+                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC) (20 TT)</option>
+                  </optgroup>
+                  
+                  <optgroup label="E. RAWAT JALAN &amp; PENUNJANG">
+                    <option value="Poliklinik Rawat Jalan">Poliklinik Rawat Jalan</option>
                   </optgroup>
                 </select>
               </div>
@@ -5327,7 +5427,7 @@
                     <option value="Kemoterapi (ODC)">Kemoterapi (ODC)</option>
                   </optgroup>
                 </select>
-                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Sesuai SK Direktur No: SK/031103/RSUD/2025 Penetapan 704 Tempat Tidur.</span>
+                <span class="form-hint" style="font-size: 0.72rem; color: var(--text-muted);">Sesuai SK Direktur No: SK/031103/RSUD/2025 Penetapan 749 Tempat Tidur Tahun 2026.</span>
               </div>
             </div>
           </div>

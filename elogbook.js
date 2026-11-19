@@ -385,7 +385,21 @@
       mrnInput.value = "RM-" + Math.floor(50000 + Math.random() * 10000);
     }
     if (unitInput) {
-      unitInput.value = user.unit || "Ruang Rawat Inap Bedah (Puring Lt. 3)";
+      const targetUnit = user.unit || "Kakap";
+      let matched = false;
+      for (let i = 0; i < unitInput.options.length; i++) {
+        const optVal = unitInput.options[i].value;
+        if (optVal && (optVal.toLowerCase() === targetUnit.toLowerCase() ||
+            targetUnit.toLowerCase().includes(optVal.toLowerCase()) ||
+            optVal.toLowerCase().includes(targetUnit.toLowerCase()))) {
+          unitInput.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched && unitInput.options.length > 1 && !unitInput.value) {
+        unitInput.selectedIndex = 1;
+      }
     }
     if (nurseLabel) {
       nurseLabel.textContent = "Oleh: " + (user.name || "Perawat Pelaksana");
@@ -632,6 +646,7 @@
     const tbody = document.getElementById('tableBodyElogbook');
     if (!tbody) return;
 
+    const unitFilter = document.getElementById('filterLogbookUnit')?.value || 'all';
     const shiftFilter = document.getElementById('filterLogbookShift')?.value || 'all';
     const catFilter = document.getElementById('filterLogbookCategory')?.value || 'all';
     const statusFilter = document.getElementById('filterLogbookStatus')?.value || 'all';
@@ -639,6 +654,9 @@
 
     let records = getRecords();
 
+    if (unitFilter !== 'all') {
+      records = records.filter(r => (r.workUnit || '').toLowerCase().includes(unitFilter.toLowerCase()));
+    }
     if (shiftFilter !== 'all') {
       records = records.filter(r => r.shift.toLowerCase() === shiftFilter.toLowerCase());
     }
@@ -1295,6 +1313,13 @@
     if (searchInput) {
       searchInput.addEventListener('input', renderLogbookTable);
     }
+
+    ['filterLogbookUnit', 'filterLogbookShift', 'filterLogbookCategory', 'filterLogbookStatus'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('change', renderLogbookTable);
+      }
+    });
 
     const form = document.getElementById('formELogbook');
     if (form) {
