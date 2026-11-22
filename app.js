@@ -294,7 +294,7 @@ function fillPengusulPreset(target) {
     const uInput = document.getElementById('loginPengusulUsername');
     const pInput = document.getElementById('loginPengusulPassword');
     if (uInput) uInput.value = found.username || found.nip;
-    if (pInput) pInput.value = found.password || found.namaSandi || 'REDACTED_PASSWORD';
+    if (pInput) pInput.value = '';
     const errBox = document.getElementById('pengusulLoginError');
     if (errBox) errBox.style.display = 'none';
   }
@@ -336,7 +336,7 @@ function handlePengusulLogin(e) {
     const u = (a.username || '').toLowerCase().replace(/\s+/g, '');
     const altU = (a.altUsername || '').toLowerCase().replace(/\s+/g, '');
     const nip = (a.nip || '').toLowerCase().replace(/\s+/g, '');
-    const passMatch = a.password === pass || a.namaSandi === pass || pass === 'REDACTED_PASSWORD';
+    const passMatch = (a.password && a.password === pass) || (a.namaSandi && a.namaSandi === pass);
     return (u === cleanInput || altU === cleanInput || nip === cleanInput) && passMatch;
   });
 
@@ -788,8 +788,8 @@ function simpanPengaturanPassword() {
     return;
   }
 
-  const expectedPass = curUser.password || 'REDACTED_PASSWORD';
-  if (currentPass && currentPass !== expectedPass && currentPass !== 'REDACTED_PASSWORD') {
+  const expectedPass = curUser.password;
+  if (currentPass && expectedPass && currentPass !== expectedPass) {
     showToast('Kata sandi saat ini tidak cocok.', 'warning');
     return;
   }
@@ -2832,19 +2832,18 @@ function renderRegulationsTable() {
         <span style="font-size: 0.75rem; color: var(--text-muted);">(${item.size})</span>
       </td>
       <td style="text-align: right;">
-        <button class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="simulateDownload('${item.title}', '${item.format}')">
-          <i class="fa-solid fa-download"></i> Unduh
-        </button>
+        ${item.url ? `
+          <a href="${item.url}" target="_blank" rel="noopener noreferrer" download class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-download"></i> Unduh
+          </a>
+        ` : `
+          <button class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; opacity: 0.6; cursor: not-allowed;" disabled title="Dokumen fisik dalam proses arsip">
+            <i class="fa-solid fa-clock"></i> Berkas Belum Tersedia
+          </button>
+        `}
       </td>
     </tr>
   `).join('');
-}
-
-function simulateDownload(title, format) {
-  showToast(`Mengunduh dokumen: "${title}" (${format})...`, 'info');
-  setTimeout(() => {
-    showToast(`Dokumen "${title}" berhasil diunduh.`, 'success');
-  }, 1200);
 }
 
 /* ==========================================================================
@@ -11121,7 +11120,6 @@ window.printOfficialDoc = printOfficialDoc;
 window.exportOfficialWord = exportOfficialWord;
 window.viewNurseDetail = viewNurseDetail;
 window.handleEthicsSubmit = handleEthicsSubmit;
-window.simulateDownload = simulateDownload;
 window.renderAnalyticsCharts = renderAnalyticsCharts;
 window.renderStructureSK = renderStructureSK;
 window.toggleStructureSK = toggleStructureSK;
@@ -11430,10 +11428,10 @@ function fillSuperAdminPreset(userKey) {
 
   if (userKey === 'rusmulyadi') {
     uInput.value = 'rusmulyadi';
-    pInput.value = 'REDACTED_PASSWORD';
+    pInput.value = '';
   } else if (userKey === 'separia') {
     uInput.value = 'separia';
-    pInput.value = 'REDACTED_PASSWORD';
+    pInput.value = '';
   }
   const err = document.getElementById('gatewaySuperError');
   if (err) err.style.display = 'none';
@@ -11470,7 +11468,7 @@ function fillGatewayAdminFromSelect(username) {
   const uInput = document.getElementById('gatewayAdminUser');
   const pInput = document.getElementById('gatewayAdminPass');
   if (uInput) uInput.value = username;
-  if (pInput) pInput.value = 'REDACTED_PASSWORD';
+  if (pInput) pInput.value = '';
   const err = document.getElementById('gatewayAdminError');
   if (err) err.style.display = 'none';
 }
@@ -11530,7 +11528,7 @@ function selectKakapStaff(nip, username, cardEl) {
   const uInput = document.getElementById('gatewayPerawatUser');
   const pInput = document.getElementById('gatewayPerawatPass');
   if (uInput) uInput.value = nip || username;
-  if (pInput) pInput.value = 'REDACTED_PASSWORD';
+  if (pInput) pInput.value = '';
 
   const allCards = document.querySelectorAll('.kakap-staff-card');
   allCards.forEach(c => c.classList.remove('selected'));
@@ -11583,7 +11581,7 @@ function handleUnifiedPortalLogin(e) {
       const uEmail = (u.email || '').toLowerCase().replace(/\s+/g, '');
       const uNip = (u.nip || '').replace(/\s+/g, '');
       const matchesUser = (uName === cleanInput || uAlias === cleanInput || uAlt === cleanInput || uDev === cleanInput || uEmail === cleanInput || (uNip && uNip === cleanInput));
-      const matchesPass = (u.password === rawPass || rawPass === 'REDACTED_PASSWORD');
+      const matchesPass = (u.password && u.password === rawPass);
       return matchesUser && matchesPass;
     });
 
@@ -11634,7 +11632,7 @@ function handleUnifiedPortalLogin(e) {
       const u = (a.username || '').toLowerCase().replace(/\s+/g, '');
       const altU = (a.altUsername || '').toLowerCase().replace(/\s+/g, '');
       const nip = (a.nip || '').toLowerCase().replace(/\s+/g, '');
-      const passMatch = (a.password === rawPass || a.namaSandi === rawPass || rawPass === 'REDACTED_PASSWORD' || rawPass === 'hendra1992' || rawPass === 'siti1991');
+      const passMatch = ((a.password && a.password === rawPass) || (a.namaSandi && a.namaSandi === rawPass));
       return (u === cleanInput || altU === cleanInput || nip === cleanInput) && passMatch;
     });
 
@@ -11659,7 +11657,7 @@ function handleUnifiedPortalLogin(e) {
         access: ['pengusul', 'kredensial'],
         phone: matchedNurse.phone || '',
         email: matchedNurse.email || '',
-        password: matchedNurse.password || matchedNurse.namaSandi || 'REDACTED_PASSWORD'
+        password: matchedNurse.password || matchedNurse.namaSandi || ''
       };
       localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
 

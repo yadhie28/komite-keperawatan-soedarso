@@ -42,7 +42,7 @@
           'Membangun sistem kredensial dan rekredensial yang transparan, akuntabel, dan berkeadilan.'
         ],
         pengalaman: 'Kepala Ruang ICU (2018 - 2024) • Wakil Ketua Komite Keperawatan (2024 - 2027) • Asesor Kredensial Klinis',
-        votes: 12
+        votes: 0
       },
       {
         id: 'cand-2',
@@ -60,7 +60,7 @@
           'Meningkatkan kesejahteraan dan perlindungan hukum bagi tenaga keperawatan.'
         ],
         pengalaman: 'Kepala Instalasi Rawat Inap Bedah (2020 - Sekarang) • Ketua Tim Keselamatan Pasien (2019 - 2023) • Pengurus PPNI',
-        votes: 9
+        votes: 0
       },
       {
         id: 'cand-3',
@@ -78,14 +78,10 @@
           'Mengembangkan program mentoring dan preceptorship untuk perawat klinis baru.'
         ],
         pengalaman: 'Koordinator Diklat Keperawatan (2021 - Sekarang) • Anggota Subkomite Mutu Keperawatan • Magister Manajemen Keperawatan UGM',
-        votes: 14
+        votes: 0
       }
     ],
-    voterRecords: {
-      '000000000000000000': { hasVoted: true, votedFor: 'cand-3', candidateNumber: '03', candidateName: 'Ns. Dewi Kartika Sari, S.Kep., M.Kep.', token: 'VOTE-2026-BMB-0812', votedAt: '2026-11-18T08:30:00.000Z', voterName: 'Ns. Bambang Irawan, S.Kep.', voterNip: '000000000000000000', voterUnit: 'Instalasi Gawat Darurat (IGD)' },
-      '000000000000000000': { hasVoted: true, votedFor: 'cand-1', candidateNumber: '01', candidateName: 'Ns. Siti Rahmawati, S.Kep., M.Kep.', token: 'VOTE-2026-NRL-1425', votedAt: '2026-11-18T09:15:00.000Z', voterName: 'Ns. Nurul Hidayati, S.Kep.', voterNip: '000000000000000000', voterUnit: 'Instalasi Bedah Sentral (OK)' },
-      '000000000000000000': { hasVoted: true, votedFor: 'cand-3', candidateNumber: '03', candidateName: 'Ns. Dewi Kartika Sari, S.Kep., M.Kep.', token: 'VOTE-2026-SRI-2201', votedAt: '2026-11-18T10:05:00.000Z', voterName: 'Ns. Sri Wahyuni, A.Md.Kep.', voterNip: '000000000000000000', voterUnit: 'Poliklinik Rawat Jalan' }
-    },
+    voterRecords: {},
     activeSubTab: 'voting',
     pendingVoteCandidateId: null
   };
@@ -306,6 +302,11 @@
     },
 
     toggleElection: function () {
+      const auth = resolveUserStatus();
+      if (auth.type !== 'ADMIN') {
+        notify('Akses ditolak: Hanya Panitia Pemilihan yang berwenang mengubah status pemilihan.', 'error');
+        return;
+      }
       state.election.isActive = !state.election.isActive;
       saveState();
       notify(`Status pemilihan diubah: ${state.election.isActive ? 'AKTIF (Bilik Suara Dibuka)' : 'DIJEDA / DITUTUP'}`, 'warning');
@@ -313,6 +314,11 @@
     },
 
     resetAllVotes: function () {
+      const auth = resolveUserStatus();
+      if (auth.type !== 'ADMIN') {
+        notify('Akses ditolak: Hanya Panitia Pemilihan yang berwenang mereset suara.', 'error');
+        return;
+      }
       if (!confirm('PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara menjadi 0? Tindakan ini akan menghapus semua riwayat pemungutan suara.')) return;
       
       state.candidates.forEach(c => c.votes = 0);
@@ -323,6 +329,11 @@
     },
 
     resetVoterStatus: function (userKey) {
+      const auth = resolveUserStatus();
+      if (auth.type !== 'ADMIN') {
+        notify('Akses ditolak: Hanya Panitia Pemilihan yang berwenang mereset status pemilih.', 'error');
+        return;
+      }
       const record = state.voterRecords[userKey];
       if (!record) return;
 
@@ -561,11 +572,11 @@
       csv += 'Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso Periode 2027 - 2030\n';
       csv += `Database Pengelola: ${TARGET_EMAIL_KOMITE}\n`;
       csv += `Total Pemilih Tercatat: ${records.length}\n\n`;
-      csv += 'No,Waktu Masuk (WIB),Token Bukti Suara Sah,Nama Lengkap Pemilih,NIP,Unit Kerja / Ruangan,Pilihan Calon\n';
+      csv += 'No,Waktu Masuk (WIB),Token Bukti Suara Sah,Nama Lengkap Pemilih,NIP,Unit Kerja / Ruangan,Status Hak Suara\n';
 
       records.forEach((r, idx) => {
         const waktu = r.votedAt ? new Date(r.votedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) : '-';
-        csv += `"${idx + 1}","${waktu}","${r.token || '-'}","${r.voterName || '-'}","${r.voterNip || '-'}","${r.voterUnit || '-'}","${r.candidateNumber || ''} - ${r.candidateName || ''}"\n`;
+        csv += `"${idx + 1}","${waktu}","${r.token || '-'}","${r.voterName || '-'}","${r.voterNip || '-'}","${r.voterUnit || '-'}","SUDAH MEMILIH (SAH)"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

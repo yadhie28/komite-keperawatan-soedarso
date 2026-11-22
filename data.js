@@ -1855,7 +1855,6 @@ window.KOMITE_DATA = {
       username: "separia",
       alias: "admin.komite",
       altAlias: "ketua",
-      password: "REDACTED_PASSWORD",
       name: "M. Separia Russanto, S.Kep., Ns",
       role: "Ketua Komite Keperawatan",
       email: "komitekeperawatanrsds2023@gmail.com",
@@ -1869,7 +1868,6 @@ window.KOMITE_DATA = {
       altAlias: "admin.sekretaris",
       devAlias: "yadhie28",
       nip: "000000000000000000",
-      password: "REDACTED_PASSWORD",
       name: "Ns. Rusmulyadi, S.Kep., MARS",
       role: "Sekretaris Komite Keperawatan & Developer Website",
       email: "yadhie28@gmail.com",
@@ -1882,7 +1880,6 @@ window.KOMITE_DATA = {
     {
       username: "yohanes",
       alias: "kredensial",
-      password: "REDACTED_PASSWORD",
       name: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep",
       role: "Ketua Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1891,7 +1888,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "tri.herda",
-      password: "REDACTED_PASSWORD",
       name: "Tri Herda Permana Sari, A.Md.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1900,7 +1896,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "dwinita",
-      password: "REDACTED_PASSWORD",
       name: "Ns. Dwinita Wulan Purnamasari, S.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1909,7 +1904,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "ika.yusniarti",
-      password: "REDACTED_PASSWORD",
       name: "Ns. Ika Yusniarti, S.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1918,7 +1912,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "surayniwaty",
-      password: "REDACTED_PASSWORD",
       name: "F. Surayniwaty, S.ST",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1927,7 +1920,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "noveriansyah",
-      password: "REDACTED_PASSWORD",
       name: "Noveriansyah Akbar, S.Kep., Ns",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1936,7 +1928,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "mushlihuddin",
-      password: "REDACTED_PASSWORD",
       name: "Mushlihuddin, S.Kep., Ns",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1945,7 +1936,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "herkulanus",
-      password: "REDACTED_PASSWORD",
       name: "Herkulanus Yunus, A.Md.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1954,7 +1944,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "evilita",
-      password: "REDACTED_PASSWORD",
       name: "Bdn. Evilita Ratnawati, S.ST",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1966,7 +1955,6 @@ window.KOMITE_DATA = {
     {
       username: "alfonsus",
       alias: "etik",
-      password: "REDACTED_PASSWORD",
       name: "Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH",
       role: "Ketua Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1975,7 +1963,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "gunawan",
-      password: "REDACTED_PASSWORD",
       name: "Ns. Gunawan, S.Tr.Kep., SKM",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1984,7 +1971,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "marianto",
-      password: "REDACTED_PASSWORD",
       name: "Ns. Marianto, S.Kep",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1993,7 +1979,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "andri.muzayyin",
-      password: "REDACTED_PASSWORD",
       name: "Andri Muzayyin, S.Kep., Ns",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -2002,7 +1987,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "diana",
-      password: "REDACTED_PASSWORD",
       name: "Diana Rachmawati, S.ST",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -2011,7 +1995,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "nuraini",
-      password: "REDACTED_PASSWORD",
       name: "Nur'aini Ratnasari, S.T.Keb",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -2023,7 +2006,6 @@ window.KOMITE_DATA = {
     {
       username: "laila",
       alias: "mutu",
-      password: "REDACTED_PASSWORD",
       name: "Laila Istiqomah, S.Kep., Ns",
       role: "Ketua Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2032,7 +2014,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "ely.lidiawati",
-      password: "REDACTED_PASSWORD",
       name: "Bdn. Ely Lidiawati, S.Tr.Keb",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2041,7 +2022,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "rudy.hartono",
-      password: "REDACTED_PASSWORD",
       name: "Rudy Hartono, S.Kep., Ns",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2050,7 +2030,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "stevanus",
-      password: "REDACTED_PASSWORD",
       name: "Stevanus Darmo, A.Md.Kep., SKM",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2059,7 +2038,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "ernia.wati",
-      password: "REDACTED_PASSWORD",
       name: "Ernia Wati, S.Kep., Ns",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2068,7 +2046,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "munazzil",
-      password: "REDACTED_PASSWORD",
       name: "Munazzil, A.Md.Kep",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2077,7 +2054,6 @@ window.KOMITE_DATA = {
     },
     {
       username: "odi.pratama",
-      password: "REDACTED_PASSWORD",
       name: "Odi Pratama Setiadi, S.Kep., Ns",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -2895,8 +2871,6 @@ window.KOMITE_DATA = {
     {
       nip: "000000000000000000",
       username: "hendra.kurniawan",
-      password: "hendra1992",
-      namaSandi: "hendra1992",
       name: "Ns. Hendra Kurniawan, S.Kep",
       profesi: "Perawat",
       unit: "Enggang Gading 2",
@@ -2912,8 +2886,6 @@ window.KOMITE_DATA = {
     {
       nip: "000000000000000000",
       username: "siti.rahmawati",
-      password: "siti1991",
-      namaSandi: "siti1991",
       name: "Bdn. Siti Rahmawati, S.Tr.Keb",
       profesi: "Bidan",
       unit: "Ruang Bersalin (VK) & Maternal",
@@ -2929,8 +2901,6 @@ window.KOMITE_DATA = {
     {
       nip: "000000000000000000",
       username: "bambang.prasetyo",
-      password: "bambang1985",
-      namaSandi: "bambang1985",
       name: "Ns. Bambang Prasetyo, S.Kep",
       profesi: "Perawat",
       unit: "ICU Sentral (Intensive Care Unit)",

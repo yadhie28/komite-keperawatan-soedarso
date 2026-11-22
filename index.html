@@ -3177,7 +3177,6 @@
                 <input type="checkbox" id="loginRememberMe" checked style="accent-color: var(--primary-600);">
                 <span>Ingat sesi di browser ini</span>
               </label>
-              <span style="color: var(--text-muted); font-size: 0.73rem;">Default: <code>REDACTED_PASSWORD</code></span>
             </div>
 
             <div id="loginErrorMessage" style="display: none; background: #fff1f2; border: 1px solid #fecaca; color: #b91c1c; padding: 0.65rem 0.85rem; border-radius: var(--radius-md); font-size: 0.82rem; margin-bottom: 1rem;">
@@ -3198,7 +3197,7 @@
             <i class="fa-solid fa-circle-info" style="color: var(--primary-600); margin-top: 2px; font-size: 1.1rem;"></i>
             <div>
               <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-main);">Login Pengusul Kredensialing Mandiri</div>
-              <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px;">Gunakan <strong>NIP</strong> sebagai username dan <strong>nama depan + tahun lahir</strong> sebagai kata sandi awal (contoh: <code>hendra1992</code>). Belum terdaftar? Gunakan tab <em>Daftar Baru</em>.</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px;">Gunakan <strong>NIP</strong> sebagai username dan kata sandi akun terdaftar. Belum terdaftar? Gunakan tab <em>Daftar Baru</em>.</div>
             </div>
           </div>
 
@@ -3483,7 +3482,7 @@
               <div class="form-group" style="margin-bottom: 0.85rem;">
                 <label class="form-label" style="font-size: 0.8rem;">Kata Sandi Saat Ini / Default</label>
                 <div class="input-with-toggle">
-                  <input type="password" class="form-input" id="settingsCurrentPass" placeholder="Masukkan sandi saat ini (default: REDACTED_PASSWORD)">
+                  <input type="password" class="form-input" id="settingsCurrentPass" placeholder="Masukkan sandi saat ini">
                   <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('settingsCurrentPass')" title="Lihat/Sembunyikan Sandi">
                     <i class="fa-solid fa-eye"></i>
                   </button>
@@ -7084,6 +7083,8 @@
   </div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase_client.js"></script>
   <script src="logo_asset.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
