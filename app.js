@@ -11495,6 +11495,18 @@ function handleUnifiedPortalLogin(e) {
     });
 
     if (matchedAdmin) {
+      let resolvedAdminUnit = matchedAdmin.unit;
+      if (!resolvedAdminUnit) {
+        if (kdRuangan === 'mutu') resolvedAdminUnit = 'Subkomite Mutu';
+        else if (kdRuangan === 'kredensial') resolvedAdminUnit = 'Subkomite Kredensial';
+        else if (kdRuangan === 'etik') resolvedAdminUnit = 'Subkomite Etik';
+        else if (kdRuangan && kdRuangan !== 'komite') {
+          const sel = document.getElementById('portalMainKdRuangan');
+          resolvedAdminUnit = sel?.options[sel.selectedIndex]?.text?.replace(/\s*\(\d+\s*TT\)/i, '')?.trim() || 'Komite Keperawatan';
+        } else {
+          resolvedAdminUnit = 'Komite Keperawatan';
+        }
+      }
       state.currentUser = {
         username: matchedAdmin.username,
         name: matchedAdmin.name,
@@ -11502,7 +11514,7 @@ function handleUnifiedPortalLogin(e) {
         role: matchedAdmin.role,
         badge: matchedAdmin.badge,
         access: matchedAdmin.access,
-        unit: matchedAdmin.unit || (kdRuangan === 'mutu' ? 'Subkomite Mutu' : kdRuangan === 'kredensial' ? 'Subkomite Kredensial' : kdRuangan === 'etik' ? 'Subkomite Etik' : 'Komite Keperawatan'),
+        unit: resolvedAdminUnit,
         phone: matchedAdmin.phone || '',
         email: matchedAdmin.email || '',
         password: matchedAdmin.password
@@ -11534,17 +11546,23 @@ function handleUnifiedPortalLogin(e) {
     });
 
     if (matchedNurse) {
+      const selRuanganEl = document.getElementById('portalMainKdRuangan');
+      let resolvedNurseUnit = matchedNurse.unit;
+      if (selRuanganEl && selRuanganEl.selectedIndex > 0 && selRuanganEl.value !== 'komite' && selRuanganEl.value !== '') {
+        const pickedText = selRuanganEl.options[selRuanganEl.selectedIndex]?.text?.replace(/\s*\(\d+\s*TT\)/i, '')?.trim();
+        if (pickedText) resolvedNurseUnit = pickedText;
+      }
       state.currentUser = {
         username: matchedNurse.username || matchedNurse.nip,
         name: matchedNurse.name,
         nip: matchedNurse.nip,
         role: 'pengusul',
         profesi: matchedNurse.profesi || 'Perawat',
-        unit: matchedNurse.unit || 'Ruang Pelayanan Rawat Inap',
+        unit: resolvedNurseUnit || 'Ruang Pelayanan Rawat Inap',
         jenjang: matchedNurse.jenjang || 'PK II',
         strNumber: matchedNurse.strNumber || '',
         strExpiry: matchedNurse.strExpiry || '',
-        badge: `Tenaga Keperawatan &bull; ${matchedNurse.unit || 'Rawat Inap'}`,
+        badge: `Tenaga Keperawatan &bull; ${resolvedNurseUnit || 'Rawat Inap'}`,
         access: ['pengusul', 'kredensial'],
         phone: matchedNurse.phone || '',
         email: matchedNurse.email || '',

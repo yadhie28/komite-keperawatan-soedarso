@@ -101,20 +101,72 @@
             </span>
           </div>
 
-          <!-- Field 3: Pilihan Unit Pelayanan / Ruangan / Penugasan (Seperti KdRuangan di SIMRS) -->
+          <!-- Field 3: Pilihan Unit Pelayanan / Ruangan / Penugasan (Sesuai SK Penetapan Tempat Tidur 2025 No. SK/031103/RSUD/2025) -->
           <div class="portal-form-floating">
             <i class="fa-solid fa-hospital-user portal-input-icon"></i>
             <select class="portal-form-control" id="portalMainKdRuangan">
               <option value="">Pilih unit pelayanan / penugasan...</option>
-              <option value="komite" selected>Komite Keperawatan (Sekretariat / Pimpinan)</option>
-              <option value="mutu">Subkomite Mutu Keperawatan</option>
-              <option value="kredensial">Subkomite Kredensial</option>
-              <option value="etik">Subkomite Etika &amp; Disiplin Profesi</option>
-              <option value="enggang2">Ruang Enggang Gading 2</option>
-              <option value="kakap">Ruang Rawat Inap Bedah (Kakap)</option>
-              <option value="vk">Ruang Bersalin (VK) &amp; Maternal</option>
-              <option value="icu">I C U / ICVCU / PICU / NICU</option>
-              <option value="lainnya">Ruang Rawat Inap / Pelayanan Lainnya</option>
+              
+              <optgroup label="── KOMITE &amp; SUBKOMITE KEPERAWATAN ──">
+                <option value="komite" selected>Komite Keperawatan (Sekretariat / Pimpinan)</option>
+                <option value="kredensial">Subkomite Kredensial</option>
+                <option value="mutu">Subkomite Mutu Keperawatan</option>
+                <option value="etik">Subkomite Etika &amp; Disiplin Profesi</option>
+              </optgroup>
+
+              <optgroup label="── A. INSTALASI RAWAT INAP A (SK TT 2025: 545 TT) ──">
+                <option value="singkut_buluh">Ruang Singkut Buluh (13 TT)</option>
+                <option value="ppt">Ruang PPT (43 TT)</option>
+                <option value="anak">Ruang A - Anak (95 TT)</option>
+                <option value="perinatologi">Ruang B - Perinatologi (25 TT)</option>
+                <option value="ruai">Ruang Ruai - Syaraf (33 TT)</option>
+                <option value="camar">Ruang Camar - Kemoterapi (34 TT)</option>
+                <option value="murai">Ruang Murai - Penyakit Dalam Pria &amp; Wanita (37 TT)</option>
+                <option value="meranti">Ruang Meranti (40 TT)</option>
+                <option value="mahoni">Ruang Mahoni (41 TT)</option>
+                <option value="ramin">Ruang Ramin (25 TT)</option>
+                <option value="enggang1">Ruang Enggang Gading 1 (10 TT)</option>
+                <option value="enggang2">Ruang Enggang Gading 2 (48 TT)</option>
+                <option value="kakap">Ruang Rawat Inap Bedah (Kakap)</option>
+                <option value="isolasi_paru">Ruang Rawat Inap Isolasi Paru (38 TT)</option>
+              </optgroup>
+
+              <optgroup label="── RAWAT INTENSIF &amp; KRITIS (ICU / HCU / NICU / PICU) ──">
+                <option value="icu">ICU - Intensive Care Unit (18 TT)</option>
+                <option value="hcu_umum">HCU Umum - High Care Unit (19 TT)</option>
+                <option value="picu">PICU - Pediatric Intensive Care Unit (7 TT)</option>
+                <option value="hcu_anak">HCU Anak (6 TT)</option>
+                <option value="nicu">NICU - Neonatal Intensive Care Unit (9 TT)</option>
+                <option value="isolasi_icu">Rawat Inap Isolasi ICU (4 TT)</option>
+              </optgroup>
+
+              <optgroup label="── B. INSTALASI JANTUNG TERPADU (SK TT 2025: 50 TT) ──">
+                <option value="icvcu">ICVCU - Intensive Cardiovascular Care Unit (14 TT)</option>
+                <option value="hcu_jantung">HCU Jantung (4 TT)</option>
+                <option value="ijt_vip">Rawat Inap Jantung - VIP (4 TT)</option>
+                <option value="ijt_kelas1">Rawat Inap Jantung - Kelas 1 (8 TT)</option>
+                <option value="ijt_nonkelas">Rawat Inap Jantung - Non Kelas (20 TT)</option>
+              </optgroup>
+
+              <optgroup label="── C. RUANG TINDAKAN &amp; GAWAT DARURAT (SK TT 2025: 43 TT) ──">
+                <option value="cendana">Ruang Cendana (16 TT)</option>
+                <option value="igd">Instalasi Gawat Darurat (IGD Umum) (15 TT)</option>
+                <option value="vk">IGD Kebidanan / Ruang Bersalin (VK) &amp; Maternal (2 TT)</option>
+                <option value="ok_sentral">OK Sentral - Kamar Bedah Sentral (8 TT)</option>
+                <option value="ok_igd">OK IGD - Kamar Bedah Gawat Darurat (2 TT)</option>
+              </optgroup>
+
+              <optgroup label="── D. RUANG RAWAT KHUSUS (SK TT 2025: 66 TT) ──">
+                <option value="thalassemia">Ruang Thalassemia (13 TT)</option>
+                <option value="hd_jalan">Hemodialisa (HD) Rawat Jalan (27 TT)</option>
+                <option value="hd_inap">Hemodialisa (HD) Rawat Inap (6 TT)</option>
+                <option value="kemoterapi_odc">Kemoterapi ODC - One Day Care (20 TT)</option>
+              </optgroup>
+
+              <optgroup label="── UNIT PELAYANAN LAINNYA ──">
+                <option value="rajal">Rawat Jalan / Poliklinik Terpadu</option>
+                <option value="lainnya">Ruang Rawat Inap / Pelayanan Lainnya</option>
+              </optgroup>
             </select>
           </div>
 
@@ -1413,10 +1465,11 @@
               </div>
               <div>
                 <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Shift Dinas*</label>
-                <select id="logShift" class="form-input" required>
-                  <option value="Pagi">Pagi (07.00 - 14.00 WIB)</option>
+                                <select id="logShift" class="form-input" required>
+                  <option value="Pagi" selected>Pagi (07.00 - 14.00 WIB)</option>
                   <option value="Sore">Sore (14.00 - 21.00 WIB)</option>
                   <option value="Malam">Malam (21.00 - 07.00 WIB)</option>
+                  <option value="Non-Shift">Non-Shift / Dinas Kantor (07.30 - 16.00 WIB)</option>
                 </select>
               </div>
               <div>
@@ -1464,13 +1517,196 @@
                 <div>
                   <label class="form-label" style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">Pilih Diagnosis SDKI (Daftar Lengkap Berdasarkan Kategori)*</label>
                   <select id="logSdkiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.applySdkiSelection(this.value)" required>
-                    <!-- Populated via elogbook.js -->
+<option value="">-- Pilih Diagnosis SDKI (Standar PPNI) --</option>
+  <optgroup label="── FISIOLOGIS • RESPIRASI ──">
+    <option value="D.0001">[D.0001] Bersihan Jalan Napas Tidak Efektif</option>
+    <option value="D.0002">[D.0002] Gangguan Penyapihan Ventilator</option>
+    <option value="D.0003">[D.0003] Gangguan Pertukaran Gas</option>
+    <option value="D.0004">[D.0004] Gangguan Ventilasi Spontan</option>
+    <option value="D.0005">[D.0005] Pola Napas Tidak Efektif</option>
+    <option value="D.0006">[D.0006] Risiko Aspirasi</option>
+  </optgroup>
+  <optgroup label="── FISIOLOGIS • SIRKULASI ──">
+    <option value="D.0007">[D.0007] Gangguan Sirkulasi Spontan</option>
+    <option value="D.0008">[D.0008] Penurunan Curah Jantung</option>
+    <option value="D.0009">[D.0009] Perfusi Perifer Tidak Efektif</option>
+    <option value="D.0010">[D.0010] Risiko Gangguan Sirkulasi Spontan</option>
+    <option value="D.0011">[D.0011] Risiko Penurunan Curah Jantung</option>
+    <option value="D.0012">[D.0012] Risiko Perdarahan</option>
+    <option value="D.0013">[D.0013] Risiko Perfusi Gastrointestinal Tidak Efektif</option>
+    <option value="D.0014">[D.0014] Risiko Perfusi Miokard Tidak Efektif</option>
+    <option value="D.0015">[D.0015] Risiko Perfusi Perifer Tidak Efektif</option>
+    <option value="D.0016">[D.0016] Risiko Perfusi Renal Tidak Efektif</option>
+    <option value="D.0017">[D.0017] Risiko Perfusi Serebral Tidak Efektif</option>
+  </optgroup>
+  <optgroup label="── FISIOLOGIS • NUTRISI DAN CAIRAN ──">
+    <option value="D.0018">[D.0018] Berat Badan Lebih</option>
+    <option value="D.0019">[D.0019] Defisit Nutrisi</option>
+    <option value="D.0020">[D.0020] Diare</option>
+    <option value="D.0021">[D.0021] Disfungsi Motilitas Gastrointestinal</option>
+    <option value="D.0022">[D.0022] Hipervolemia</option>
+    <option value="D.0023">[D.0023] Hipovolemia</option>
+    <option value="D.0024">[D.0024] Ikterik Neonatus</option>
+    <option value="D.0025">[D.0025] Kesiapan Peningkatan Keseimbangan Cairan</option>
+    <option value="D.0026">[D.0026] Kesiapan Peningkatan Nutrisi</option>
+    <option value="D.0027">[D.0027] Ketidakstabilan Kadar Glukosa Darah</option>
+    <option value="D.0028">[D.0028] Menyusui Efektif</option>
+    <option value="D.0029">[D.0029] Menyusui Tidak Efektif</option>
+    <option value="D.0030">[D.0030] Obesitas</option>
+    <option value="D.0031">[D.0031] Risiko Berat Badan Lebih</option>
+    <option value="D.0032">[D.0032] Risiko Defisit Nutrisi</option>
+    <option value="D.0034">[D.0034] Risiko Hipovolemia</option>
+    <option value="D.0035">[D.0035] Risiko Ikterik Neonatus</option>
+    <option value="D.0036">[D.0036] Risiko Ketidakseimbangan Cairan</option>
+    <option value="D.0037">[D.0037] Risiko Ketidakseimbangan Elektrolit</option>
+    <option value="D.0038">[D.0038] Risiko Ketidakstabilan Kadar Glukosa Darah</option>
+    <option value="D.0039">[D.0039] Risiko Syok</option>
+  </optgroup>
+  <optgroup label="── FISIOLOGIS • ELIMINASI ──">
+    <option value="D.0040">[D.0040] Gangguan Eliminasi Urin</option>
+    <option value="D.0041">[D.0041] Inkontinensia Fekal</option>
+    <option value="D.0042">[D.0042] Inkontinensia Urin Berlanjut</option>
+    <option value="D.0043">[D.0043] Inkontinensia Urin Berlebih</option>
+    <option value="D.0044">[D.0044] Inkontinensia Urin Fungsional</option>
+    <option value="D.0045">[D.0045] Inkontinensia Urin Refleks</option>
+    <option value="D.0046">[D.0046] Inkontinensia Urin Stres</option>
+    <option value="D.0047">[D.0047] Inkontinensia Urin Urgensi</option>
+    <option value="D.0048">[D.0048] Kesiapan Peningkatan Eliminasi Urin</option>
+    <option value="D.0049">[D.0049] Konstipasi</option>
+    <option value="D.0050">[D.0050] Retensi Urin</option>
+    <option value="D.0051">[D.0051] Risiko Inkontinensia Urin Urgensi</option>
+    <option value="D.0052">[D.0052] Risiko Konstipasi</option>
+  </optgroup>
+  <optgroup label="── FISIOLOGIS • AKTIVITAS DAN ISTIRAHAT ──">
+    <option value="D.0053">[D.0053] Disorganisasi Perilaku Bayi</option>
+    <option value="D.0054">[D.0054] Gangguan Mobilitas Fisik</option>
+    <option value="D.0055">[D.0055] Gangguan Pola Tidur</option>
+    <option value="D.0056">[D.0056] Intoleransi Aktivitas</option>
+    <option value="D.0057">[D.0057] Keletihan</option>
+    <option value="D.0058">[D.0058] Kesiapan Peningkatan Tidur</option>
+    <option value="D.0059">[D.0059] Risiko Disorganisasi Perilaku Bayi</option>
+    <option value="D.0060">[D.0060] Risiko Intoleransi Aktivitas</option>
+  </optgroup>
+  <optgroup label="── FISIOLOGIS • NEUROSENSORI ──">
+    <option value="D.0061">[D.0061] Disrefleksia Otonom</option>
+    <option value="D.0062">[D.0062] Gangguan Memori</option>
+    <option value="D.0063">[D.0063] Gangguan Menelan</option>
+    <option value="D.0064">[D.0064] Konfusi Akut</option>
+    <option value="D.0065">[D.0065] Konfusi Kronis</option>
+    <option value="D.0066">[D.0066] Penurunan Kapasitas Adaptif Intrakranial</option>
+    <option value="D.0067">[D.0067] Risiko Disrefleksia Otonom</option>
+    <option value="D.0068">[D.0068] Risiko Konfusi Akut</option>
+  </optgroup>
+  <optgroup label="── FISIOLOGIS • REPRODUKSI DAN SEKSUALITAS ──">
+    <option value="D.0069">[D.0069] Disfungsi Seksual</option>
+    <option value="D.0070">[D.0070] Kesiapan Persalinan</option>
+    <option value="D.0071">[D.0071] Pola Seksual Tidak Efektif</option>
+    <option value="D.0072">[D.0072] Risiko Disfungsi Seksual</option>
+    <option value="D.0073">[D.0073] Risiko Kehamilan Tidak Dikehendaki</option>
+    <option value="D.0079">[D.0079] Nyeri Melahirkan</option>
+  </optgroup>
+  <optgroup label="── PSIKOLOGIS • NYERI DAN KENYAMANAN ──">
+    <option value="D.0074">[D.0074] Gangguan Rasa Nyaman</option>
+    <option value="D.0075">[D.0075] Ketidaknyamanan Pasca Partum</option>
+    <option value="D.0076">[D.0076] Nausea</option>
+    <option value="D.0077" selected>[D.0077] Nyeri Akut</option>
+    <option value="D.0078">[D.0078] Nyeri Kronis</option>
+  </optgroup>
+  <optgroup label="── PSIKOLOGIS • INTEGRITAS EGO ──">
+    <option value="D.0080">[D.0080] Ansietas</option>
+    <option value="D.0081">[D.0081] Berduka</option>
+    <option value="D.0082">[D.0082] Distres Spiritual</option>
+    <option value="D.0083">[D.0083] Gangguan Citra Tubuh</option>
+    <option value="D.0084">[D.0084] Gangguan Identitas Diri</option>
+    <option value="D.0085">[D.0085] Gangguan Persepsi Sensori</option>
+    <option value="D.0086">[D.0086] Keputusasaan</option>
+    <option value="D.0087">[D.0087] Kesiapan Peningkatan Konsep Diri</option>
+    <option value="D.0088">[D.0088] Kesiapan Peningkatan Koping Keluarga</option>
+    <option value="D.0089">[D.0089] Kesiapan Peningkatan Koping Komunitas</option>
+    <option value="D.0090">[D.0090] Kesiapan Peningkatan Religiositas</option>
+    <option value="D.0091">[D.0091] Ketidakberdayaan</option>
+    <option value="D.0092">[D.0092] Ketidakmampuan Koping Keluarga</option>
+    <option value="D.0093">[D.0093] Koping Defensif</option>
+    <option value="D.0094">[D.0094] Koping Komunitas Tidak Efektif</option>
+    <option value="D.0095">[D.0095] Koping Tidak Efektif</option>
+    <option value="D.0096">[D.0096] Penurunan Koping Keluarga</option>
+    <option value="D.0097">[D.0097] Penyangkalan Tidak Efektif</option>
+    <option value="D.0098">[D.0098] Perilaku Kesehatan Cenderung Berisiko</option>
+    <option value="D.0099">[D.0099] Risiko Ansietas</option>
+    <option value="D.0100">[D.0100] Risiko Berduka</option>
+    <option value="D.0101">[D.0101] Risiko Distres Spiritual</option>
+    <option value="D.0102">[D.0102] Risiko Ketidakberdayaan</option>
+    <option value="D.0103">[D.0103] Risiko Keputusasaan</option>
+    <option value="D.0104">[D.0104] Sindrom Pascatrauma</option>
+    <option value="D.0105">[D.0105] Waham</option>
+  </optgroup>
+  <optgroup label="── PSIKOLOGIS • PERTUMBUHAN DAN PERKEMBANGAN ──">
+    <option value="D.0106">[D.0106] Gangguan Tumbuh Kembang</option>
+    <option value="D.0107">[D.0107] Risiko Gangguan Perkembangan</option>
+    <option value="D.0108">[D.0108] Risiko Gangguan Pertumbuhan</option>
+  </optgroup>
+  <optgroup label="── PERILAKU • KEBERSIHAN DIRI ──">
+    <option value="D.0109">[D.0109] Defisit Perawatan Diri</option>
+  </optgroup>
+  <optgroup label="── PERILAKU • PENYULUHAN DAN PEMBELAJARAN ──">
+    <option value="D.0110">[D.0110] Ketidakpatuhan</option>
+    <option value="D.0111">[D.0111] Defisit Pengetahuan</option>
+    <option value="D.0112">[D.0112] Kesiapan Peningkatan Manajemen Kesehatan</option>
+    <option value="D.0113">[D.0113] Kesiapan Peningkatan Pengetahuan</option>
+    <option value="D.0114">[D.0114] Manajemen Kesehatan Keluarga Tidak Efektif</option>
+    <option value="D.0115">[D.0115] Manajemen Kesehatan Tidak Efektif</option>
+    <option value="D.0116">[D.0116] Pemeliharaan Kesehatan Tidak Efektif</option>
+  </optgroup>
+  <optgroup label="── RELASIONAL • INTERAKSI SOSIAL ──">
+    <option value="D.0118">[D.0118] Gangguan Komunikasi Verbal</option>
+    <option value="D.0119">[D.0119] Gangguan Interaksi Sosial</option>
+    <option value="D.0120">[D.0120] Isolasi Sosial</option>
+    <option value="D.0121">[D.0121] Kesiapan Peningkatan Menjadi Orang Tua</option>
+    <option value="D.0122">[D.0122] Kesiapan Peningkatan Proses Berkeluarga</option>
+    <option value="D.0123">[D.0123] Ketegangan Peran Pemberi Asuhan</option>
+    <option value="D.0124">[D.0124] Penampilan Peran Tidak Efektif</option>
+    <option value="D.0125">[D.0125] Pencapaian Peran Menjadi Orang Tua</option>
+    <option value="D.0126">[D.0126] Risiko Gangguan Perlekatan</option>
+    <option value="D.0127">[D.0127] Risiko Ketegangan Peran Pemberi Asuhan</option>
+    <option value="D.0128">[D.0128] Risiko Proses Pengasuhan Tidak Efektif</option>
+  </optgroup>
+  <optgroup label="── LINGKUNGAN • KEAMANAN DAN PROTEKSI ──">
+    <option value="D.0129">[D.0129] Gangguan Integritas Kulit/Jaringan</option>
+    <option value="D.0130">[D.0130] Hipertermia</option>
+    <option value="D.0131">[D.0131] Hipotermia</option>
+    <option value="D.0132">[D.0132] Perilaku Kekerasan</option>
+    <option value="D.0133">[D.0133] Perlambatan Pemulihan Pascabedah</option>
+    <option value="D.0134">[D.0134] Risiko Alergi</option>
+    <option value="D.0135">[D.0135] Risiko Aspirasi</option>
+    <option value="D.0136">[D.0136] Risiko Bunuh Diri</option>
+    <option value="D.0137">[D.0137] Risiko Cedera</option>
+    <option value="D.0138">[D.0138] Risiko Cedera pada Ibu</option>
+    <option value="D.0139">[D.0139] Risiko Cedera pada Janin</option>
+    <option value="D.0140">[D.0140] Risiko Gangguan Integritas Kulit/Jaringan</option>
+    <option value="D.0141">[D.0141] Risiko Hipotermia Perioperatif</option>
+    <option value="D.0142">[D.0142] Risiko Infeksi</option>
+    <option value="D.0143">[D.0143] Risiko Jatuh</option>
+    <option value="D.0144">[D.0144] Risiko Luka Tekan (Dekubitus)</option>
+    <option value="D.0145">[D.0145] Risiko Mutilasi Diri</option>
+    <option value="D.0146">[D.0146] Risiko Perilaku Kekerasan</option>
+    <option value="D.0147">[D.0147] Risiko Perlambatan Pemulihan Pascabedah</option>
+    <option value="D.0148">[D.0148] Risiko Termoregulasi Tidak Efektif</option>
+    <option value="D.0149">[D.0149] Termoregulasi Tidak Efektif</option>
+  </optgroup>
                   </select>
                 </div>
                 <div>
                   <label class="form-label" style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">Etiologi / Faktor Penyebab (b.d)*</label>
-                  <select id="logEtiologySelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onEtiologyChange(this.value)">
-                    <!-- Populated via elogbook.js -->
+                                    <select id="logEtiologySelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onEtiologyChange(this.value)">
+                    <optgroup label="PILIHAN ETIOLOGI / FAKTOR PENYEBAB (b.d)">
+                      <option value="Agen pencedera fisik (prosedur operasi/trauma/luka bakar)" selected>1. Agen pencedera fisik (prosedur operasi/trauma/luka bakar)</option>
+                      <option value="Agen pencedera fisiologis (inflamasi/iskemia/infark)">2. Agen pencedera fisiologis (inflamasi/iskemia/infark)</option>
+                      <option value="Agen pencedera kimiawi (bahan korosif/asam lambung)">3. Agen pencedera kimiawi (bahan korosif/asam lambung)</option>
+                    </optgroup>
+                    <optgroup label="LAINNYA">
+                      <option value="">(Format Dasar Tanpa Etiologi Tambahan)</option>
+                      <option value="Faktor individual / kondisi klinis khusus pasien">Faktor individual / kondisi klinis khusus pasien</option>
+                    </optgroup>
                   </select>
                 </div>
               </div>
@@ -1489,67 +1725,70 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
               <div>
                 <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Kategori Tindakan*</label>
-                <select id="logCategoryAction" class="form-input" required>
-                  <option value="Mandiri">Mandiri (Kewenangan Penuh)</option>
-                  <option value="Kolaboratif">Kolaboratif (Bersama DPJP/Klinisi)</option>
-                  <option value="Edukasi">Edukasi &amp; Konseling Pasien</option>
+                                <select id="logCategoryAction" class="form-input" required>
+                  <option value="Mandiri" selected>Mandiri (Kewenangan Klinis Mandiri)</option>
+                  <option value="Kolaboratif">Kolaboratif (Delegasi / Kolaborasi DPJP)</option>
+                  <option value="Edukasi">Edukasi (Pendidikan Kesehatan Pasien &amp; Keluarga)</option>
+                  <option value="Observasi">Observasi (Pemantauan Hemodinamik &amp; Respon Klinis)</option>
                 </select>
               </div>
               <div>
                 <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Unit Kerja / Ruangan <span style="color: red;">*</span></label>
-                <select id="logWorkUnit" class="form-input" style="font-size: 0.8rem;" required>
-                  <option value="">-- Pilih Unit Kerja / Ruangan (SK Tempat Tidur 2026) --</option>
+                                <select id="logWorkUnit" class="form-input" style="font-size: 0.8rem;" required>
+                  <option value="">-- Pilih Unit Kerja / Ruangan (SK Tempat Tidur 2025 No. SK/031103/RSUD/2025) --</option>
                   
-                  <optgroup label="A. RAWAT INAP (574 Tempat Tidur)">
-                    <option value="Singkut Buluh">Singkut Buluh (13 TT)</option>
-                    <option value="PPT">PPT (43 TT)</option>
-                    <option value="A (Anak)">A (Anak) (99 TT)</option>
-                    <option value="B (Perinatologi)">B (Perinatologi) (25 TT)</option>
-                    <option value="ULS (Syaraf)">ULS (Syaraf) (38 TT)</option>
-                    <option value="Camar (Kemoterapi)">Camar (Kemoterapi) (35 TT)</option>
-                    <option value="Kerapu (Penyakit Dalam Pria &amp; Wanita)">Kerapu (Penyakit Dalam Pria &amp; Wanita) (41 TT)</option>
-                    <option value="Meranti">Meranti (40 TT)</option>
-                    <option value="Mahoni">Mahoni (41 TT)</option>
-                    <option value="Ramin - Dewasa">Ramin - Dewasa (28 TT)</option>
-                    <option value="Ramin - Bayi">Ramin - Bayi (5 TT)</option>
-                    <option value="ICU">ICU (18 TT)</option>
-                    <option value="HCU Umum">HCU Umum (19 TT)</option>
-                    <option value="PICU">PICU (7 TT)</option>
+                  <optgroup label="── A. INSTALASI RAWAT INAP A (SK TT 2025: 545 TT) ──">
+                    <option value="Ruang Singkut Buluh">Ruang Singkut Buluh (13 TT)</option>
+                    <option value="Ruang PPT">Ruang PPT (43 TT)</option>
+                    <option value="Ruang A - Anak">Ruang A - Anak (95 TT)</option>
+                    <option value="Ruang B - Perinatologi">Ruang B - Perinatologi (25 TT)</option>
+                    <option value="Ruang Ruai - Syaraf">Ruang Ruai - Syaraf (33 TT)</option>
+                    <option value="Ruang Camar - Kemoterapi">Ruang Camar - Kemoterapi (34 TT)</option>
+                    <option value="Ruang Murai - Penyakit Dalam">Ruang Murai - Penyakit Dalam Pria &amp; Wanita (37 TT)</option>
+                    <option value="Ruang Meranti">Ruang Meranti (40 TT)</option>
+                    <option value="Ruang Mahoni">Ruang Mahoni (41 TT)</option>
+                    <option value="Ruang Ramin">Ruang Ramin (25 TT)</option>
+                    <option value="Ruang Enggang Gading 1">Ruang Enggang Gading 1 (10 TT)</option>
+                    <option value="Ruang Enggang Gading 2" selected>Ruang Enggang Gading 2 (48 TT)</option>
+                    <option value="Ruang Kakap - Bedah">Ruang Rawat Inap Bedah (Kakap)</option>
+                    <option value="Ruang Rawat Inap Isolasi Paru">Ruang Rawat Inap Isolasi Paru (38 TT)</option>
+                  </optgroup>
+
+                  <optgroup label="── RAWAT INTENSIF &amp; KRITIS (ICU / HCU / NICU / PICU) ──">
+                    <option value="ICU - Intensive Care Unit">ICU - Intensive Care Unit (18 TT)</option>
+                    <option value="HCU Umum - High Care Unit">HCU Umum - High Care Unit (19 TT)</option>
+                    <option value="PICU - Pediatric Intensive Care">PICU - Pediatric Intensive Care Unit (7 TT)</option>
                     <option value="HCU Anak">HCU Anak (6 TT)</option>
-                    <option value="NICU">NICU (9 TT)</option>
-                    <option value="Rawat Inap Isolasi Paru">Rawat Inap Isolasi Paru (42 TT)</option>
+                    <option value="NICU - Neonatal Intensive Care">NICU - Neonatal Intensive Care Unit (9 TT)</option>
                     <option value="Rawat Inap Isolasi ICU">Rawat Inap Isolasi ICU (4 TT)</option>
-                    <option value="Kakap">Kakap (41 TT)</option>
-                    <option value="Arwana">Arwana (20 TT)</option>
                   </optgroup>
 
-                  <optgroup label="B. RAWAT INAP JANTUNG TERPADU (50 Tempat Tidur)">
-                    <option value="Rawat Inap Jantung Terpadu - ICVCU">Rawat Inap Jantung Terpadu - ICVCU (14 TT)</option>
-                    <option value="Rawat Inap Jantung Terpadu - HCU">Rawat Inap Jantung Terpadu - HCU (4 TT)</option>
-                    <option value="Rawat Inap Jantung Terpadu - VIP">Rawat Inap Jantung Terpadu - VIP (4 TT)</option>
-                    <option value="Rawat Inap Jantung Terpadu - Kelas 1">Rawat Inap Jantung Terpadu - Kelas 1 (8 TT)</option>
-                    <option value="Rawat Inap Jantung Terpadu - Non Kelas">Rawat Inap Jantung Terpadu - Non Kelas (20 TT)</option>
+                  <optgroup label="── B. INSTALASI JANTUNG TERPADU (SK TT 2025: 50 TT) ──">
+                    <option value="ICVCU - Intensive Cardiovascular Care">ICVCU - Intensive Cardiovascular Care Unit (14 TT)</option>
+                    <option value="HCU Jantung">HCU Jantung (4 TT)</option>
+                    <option value="Rawat Inap Jantung - VIP">Rawat Inap Jantung - VIP (4 TT)</option>
+                    <option value="Rawat Inap Jantung - Kelas 1">Rawat Inap Jantung - Kelas 1 (8 TT)</option>
+                    <option value="Rawat Inap Jantung - Non Kelas">Rawat Inap Jantung - Non Kelas (20 TT)</option>
                   </optgroup>
 
-                  <optgroup label="C. RUANG TINDAKAN (51 Tempat Tidur)">
-                    <option value="Cendana - Rawat Inap Dewasa">Cendana - Rawat Inap Dewasa (6 TT)</option>
-                    <option value="Cendana - Ruang Tindakan">Cendana - Ruang Tindakan (5 TT)</option>
-                    <option value="Cendana - Bed Bayi Rawat Gabung">Cendana - Bed Bayi Rawat Gabung (5 TT)</option>
-                    <option value="IGD Kebidanan">IGD Kebidanan (2 TT)</option>
-                    <option value="IGD (Instalasi Gawat Darurat)">IGD (Instalasi Gawat Darurat) (16 TT)</option>
-                    <option value="IGD Transit">IGD Transit (12 TT)</option>
-                    <option value="OK Sentral">OK Sentral (8 TT)</option>
-                    <option value="OK IGD">OK IGD (2 TT)</option>
+                  <optgroup label="── C. RUANG TINDAKAN &amp; GAWAT DARURAT (SK TT 2025: 43 TT) ──">
+                    <option value="Ruang Tindakan Cendana">Ruang Cendana (16 TT)</option>
+                    <option value="Instalasi Gawat Darurat (IGD)">Instalasi Gawat Darurat (IGD Umum) (15 TT)</option>
+                    <option value="IGD Kebidanan / Ruang Bersalin (VK)">IGD Kebidanan / Ruang Bersalin (VK) &amp; Maternal (2 TT)</option>
+                    <option value="OK Sentral - Kamar Bedah">OK Sentral - Kamar Bedah Sentral (8 TT)</option>
+                    <option value="OK IGD - Kamar Bedah Darurat">OK IGD - Kamar Bedah Gawat Darurat (2 TT)</option>
                   </optgroup>
 
-                  <optgroup label="D. RUANG RAWAT KHUSUS (74 Tempat Tidur)">
-                    <option value="Thalasemia">Thalasemia (20 TT)</option>
-                    <option value="Hemodialisa (HD)">Hemodialisa (HD) (34 TT)</option>
-                    <option value="Kemoterapi (ODC)">Kemoterapi (ODC) (20 TT)</option>
+                  <optgroup label="── D. RUANG RAWAT KHUSUS (SK TT 2025: 66 TT) ──">
+                    <option value="Ruang Thalassemia">Ruang Thalassemia (13 TT)</option>
+                    <option value="Hemodialisa (HD) Rawat Jalan">Hemodialisa (HD) Rawat Jalan (27 TT)</option>
+                    <option value="Hemodialisa (HD) Rawat Inap">Hemodialisa (HD) Rawat Inap (6 TT)</option>
+                    <option value="Kemoterapi ODC (One Day Care)">Kemoterapi ODC - One Day Care (20 TT)</option>
                   </optgroup>
 
-                  <optgroup label="E. RAWAT JALAN &amp; PENUNJANG">
-                    <option value="Poliklinik Rawat Jalan">Poliklinik Rawat Jalan</option>
+                  <optgroup label="── E. RAWAT JALAN &amp; PENUNJANG ──">
+                    <option value="Poliklinik Rawat Jalan Terpadu">Poliklinik Rawat Jalan Terpadu</option>
+                    <option value="Ruang Pelayanan Lainnya">Ruang Rawat Inap / Pelayanan Lainnya</option>
                   </optgroup>
                 </select>
               </div>
@@ -1563,29 +1802,124 @@
                   <i class="fa-solid fa-book-medical"></i> Standar PPNI Edisi 1 (Observasi, Terapeutik, Edukasi, Kolaborasi)
                 </span>
               </div>
-              <select id="logSikiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSikiChange()" required>
-                <!-- Populated via elogbook.js -->
+                            <select id="logSikiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSikiChange()" required>
+                <optgroup label="⭐ REKOMENDASI SIKI (DIAGNOSIS D.0077 NYERI AKUT)">
+                  <option value="I.08238 - Manajemen Nyeri (Identifikasi lokasi, karakteristik, durasi, frekuensi, intensitas nyeri (PQRST), berikan teknik relaksasi napas dalam, kolaborasi analgetik)" selected>⭐ [Rekomendasi Utama] I.08238 - Manajemen Nyeri</option>
+                  <option value="I.08243 - Pemberian Analgesik (Identifikasi riwayat alergi obat, monitor tanda vital sebelum dan sesudah analgesik, dokumentasikan respon)">🔸 [Alternatif Terkait] I.08243 - Pemberian Analgesik</option>
+                  <option value="I.08247 - Terapi Relaksasi (Ciptakan lingkungan tenang, demonstrasikan relaksasi otot progresif atau distraksi musik)">🔸 [Alternatif Terkait] I.08247 - Terapi Relaksasi</option>
+                </optgroup>
+                <optgroup label="SIKI: FISIOLOGIS • RESPIRASI">
+                  <option value="I.01011 - Manajemen Jalan Napas (Monitor pola napas, posisikan semi-Fowler/Fowler, fisioterapi dada, suction lendir steril)">[I.01011] Manajemen Jalan Napas</option>
+                  <option value="I.01014 - Pemantauan Respirasi (Monitor frekuensi, irama, kedalaman, saturasi oksigen SpO2 berkala, serta AGD)">[I.01014] Pemantauan Respirasi</option>
+                  <option value="I.01026 - Terapi Oksigen (Berikan oksigen tambahan via kanul nasal/NRM sesuai instruksi DPJP)">[I.01026] Terapi Oksigen</option>
+                  <option value="I.01006 - Latihan Batuk Efektif (Jelaskan tujuan dan prosedur, anjurkan tarik napas dalam 3 kali lalu batukkan)">[I.01006] Latihan Batuk Efektif</option>
+                  <option value="I.01018 - Pencegahan Aspirasi (Monitor tingkat kesadaran dan refleks menelan, posisikan kepala elevasi 30-45 derajat)">[I.01018] Pencegahan Aspirasi</option>
+                </optgroup>
+                <optgroup label="SIKI: FISIOLOGIS • SIRKULASI">
+                  <option value="I.02075 - Perawatan Jantung (Identifikasi tanda/gejala primer penurunan curah jantung, monitor EKG 12 lead)">[I.02075] Perawatan Jantung</option>
+                  <option value="I.02076 - Perawatan Jantung Akut (Pertahankan tirah baring posisi semi-Fowler, monitor saturasi O2, pasang akses IV)">[I.02076] Perawatan Jantung Akut</option>
+                  <option value="I.02079 - Perawatan Sirkulasi Perifer (Periksa sirkulasi perifer: nadi, CRT, akral, warna kulit)">[I.02079] Perawatan Sirkulasi Perifer</option>
+                  <option value="I.02067 - Pencegahan Perdarahan (Monitor tanda dan gejala perdarahan masif, monitor nilai hematokrit &amp; Hb)">[I.02067] Pencegahan Perdarahan</option>
+                  <option value="I.02083 - Resusitasi Jantung Paru (Kompresi dada 100-120x/m, defibrilasi dini bila shockable rhythm)">[I.02083] Resusitasi Jantung Paru</option>
+                </optgroup>
+                <optgroup label="SIKI: FISIOLOGIS • NUTRISI DAN CAIRAN">
+                  <option value="I.03119 - Manajemen Nutrisi (Identifikasi status nutrisi, monitor asupan makanan, berikan tinggi kalori tinggi protein)">[I.03119] Manajemen Nutrisi</option>
+                  <option value="I.03114 - Manajemen Hipervolemia (Periksa ortopnea, edema, JVP, timbang BB harian, batasi cairan)">[I.03114] Manajemen Hipervolemia</option>
+                  <option value="I.03116 - Manajemen Hipovolemia (Periksa nadi, turgor, TD, rehidrasi cairan IV isotonis)">[I.03116] Manajemen Hipovolemia</option>
+                  <option value="I.03115 - Manajemen Hiperglikemia (Monitor kadar glukosa darah berkala via POCT, kolaborasi insulin)">[I.03115] Manajemen Hiperglikemia</option>
+                  <option value="I.03101 - Manajemen Diare (Identifikasi riwayat diare, monitor frekuensi dan konsistensi, rehidrasi oral/IV)">[I.03101] Manajemen Diare</option>
+                </optgroup>
+                <optgroup label="SIKI: FISIOLOGIS • ELIMINASI">
+                  <option value="I.04152 - Manajemen Eliminasi Urin (Identifikasi retensi/inkontinensia, monitor volume urine, pasang kateter bila perlu)">[I.04152] Manajemen Eliminasi Urin</option>
+                  <option value="I.04155 - Manajemen Konstipasi (Anjurkan diet tinggi serat dan hidrasi cukup, anjurkan mobilisasi bertahap)">[I.04155] Manajemen Konstipasi</option>
+                </optgroup>
+                <optgroup label="SIKI: FISIOLOGIS • AKTIVITAS DAN ISTIRAHAT">
+                  <option value="I.05173 - Dukungan Mobilisasi (Fasilitasi mobilisasi alat bantu, dampingi latihan rentang gerak ROM)">[I.05173] Dukungan Mobilisasi</option>
+                  <option value="I.05177 - Pengaturan Posisi (Ubah posisi tidur miring kanan/kiri tiap 2 jam)">[I.05177] Pengaturan Posisi</option>
+                  <option value="I.05174 - Dukungan Tidur (Modifikasi lingkungan: redupkan lampu, batasi kebisingan ruangan)">[I.05174] Dukungan Tidur</option>
+                  <option value="I.05178 - Manajemen Energi (Identifikasi kelelahan fisik, bantu pemenuhan aktivitas bertahap)">[I.05178] Manajemen Energi</option>
+                </optgroup>
+                <optgroup label="SIKI: LINGKUNGAN • KEAMANAN DAN PROTEKSI">
+                  <option value="I.11353 - Perawatan Luka (Monitor karakteristik luka, bersihkan dengan NaCl 0.9%, balutan modern dressing steril)">[I.11353] Perawatan Luka</option>
+                  <option value="I.11354 - Perawatan Integritas Kulit (Ubah posisi tiap 2 jam, gunakan pelembab pada kulit kering)">[I.11354] Perawatan Integritas Kulit</option>
+                  <option value="I.14539 - Pencegahan Infeksi (Kebersihan tangan 5 momen, teknik steril perawatan luka/infus, monitor rubor/kalor/dolor)">[I.14539] Pencegahan Infeksi</option>
+                  <option value="I.14540 - Pencegahan Jatuh (Identifikasi risiko jatuh Morse/Humpty Dumpty, pasang gelang kuning, kunci pengaman bed)">[I.14540] Pencegahan Jatuh</option>
+                  <option value="I.15506 - Manajemen Hipertermia (Monitor suhu tubuh berkala, berikan kompres hangat tepid sponge, kolaborasi antipiretik)">[I.15506] Manajemen Hipertermia</option>
+                  <option value="I.14558 - Perawatan Pasca Operasi (Monitor tanda vital, bimbing mobilisasi bertahap protokol ERAS, rawat luka operasi)">[I.14558] Perawatan Pasca Operasi</option>
+                </optgroup>
               </select>
               <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 0.65rem 0.85rem; margin-top: 0.4rem;">
                 <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
                   <span><i class="fa-solid fa-hand-holding-medical"></i> Rincian Standar Tindakan SIKI:</span>
                   <span style="font-size: 0.68rem; color: #059669;"><i class="fa-solid fa-check-circle"></i> Berbasis 4 Komponen Asuhan</span>
                 </span>
-                <div id="previewSikiDetail" style="font-size: 0.75rem; color: #064e3b; line-height: 1.4; margin: 0;">-</div>
+                <div id="previewSikiDetail" style="font-size: 0.75rem; color: #064e3b; line-height: 1.4; margin: 0;"><strong style="color: #047857;">[O] Observasi:</strong> Identifikasi lokasi, karakteristik, durasi, frekuensi, intensitas nyeri (PQRST) &bull; <strong style="color: #047857;">[T] Terapeutik:</strong> Berikan teknik non-farmakologis relaksasi napas dalam &bull; <strong style="color: #047857;">[E] Edukasi:</strong> Jelaskan strategi meredakan nyeri &bull; <strong style="color: #047857;">[K] Kolaborasi:</strong> Kolaborasi pemberian analgetik.</div>
               </div>
             </div>
 
             <!-- SLKI Selector & Box -->
             <div style="margin-bottom: 1rem;">
               <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">Luaran yang Diharapkan (SLKI - Target Klinis Terukur)*</label>
-              <select id="logSlkiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSlkiChange()" required>
-                <!-- Populated via elogbook.js -->
+                            <select id="logSlkiSelect" class="form-input" style="font-size: 0.8rem;" onchange="ELogbookKomkep.onSlkiChange()" required>
+                <optgroup label="⭐ REKOMENDASI LUARAN (DIAGNOSIS D.0077 NYERI AKUT)">
+                  <option value="L.08066 - Tingkat Nyeri Menurun (Keluhan nyeri menurun (skor VAS ≤ 3), meringis menurun, sikap protektif menurun, gelisah menurun)" selected>⭐ [Target Luaran Utama] L.08066 - Tingkat Nyeri Menurun</option>
+                  <option value="L.08064 - Status Kenyamanan Meningkat (Kesejahteraan fisik meningkat, pola eliminasi dan tidur rileks, keluhan tidak nyaman berkurang)">🔸 [Alternatif Terkait] L.08064 - Status Kenyamanan Meningkat</option>
+                </optgroup>
+                <optgroup label="SLKI: FISIOLOGIS • RESPIRASI">
+                  <option value="L.01001 - Bersihan Jalan Napas Meningkat (Produksi sputum menurun, mengi/ronkhi menurun, frekuensi napas membaik)">[L.01001] Bersihan Jalan Napas Meningkat</option>
+                  <option value="L.01003 - Pertukaran Gas Meningkat (Tingkat kesadaran membaik, SpO2 ≥ 95%, AGD dalam batas normal)">[L.01003] Pertukaran Gas Meningkat</option>
+                  <option value="L.01004 - Pola Napas Membaik (Frekuensi napas teratur 16-20x/menit, dispnea menurun)">[L.01004] Pola Napas Membaik</option>
+                  <option value="L.01006 - Tingkat Aspirasi Menurun (Refleks menelan baik, tidak tersedak, jalan napas paten)">[L.01006] Tingkat Aspirasi Menurun</option>
+                </optgroup>
+                <optgroup label="SLKI: FISIOLOGIS • SIRKULASI">
+                  <option value="L.02008 - Curah Jantung Meningkat (Kekuatan nadi perifer meningkat, edema menurun, TD stabil)">[L.02008] Curah Jantung Meningkat</option>
+                  <option value="L.02011 - Perfusi Perifer Meningkat (Denyut nadi perifer teraba kuat, akral hangat, CRT &lt; 2 detik)">[L.02011] Perfusi Perifer Meningkat</option>
+                  <option value="L.02013 - Perfusi Renal Meningkat (Urine output ≥ 0.5-1 ml/kgBB/jam, ureum &amp; kreatinin normal)">[L.02013] Perfusi Renal Meningkat</option>
+                  <option value="L.02014 - Perfusi Serebral Meningkat (Tingkat kesadaran compos mentis GCS 15, pupil isokor reaktif)">[L.02014] Perfusi Serebral Meningkat</option>
+                  <option value="L.02017 - Tingkat Perdarahan Menurun (Tidak ada rembesan luka operasi, Hb/Ht stabil, hemodinamik normal)">[L.02017] Tingkat Perdarahan Menurun</option>
+                </optgroup>
+                <optgroup label="SLKI: FISIOLOGIS • NUTRISI DAN CAIRAN">
+                  <option value="L.03020 - Keseimbangan Cairan Meningkat (Asupan dan haluaran seimbang, edema perifer menurun)">[L.03020] Keseimbangan Cairan Meningkat</option>
+                  <option value="L.03021 - Keseimbangan Elektrolit Meningkat (Kadar elektrolit serum Na &amp; K dalam batas normal)">[L.03021] Keseimbangan Elektrolit Meningkat</option>
+                  <option value="L.03022 - Kestabilan Kadar Glukosa Darah Meningkat (Kadar GDS dalam rentang target 80-140 mg/dL)">[L.03022] Kestabilan Kadar Glukosa Darah Meningkat</option>
+                  <option value="L.03028 - Status Cairan Membaik (Turgor kulit membaik, nadi teratur kuat, urine adekuat, TD stabil)">[L.03028] Status Cairan Membaik</option>
+                  <option value="L.03030 - Status Nutrisi Membaik (Porsi makan yang dihabiskan meningkat, nafsu makan membaik, albumin normal)">[L.03030] Status Nutrisi Membaik</option>
+                  <option value="L.03032 - Tingkat Syok Menurun (MAP ≥ 65 mmHg, akral hangat, CRT &lt; 2 detik, kesadaran baik)">[L.03032] Tingkat Syok Menurun</option>
+                </optgroup>
+                <optgroup label="SLKI: FISIOLOGIS • ELIMINASI">
+                  <option value="L.04033 - Eliminasi Fekal Membaik (Frekuensi defekasi normal 1-2x/hari, konsistensi feses lunak)">[L.04033] Eliminasi Fekal Membaik</option>
+                  <option value="L.04034 - Eliminasi Urin Membaik (Sensasi berkemih membaik, distensi suprapubik menurun)">[L.04034] Eliminasi Urin Membaik</option>
+                  <option value="L.04036 - Kontinensia Urin Meningkat (Pengendalian berkemih terkontrol, residu urine minimal)">[L.04036] Kontinensia Urin Meningkat</option>
+                </optgroup>
+                <optgroup label="SLKI: FISIOLOGIS • AKTIVITAS DAN ISTIRAHAT">
+                  <option value="L.05042 - Mobilitas Fisik Meningkat (Pergerakan ekstremitas meningkat, kekuatan otot meningkat, ROM membaik)">[L.05042] Mobilitas Fisik Meningkat</option>
+                  <option value="L.05045 - Pola Tidur Membaik (Keluhan sulit tidur menurun, sering terjaga menurun, istirahat cukup)">[L.05045] Pola Tidur Membaik</option>
+                  <option value="L.05046 - Tingkat Keletihan Menurun (Verbalisasi lelah menurun, tenaga pulih)">[L.05046] Tingkat Keletihan Menurun</option>
+                  <option value="L.05047 - Toleransi Aktivitas Meningkat (Kemudahan beraktivitas harian meningkat, dispnea pasca aktivitas menurun)">[L.05047] Toleransi Aktivitas Meningkat</option>
+                </optgroup>
+                <optgroup label="SLKI: PSIKOLOGIS • INTEGRITAS EGO">
+                  <option value="L.09093 - Tingkat Ansietas Menurun (Verbalisasi khawatir menurun, gelisah menurun, tanda vital stabil)">[L.09093] Tingkat Ansietas Menurun</option>
+                  <option value="L.09067 - Citra Tubuh Meningkat (Verbalisasi penerimaan perubahan tubuh meningkat)">[L.09067] Citra Tubuh Meningkat</option>
+                  <option value="L.09086 - Status Koping Membaik (Kemampuan mengatasi masalah meningkat, adaptif)">[L.09086] Status Koping Membaik</option>
+                </optgroup>
+                <optgroup label="SLKI: PERILAKU • PENYULUHAN DAN PEMBELAJARAN">
+                  <option value="L.11103 - Perawatan Diri Meningkat (Kemampuan mandi, berpakaian, makan, toileting mandiri meningkat)">[L.11103] Perawatan Diri Meningkat</option>
+                  <option value="L.12110 - Tingkat Kepatuhan Meningkat (Kepatuhan minum obat sesuai instruksi 100%, diet dijalani)">[L.12110] Tingkat Kepatuhan Meningkat</option>
+                  <option value="L.12111 - Tingkat Pengetahuan Meningkat (Pemahaman tentang penyakit dan penanganan meningkat)">[L.12111] Tingkat Pengetahuan Meningkat</option>
+                </optgroup>
+                <optgroup label="SLKI: LINGKUNGAN • KEAMANAN DAN PROTEKSI">
+                  <option value="L.14125 - Integritas Kulit dan Jaringan Meningkat (Penyatuan jaringan luka membaik, pus/eksudat menurun, nekrosis nihil)">[L.14125] Integritas Kulit dan Jaringan Meningkat</option>
+                  <option value="L.14134 - Termoregulasi Membaik (Suhu tubuh kembali normal 36.5-37.5°C, takikardia menurun)">[L.14134] Termoregulasi Membaik</option>
+                  <option value="L.14137 - Tingkat Infeksi Menurun (Tidak ada demam, tanda lokal infeksi nihil, leukosit normal)">[L.14137] Tingkat Infeksi Menurun</option>
+                  <option value="L.14138 - Tingkat Jatuh Menurun (Tidak terjadi insiden jatuh selama masa perawatan, kepatuhan 100%)">[L.14138] Tingkat Jatuh Menurun</option>
+                  <option value="L.14129 - Pemulihan Pascabedah Meningkat (Mobilisasi dini mandiri tercapai, asupan nutrisi bertahap)">[L.14129] Pemulihan Pascabedah Meningkat</option>
+                </optgroup>
               </select>
               <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.65rem 0.85rem; margin-top: 0.4rem;">
                 <span style="font-size: 0.72rem; font-weight: 800; color: #1e40af; display: block; margin-bottom: 2px;">
                   <i class="fa-solid fa-bullseye"></i> Kriteria SLKI:
                 </span>
-                <p id="previewSlkiDetail" style="font-size: 0.75rem; color: #1e3a8a; line-height: 1.4; margin: 0;">-</p>
+                <p id="previewSlkiDetail" style="font-size: 0.75rem; color: #1e3a8a; line-height: 1.4; margin: 0;">Keluhan nyeri menurun (skor VAS ≤ 3), meringis menurun, sikap protektif menurun, gelisah menurun.</p>
               </div>
             </div>
 
