@@ -11246,7 +11246,100 @@ window.onCvJenjangOrUnitChange = onCvJenjangOrUnitChange;
 window.onCvAreaKlinisChange = onCvAreaKlinisChange;
 window.syncJenisPermohonanToRkk = syncJenisPermohonanToRkk;
 
+// Early Warning Status Masa Berlaku STR
+function getStrEarlyWarning(expiryDateStr) {
+  if (!expiryDateStr) {
+    return {
+      valid: false,
+      daysRemaining: 0,
+      html: '<span class="str-warn-badge str-expired" style="display:inline-flex;align-items:center;gap:4px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Tanggal STR tidak tersedia</span>'
+    };
+  }
+  const exp = new Date(expiryDateStr);
+  if (isNaN(exp.getTime())) {
+    return {
+      valid: false,
+      daysRemaining: 0,
+      html: '<span class="str-warn-badge str-expired" style="display:inline-flex;align-items:center;gap:4px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Format STR Tidak Valid</span>'
+    };
+  }
+  const today = new Date();
+  const diffTime = exp.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    return {
+      valid: false,
+      daysRemaining: diffDays,
+      html: '<span class="str-warn-badge str-expired" style="display:inline-flex;align-items:center;gap:4px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-circle-exclamation"></i> STR Kedaluwarsa (' + Math.abs(diffDays) + ' hari lalu)</span>'
+    };
+  } else if (diffDays <= 180) {
+    return {
+      valid: true,
+      daysRemaining: diffDays,
+      html: '<span class="str-warn-badge str-warning" style="display:inline-flex;align-items:center;gap:4px;background:#fffbeb;color:#92400e;border:1px solid #fde68a;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-clock"></i> Segera Perpanjang STR (sisa ' + diffDays + ' hari)</span>'
+    };
+  } else {
+    return {
+      valid: true,
+      daysRemaining: diffDays,
+      html: '<span class="str-warn-badge str-ok" style="display:inline-flex;align-items:center;gap:4px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-circle-check"></i> STR Aktif (s.d. ' + expiryDateStr + ')</span>'
+    };
+  }
+}
+
+// Handler Ganti Password Pengusul / Admin
+function toggleGantiPasswordForm() {
+  const container = document.getElementById('gantiPasswordSection');
+  if (container) {
+    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+  } else if (typeof window.openModal === 'function') {
+    window.openModal('modalGantiPassword');
+  } else {
+    showToast('Formulir ganti password aktif.', 'info');
+  }
+}
+
+function simpanGantiPassword(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const passLama = document.getElementById('passLama')?.value || '';
+  const passBaru = document.getElementById('passBaru')?.value || '';
+  const passKonf = document.getElementById('passKonfirmasi')?.value || '';
+
+  if (!passLama || !passBaru) {
+    showToast('Password lama dan baru wajib diisi!', 'warning');
+    return false;
+  }
+  if (passBaru.length < 8) {
+    showToast('Password baru minimal 8 karakter!', 'warning');
+    return false;
+  }
+  if (passBaru === 'REDACTED_PASSWORD' || passBaru === 'REDACTED_PASSWORD') {
+    showToast('Password baru tidak boleh menggunakan password default!', 'danger');
+    return false;
+  }
+  if (passKonf && passBaru !== passKonf) {
+    showToast('Konfirmasi password tidak cocok!', 'warning');
+    return false;
+  }
+
+  if (state.currentUser) {
+    state.currentUser.password = passBaru;
+    state.currentUser.mustChangePassword = false;
+    showToast('Password berhasil diperbarui.', 'success');
+  }
+  return true;
+}
+
+// Sinkronisasi Unit Kerja Logbook dengan Langkah 1 CV
+function syncLogbookRuangan(val) {
+  if (state.formData && state.formData.cv) {
+    state.formData.cv.unitKerja = val;
+  }
+}
+
 // 5S Budaya Kerja & Pengusul Dashboard Exports
+window.syncLogbookRuangan = syncLogbookRuangan;
 window.switchLoginTab = switchLoginTab;
 window.fillPengusulPreset = fillPengusulPreset;
 window.handlePengusulLogin = handlePengusulLogin;

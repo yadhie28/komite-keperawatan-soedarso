@@ -5256,13 +5256,13 @@
         ? '<span style="display: inline-flex; align-items: center; gap: 4px; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;" title="Disetujui oleh Kepala Ruangan / Preseptor Klinik"><i class="fa-solid fa-circle-check" style="color: #059669;"></i> Disetujui Ka.Ruang</span>'
         : '<span style="display: inline-flex; align-items: center; gap: 4px; background: #fffbeb; color: #92400e; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;"><i class="fa-solid fa-clock" style="color: #d97706;"></i> Menunggu Review</span>';
 
-      let actions = '<button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" onclick="ELogbookKomkep.viewDetail('' + item.id + '')" title="Lihat Detail SOAP & 3S"><i class="fa-solid fa-eye"></i> Detail</button>';
+      let actions = '<button class="btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" onclick="ELogbookKomkep.viewDetail('\'' + item.id + '\'')" title="Lihat Detail SOAP & 3S"><i class="fa-solid fa-eye"></i> Detail</button>';
 
       if (isVerifier && !item.verifiedByHeadNurse) {
-        actions += ' <button class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; background: #059669; border-color: #059669;" onclick="ELogbookKomkep.verifyRecord('' + item.id + '')" title="Sahkan Asuhan"><i class="fa-solid fa-check-double"></i> Sahkan</button>';
+        actions += ' <button class="btn-primary" style="padding: 0.25rem 0.55rem; font-size: 0.72rem; background: #059669; border-color: #059669;" onclick="ELogbookKomkep.verifyRecord('\'' + item.id + '\'')" title="Sahkan Asuhan"><i class="fa-solid fa-check-double"></i> Sahkan</button>';
       }
 
-      actions += ' <button class="btn-secondary" style="padding: 0.25rem 0.45rem; font-size: 0.72rem; color: #dc2626; border-color: #fecaca;" onclick="ELogbookKomkep.deleteRecord('' + item.id + '')" title="Hapus Catatan"><i class="fa-solid fa-trash-can"></i></button>';
+      actions += ' <button class="btn-secondary" style="padding: 0.25rem 0.45rem; font-size: 0.72rem; color: #dc2626; border-color: #fecaca;" onclick="ELogbookKomkep.deleteRecord('\'' + item.id + '\'')" title="Hapus Catatan"><i class="fa-solid fa-trash-can"></i></button>';
 
       return '<tr style="border-bottom: 1px solid #f1f5f9;">' +
         '<td style="padding: 0.75rem 1rem; white-space: nowrap;"><div style="font-weight: 700; color: #1e293b; font-size: 0.85rem;">' + item.date + '</div><div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">Shift: <strong>' + item.shift + '</strong></div></td>' +
@@ -5303,7 +5303,7 @@
 
     container.innerHTML = categories.map(cat => {
       const isActive = (state.catalogCategory === cat);
-      return '<button type="button" onclick="ELogbookKomkep.setCatalogCategory('' + cat + '')" ' +
+      return '<button type="button" onclick="ELogbookKomkep.setCatalogCategory('\'' + cat + '\'')" ' +
         'style="padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; transition: all 0.2s; cursor: pointer; border: 1px solid ' + (isActive ? '#0d9488' : '#cbd5e1') + '; background: ' + (isActive ? '#0d9488' : '#ffffff') + '; color: ' + (isActive ? '#ffffff' : '#475569') + ';">' +
         cat +
       '</button>';
@@ -5346,7 +5346,7 @@
 
     container.innerHTML = filtered.map(item => {
       const isSelected = item.code === state.catalogSelectedCode;
-      return '<div onclick="ELogbookKomkep.selectCatalogItem('' + item.code + '')" ' +
+      return '<div onclick="ELogbookKomkep.selectCatalogItem('\'' + item.code + '\'')" ' +
         'style="padding: 0.75rem; border-radius: 8px; border: 1px solid ' + (isSelected ? '#0d9488' : '#e2e8f0') + '; background: ' + (isSelected ? '#f0fdfa' : '#ffffff') + '; margin-bottom: 0.5rem; cursor: pointer; transition: all 0.2s;">' +
         '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">' +
           '<span style="background: ' + (isSelected ? '#0d9488' : '#e0f2fe') + '; color: ' + (isSelected ? '#ffffff' : '#0369a1') + '; padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 0.7rem; font-family: monospace;">' + item.code + '</span>' +
@@ -5377,7 +5377,7 @@
     if (item.commonEtiologies && item.commonEtiologies.length > 0) {
       etOptions = item.commonEtiologies.map((et, i) =>
         '<label style="display: flex; align-items: flex-start; gap: 6px; font-size: 0.75rem; color: #334155; margin-bottom: 5px; cursor: pointer;">' +
-          '<input type="radio" name="modalEtChoice" value="' + et + '" ' + (i === 0 ? 'checked' : '') + ' onchange="ELogbookKomkep.setCatalogSelectedEtiology('' + et + '')" style="margin-top: 2px;">' +
+          '<input type="radio" name="modalEtChoice" value="' + et + '" ' + (i === 0 ? 'checked' : '') + ' onchange="ELogbookKomkep.setCatalogSelectedEtiology('\'' + et + '\'')" style="margin-top: 2px;">' +
           '<span>' + et + '</span>' +
         '</label>'
       ).join('');
@@ -5530,7 +5530,7 @@
 
       '<div style="display: flex; justify-content: flex-end; gap: 0.5rem;">' +
         (isVerifier && !item.verifiedByHeadNurse
-          ? '<button class="btn-primary" style="background: #059669; border-color: #059669;" onclick="ELogbookKomkep.verifyRecord('' + item.id + ''); closeModal('modalDetailELogbook');"><i class="fa-solid fa-check-double"></i> Sahkan Catatan Ini</button>'
+          ? '<button class="btn-primary" style="background: #059669; border-color: #059669;" onclick="ELogbookKomkep.verifyRecord('\'' + item.id + '\''); closeModal('modalDetailELogbook');"><i class="fa-solid fa-check-double"></i> Sahkan Catatan Ini</button>'
           : '') +
         '<button class="btn-secondary" onclick="closeModal('modalDetailELogbook')">Tutup</button>' +
       '</div>';
@@ -5741,7 +5741,7 @@
         '</div>' +
         '<div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">' +
           '<div style="font-size: 0.72rem; color: #64748b;">Kuota: <strong style="color: #0f172a;">' + (prog.registeredCount + (isReg ? 1 : 0)) + ' / ' + prog.quota + ' Peserta</strong></div>' +
-          '<button type="button" onclick="ELogbookKomkep.toggleCpdRegistration('' + prog.id + '')" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; cursor: pointer; border: 1px solid ' + (isReg ? '#10b981' : '#0d9488') + '; background: ' + (isReg ? '#10b981' : '#0d9488') + '; color: #ffffff;">' +
+          '<button type="button" onclick="ELogbookKomkep.toggleCpdRegistration('\'' + prog.id + '\'')" style="padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; transition: all 0.2s; cursor: pointer; border: 1px solid ' + (isReg ? '#10b981' : '#0d9488') + '; background: ' + (isReg ? '#10b981' : '#0d9488') + '; color: #ffffff;">' +
             (isReg ? '<i class="fa-solid fa-circle-check"></i> Terdaftar (E-Tiket)' : '<i class="fa-solid fa-user-plus"></i> Daftar Pelatihan') +
           '</button>' +
         '</div>' +
