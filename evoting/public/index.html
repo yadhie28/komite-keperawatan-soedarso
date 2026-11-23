@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Voting Komite Keperawatan RSUD dr. Soedarso 2027-2030</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --hospital-blue: #1e3a5f;
+      --hospital-blue-light: #2563eb;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+
+  <!-- Header Navigasi -->
+  <header class="bg-[#1e3a5f] text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('beranda')">
+        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#1e3a5f] font-black text-sm shadow">
+          RS
+        </div>
+        <div>
+          <h1 class="font-bold text-base md:text-lg leading-tight">RSUD dr. Soedarso</h1>
+          <p class="text-xs text-blue-200">E-Voting Komite Keperawatan 2027–2030</p>
+        </div>
+      </div>
+
+      <!-- Navigasi Menu -->
+      <nav class="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm">
+        <button onclick="switchTab('beranda')" id="nav-beranda" class="px-3 py-1.5 rounded-lg transition bg-white/20 font-medium">Beranda</button>
+        <button onclick="switchTab('voting')" id="nav-voting" class="px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium">Bilik Suara</button>
+        <button onclick="switchTab('hasil')" id="nav-hasil" class="px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium">Hasil Real-time</button>
+        <button onclick="switchTab('admin')" id="nav-admin" class="px-3 py-1.5 rounded-lg transition hover:bg-white/10 font-medium">Panel Admin</button>
+        
+        <!-- Status Akun -->
+        <div id="user-pill" class="ml-2 pl-3 border-l border-blue-400/40 flex items-center space-x-2">
+          <!-- Diisi oleh JS -->
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Notification Bar -->
+  <div id="notification" class="hidden max-w-6xl mx-auto mt-3 px-4">
+    <div id="notification-content" class="p-3 rounded-lg text-sm flex items-center justify-between font-medium shadow-sm"></div>
+  </div>
+
+  <main class="max-w-6xl mx-auto p-4 md:py-6">
+
+    <!-- TAB 1: BERANDA -->
+    <section id="tab-beranda" class="space-y-6">
+      <!-- Hero Banner -->
+      <div class="bg-gradient-to-br from-[#1e3a5f] via-[#2a4f7f] to-blue-800 text-white rounded-2xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-3 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/30 text-blue-200 text-xs font-semibold uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Pemilihan Berlangsung
+          </div>
+          <h2 class="text-2xl md:text-3xl font-extrabold leading-tight">
+            Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso
+          </h2>
+          <p class="text-blue-100 text-sm md:text-base leading-relaxed">
+            Periode Masa Bakti 2027 – 2030. Gunakan hak suara Anda secara profesional, jujur, dan berintegritas demi kemajuan pelayanan keperawatan rumah sakit kita tercinta.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button onclick="switchTab('voting')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2 text-sm">
+              <span>🗳️</span> Masuk ke Bilik Suara
+            </button>
+            <button onclick="switchTab('hasil')" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-2.5 rounded-xl transition border border-white/20 text-sm">
+              📊 Lihat Perolehan Suara
+            </button>
+          </div>
+        </div>
+        <div class="bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/15 text-center min-w-[220px]">
+          <p class="text-xs text-blue-200 uppercase font-semibold">Tingkat Partisipasi</p>
+          <div id="stat-hero-percent" class="text-4xl font-black text-white mt-1">0%</div>
+          <p id="stat-hero-count" class="text-xs text-blue-100 mt-1">0 dari 5 Pemilih</p>
+          <div class="w-full bg-white/20 rounded-full h-2 mt-3 overflow-hidden">
+            <div id="stat-hero-bar" class="bg-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Account Switcher (Demo bar) -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="bg-amber-200 text-amber-800 font-bold px-2 py-0.5 rounded">SIMULATOR LOGIN</span>
+          <span class="text-amber-900 font-medium">Uji coba cepat dengan akun:</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <button onclick="loginAs('000000000000000000')" class="bg-white hover:bg-amber-100 text-slate-700 px-2.5 py-1 rounded border border-amber-300 font-medium">Ns. Rina (Ranap)</button>
+          <button onclick="loginAs('000000000000000000')" class="bg-white hover:bg-amber-100 text-slate-700 px-2.5 py-1 rounded border border-amber-300 font-medium">Ns. Bambang (IGD)</button>
+          <button onclick="loginAs('000000000000000000')" class="bg-white hover:bg-amber-100 text-slate-700 px-2.5 py-1 rounded border border-amber-300 font-medium">Ns. Nurul (OK)</button>
+          <button onclick="loginAs('ADMIN001')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded font-bold shadow-sm">👑 Admin (Panitia)</button>
+        </div>
+      </div>
+
+      <!-- 3 Calon Ketua Komite -->
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Daftar Calon Ketua Komite</h3>
+            <p class="text-xs text-slate-500">Kandidat resmi yang telah lolos verifikasi kredensial</p>
+          </div>
+          <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1 rounded-full border border-blue-200">3 Kandidat</span>
+        </div>
+
+        <div id="candidates-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Diisi via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: BILIK SUARA (VOTING) -->
+    <section id="tab-voting" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Bilik Suara Elektronik</h2>
+          <p class="text-xs text-slate-500">Pilihlah salah satu kandidat Ketua Komite Keperawatan. Pilihan bersifat rahasia dan final.</p>
+        </div>
+        <div id="voter-status-badge"></div>
+      </div>
+
+      <!-- Kartu Pemilihan Calon -->
+      <div id="voting-cards" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Diisi via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 3: HASIL REAL-TIME -->
+    <section id="tab-hasil" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Hasil Rekapitulasi Suara</h2>
+          <p class="text-xs text-slate-500">Perhitungan suara langsung dari sistem e-voting terverifikasi.</p>
+        </div>
+        <button onclick="renderAll()" class="self-start md:self-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+          🔄 Muat Ulang Data
+        </button>
+      </div>
+
+      <!-- Ringkasan Statistik -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Total DPT Pemilih</p>
+          <div id="stat-total-voters" class="text-2xl font-bold text-slate-900 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Suara Masuk</p>
+          <div id="stat-votes-cast" class="text-2xl font-bold text-emerald-600 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Belum Memilih</p>
+          <div id="stat-votes-pending" class="text-2xl font-bold text-amber-600 mt-1">0</div>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">Partisipasi</p>
+          <div id="stat-participation" class="text-2xl font-bold text-blue-600 mt-1">0%</div>
+        </div>
+      </div>
+
+      <!-- Visualisasi Perolehan Suara -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <h3 class="text-base font-bold text-slate-800 mb-4">Grafik Perolehan Suara</h3>
+        <div id="results-bars" class="space-y-4">
+          <!-- Diisi via JS -->
+        </div>
+      </div>
+
+      <!-- Pemenang Sementara -->
+      <div id="leader-card" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5 shadow-sm">
+        <!-- Diisi via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 4: PANEL ADMIN -->
+    <section id="tab-admin" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Panel Panitia Pemilihan (Admin)</h2>
+          <p class="text-xs text-slate-500">Kelola daftar calon, verifikasi data pemilih, dan kontrol status pemilihan.</p>
+        </div>
+        <span class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full">Mode Administrator</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Pengaturan Status Pemilihan -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-800 text-sm">Status Pemilihan</h3>
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div>
+              <p class="text-sm font-semibold text-slate-800" id="election-status-label">Pemilihan Aktif</p>
+              <p class="text-xs text-slate-500">Voter dapat memberikan suara di bilik suara</p>
+            </div>
+            <button onclick="toggleElectionStatus()" id="btn-toggle-election" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+              Jeda Pemilihan
+            </button>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="resetAllVotes()" class="w-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold py-2.5 rounded-lg transition">
+              ⚠️ Reset Semua Suara (Mulai Dari Awal)
+            </button>
+          </div>
+        </div>
+
+        <!-- Tambah Kandidat Cepat -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">Tambah Calon Ketua Baru</h3>
+          <form onsubmit="addCandidate(event)" class="space-y-2 text-xs">
+            <input id="new-cand-name" required placeholder="Nama Lengkap & Gelar (mis: Ns. Budi, M.Kep.)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500" />
+            <div class="grid grid-cols-2 gap-2">
+              <input id="new-cand-nip" required placeholder="NIP (18 Digit)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500" />
+              <input id="new-cand-unit" required placeholder="Unit Kerja / Instalasi" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500" />
+            </div>
+            <textarea id="new-cand-visi" rows="2" placeholder="Visi & Misi Utama" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-blue-500"></textarea>
+            <button type="submit" class="w-full bg-[#1e3a5f] hover:bg-blue-800 text-white font-bold py-2 rounded-lg transition">
+              + Simpan Kandidat
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tabel Daftar Pemilih (DPT) -->
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="font-bold text-slate-800 text-sm">Daftar Pemilih Tetap (DPT) & Status Hak Suara</h3>
+          <span class="text-xs text-slate-500" id="dpt-count">5 Terdaftar</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-100 text-slate-600 font-semibold border-b">
+              <tr>
+                <th class="p-3">Nama Pemilih</th>
+                <th class="p-3">NIP</th>
+                <th class="p-3">Unit / Ruangan</th>
+                <th class="p-3 text-center">Status Suara</th>
+                <th class="p-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="voters-table-body" class="divide-y divide-slate-100">
+              <!-- Diisi via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Konfirmasi Voting -->
+  <div id="vote-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="w-12 h-12 rounded-full bg-blue-100 text-[#1e3a5f] flex items-center justify-center text-2xl mx-auto">
+        🗳️
+      </div>
+      <div class="text-center">
+        <h3 class="font-bold text-slate-900 text-lg">Konfirmasi Pilihan Anda</h3>
+        <p class="text-xs text-slate-500 mt-1">Pastikan pilihan Anda sudah sesuai. Pilihan tidak dapat diubah setelah dikonfirmasi.</p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
+        <p class="text-xs text-slate-400 font-semibold uppercase">Kandidat yang Dipilih:</p>
+        <p id="modal-cand-name" class="font-bold text-[#1e3a5f] text-base"></p>
+        <p id="modal-cand-unit" class="text-xs text-slate-600"></p>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition">
+          Batal
+        </button>
+        <button onclick="executeVote()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-md transition">
+          Ya, Kirim Suara!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Aplikasi
+    const state = {
+      currentUser: {
+        id: "voter-1",
+        nip: "000000000000000000",
+        name: "Ns. Rina Marlina, S.Kep.",
+        unit: "Ruang Rawat Inap Penyakit Dalam",
+        role: "VOTER",
+        hasVoted: false
+      },
+      election: {
+        title: "Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso",
+        period: "2027–2030",
+        isActive: true
+      },
+      candidates: [
+        {
+          id: "cand-1",
+          number: 1,
+          name: "Ns. Siti Rahmawati, S.Kep., M.Kep.",
+          nip: "000000000000000000",
+          unit: "Instalasi Rawat Intensif (ICU)",
+          photoColor: "from-blue-600 to-indigo-700",
+          visiMisi: "Mewujudkan Komite Keperawatan yang profesional, akuntabel, serta unggul dalam mutu pelayanan berstandar internasional melalui penguatan kredensial klinis dan etika profesi.",
+          pengalaman: "Kepala Ruang ICU (6 Tahun) • Wakil Ketua Komite Keperawatan (2024-2027) • Asesor Klinis",
+          votes: 1
+        },
+        {
+          id: "cand-2",
+          number: 2,
+          name: "Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB.",
+          nip: "000000000000000000",
+          unit: "Instalasi Rawat Inap Bedah",
+          photoColor: "from-emerald-600 to-teal-700",
+          visiMisi: "Menjadikan perawat RSUD dr. Soedarso lebih sejahtera, terlindungi hukum, dan terdepan dalam inovasi asuhan keperawatan berbasis evidence-based practice.",
+          pengalaman: "Kepala Rawat Inap Bedah (4 Tahun) • Ketua Tim Patient Safety (2019-2023) • Pengurus PPNI",
+          votes: 0
+        },
+        {
+          id: "cand-3",
+          number: 3,
+          name: "Ns. Dewi Kartika Sari, S.Kep., M.Kep.",
+          nip: "000000000000000000",
+          unit: "Instalasi Diklat & SDM Keperawatan",
+          photoColor: "from-purple-600 to-pink-700",
+          visiMisi: "Digitalisasi dokumentasi keperawatan terintegrasi dan percepatan jenjang karir perawat klinis berbasis meritokrasi dan transparansi.",
+          pengalaman: "Koordinator Diklat Keperawatan • Anggota Sub Komite Mutu Keperawatan • Alumni S2 Keperawatan UGM",
+          votes: 0
+        }
+      ],
+      voters: [
+        { id: "voter-1", nip: "000000000000000000", name: "Ns. Rina Marlina, S.Kep.", unit: "Rawat Inap Penyakit Dalam", hasVoted: true, votedFor: "cand-1" },
+        { id: "voter-2", nip: "000000000000000000", name: "Ns. Bambang Irawan, S.Kep.", unit: "IGD Terpadu", hasVoted: false, votedFor: null },
+        { id: "voter-3", nip: "000000000000000000", name: "Ns. Nurul Hidayati, S.Kep.", unit: "Instalasi Bedah Sentral (OK)", hasVoted: false, votedFor: null },
+        { id: "voter-4", nip: "000000000000000000", name: "Ns. Hendra Gunawan, S.Kep.", unit: "Rawat Inap Anak", hasVoted: false, votedFor: null },
+        { id: "voter-5", nip: "000000000000000000", name: "Ns. Sri Wahyuni, A.Md.Kep.", unit: "Poliklinik Rawat Jalan", hasVoted: false, votedFor: null }
+      ],
+      pendingCandidateId: null
+    };
+
+    // Navigasi Tab
+    function switchTab(tabId) {
+      ['beranda', 'voting', 'hasil', 'admin'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).classList.remove('bg-white/20');
+        document.getElementById(`nav-${t}`).classList.add('hover:bg-white/10');
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`nav-${tabId}`).classList.add('bg-white/20');
+      document.getElementById(`nav-${tabId}`).classList.remove('hover:bg-white/10');
+
+      renderAll();
+    }
+
+    // Login As Helper (Simulator)
+    function loginAs(nip) {
+      if (nip === "ADMIN001") {
+        state.currentUser = {
+          id: "admin-1",
+          nip: "ADMIN001",
+          name: "Administrator Panitia",
+          unit: "Bagian Keperawatan",
+          role: "ADMIN",
+          hasVoted: false
+        };
+        showNotification("Berhasil login sebagai Administrator (Panitia Pemilihan)", "blue");
+        switchTab('admin');
+      } else {
+        const v = state.voters.find(x => x.nip === nip);
+        if (v) {
+          state.currentUser = { ...v, role: "VOTER" };
+          showNotification(`Login sebagai ${v.name} (${v.unit})`, "green");
+          switchTab('voting');
+        }
+      }
+      renderAll();
+    }
+
+    function showNotification(msg, color = "green") {
+      const box = document.getElementById('notification');
+      const content = document.getElementById('notification-content');
+      const colors = {
+        green: "bg-emerald-50 text-emerald-800 border border-emerald-200",
+        blue: "bg-blue-50 text-blue-800 border border-blue-200",
+        red: "bg-red-50 text-red-800 border border-red-200",
+        amber: "bg-amber-50 text-amber-800 border border-amber-200"
+      };
+      content.className = `p-3 rounded-xl text-xs md:text-sm font-semibold flex items-center justify-between ${colors[color] || colors.green}`;
+      content.innerHTML = `<span>${msg}</span><button onclick="document.getElementById('notification').classList.add('hidden')" class="ml-3 font-bold opacity-60 hover:opacity-100">✕</button>`;
+      box.classList.remove('hidden');
+      setTimeout(() => box.classList.add('hidden'), 5000);
+    }
+
+    // Modal Voting
+    function promptVote(candId) {
+      if (!state.election.isActive) {
+        showNotification("Pemilihan sedang dinonaktifkan oleh Panitia.", "amber");
+        return;
+      }
+      if (state.currentUser.role === "ADMIN") {
+        showNotification("Akun Panitia/Admin tidak memiliki hak suara voter.", "amber");
+        return;
+      }
+      if (state.currentUser.hasVoted) {
+        showNotification("Anda sudah memberikan suara sebelumnya!", "amber");
+        return;
+      }
+
+      const cand = state.candidates.find(c => c.id === candId);
+      if (!cand) return;
+
+      state.pendingCandidateId = candId;
+      document.getElementById('modal-cand-name').textContent = cand.name;
+      document.getElementById('modal-cand-unit').textContent = `${cand.unit} • Nomor Urut 0${cand.number}`;
+      document.getElementById('vote-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('vote-modal').classList.add('hidden');
+      state.pendingCandidateId = null;
+    }
+
+    function executeVote() {
+      if (!state.pendingCandidateId) return;
+
+      const cand = state.candidates.find(c => c.id === state.pendingCandidateId);
+      if (cand) {
+        cand.votes += 1;
+      }
+
+      // Update current voter
+      state.currentUser.hasVoted = true;
+
+      // Update voter di list
+      const voter = state.voters.find(v => v.id === state.currentUser.id);
+      if (voter) {
+        voter.hasVoted = true;
+        voter.votedFor = state.pendingCandidateId;
+      }
+
+      closeModal();
+      showNotification(`Suara Anda untuk "${cand.name}" berhasil dicatat secara sah!`, "green");
+      switchTab('hasil');
+    }
+
+    // Toggle Election Status
+    function toggleElectionStatus() {
+      state.election.isActive = !state.election.isActive;
+      showNotification(`Status pemilihan diubah: ${state.election.isActive ? 'Aktif' : 'Dijeda'}`, state.election.isActive ? 'green' : 'amber');
+      renderAll();
+    }
+
+    // Reset All Votes
+    function resetAllVotes() {
+      if (!confirm("Apakah Anda yakin ingin mereset seluruh data perolehan suara?")) return;
+      state.candidates.forEach(c => c.votes = 0);
+      state.voters.forEach(v => {
+        v.hasVoted = false;
+        v.votedFor = null;
+      });
+      state.currentUser.hasVoted = false;
+      showNotification("Semua suara berhasil direset ke 0.", "red");
+      renderAll();
+    }
+
+    // Reset single voter
+    function resetSingleVoter(voterId) {
+      const v = state.voters.find(x => x.id === voterId);
+      if (!v) return;
+
+      if (v.votedFor) {
+        const c = state.candidates.find(cand => cand.id === v.votedFor);
+        if (c && c.votes > 0) c.votes -= 1;
+      }
+
+      v.hasVoted = false;
+      v.votedFor = null;
+      if (state.currentUser.id === voterId) {
+        state.currentUser.hasVoted = false;
+      }
+
+      showNotification(`Status hak suara ${v.name} berhasil direset.`, "blue");
+      renderAll();
+    }
+
+    // Add Candidate
+    function addCandidate(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-cand-name').value;
+      const nip = document.getElementById('new-cand-nip').value;
+      const unit = document.getElementById('new-cand-unit').value;
+      const visi = document.getElementById('new-cand-visi').value;
+
+      const newId = `cand-${Date.now()}`;
+      state.candidates.push({
+        id: newId,
+        number: state.candidates.length + 1,
+        name,
+        nip,
+        unit,
+        photoColor: "from-blue-700 to-indigo-900",
+        visiMisi: visi || "Meningkatkan mutu pelayanan keperawatan RSUD dr. Soedarso.",
+        pengalaman: "Tenaga Keperawatan Profesional",
+        votes: 0
+      });
+
+      e.target.reset();
+      showNotification(`Kandidat ${name} berhasil ditambahkan!`, "green");
+      renderAll();
+    }
+
+    // Render Data Utama
+    function renderAll() {
+      const totalVoters = state.voters.length;
+      const totalVotesCast = state.candidates.reduce((sum, c) => sum + c.votes, 0);
+      const percent = totalVoters > 0 ? Math.round((totalVotesCast / totalVoters) * 100) : 0;
+
+      // User pill in header
+      const userPill = document.getElementById('user-pill');
+      if (state.currentUser.role === 'ADMIN') {
+        userPill.innerHTML = `
+          <span class="bg-amber-400 text-slate-900 font-bold px-2 py-0.5 rounded text-[10px]">ADMIN</span>
+          <span class="font-medium text-xs hidden sm:inline">${state.currentUser.name}</span>
+        `;
+      } else {
+        userPill.innerHTML = `
+          <span class="w-2 h-2 rounded-full ${state.currentUser.hasVoted ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
+          <span class="font-medium text-xs hidden sm:inline">${state.currentUser.name}</span>
+          <span class="text-[10px] text-blue-200">(${state.currentUser.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'})</span>
+        `;
+      }
+
+      // Stats Hero
+      document.getElementById('stat-hero-percent').textContent = `${percent}%`;
+      document.getElementById('stat-hero-count').textContent = `${totalVotesCast} dari ${totalVoters} Pemilih`;
+      document.getElementById('stat-hero-bar').style.width = `${percent}%`;
+
+      // Stats Page
+      document.getElementById('stat-total-voters').textContent = totalVoters;
+      document.getElementById('stat-votes-cast').textContent = totalVotesCast;
+      document.getElementById('stat-votes-pending').textContent = totalVoters - totalVotesCast;
+      document.getElementById('stat-participation').textContent = `${percent}%`;
+
+      // Candidate Grid (Beranda)
+      const cGrid = document.getElementById('candidates-grid');
+      cGrid.innerHTML = state.candidates.map(c => `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
+          <div class="bg-gradient-to-r ${c.photoColor} p-6 text-white text-center relative">
+            <span class="absolute top-3 left-3 bg-white/20 backdrop-blur-md text-white font-black text-xs px-2.5 py-1 rounded-full border border-white/30">
+              No. 0${c.number}
+            </span>
+            <div class="w-20 h-20 mx-auto rounded-full bg-white/20 border-2 border-white/50 flex items-center justify-center text-3xl font-black shadow-inner">
+              ${c.name.charAt(4) || 'P'}
+            </div>
+            <h4 class="font-bold text-base mt-3 leading-snug">${c.name}</h4>
+            <p class="text-xs text-blue-100 mt-0.5">${c.unit}</p>
+            <p class="text-[10px] text-blue-200 font-mono mt-0.5">NIP: ${c.nip}</p>
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Visi & Misi:</p>
+              <p class="text-xs text-slate-700 mt-1 line-clamp-3 leading-relaxed">${c.visiMisi}</p>
+            </div>
+            <div class="pt-2 border-t border-slate-100">
+              <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Pengalaman:</p>
+              <p class="text-[11px] text-slate-600 mt-0.5">${c.pengalaman}</p>
+            </div>
+            <button onclick="switchTab('voting')" class="w-full mt-2 bg-slate-100 hover:bg-[#1e3a5f] hover:text-white text-[#1e3a5f] font-bold text-xs py-2 rounded-xl transition">
+              Beri Suara di Bilik Suara
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // Voting Page Cards
+      const vBadge = document.getElementById('voter-status-badge');
+      if (state.currentUser.role === 'ADMIN') {
+        vBadge.innerHTML = `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-amber-200">Mode Admin (Hanya Melihat)</span>`;
+      } else if (state.currentUser.hasVoted) {
+        vBadge.innerHTML = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">✓ Anda Sudah Menggunakan Hak Suara</span>`;
+      } else {
+        vBadge.innerHTML = `<span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1.5 rounded-xl border border-blue-200 flex items-center gap-1.5">🗳️ Anda Belum Memberikan Suara</span>`;
+      }
+
+      const vCards = document.getElementById('voting-cards');
+      vCards.innerHTML = state.candidates.map(c => {
+        const canVote = state.election.isActive && state.currentUser.role !== 'ADMIN' && !state.currentUser.hasVoted;
+        return `
+          <div class="bg-white rounded-2xl border-2 ${canVote ? 'border-slate-200 hover:border-blue-500' : 'border-slate-200 opacity-90'} shadow-sm overflow-hidden flex flex-col transition p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="w-9 h-9 rounded-full bg-[#1e3a5f] text-white font-black text-sm flex items-center justify-center">0${c.number}</span>
+              <span class="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full">${c.unit}</span>
+            </div>
+            <div class="text-center py-2">
+              <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr ${c.photoColor} text-white flex items-center justify-center text-3xl font-black shadow-md">
+                ${c.name.charAt(4) || 'P'}
+              </div>
+              <h4 class="font-bold text-slate-900 text-base mt-3 leading-snug">${c.name}</h4>
+              <p class="text-xs text-slate-500 font-mono mt-0.5">NIP: ${c.nip}</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs text-slate-700 space-y-2">
+              <p><strong class="text-slate-900">Visi:</strong> ${c.visiMisi}</p>
+            </div>
+            <button onclick="promptVote('${c.id}')" ${!canVote ? 'disabled' : ''} class="w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${canVote ? 'bg-[#1e3a5f] hover:bg-blue-800 text-white shadow-md' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+              ${state.currentUser.hasVoted ? '✓ Suara Telah Disalurkan' : 'PILIH KANDIDAT INI'}
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      // Results Bars
+      const rBars = document.getElementById('results-bars');
+      rBars.innerHTML = state.candidates.map(c => {
+        const cPercent = totalVotesCast > 0 ? Math.round((c.votes / totalVotesCast) * 100) : 0;
+        return `
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-[#1e3a5f] text-white text-[10px] font-bold flex items-center justify-center">0${c.number}</span>
+                <span class="text-slate-800 font-bold">${c.name}</span>
+                <span class="text-slate-400 text-[11px]">(${c.unit})</span>
+              </div>
+              <div class="text-right font-mono">
+                <span class="text-slate-900 font-bold">${c.votes} Suara</span>
+                <span class="text-slate-500 text-[11px] ml-1">(${cPercent}%)</span>
+              </div>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full rounded-full transition-all duration-700" style="width: ${cPercent}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Leader Card
+      const leader = [...state.candidates].sort((a, b) => b.votes - a.votes)[0];
+      const leaderCard = document.getElementById('leader-card');
+      if (totalVotesCast > 0 && leader) {
+        leaderCard.innerHTML = `
+          <div class="flex items-center gap-4">
+            <div class="text-3xl">🏆</div>
+            <div>
+              <p class="text-xs font-bold text-blue-700 uppercase tracking-wider">Perolehan Suara Terbanyak Saat Ini</p>
+              <h4 class="font-bold text-slate-900 text-base leading-tight mt-0.5">${leader.name}</h4>
+              <p class="text-xs text-slate-600 mt-0.5">${leader.unit} • Memimpin dengan perolehan ${leader.votes} suara</p>
+            </div>
+          </div>
+        `;
+      } else {
+        leaderCard.innerHTML = `
+          <div class="text-center py-2 text-slate-500 text-xs">
+            Belum ada suara yang masuk. Jadilah pemilih pertama di Bilik Suara!
+          </div>
+        `;
+      }
+
+      // Admin Controls
+      document.getElementById('election-status-label').textContent = state.election.isActive ? 'Pemilihan Sedang Aktif' : 'Pemilihan Sedang Dijeda';
+      const btnToggle = document.getElementById('btn-toggle-election');
+      btnToggle.textContent = state.election.isActive ? 'Jeda Pemilihan' : 'Aktifkan Pemilihan';
+      btnToggle.className = state.election.isActive ? 'bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition' : 'bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition';
+
+      // Admin Voters Table
+      document.getElementById('dpt-count').textContent = `${state.voters.length} Terdaftar`;
+      const tbody = document.getElementById('voters-table-body');
+      tbody.innerHTML = state.voters.map(v => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-3 font-semibold text-slate-800">${v.name}</td>
+          <td class="p-3 font-mono text-slate-500">${v.nip}</td>
+          <td class="p-3 text-slate-600">${v.unit}</td>
+          <td class="p-3 text-center">
+            ${v.hasVoted ? '<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">Sudah Memilih</span>' : '<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">Belum Memilih</span>'}
+          </td>
+          <td class="p-3 text-center">
+            ${v.hasVoted ? `<button onclick="resetSingleVoter('${v.id}')" class="text-red-600 hover:text-red-800 font-semibold text-[11px] underline">Reset Suara</button>` : '<span class="text-slate-300">-</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Inisialisasi awal
+    renderAll();
+  </script>
+</body>
+</html>

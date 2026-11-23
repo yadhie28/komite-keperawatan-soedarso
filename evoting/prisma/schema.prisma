@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nip       String   @unique
+  name      String
+  email     String   @unique
+  password  String
+  unit      String
+  role      String   @default("VOTER") // ADMIN | VOTER
+  hasVoted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  votes     Vote[]
+
+  @@map("users")
+}
+
+model Candidate {
+  id         String   @id @default(cuid())
+  name       String
+  nip        String   @unique
+  photo      String?
+  visiMisi   String
+  pengalaman String
+  unit       String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  votes      Vote[]
+
+  @@map("candidates")
+}
+
+model Vote {
+  id          String    @id @default(cuid())
+  voterId     String
+  candidateId String
+  votedAt     DateTime  @default(now())
+  voter       User      @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([voterId])
+  @@map("votes")
+}
+
+model Election {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("elections")
+}
