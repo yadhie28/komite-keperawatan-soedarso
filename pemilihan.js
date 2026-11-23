@@ -405,7 +405,7 @@
     const cleanKey = String(user.id_login || user.nip || '').trim().replace(/\s+/g, '');
     const record = receiptParam || simVoters[cleanKey];
 
-    const token = record?.receipt_token || record?.receiptToken || 'VOTE-SIM-2026-XXXX';
+    const token = record?.receipt_token || record?.receiptToken || 'VOTE-SIM-2026-0001';
     const votedAt = record?.voted_at_wib || record?.votedAt || '23 November 2026 WIB';
     const masked = record?.masked_id || record?.maskedId || (window.SupabaseKomkep ? window.SupabaseKomkep.maskId(cleanKey) : cleanKey);
     const unit = record?.unit_kerja || record?.unit || user.unit || 'RSUD dr. Soedarso';

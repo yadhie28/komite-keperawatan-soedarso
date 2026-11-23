@@ -2646,6 +2646,18 @@ function renderAuditsTable() {
   const tbody = document.getElementById('auditTableBody');
   if (!tbody) return;
 
+  if (!state.clinicalAudits || state.clinicalAudits.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+          <i class="fa-solid fa-clipboard-list fa-2x" style="margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
+          Belum ada catatan audit mutu klinis. Silakan tambahkan laporan audit ruangan baru.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
   const canEditMutu = isAdmin() && (hasRole('Mutu') || hasRole('Komite'));
 
   tbody.innerHTML = state.clinicalAudits.map(item => {
@@ -5281,16 +5293,16 @@ function generateCvHVS(mode) {
   };
 
   const nama = v(cv?.nama, '[ Ns. Nama Lengkap, S.Kep ]');
-  const nip = v(cv?.nip, '[ 19xxxxxxxxxxxxxx ]');
+  const nip = v(cv?.nip, '[ NIP / NIPPPK / NIK ]');
   const ttl = v(cv?.ttl, '[ Pontianak, DD / MM / YYYY ]');
   const jabatan = v(cv?.jabatan, '[ Perawat Pelaksana / Ketua Tim / Kepala Ruangan ]');
   const unit = v(cv?.unit, '[ Sesuai SK Tempat Tidur: Enggang Gading 2 ]');
   const pkSaatIni = v(formatJenjangLabel(cv?.pkSaatIni), '[ Perawat Klinis I / II / III / IV / V ]');
   const pkDiusulkan = v(formatJenjangLabel(cv?.pkDiusulkan), '[ PK II / PK III / PK IV - Sesuaikan White Paper ]');
 
-  const str = v(cv?.str, '[ xxxxxxxxx-xxxxxxx ]');
+  const str = v(cv?.str, '[ Nomor STR Aktif ]');
   const strBerlaku = v(cv?.strBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY (Wajib Aktif) ]');
-  const sipp = v(cv?.sipp, '[ xxxx/SIPP/DPMPTSP/YYYY ]');
+  const sipp = v(cv?.sipp, '[ Nomor SIPP/SIPB ]');
   const sippBerlaku = v(cv?.sippBerlaku, '[ Berakhir Tanggal: DD / MM / YYYY ]');
 
   const edu = cv?.pendidikan || [
@@ -6992,7 +7004,7 @@ function handleLogbookSubmit(e) {
 
   const items = getLogbookItemsFromForm();
   const kaRuNama = getVal('logbookKaRuNama') || 'Ns. Kepala Ruangan, S.Kep';
-  const kaRuNip = getVal('logbookKaRuNip') || '19xxxxxxxxxxxxxx';
+  const kaRuNip = getVal('logbookKaRuNip') || 'NIP Kepala Ruangan';
   const kaRuRuangan = getVal('logbookKaRuRuangan') || unit;
   const kota = getVal('logbookKota') || 'Pontianak';
   const tanggal = getVal('logbookTanggal') || '21 Oktober';
@@ -7078,7 +7090,7 @@ function generateLogbookHVS(mode) {
 
   const items = isBlank ? [] : (d.items || window.KOMITE_DATA?.sampleLogbook?.perawat?.items || []);
   const kaRuNama = isBlank ? '....................................................................' : (d.kaRuNama || 'Ns. Kepala Ruangan, S.Kep');
-  const kaRuNip = isBlank ? '....................................................................' : (d.kaRuNip || '19xxxxxxxxxxxxxx');
+  const kaRuNip = isBlank ? '....................................................................' : (d.kaRuNip || 'NIP Kepala Ruangan');
   const kaRuRuangan = isBlank ? '....................................................................' : (d.kaRuRuangan || unit);
   const kota = isBlank ? 'Pontianak' : (d.kota || 'Pontianak');
   const tanggal = isBlank ? '...... ....................' : (d.tanggal || '21 Oktober');

@@ -2180,7 +2180,7 @@
 
             <div class="form-group">
               <label class="form-label">Nomor Kontak / WhatsApp (Opsional, untuk feedback)</label>
-              <input type="text" class="form-input" id="ethicsContact" placeholder="08xxxxxxxxxx (Boleh dikosongkan jika anonim)">
+              <input type="text" class="form-input" id="ethicsContact" placeholder="Contoh: 081256789012 (Boleh dikosongkan jika anonim)">
             </div>
 
             <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 0.5rem;">
@@ -4093,7 +4093,7 @@
           <input type="hidden" id="actionTicketCode">
           <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
             <div style="font-size: 0.8rem; color: var(--text-muted);">Nomor Tiket:</div>
-            <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--primary-700);" id="actionTicketDisplay">ETIK-2026-XXXX</div>
+            <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--primary-700);" id="actionTicketDisplay">ETIK-2026-0001</div>
             <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-top: 4px;" id="actionTicketCategory">Kategori</div>
           </div>
 
@@ -4167,7 +4167,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvNip" value="000000000000000000" placeholder="19xxxxxxxxxxxxxx" required>
+                  <input type="text" class="form-input" id="cvNip" value="000000000000000000" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Tempat / Tanggal Lahir <span class="req">*</span></label>
@@ -4364,7 +4364,7 @@
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Nomor STR (Surat Tanda Registrasi) <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvStr" value="140152119-2849103" placeholder="xxxxxxxxx-xxxxxxx" required>
+                  <input type="text" class="form-input" id="cvStr" value="140152119-2849103" placeholder="Nomor STR Aktif (Contoh: 140152119-2849103)" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Masa Berlaku STR <span class="req">*</span></label>
@@ -4372,7 +4372,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Nomor SIPP (Perawat) / SIPB (Bidan) <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvSipp" value="503/0842/SIPP/DPMPTSP-C/2022" placeholder="xxxx/SIPP/DPMPTSP/YYYY" required>
+                  <input type="text" class="form-input" id="cvSipp" value="503/0842/SIPP/DPMPTSP-C/2022" placeholder="Nomor SIPP/SIPB (Contoh: 503/0842/SIPP/DPMPTSP-C/2022)" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Masa Berlaku SIPP / SIPB <span class="req">*</span></label>
@@ -4602,7 +4602,7 @@
                   NIP / NIPPPK / NIK <span class="req">*</span>
                   <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                 </label>
-                <input type="text" class="form-input input-locked" id="logbookNip" placeholder="19xxxxxxxxxxxxxx" readonly required>
+                <input type="text" class="form-input input-locked" id="logbookNip" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" readonly required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">
@@ -4813,7 +4813,7 @@
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">NIP Kepala Ruangan <span class="req">*</span></label>
-                <input type="text" class="form-input" id="logbookKaRuNip" placeholder="19xxxxxxxxxxxxxx" required>
+                <input type="text" class="form-input" id="logbookKaRuNip" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Nama Ruang Rawat / Unit Kerja (Sesuai SK Tempat Tidur) <span class="req">*</span></label>
