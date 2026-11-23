@@ -181,7 +181,7 @@
 
     <!-- Main Navigation Bar -->
     <nav class="nav-container">
-      <a href="#kredensial" class="brand-wrapper" id="brandLogoLink">
+      <a href="#beranda" class="brand-wrapper" id="brandLogoLink">
         <div class="brand-logos">
           <img src="logo_kalbar.png" alt="Logo Pemprov Kalbar" class="logo-pemprov-img" id="navLogoKalbar">
           <img src="logo_komite.png" alt="Logo RSUD dr. Soedarso Pontianak" class="logo-komite-img" id="navLogoKomite">
@@ -200,12 +200,12 @@
       <!-- Navigation Tabs -->
       <ul class="nav-tabs" id="navTabs">
         <li>
-          <button class="nav-tab-btn" data-tab="beranda">
+          <button class="nav-tab-btn active" data-tab="beranda">
             <i class="fa-solid fa-house-chimney-medical"></i> Beranda
           </button>
         </li>
         <li>
-          <button class="nav-tab-btn active" data-tab="kredensial">
+          <button class="nav-tab-btn" data-tab="kredensial">
             <i class="fa-solid fa-id-card-clip"></i> E-Kredensialing & RKK
           </button>
         </li>
@@ -273,7 +273,7 @@
     <!-- ----------------------------------------------------------------------
          TAB 1: BERANDA & PROFIL
          ---------------------------------------------------------------------- -->
-    <section class="tab-pane" id="pane-beranda">
+    <section class="tab-pane active" id="pane-beranda">
       <!-- Hero Card Banner -->
       <div class="hero-card">
         <div class="hero-overlay"></div>
@@ -326,8 +326,8 @@
         </div>
       </div>
 
-      <!-- Banner Pengumuman Pemilihan Ketua Komite Keperawatan 2027-2030 -->
-      <div style="background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 50%, #1e3a8a 100%); border: 2px solid #fbbf24; border-radius: 16px; padding: 1.5rem 1.75rem; margin-top: 1.75rem; color: #ffffff; box-shadow: 0 10px 25px -5px rgba(13, 95, 91, 0.3); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+      <!-- Banner Pengumuman Pemilihan Ketua Komite Keperawatan 2027-2030 (Dinamis Sesuai Jadwal) -->
+      <div id="bannerPemilihanBeranda" style="background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 50%, #1e3a8a 100%); border: 2px solid #fbbf24; border-radius: 16px; padding: 1.5rem 1.75rem; margin-top: 1.75rem; color: #ffffff; box-shadow: 0 10px 25px -5px rgba(13, 95, 91, 0.3); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 1.25rem; min-width: 280px; flex: 1;">
           <div style="width: 58px; height: 58px; border-radius: 14px; background: rgba(251, 191, 36, 0.2); border: 2px solid #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fbbf24; flex-shrink: 0; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);">
             <i class="fa-solid fa-check-to-slot"></i>
@@ -337,21 +337,21 @@
               <span style="background: #fbbf24; color: #78350f; font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
                 Agenda Utama Rumah Sakit
               </span>
-              <span style="font-size: 0.78rem; color: #99f6e4; font-weight: 600;">
+              <span id="bannerStatusTag" style="font-size: 0.78rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(74, 222, 128, 0.2); color: #4ade80;">
                 <i class="fa-solid fa-circle-dot" style="color: #4ade80;"></i> Bilik Suara Elektronik Dibuka
               </span>
             </div>
             <h3 style="font-size: 1.25rem; font-weight: 800; margin-top: 0.35rem; color: #ffffff; line-height: 1.3;">
               Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso (2027–2030)
             </h3>
-            <p style="font-size: 0.85rem; color: #ccfbf1; margin-top: 0.25rem; line-height: 1.5; max-width: 650px;">
-              Gunakan hak suara Anda dalam memilih pemimpin yang berintegritas untuk memajukan tata kelola klinis, kredensialing, mutu asuhan, dan etika profesi keperawatan.
+            <p id="bannerStatusSub" style="font-size: 0.85rem; color: #ccfbf1; margin-top: 0.25rem; line-height: 1.5; max-width: 650px;">
+              Bilik Suara Dibuka s.d. 24 Nov 2026 10.00 WIB. Gunakan hak pilih Anda secara bebas, langsung, umum, dan rahasia.
             </p>
           </div>
         </div>
 
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button class="btn-primary" onclick="switchTab('evoting')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 0.75rem 1.4rem; border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);">
+          <button id="bannerActionBtn" class="btn-primary" onclick="switchTab('evoting')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 0.75rem 1.4rem; border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);">
             <i class="fa-solid fa-box-archive"></i> Buka Bilik Suara
           </button>
         </div>
@@ -886,7 +886,7 @@
     <!-- ----------------------------------------------------------------------
          TAB 2: E-KREDENSIALING & RKK/SPK
          ---------------------------------------------------------------------- -->
-    <section class="tab-pane active" id="pane-kredensial">
+    <section class="tab-pane" id="pane-kredensial">
       <div class="section-header">
         <div>
           <h2 class="section-title">Registry E-Kredensialing & RKK/SPK</h2>

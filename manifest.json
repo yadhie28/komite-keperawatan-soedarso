@@ -3,7 +3,7 @@
   "short_name": "Komite Kep Soedarso",
   "description": "Portal Resmi E-Kredensialing, RKK/SPK, Mutu Asuhan, dan Etika Profesi RSUD dr. Soedarso Pontianak",
   "id": "https://yadhie28.github.io/komite-keperawatan-soedarso/",
-  "start_url": "https://yadhie28.github.io/komite-keperawatan-soedarso/#kredensial",
+  "start_url": "https://yadhie28.github.io/komite-keperawatan-soedarso/#beranda",
   "scope": "https://yadhie28.github.io/komite-keperawatan-soedarso/",
   "display": "standalone",
   "background_color": "#042f2e",

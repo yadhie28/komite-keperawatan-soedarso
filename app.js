@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateAllRoomDropdowns();
   initAuth();
   setupNavigation();
+  updateBerandaElectionBanner();
   setupEventListeners();
   renderAllViews();
   initLogbookAutocomplete();
@@ -1084,6 +1085,11 @@ function updateSettingsThemeLabel() {
    ALUR PENGISIAN 5S JEPANG (SEIRI, SEITON, SEISO, SEIKETSU, SHITSUKE)
    ========================================================================== */
 function mulaiPengajuanKredensial5S() {
+  if (!state.currentUser) {
+    showToast('Silakan masuk terlebih dahulu dengan NIP/NIK Anda untuk mengajukan permohonan kredensial.', 'info');
+    openLoginModal('pengusul');
+    return;
+  }
   if (state.currentUser && state.currentUser.role === 'pengusul') {
     openDashboardPengusul(state.currentUser);
     return;
@@ -1416,27 +1422,31 @@ function saveWorkflowNotifications() {
    NAVIGATION & TAB SYSTEM
    ========================================================================== */
 function setupNavigation() {
-  const hash = window.location.hash.replace('#', '');
-  if (hash === 'logbook') {
-    switchTab('kredensial');
+  const validTabs = ['beranda', 'kredensial', 'mutu', 'etik', 'analitik', 'regulasi', 'evoting', 'pemilihan'];
+  const rawHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
+
+  if (rawHash === 'logbook') {
+    switchTab('mutu');
     setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 250);
-  } else if (hash === 'evoting' || hash === 'pemilihan') {
+  } else if (rawHash === 'evoting' || rawHash === 'pemilihan') {
     switchTab('evoting');
-  } else if (hash && (document.getElementById(`pane-${hash}`) || hash === 'evoting')) {
-    switchTab(hash);
+  } else if (rawHash && validTabs.includes(rawHash) && document.getElementById(`pane-${rawHash}`)) {
+    switchTab(rawHash);
   } else {
-    switchTab('kredensial');
+    switchTab('beranda');
   }
 
   window.addEventListener('hashchange', () => {
-    const newHash = window.location.hash.replace('#', '');
+    const newHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
     if (newHash === 'logbook') {
-      switchTab('kredensial');
+      switchTab('mutu');
       setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 150);
     } else if (newHash === 'evoting' || newHash === 'pemilihan') {
       switchTab('evoting');
-    } else if (newHash && (document.getElementById(`pane-${newHash}`) || newHash === 'evoting')) {
+    } else if (newHash && validTabs.includes(newHash) && (document.getElementById(`pane-${newHash}`) || newHash === 'evoting' || newHash === 'pemilihan')) {
       switchTab(newHash);
+    } else {
+      switchTab('beranda');
     }
   });
 
@@ -12246,3 +12256,60 @@ function canAccess(role, resource, context = {}) {
   return false;
 }
 window.canAccess = canAccess;
+
+
+/**
+ * Update dynamic status banner pemilihan di tab Beranda
+ */
+function updateBerandaElectionBanner() {
+  const banner = document.getElementById('bannerPemilihanBeranda');
+  if (!banner) return;
+  const tagEl = document.getElementById('bannerStatusTag');
+  const subEl = document.getElementById('bannerStatusSub');
+  const actionBtn = document.getElementById('bannerActionBtn');
+
+  const schedule = window.SupabaseKomkep ? window.SupabaseKomkep.checkElectionSchedule() : { isOpen: true };
+
+  if (schedule.isBefore) {
+    if (tagEl) {
+      tagEl.innerHTML = '<i class="fa-solid fa-clock" style="color: #fbbf24;"></i> Simulasi Belum Dibuka';
+      tagEl.style.background = 'rgba(251, 191, 36, 0.2)';
+      tagEl.style.color = '#fbbf24';
+    }
+    if (subEl) {
+      subEl.textContent = 'Simulasi Bilik Suara Belum Dibuka. Jadwal Buka: Senin, 23 Nov 2026 10.00 WIB s.d. Selasa, 24 Nov 2026 10.00 WIB.';
+    }
+    if (actionBtn) {
+      actionBtn.innerHTML = '<i class="fa-solid fa-users"></i> Lihat Profil Kandidat';
+      actionBtn.onclick = () => switchTab('evoting');
+    }
+  } else if (schedule.isOpen) {
+    if (tagEl) {
+      tagEl.innerHTML = '<i class="fa-solid fa-circle-dot" style="color: #4ade80;"></i> Bilik Suara Sedang Dibuka';
+      tagEl.style.background = 'rgba(74, 222, 128, 0.2)';
+      tagEl.style.color = '#4ade80';
+    }
+    if (subEl) {
+      subEl.textContent = 'Bilik Suara Dibuka s.d. 24 Nov 2026 10.00 WIB. Gunakan hak pilih Anda secara bebas, langsung, dan rahasia.';
+    }
+    if (actionBtn) {
+      actionBtn.innerHTML = '<i class="fa-solid fa-box-archive"></i> Buka Bilik Suara';
+      actionBtn.onclick = () => switchTab('evoting');
+    }
+  } else {
+    // Closed
+    if (tagEl) {
+      tagEl.innerHTML = '<i class="fa-solid fa-lock" style="color: #f87171;"></i> Bilik Suara Telah Ditutup';
+      tagEl.style.background = 'rgba(239, 68, 68, 0.2)';
+      tagEl.style.color = '#f87171';
+    }
+    if (subEl) {
+      subEl.textContent = 'Pemungutan suara telah berakhir pada 24 Nov 2026 pukul 10.00 WIB. Rekapitulasi suara tersedia.';
+    }
+    if (actionBtn) {
+      actionBtn.innerHTML = '<i class="fa-solid fa-chart-column"></i> Lihat Rekap & Berita Acara';
+      actionBtn.onclick = () => switchTab('evoting');
+    }
+  }
+}
+window.updateBerandaElectionBanner = updateBerandaElectionBanner;
