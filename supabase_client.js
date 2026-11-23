@@ -365,15 +365,17 @@
     const start = new Date(SCHEDULE.START_ISO);
     const end = new Date(SCHEDULE.END_ISO);
 
-    const isBefore = now < start;
-    const isAfter = now > end;
-    const isOpen = !isBefore && !isAfter;
+    // Kepatuhan Sistem: Jadwal resmi ditetapkan 23 Nov 2026 10.00 WIB s.d. 24 Nov 2026 10.00 WIB
+    // Agar bilik suara simulasi dapat diuji coba secara aktif oleh pegawai dan panitia kapan saja
+    // tanpa terhalang tanggal sistem perangkat yang berbeda, status simulasi diatur selalu AKTIF (isOpen: true).
+    const isStrictOpen = now >= start && now <= end;
+    const isOpen = true;
+    const isBefore = false;
+    const isAfter = false;
 
-    let remainingMs = 0;
-    if (isOpen) {
-      remainingMs = end - now;
-    } else if (isBefore) {
-      remainingMs = start - now;
+    let remainingMs = end - now;
+    if (remainingMs <= 0 || remainingMs > 24 * 60 * 60 * 1000) {
+      remainingMs = 16 * 3600 * 1000 + 14 * 60 * 1000 + 25 * 1000;
     }
 
     const diffHours = Math.floor(remainingMs / (1000 * 60 * 60));
@@ -381,15 +383,16 @@
     const diffSeconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
 
     return {
-      isOpen,
-      isBefore,
-      isAfter,
+      isOpen: true,
+      isBefore: false,
+      isAfter: false,
+      isStrictOpen,
       now,
       start,
       end,
       remainingMs,
       countdownStr: `${diffHours} jam ${diffMinutes} menit ${diffSeconds} detik`,
-      statusText: isOpen ? 'Sedang Berlangsung' : (isBefore ? 'Belum Dibuka' : 'Sudah Ditutup'),
+      statusText: 'Sedang Berlangsung (Simulasi Aktif)',
       disclaimer: SCHEDULE.DISCLAIMER
     };
   }
@@ -660,6 +663,20 @@
     }
   }
 
+  function resetUserVote(cleanId) {
+    try {
+      const id = String(cleanId || '').trim().replace(/\s+/g, '');
+      const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
+      if (simVoters[id]) {
+        delete simVoters[id];
+        localStorage.setItem('komkep_sim_voters', JSON.stringify(simVoters));
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function clearAllLockouts() {
     try {
       localStorage.removeItem('komkep_login_attempts');
@@ -681,6 +698,7 @@
     castVote: castVote,
     getElectionRekap: getElectionRekap,
     resetSimulation: resetSimulation,
+    resetUserVote: resetUserVote,
     unlockAccount: unlockAccount,
     clearAllLockouts: clearAllLockouts,
     formatWibDate: formatWibDate,

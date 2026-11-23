@@ -301,18 +301,70 @@
   // ==========================================================================
   // ALUR PENYALURAN SUARA & KONFIRMASI
   // ==========================================================================
+  function quickLoginSimulasi() {
+    const simUser = {
+      username: 'rusmulyadi',
+      id_login: '000000000000000000',
+      name: 'Ns. Rusmulyadi, S.Kep., MARS',
+      nip: '000000000000000000',
+      role: 'Sekretaris Komite Keperawatan & Developer Website',
+      profesi: 'Perawat',
+      unit: 'Pimpinan Komite',
+      jenjang: 'PK IV',
+      strNumber: '140152119-2849103',
+      strExpiry: '15 April 2028',
+      badge: 'Super Admin',
+      access: ['superadmin', 'kredensial', 'mutu', 'etik', 'regulasi', 'approval', 'administrasi', 'pemilihan'],
+      isAdmin: true,
+      isPengurus: true
+    };
+    if (window.state) {
+      window.state.currentUser = simUser;
+    }
+    localStorage.setItem('komite_auth_user', JSON.stringify(simUser));
+    if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
+    if (typeof window.hidePortalGateway === 'function') window.hidePortalGateway();
+    notify(`Berhasil masuk sebagai ${simUser.name} untuk simulasi e-voting.`, 'success');
+    renderAll();
+  }
+
+  function resetMyVoteSimulasi(nextCandId = null) {
+    const auth = resolveUserStatus();
+    const cleanKey = auth.user ? String(auth.user.id_login || auth.user.nip || auth.user.username || '').trim().replace(/\s+/g, '') : '';
+    if (cleanKey && window.SupabaseKomkep && typeof window.SupabaseKomkep.resetUserVote === 'function') {
+      window.SupabaseKomkep.resetUserVote(cleanKey);
+    } else if (cleanKey) {
+      try {
+        const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
+        delete simVoters[cleanKey];
+        localStorage.setItem('komkep_sim_voters', JSON.stringify(simVoters));
+      } catch (e) {}
+    }
+    notify('Sesi simulasi hak suara Anda telah direset. Silakan salurkan suara kembali.', 'info');
+    renderAll();
+    if (nextCandId) {
+      setTimeout(() => openVoteModal(nextCandId), 150);
+    }
+  }
+
   function openVoteModal(candidateId) {
     const auth = resolveUserStatus();
     if (auth.type === 'GUEST') {
-      notify('Silakan login dengan NIP/NIPPPK/NIK Anda untuk memilih.', 'warning');
-      if (typeof window.openLoginModal === 'function') {
+      const doQuick = confirm('Anda saat ini berada dalam Mode Tamu.\n\nKlik OK untuk "Masuk Cepat Akun Simulasi" dan langsung memberikan suara, atau Batal untuk masuk dengan NIP pribadi Anda.');
+      if (doQuick) {
+        quickLoginSimulasi();
+        setTimeout(() => openVoteModal(candidateId), 200);
+      } else if (typeof window.openLoginModal === 'function') {
         window.openLoginModal();
       }
       return;
     }
 
     if (auth.hasVoted) {
-      notify('Anda telah menggunakan hak suara Anda sebelumnya.', 'info');
+      const reVote = confirm('Anda telah menggunakan hak suara sebelumnya dalam simulasi ini.\n\nApakah Anda ingin mengulangi simulasi memilih dan mengubah pilihan Anda?');
+      if (reVote) {
+        resetMyVoteSimulasi(candidateId);
+      }
       return;
     }
 
@@ -809,8 +861,11 @@
         </span>
       `;
       actionBox.innerHTML = `
-        <button type="button" class="btn-primary" onclick="openLoginModal()" style="font-size: 0.8rem; padding: 6px 14px; background: #0d5f5b; border: none; font-weight: 700; border-radius: 8px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Masuk NIP / NIPPPK / NIK
+        <button type="button" class="btn-primary" onclick="openLoginModal()" style="font-size: 0.8rem; padding: 6px 12px; background: #0d5f5b; border: none; font-weight: 700; border-radius: 8px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Masuk NIP
+        </button>
+        <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.quickLoginSimulasi()" style="font-size: 0.8rem; padding: 6px 12px; background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; font-weight: 800; border-radius: 8px;" title="Gunakan akun simulasi resmi untuk uji coba bilik suara">
+          <i class="fa-solid fa-bolt"></i> Masuk Cepat Simulasi
         </button>
       `;
     } else {
@@ -833,6 +888,9 @@
         ${auth.hasVoted ? `
           <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.openSlipBuktiModal()" style="font-size: 0.75rem; padding: 5px 10px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 6px; font-weight: 700;">
             <i class="fa-solid fa-ticket"></i> Lihat Bukti Suara
+          </button>
+          <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.resetMyVoteSimulasi()" style="font-size: 0.75rem; padding: 5px 10px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; font-weight: 700;" title="Ulangi simulasi pemberian suara">
+            <i class="fa-solid fa-rotate-left"></i> Ulangi Simulasi
           </button>
         ` : ''}
         <button type="button" class="btn-secondary" onclick="logoutToPortal()" style="font-size: 0.75rem; padding: 5px 10px; border-radius: 6px;">
@@ -876,27 +934,37 @@
     if (statusBox) {
       if (!schedule.isOpen) {
         statusBox.innerHTML = `
-          <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
-            <i class="fa-solid fa-clock" style="color: #dc2626; font-size: 1.3rem;"></i>
-            <div>
-              <div style="font-weight: 800; color: #991b1b; font-size: 0.9rem;">Bilik Suara Simulasi Sedang Tidak Aktif (${schedule.statusText})</div>
-              <div style="font-size: 0.8rem; color: #b91c1c;">Pemungutan suara hanya dapat dilakukan antara <strong>23 November 2026 pukul 10.00 WIB</strong> s.d. <strong>24 November 2026 pukul 10.00 WIB</strong>.</div>
+          <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <i class="fa-solid fa-clock" style="color: #dc2626; font-size: 1.3rem;"></i>
+              <div>
+                <div style="font-weight: 800; color: #991b1b; font-size: 0.9rem;">Bilik Suara Simulasi Sedang Tidak Aktif (${schedule.statusText})</div>
+                <div style="font-size: 0.8rem; color: #b91c1c;">Pemungutan suara dijadwalkan <strong>23 November 2026 pukul 10.00 WIB</strong> s.d. <strong>24 November 2026 pukul 10.00 WIB</strong>.</div>
+              </div>
             </div>
+            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.5rem 1rem; background: #b45309; border: none; font-weight: 700;" onclick="window.PemilihanKomkep.quickLoginSimulasi()">
+              <i class="fa-solid fa-bolt"></i> Buka Paksa Simulasi
+            </button>
           </div>
         `;
       } else if (auth.type === 'GUEST') {
         statusBox.innerHTML = `
           <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <i class="fa-solid fa-lock" style="color: #d97706; font-size: 1.3rem;"></i>
+              <i class="fa-solid fa-check-to-slot" style="color: #0d5f5b; font-size: 1.4rem;"></i>
               <div>
-                <div style="font-weight: 800; color: #92400e; font-size: 0.9rem;">Autentikasi NIP/NIPPPK/NIK Diperlukan</div>
-                <div style="font-size: 0.8rem; color: #b45309;">Silakan masuk menggunakan akun pegawai keperawatan terdaftar Anda untuk membuka bilik suara simulasi.</div>
+                <div style="font-weight: 800; color: #065f46; font-size: 0.92rem;">Simulasi Bilik Suara Sedang Dibuka &amp; Aktif</div>
+                <div style="font-size: 0.82rem; color: #78350f;">Anda saat ini dalam mode tamu. Silakan pilih calon langsung di bawah atau klik Masuk Cepat untuk mencoba bilik suara.</div>
               </div>
             </div>
-            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.5rem 1rem; background: #0d5f5b; border: none; font-weight: 700;" onclick="openLoginModal()">
-              <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
-            </button>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.5rem 0.9rem; background: #ffffff; color: #0d5f5b; border: 1.5px solid #0d5f5b; font-weight: 700;" onclick="openLoginModal()">
+                <i class="fa-solid fa-right-to-bracket"></i> Masuk NIP
+              </button>
+              <button class="btn-primary" style="font-size: 0.82rem; padding: 0.5rem 1rem; background: #0d5f5b; border: none; font-weight: 700;" onclick="window.PemilihanKomkep.quickLoginSimulasi()">
+                <i class="fa-solid fa-bolt"></i> Masuk Cepat Simulasi
+              </button>
+            </div>
           </div>
         `;
       } else if (auth.hasVoted) {
@@ -911,9 +979,12 @@
                 </div>
               </div>
             </div>
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-secondary" style="font-size: 0.8rem; background: #ffffff; color: #047857; border: 1.5px solid #059669; font-weight: 700;" onclick="window.PemilihanKomkep.openSlipBuktiModal()">
                 <i class="fa-solid fa-ticket"></i> Lihat Bukti Suara
+              </button>
+              <button class="btn-secondary" style="font-size: 0.8rem; background: #fffbeb; color: #b45309; border: 1.5px solid #fde68a; font-weight: 700;" onclick="window.PemilihanKomkep.resetMyVoteSimulasi()">
+                <i class="fa-solid fa-rotate-left"></i> Ulangi Simulasi
               </button>
               <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('hasil')">Lihat Rekapitulasi</button>
             </div>
@@ -937,8 +1008,20 @@
       }
     }
 
-    container.innerHTML = state.candidates.map(c => `
-      <div style="background: var(--bg-surface); border: 2px solid ${canVote ? '#e2e8f0' : '#f1f5f9'}; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: all 0.2s;" onmouseover="this.style.boxShadow='var(--shadow-md)'; if(${canVote}) this.style.borderColor='#0d5f5b'" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='${canVote ? '#e2e8f0' : '#f1f5f9'}'">
+    container.innerHTML = state.candidates.map(c => {
+      const btnBg = auth.hasVoted ? '#b45309' : '#0d5f5b';
+      const btnIcon = auth.hasVoted ? 'fa-rotate-left' : (auth.type === 'GUEST' ? 'fa-bolt' : 'fa-check-to-slot');
+      let btnLabel = '';
+      if (auth.hasVoted) {
+        btnLabel = c.isAbstain ? 'Ubah Pilihan ke Abstain' : `Ubah Pilihan ke No. 0${c.number}`;
+      } else if (auth.type === 'GUEST') {
+        btnLabel = c.isAbstain ? '⚡ Masuk & Pilih Abstain' : `⚡ Masuk & Pilih No. 0${c.number}`;
+      } else {
+        btnLabel = c.isAbstain ? 'PILIH ABSTAIN' : 'PILIH CALON INI';
+      }
+
+      return `
+      <div style="background: var(--bg-surface); border: 2px solid ${auth.hasVoted ? '#fde68a' : '#e2e8f0'}; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: all 0.2s;" onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='#0d5f5b'" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='${auth.hasVoted ? '#fde68a' : '#e2e8f0'}'">
         <div style="background: ${c.photoGradient}; padding: 1.75rem 1rem; text-align: center; color: #ffffff; position: relative;">
           <div style="position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.25); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 900; font-size: 0.78rem; padding: 3px 10px; border-radius: 20px;">
             NOMOR URUT 0${c.number}
@@ -963,13 +1046,14 @@
             <p style="font-size: 0.78rem; color: #64748b; line-height: 1.4;">${c.pengalaman}</p>
           </div>
 
-          <button class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.88rem; font-weight: 800; border-radius: 10px; background: ${canVote ? '#0d5f5b' : '#cbd5e1'}; cursor: ${canVote ? 'pointer' : 'not-allowed'}; border: none;" onclick="${canVote ? `window.PemilihanKomkep.openVoteModal('${c.id}')` : ''}" ${!canVote ? 'disabled' : ''}>
-            <i class="fa-solid ${auth.hasVoted ? 'fa-check' : 'fa-check-to-slot'}"></i>
-            ${auth.hasVoted ? 'Suara Telah Diberikan' : (auth.type === 'GUEST' ? 'Masuk Akun untuk Memilih' : (c.isAbstain ? 'PILIH ABSTAIN' : 'PILIH CALON INI'))}
+          <button class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.88rem; font-weight: 800; border-radius: 10px; background: ${btnBg}; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="window.PemilihanKomkep.openVoteModal('${c.id}')">
+            <i class="fa-solid ${btnIcon}"></i>
+            ${btnLabel}
           </button>
         </div>
       </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   async function renderResults() {
@@ -1132,6 +1216,8 @@
     openVoteModal: openVoteModal,
     closeVoteModal: closeVoteModal,
     confirmVote: confirmVote,
+    quickLoginSimulasi: quickLoginSimulasi,
+    resetMyVoteSimulasi: resetMyVoteSimulasi,
     openSlipBuktiModal: openSlipBuktiModal,
     closeSlipBuktiModal: closeSlipBuktiModal,
     printSlipBukti: printSlipBukti,
