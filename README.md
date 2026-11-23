@@ -1,77 +1,116 @@
-# Portal E-Kredensialing & Asesmen Komite Keperawatan RSUD dr. Soedarso Pontianak
+# Portal Terpadu Komite Keperawatan RSUD dr. Soedarso Pontianak
 
-Aplikasi portal resmi Komite Keperawatan RSUD dr. Soedarso Provinsi Kalimantan Barat untuk memfasilitasi kredensialing, rekredensialing, pemetaan kewenangan klinis (White Book 2026), logbook kinerja asuhan, verifikasi dokumen sumber primer (PSV), dan pelacakan status penugasan klinis (SPK/RKK) secara real-time.
+Aplikasi portal web resmi Komite Keperawatan RSUD dr. Soedarso Provinsi Kalimantan Barat yang mengintegrasikan seluruh layanan tata kelola keperawatan: **E-Kredensialing & RKK**, **Mutu Profesi**, **Etik & Disiplin**, **Analitik Data**, **Pusat Regulasi**, serta **E-Voting Pemilihan Ketua Komite Keperawatan Periode 2027–2030** dalam satu sistem terpadu (Single Sign-On).
 
 ---
 
 ## 🌐 Akses Live (GitHub Pages)
-- **URL Produksi:** [https://yadhie28.github.io/komite-keperawatan-soedarso/](https://yadhie28.github.io/komite-keperawatan-soedarso/)
-- **Repository GitHub:** [git@github.com:yadhie28/komite-keperawatan-soedarso.git](git@github.com:yadhie28/komite-keperawatan-soedarso.git)
-- **Git Checkpoint Tag Terbaru:** `checkpoint-20261023-bukuputih` (Commit: `7ec5935`)
-- **Arsip Backup Zip:** `komite-keperawatan-soedarso-backup-20261023.zip` (Tersimpan di Direktori Proyek, `~/Documents/`, dan `~/Downloads/`)
+
+- **URL Produksi Portal:** [https://yadhie28.github.io/komite-keperawatan-soedarso/](https://yadhie28.github.io/komite-keperawatan-soedarso/)
+- **Menu Langsung E-Voting:** [https://yadhie28.github.io/komite-keperawatan-soedarso/#evoting](https://yadhie28.github.io/komite-keperawatan-soedarso/#evoting)
+- **Repository GitHub:** [https://github.com/yadhie28/komite-keperawatan-soedarso](https://github.com/yadhie28/komite-keperawatan-soedarso)
 
 ---
 
-## 📌 Alur 6 Langkah Kredensialing Mandiri
+## 📁 Struktur Repositori Terpadu
 
-1. **Langkah 1**: Form & Download Curriculum Vitae (CV) Resmi (PDF 3 Halaman A4 format RSUD dr. Soedarso).
-2. **Langkah 2**: Form & Download Buku Catatan Kinerja Klinis Harian (Logbook) (PDF 2 Halaman A4 tervalidasi Kepala Ruangan).
-3. **Langkah 3**: Form & Download Surat Permohonan Kredensial Resmi (PDF 3 Halaman A4 bertanda tangan mandiri pemohon).
-4. **Langkah 4**: Pengisian & Cetak Asesmen Mandiri RKK Online (PDF 3 Halaman A4 sesuai White Book 2026, 9 Rumpun Keperawatan).
-5. **Langkah 5**: Verifikasi Dokumen Sumber Primer (Primary Source Verification - PSV) Matriks 2 Halaman A4 standar KARS STARKES & PMK 49/2013.
-6. **Langkah 6 (Final)**: Unggah Berkas Persyaratan Lengkap & Dokumen Permohonan Bertanda Tangan.
-
----
-
-## 📋 8 Berkas Persyaratan Wajib Kredensialing (Langkah 6)
-
-Sesuai standar akreditasi KARS STARKES (Bab KPS 10 & 11) dan regulasi RSUD dr. Soedarso:
-1. **Salinan Ijazah Keperawatan/Kebidanan Terakhir Terlegalisir** (`uploadFileIjazah`)
-2. **Salinan Surat Tanda Registrasi (STR) yang Masih Aktif Secara Hukum** (`uploadFileStr`)
-3. **Salinan SIPP / SIPB** (`uploadFileSipp`)
-4. **Salinan Sertifikat Pelatihan Khusus Keperawatan/Kebidanan (ICU/OK/HD/dll.)** (`uploadFileSertifikat`)
-5. **Tangkapan Layar Bukti Pendidikan Keperawatan/Kebidanan Terakhir dari PDDikti** (`uploadFilePddikti`) - [https://pisn.kemdiktisaintek.go.id/](https://pisn.kemdiktisaintek.go.id/)
-6. **Surat Keterangan Sehat dari Dokter Pemerintah** (`uploadFileKetSehat`)
-7. **Asli Buku Logbook Kinerja Klinis Harian (Telah Diverifikasi Kepala Ruangan)** (`uploadFileLogbook`)
-8. **Curriculum Vitae / Daftar Riwayat Hidup** (`uploadFileCv`)
-
-*Disertai unggahan dokumen pengajuan sistem bertanda tangan:*
-- **No. 9**: Scan Surat Permohonan Kredensial Bertanda Tangan (Langkah 3)
-- **No. 10**: Scan Dokumen RKK Resmi Asesmen Mandiri Bertanda Tangan (Langkah 4)
-- **No. 11**: Scan Formulir PSV (Langkah 5)
-
----
-
-## 🛠️ Cara Menjalankan Secara Lokal
-
-Buka terminal pada direktori proyek, lalu jalankan server web statis:
-```bash
-# Menggunakan Python 3:
-python3 -m http.server 8080
-
-# Lalu buka di browser:
-# http://localhost:8080/
+```text
+komite-keperawatan-soedarso/
+├── index.html                   # Antarmuka Single Page Application (SPA) utama
+├── index.css                    # Desain & tema visual resmi RSUD dr. Soedarso
+├── app.js                       # Controller alur kerja, router tab hash, dan state global
+├── data.js                      # Master data kewenangan klinis (White Book 2026, 9 rumpun)
+├── elogbook.js                  # Modul Buku Catatan Kinerja Klinis Harian (Subkomite Mutu)
+├── pemilihan.js                 # Modul E-Voting, bilik suara, bukti memilih, & rekapitulasi
+├── supabase_client.js           # Client SDK Supabase, hashing password, & rate limiting
+├── supabase_schema.sql          # Skema database PostgreSQL & Security Row-Level Security (RLS)
+├── data_pegawai_manifest.js     # Metadata publik 717 tenaga keperawatan & kebidanan (tanpa password)
+├── Code.gs                      # Backend Google Apps Script (V8) untuk notifikasi & automasi
+├── evoting/                     # Kode sumber aplikasi E-Voting (hasil penggabungan repo)
+│   ├── src/                     # Source code Next.js 14 App Router, React 18, TypeScript
+│   │   ├── app/                 # Routing Next.js (/voting, /hasil, /admin, /api/*)
+│   │   ├── components/          # Komponen UI e-voting
+│   │   └── lib/                 # Utilitas autentikasi dan database
+│   ├── prisma/                  # Skema database Prisma (schema.prisma, seed.ts)
+│   ├── public/                  # Aset publik & preview web interaktif (index.html)
+│   ├── index.html               # Pengalihan otomatis ke ../#evoting pada GitHub Pages
+│   ├── package.json             # Dependensi Next.js, Prisma, NextAuth, Tailwind
+│   └── README.md                # Dokumentasi spesifik modul e-voting
+├── .gitignore                   # Proteksi data rahasia (.env, *.csv data pegawai, database lokal)
+└── README.md                    # Dokumentasi utama proyek
 ```
 
 ---
 
-## 🔄 Cara Melanjutkan & Memperbarui Proyek di Kemudian Hari
+## 🔐 Sistem Autentikasi & Keamanan (Single Sign-On)
 
-1. **Buka Direktori Proyek**:
-   ```bash
-   cd /Users/rusmulyadiiskandar/.gemini/antigravity-ide/scratch/komite-keperawatan-soedarso
-   ```
-2. **Periksa Status Git**:
-   ```bash
-   git status
-   ```
-3. **Jika Ingin Mengembalikan ke Checkpoint Ini**:
-   ```bash
-   git checkout checkpoint-20261022
-   ```
-4. **Deploy Perubahan Baru ke GitHub Pages**:
-   ```bash
-   git add .
-   git commit -m "update: keterangan perubahan"
-   git push origin main
-   ```
+1. **Satu Login untuk Seluruh Layanan**:
+   - Autentikasi hanya memerlukan **NIP / NIPPPK / NIK** dan **Password**.
+   - Unit pelayanan dan hak akses dikenali secara otomatis oleh sistem tanpa perlu memilih ruangan secara manual.
+2. **Kepatuhan Privasi & UU PDP No. 27/2022**:
+   - Sandi diverifikasi menggunakan *cryptographic salt & SHA-256 hash*.
+   - Pemisahan mutlak antara **Tabel Partisipasi Pemilih** (siapa yang sudah menggunakan hak suara) dengan **Tabel Kotak Suara** (calon mana yang dipilih) untuk menjamin prinsip **LUBER dan JURDIL** (Langsung, Umum, Bebas, Rahasia, Jujur, dan Adil).
+   - Pengguna dengan kata sandi default diwajibkan melakukan penggantian kata sandi baru pada login perdana.
+   - Perlindungan *rate-limiting* (penguncian akun sementara setelah 5 kali kesalahan beruntun).
+
+---
+
+## 🗳️ Modul E-Voting Ketua Komite Keperawatan 2027–2030
+
+- **Navigasi Terintegrasi**: Dapat diakses melalui menu navigasi **"E-Voting"** atau hash URL `#evoting` (dengan alias transparan `#pemilihan`).
+- **Alur Bilik Suara**:
+  1. Identifikasi pemilih & validasi status hak pilih secara real-time.
+  2. Masuk bilik suara dan konfirmasi pilihan calon ketua.
+  3. Penerbitan **Bukti Telah Memilih** resmi bertanda tangan digital dan kode token unik (tanpa memuat pilihan kandidat untuk menjaga kerahasiaan).
+  4. Unduh / cetak bukti suara format resmi.
+- **Panel Rekapitulasi**: Quick count perolehan suara real-time, persentase partisipasi DPT, dan rincian partisipasi per unit kerja.
+
+---
+
+## 🛠️ Panduan Menjalankan Secara Lokal
+
+### 1. Menjalankan Portal Terpadu (Static Web)
+Gunakan server statis bawaan Python atau VS Code Live Server:
+```bash
+# Masuk ke direktori proyek
+cd komite-keperawatan-soedarso
+
+# Jalankan server lokal:
+python3 -m http.server 8080
+
+# Buka di browser:
+# http://localhost:8080/
+```
+
+### 2. Menjalankan Modul E-Voting Fullstack Next.js (Opsional untuk Pengembangan)
+```bash
+# Masuk ke subdirektori evoting
+cd evoting
+
+# Instal dependensi:
+npm install
+
+# Inisialisasi database lokal (SQLite):
+npx prisma db push
+npx prisma db seed
+
+# Jalankan server pengembangan Next.js:
+npm run dev
+
+# Buka di browser:
+# http://localhost:3000/
+```
+
+---
+
+## 🚀 Deployment ke GitHub Pages
+
+Proyek ini ter-deploy secara otomatis melalui GitHub Pages:
+- **Branch Sumber**: `main`
+- **Folder**: `/ (root)`
+- Setiap pembaruan yang di-push ke branch `main` akan memicu workflow GitHub Actions untuk mempublikasikan versi web terbaru ke `https://yadhie28.github.io/komite-keperawatan-soedarso/`.
+
+---
+
+## ⚖️ Lisensi & Hak Cipta
+Hak Cipta © 2026 Komite Keperawatan RSUD dr. Soedarso Pontianak, Provinsi Kalimantan Barat. Dilindungi oleh Undang-Undang.

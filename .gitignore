@@ -1,11 +1,30 @@
-*.zip
-.DS_Store
-scratch_logos/
-*.csv
-data_pegawai_keperawatan_soedarso.csv
-seed_data_pegawai_717.sql
-seed_data_*.sql
+# Dependencies & Build Artefacts
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Environment Variables & Secrets
+.env
+.env*.local
 .env*
 *.key
 *.pem
 service_account*.json
+
+# Data Pribadi & Database Lokal
+*.csv
+data_pegawai_keperawatan_soedarso.csv
+seed_data_pegawai_717.sql
+seed_data_*.sql
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.sqlite-journal
+
+# Archives & System
+*.zip
+.DS_Store
+scratch_logos/

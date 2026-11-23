@@ -729,7 +729,7 @@
 
   // Banner Simulasi Permanen di Bagian Atas
   function renderDisclaimerBanner() {
-    const pane = document.getElementById('pane-pemilihan');
+    const pane = document.getElementById('pane-evoting') || document.getElementById('pane-pemilihan');
     if (!pane) return;
 
     let banner = document.getElementById('pemilihanSimulasiDisclaimerBanner');

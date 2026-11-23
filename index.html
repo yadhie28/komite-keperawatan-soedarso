@@ -230,8 +230,8 @@
           </button>
         </li>
         <li>
-          <button class="nav-tab-btn" data-tab="pemilihan">
-            <i class="fa-solid fa-check-to-slot"></i> Pemilihan Ketua 2027–2030
+          <button class="nav-tab-btn" data-tab="evoting" id="navTabBtnEvoting">
+            <i class="fa-solid fa-check-to-slot"></i> E-Voting Ketua 2027–2030
           </button>
         </li>
       </ul>
@@ -289,7 +289,7 @@
               Portal Terpadu Komite Keperawatan RSUD dr. Soedarso Pontianak dalam menyelenggarakan tata kelola klinis yang transparan, kredibel, dan berorientasi keselamatan pasien melalui verifikasi kewenangan klinis (RKK/SPK), audit asuhan keperawatan berkala, dan penegakan kode etik profesi.
             </p>
             <div class="hero-buttons">
-              <button class="btn-hero-primary" onclick="switchTab('pemilihan')" style="background: linear-gradient(135deg, #b45309 0%, #d97706 100%); border-color: #fbbf24; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);">
+              <button class="btn-hero-primary" onclick="switchTab('evoting')" style="background: linear-gradient(135deg, #b45309 0%, #d97706 100%); border-color: #fbbf24; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);">
                 <i class="fa-solid fa-check-to-slot"></i> E-Voting Ketua Komite 2027–2030
               </button>
               <button class="btn-hero-primary" onclick="switchTab('kredensial')">
@@ -351,7 +351,7 @@
         </div>
 
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button class="btn-primary" onclick="switchTab('pemilihan')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 0.75rem 1.4rem; border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);">
+          <button class="btn-primary" onclick="switchTab('evoting')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; font-weight: 800; font-size: 0.9rem; padding: 0.75rem 1.4rem; border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);">
             <i class="fa-solid fa-box-archive"></i> Buka Bilik Suara
           </button>
         </div>
@@ -2333,9 +2333,9 @@
     </section>
 
     <!-- ----------------------------------------------------------------------
-         TAB 7: PEMILIHAN KETUA KOMITE KEPERAWATAN 2027-2030
+         TAB 7: E-VOTING PEMILIHAN KETUA KOMITE KEPERAWATAN 2027-2030
          ---------------------------------------------------------------------- -->
-    <section class="tab-pane" id="pane-pemilihan">
+    <section class="tab-pane" id="pane-evoting">
       <div class="section-header" style="margin-bottom: 1.25rem;">
         <div>
           <div style="font-size: 0.8rem; font-weight: 800; color: var(--gold-600); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
@@ -6606,7 +6606,7 @@
           <li><a href="#kredensial" onclick="switchTab('kredensial')">Pencarian & Verifikasi RKK</a></li>
           <li><a href="#etik" onclick="switchTab('etik')">Whistleblowing & Konsultasi Etik</a></li>
           <li><a href="#regulasi" onclick="switchTab('regulasi')">Unduh Buku Putih RKK</a></li>
-          <li><a href="#pemilihan" onclick="switchTab('pemilihan')"><i class="fa-solid fa-check-to-slot"></i> E-Voting Ketua Komite 2027–2030</a></li>
+          <li><a href="#evoting" onclick="switchTab('evoting')"><i class="fa-solid fa-check-to-slot"></i> E-Voting Ketua Komite 2027–2030</a></li>
           <li><a href="javascript:void(0)" onclick="openLoginModal()"><i class="fa-solid fa-lock"></i> Masuk Akun Portal</a></li>
         </ul>
       </div>

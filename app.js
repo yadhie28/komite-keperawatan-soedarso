@@ -1418,7 +1418,9 @@ function setupNavigation() {
   if (hash === 'logbook') {
     switchTab('kredensial');
     setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 250);
-  } else if (hash && document.getElementById(`pane-${hash}`)) {
+  } else if (hash === 'evoting' || hash === 'pemilihan') {
+    switchTab('evoting');
+  } else if (hash && (document.getElementById(`pane-${hash}`) || hash === 'evoting')) {
     switchTab(hash);
   } else {
     switchTab('kredensial');
@@ -1429,7 +1431,9 @@ function setupNavigation() {
     if (newHash === 'logbook') {
       switchTab('kredensial');
       setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 150);
-    } else if (newHash && document.getElementById(`pane-${newHash}`)) {
+    } else if (newHash === 'evoting' || newHash === 'pemilihan') {
+      switchTab('evoting');
+    } else if (newHash && (document.getElementById(`pane-${newHash}`) || newHash === 'evoting')) {
       switchTab(newHash);
     }
   });
@@ -1472,12 +1476,18 @@ function setupNavigation() {
 }
 
 function switchTab(tabId) {
-  state.activeTab = tabId;
-  window.location.hash = tabId;
+  // Normalisasi alias: 'pemilihan' <-> 'evoting'
+  const canonicalId = (tabId === 'pemilihan') ? 'evoting' : tabId;
+  state.activeTab = canonicalId;
+  window.location.hash = canonicalId;
 
   // Update Navigation Tab Buttons
   document.querySelectorAll('.nav-tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+    const btnTab = btn.getAttribute('data-tab');
+    const isMatch = (btnTab === canonicalId) || 
+                    (canonicalId === 'evoting' && btnTab === 'pemilihan') ||
+                    (canonicalId === 'pemilihan' && btnTab === 'evoting');
+    btn.classList.toggle('active', isMatch);
   });
 
   // Close mobile nav drawer if open
@@ -1489,20 +1499,20 @@ function switchTab(tabId) {
     pane.classList.remove('active');
   });
 
-  const targetPane = document.getElementById(`pane-${tabId}`);
+  const targetPane = document.getElementById(`pane-${canonicalId}`) || document.getElementById(`pane-${tabId}`);
   if (targetPane) {
     targetPane.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // Trigger chart re-draw when navigating to analytics
-  if (tabId === 'analitik') {
+  if (canonicalId === 'analitik') {
     setTimeout(renderAnalyticsCharts, 100);
   }
-  if (tabId === 'pemilihan' && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
+  if ((canonicalId === 'pemilihan' || canonicalId === 'evoting') && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
     window.PemilihanKomkep.init();
   }
-  if (tabId === 'mutu' && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
+  if (canonicalId === 'mutu' && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
     window.ELogbookKomkep.init();
   }
 }
