@@ -87,7 +87,7 @@ function setupSheet() {
   sheetRekap.appendRow([
     "01",
     "Ns. Siti Rahmawati, S.Kep., M.Kep.",
-    "000000000000000000",
+    "000000000000001031",
     "Instalasi Rawat Intensif (ICU)",
     '=COUNTIF(Voting_Kotak_Suara!B:B, "01")',
     '=IF(SUM(E2:E4)>0, E2/SUM(E2:E4)*100, 0)',
@@ -96,7 +96,7 @@ function setupSheet() {
   sheetRekap.appendRow([
     "02",
     "Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB.",
-    "000000000000000000",
+    "000000000000001032",
     "Instalasi Rawat Inap Bedah (Kakap)",
     '=COUNTIF(Voting_Kotak_Suara!B:B, "02")',
     '=IF(SUM(E2:E4)>0, E3/SUM(E2:E4)*100, 0)',
@@ -105,7 +105,7 @@ function setupSheet() {
   sheetRekap.appendRow([
     "03",
     "Ns. Dewi Kartika Sari, S.Kep., M.Kep.",
-    "000000000000000000",
+    "000000000000001035",
     "Instalasi Diklat & SDM Keperawatan",
     '=COUNTIF(Voting_Kotak_Suara!B:B, "03")',
     '=IF(SUM(E2:E4)>0, E4/SUM(E2:E4)*100, 0)',

@@ -3,124 +3,106 @@
  * MODUL E-VOTING: SIMULASI PEMILIHAN KETUA KOMITE KEPERAWATAN (2027–2030)
  * RSUD dr. SOEDARSO PONTIANAK
  * ============================================================================
- * Kepatuhan Keamanan & UU Perlindungan Data Pribadi (UU PDP No. 27/2022):
- * 1. Jadwal Dipaksa Sisi Server: 23 Nov 2026 10.00 WIB s.d. 24 Nov 2026 10.00 WIB
- * 2. Kerahasiaan Penuh: Pemisahan Mutlak Tabel Partisipasi vs Tabel Suara (Anonim)
- * 3. Satu Orang Satu Suara: Cegah Suara Ganda via Transaksi Atomik
- * 4. Bukti Masuk Bilik Suara & Bukti Telah Memilih (Tanpa Pilihan Calon)
- * 5. Rekapitulasi Partisipasi Per Unit Kerja & Rekapitulasi Hasil Suara
- * 6. Label Wajib: "PERCOBAAN / SIMULASI — hasil tidak mengikat"
+ * Kepatuhan Keamanan & Server-Truth (P2, P3, P4, P5, P6):
+ * 1. Sumber Kebenaran: Server Google Apps Script (bukan localStorage/jam perangkat).
+ * 2. Jadwal Server: Senin, 23 Nov 2026 10.00 WIB s.d. Selasa, 24 Nov 2026 10.00 WIB.
+ * 3. Sebelum Waktu Tutup:
+ *    - Hanya menampilkan 2 angka: Jumlah DPT dan Jumlah yang sudah memilih.
+ *    - Tidak ada persentase partisipasi, perolehan suara tertinggi, grafik,
+ *      atau tabel per calon di layar maupun di localStorage/jaringan.
+ *    - Tombol Cetak Berita Acara & Kirim ke Email dinonaktifkan sampai TUTUP.
+ * 4. Tabel Daftar Pemilih (Khusus Panitia):
+ *    - Diambil dari server (aksi daftar_pemilih), hanya menampilkan Nama, Unit,
+ *      NIP tersamar, dan status Sudah/Belum (tanpa token bukti & tanpa pilihan).
+ * 5. Jika server backend belum dikonfigurasi, bilik suara menampilkan pesan
+ *    "Pemilihan sedang dalam pemeliharaan".
  * ============================================================================
  */
 
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'komkep_pemilihan_simulasi_2026_state_v5';
   const TARGET_EMAIL_KOMITE = 'komitekeperawatanrsds2023@gmail.com';
   const SIMULATION_ELECTION_ID = 'e1ec7100-2026-1123-0000-000000000001';
+  const PESAN_SEBELUM_TUTUP = 'Hasil rekapitulasi dibuka setelah pemilihan ditutup pada Selasa, 24 November 2026 pukul 10.00 WIB.';
+  const KLAIM_KERAHASIAAN_JUJUR = 'Pilihan dicatat terpisah dari identitas pemilih dan antarmuka panitia tidak menampilkan pilihan individu.';
 
-  const DEFAULT_STATE = {
+  const CANDIDATES_SIMULASI = [
+    {
+      id: 'cand-1',
+      number: 1,
+      name: 'Ns. Siti Rahmawati, S.Kep., M.Kep. (SIMULASI)',
+      nip: '00000000 000000 1 031',
+      unit: 'Instalasi Rawat Intensif (ICU)',
+      badgeColor: '#0e7490',
+      badgeBg: '#ecfeff',
+      photoGradient: 'linear-gradient(135deg, #0e7490 0%, #1e3a8a 100%)',
+      visi: 'Mewujudkan Komite Keperawatan RSUD dr. Soedarso sebagai organisasi profesional yang unggul dalam mendorong mutu pelayanan keperawatan berstandar internasional dan keselamatan pasien.',
+      misi: 'Meningkatkan kompetensi perawat melalui diklat terstruktur; mengembangkan standar praktik berbasis evidence-based nursing; membangun sistem kredensial transparan dan akuntabel.',
+      pengalaman: 'Calon Simulasi (Dummy) Nomor Urut 01 • Asesor Kredensial Klinis',
+      isAbstain: false
+    },
+    {
+      id: 'cand-2',
+      number: 2,
+      name: 'Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB. (SIMULASI)',
+      nip: '00000000 000000 1 032',
+      unit: 'Instalasi Rawat Inap Bedah',
+      badgeColor: '#047857',
+      badgeBg: '#ecfdf5',
+      photoGradient: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
+      visi: 'Menjadikan Komite Keperawatan sebagai motor penggerak transformasi pelayanan keperawatan yang humanis, profesional, dan berorientasi pada kepuasan pasien di RSUD dr. Soedarso.',
+      misi: 'Membangun budaya kerja profesional dengan etika keperawatan; mengoptimalkan peran komite dalam pembinaan etik dan disiplin; meningkatkan perlindungan advokasi klinis.',
+      pengalaman: 'Calon Simulasi (Dummy) Nomor Urut 02 • Instruktur Klinis Keperawatan Medikal Bedah',
+      isAbstain: false
+    },
+    {
+      id: 'cand-3',
+      number: 3,
+      name: 'Ns. Rusmulyadi, S.Kep.Ners., M.A.R.S (SIMULASI)',
+      nip: '00000000 000000 1 002',
+      unit: 'Enggang Gading',
+      badgeColor: '#7c3aed',
+      badgeBg: '#f5f3ff',
+      photoGradient: 'linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)',
+      visi: 'Optimalisasi sinergi tata kelola klinis keperawatan dan kebidanan secara modern, digital, kredibel, dan berkeadilan menuju standar akreditasi rumah sakit kelas A.',
+      misi: 'Digitalisasi sistem kredensialing dan logbook perawat; penguatan audit mutu klinis berkala; perlindungan hukum dan pembinaan etik independen.',
+      pengalaman: 'Calon Simulasi (Dummy) Nomor Urut 03 • Sekretaris Komite Keperawatan',
+      isAbstain: false
+    },
+    {
+      id: 'cand-abstain',
+      number: 4,
+      name: 'Kotak Kosong / Abstain (Tidak Memilih)',
+      nip: '-',
+      unit: 'Seluruh Unit Kerja',
+      badgeColor: '#64748b',
+      badgeBg: '#f8fafc',
+      photoGradient: 'linear-gradient(135deg, #475569 0%, #1e293b 100%)',
+      visi: 'Menyediakan hak suara sah bagi pemilih yang menyatakan sikap abstain secara resmi sesuai tata tertib pemilihan.',
+      misi: 'Mengakomodasi preferensi pemilih sesuai asas demokrasi dan transparansi pemungutan suara.',
+      pengalaman: 'Opsi Hak Suara Sah Abstain Resmi (Simulasi)',
+      isAbstain: true
+    }
+  ];
+
+  const state = {
     election: {
       id: SIMULATION_ELECTION_ID,
       title: 'Simulasi Pemilihan Ketua Komite Keperawatan',
       period: '2027–2030',
       nomorBeritaAcara: '400.7.2/ 1428 /KOMKEP-RSDS/2026',
-      disclaimer: 'PERCOBAAN / SIMULASI — hasil tidak mengikat',
+      disclaimer: 'PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT',
       startTime: '2026-11-23T10:00:00+07:00',
-      endTime: '2026-11-24T10:00:00+07:00',
-      resultsVisibility: 'realtime' // 'realtime' atau 'closed_until_ended'
+      endTime: '2026-11-24T10:00:00+07:00'
     },
-    candidates: [
-      {
-        id: 'cand-1',
-        number: 1,
-        name: 'Ns. Siti Rahmawati, S.Kep., M.Kep.',
-        nip: '000000000000000000',
-        unit: 'Instalasi Rawat Intensif (ICU)',
-        badgeColor: '#0e7490',
-        badgeBg: '#ecfeff',
-        photoGradient: 'linear-gradient(135deg, #0e7490 0%, #1e3a8a 100%)',
-        visi: 'Mewujudkan Komite Keperawatan RSUD dr. Soedarso sebagai organisasi profesional yang unggul dalam mendorong mutu pelayanan keperawatan berstandar internasional dan keselamatan pasien.',
-        misi: 'Meningkatkan kompetensi perawat melalui diklat terstruktur; mengembangkan standar praktik berbasis evidence-based nursing; membangun sistem kredensial transparan dan akuntabel.',
-        pengalaman: 'Kepala Ruang ICU (2018 - 2024) • Wakil Ketua Komite Keperawatan (2024 - 2027) • Asesor Kredensial Klinis',
-        isAbstain: false
-      },
-      {
-        id: 'cand-2',
-        number: 2,
-        name: 'Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB.',
-        nip: '000000000000000000',
-        unit: 'Instalasi Rawat Inap Bedah',
-        badgeColor: '#047857',
-        badgeBg: '#ecfdf5',
-        photoGradient: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
-        visi: 'Menjadikan Komite Keperawatan sebagai motor penggerak transformasi pelayanan keperawatan yang humanis, profesional, dan berorientasi pada kepuasan pasien di RSUD dr. Soedarso.',
-        misi: 'Membangun budaya kerja profesional dengan etika keperawatan; mengoptimalkan peran komite dalam pembinaan etik dan disiplin; meningkatkan perlindungan advokasi klinis.',
-        pengalaman: 'Ketua Subkomite Mutu Keperawatan (2021 - 2024) • Case Manager Bedah • Instruktur Klinis Keperawatan Medikal Bedah',
-        isAbstain: false
-      },
-      {
-        id: 'cand-3',
-        number: 3,
-        name: 'Ns. Rusmulyadi, S.Kep.Ners., M.A.R.S',
-        nip: '000000000000000000',
-        unit: 'Enggang Gading',
-        badgeColor: '#7c3aed',
-        badgeBg: '#f5f3ff',
-        photoGradient: 'linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)',
-        visi: 'Optimalisasi sinergi tata kelola klinis keperawatan dan kebidanan secara modern, digital, kredibel, dan berkeadilan menuju standar akreditasi rumah sakit kelas A.',
-        misi: 'Digitalisasi sistem kredensialing dan logbook perawat; penguatan audit mutu klinis berkala; perlindungan hukum dan pembinaan etik independen.',
-        pengalaman: 'Sekretaris Komite Keperawatan (2024 - 2027) • Manajer Pelayanan Pasien (MPP) • Auditor Klinis KARS',
-        isAbstain: false
-      },
-      {
-        id: 'cand-abstain',
-        number: 4,
-        name: 'Kotak Kosong / Abstain (Tidak Memilih)',
-        nip: '-',
-        unit: 'Seluruh Unit Kerja',
-        badgeColor: '#64748b',
-        badgeBg: '#f8fafc',
-        photoGradient: 'linear-gradient(135deg, #475569 0%, #1e293b 100%)',
-        visi: 'Menyediakan hak suara sah bagi pemilih yang menyatakan sikap abstain secara resmi sesuai tata tertib pemilihan.',
-        misi: 'Mengakomodasi preferensi pemilih sesuai asas demokrasi dan transparansi pemungutan suara.',
-        pengalaman: 'Opsi Hak Suara Sah Abstain Resmi',
-        isAbstain: true
-      }
-    ],
-    activeSubTab: 'voting', // 'voting', 'hasil', 'profil', 'admin'
+    candidates: CANDIDATES_SIMULASI,
+    activeSubTab: 'voting',
     pendingVoteCandidateId: null,
-    countdownTimerId: null
+    countdownTimerId: null,
+    cachedVoterList: [],
+    lastRekapData: null
   };
-
-  let state = loadState();
-
-  function loadState() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...DEFAULT_STATE,
-          ...parsed,
-          election: { ...DEFAULT_STATE.election, ...(parsed.election || {}) },
-          candidates: parsed.candidates && parsed.candidates.length ? parsed.candidates : DEFAULT_STATE.candidates
-        };
-      }
-    } catch (e) {
-      console.warn('Gagal memuat state e-voting dari localStorage:', e);
-    }
-    return JSON.parse(JSON.stringify(DEFAULT_STATE));
-  }
-
-  function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.warn('Gagal menyimpan state e-voting:', e);
-    }
-  }
 
   function notify(msg, type = 'success') {
     if (typeof window.showToast === 'function') {
@@ -130,21 +112,27 @@
     }
   }
 
+  function escapeHtml(str) {
+    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.escapeHtml === 'function') {
+      return window.SupabaseKomkep.escapeHtml(str);
+    }
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function getActivePortalUser() {
     if (window.state && window.state.currentUser) {
       return window.state.currentUser;
     }
-    try {
-      const saved = localStorage.getItem('komite_auth_user');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.getActiveSession === 'function') {
+      const sess = window.SupabaseKomkep.getActiveSession();
+      if (sess && sess.user) return sess.user;
+    }
     return null;
-  }
-
-  function getUserKey(user) {
-    if (!user) return '';
-    const raw = user.id_login || user.nip || user.username || user.name || '';
-    return String(raw).replace(/[\s\.\-]/g, '').toLowerCase();
   }
 
   function resolveUserStatus() {
@@ -152,112 +140,109 @@
     if (!user || user.role === 'guest') {
       return {
         type: 'GUEST',
-        user: user || { name: 'Tamu Publik', role: 'guest' },
+        user: { name: 'Tamu (Belum Login)', role: 'guest' },
+        isPanitia: false,
         hasVoted: false,
-        votedRecord: null
+        token: null
       };
     }
 
-    const key = user.id_login || user.nip || user.username;
-    const cleanKey = String(key || '').trim().replace(/\s+/g, '');
+    const isPanitia = Boolean(
+      user.isPanitiaEvoting ||
+      user.peran_server === 'superadmin' ||
+      user.peran_server === 'panitia' ||
+      user.isAdmin ||
+      user.isPengurus
+    );
 
-    // Cek apakah akun ini tercatat di data pemilih yang sudah memilih
-    const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-    const votedItem = simVoters[cleanKey];
-
-    const roleLower = String(user.role || '').toLowerCase();
-    const isAdmin = roleLower === 'super_admin' || roleLower === 'admin_komite' || roleLower.includes('admin') || Boolean(user.isAdmin) || Boolean(user.isPengurus) || roleLower.includes('sekretaris') || roleLower.includes('ketua') || (Array.isArray(user.access) && user.access.includes('superadmin'));
+    const hasVoted = Boolean(user.sudah_memilih);
+    const receiptCode = user.kode_bukti || null;
 
     return {
-      type: isAdmin ? 'ADMIN' : 'VOTER',
+      type: user.tipe === 'panitia' ? 'ADMIN' : 'VOTER',
+      isPanitia: isPanitia,
       user: user,
-      hasVoted: Boolean(votedItem),
-      token: votedItem?.receiptToken || null,
-      votedRecord: votedItem || null
+      hasVoted: hasVoted,
+      token: receiptCode
     };
   }
 
-  // ==========================================================================
-  // ALUR MASUK BILIK SUARA & PENCATATAN BUKTI MASUK
-  // ==========================================================================
+  /* ==========================================================================
+     1. MASUK BILIK SUARA & BUKTI AKSES
+     ========================================================================== */
+
   async function enterBoothFlow() {
     const auth = resolveUserStatus();
     if (auth.type === 'GUEST') {
-      notify('Silakan login dengan NIP/NIPPPK/NIK Anda untuk masuk ke bilik suara.', 'warning');
+      notify('Silakan login dengan NIP/NIPPPK/NIK Anda terlebih dahulu untuk masuk ke bilik suara.', 'warning');
       if (typeof window.openLoginModal === 'function') {
-        window.openLoginModal();
+        window.openLoginModal('pengusul');
       }
       return;
     }
 
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.enterBooth === 'function') {
-      const res = await window.SupabaseKomkep.enterBooth(state.election.id, auth.user.id_login || auth.user.nip);
-      if (res.success && res.booth_entry) {
-        openBuktiBilikSuaraModal(res.booth_entry);
-        notify('Akses bilik suara simulasi terverifikasi. Bukti masuk diterbitkan.', 'success');
-      } else {
-        notify(res.message || 'Gagal memverifikasi akses bilik suara.', 'danger');
-      }
-    } else {
-      notify('Bilik suara simulasi aktif.', 'info');
+    state.activeSubTab = 'voting';
+    await renderAll();
+    const grid = document.getElementById('pemilihanVotingGrid');
+    if (grid) {
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
-  function openBuktiBilikSuaraModal(entry) {
+  function openBuktiBilikSuaraModal(entry = null) {
     const container = document.getElementById('bodyBuktiBilikSuara');
     if (!container) return;
 
     const auth = resolveUserStatus();
+    if (auth.type === 'GUEST') {
+      notify('Silakan login terlebih dahulu.', 'warning');
+      return;
+    }
+
     const user = auth.user;
-    const cleanId = user.id_login || user.nip || '-';
-    const masked = (window.SupabaseKomkep && window.SupabaseKomkep.maskId) ? window.SupabaseKomkep.maskId(cleanId) : cleanId;
-    const wibNow = (window.SupabaseKomkep && window.SupabaseKomkep.formatWibDate) ? window.SupabaseKomkep.formatWibDate(new Date()) : new Date().toLocaleString('id-ID');
-    const token = entry?.access_token || `BILIK-SIM-2026-${cleanId.slice(-4)}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const cleanId = user.id_login || user.nip || user.username || '-';
+    const masked  = user.masked_id || (window.SupabaseKomkep ? window.SupabaseKomkep.maskId(cleanId) : cleanId);
+    const wibNow  = window.SupabaseKomkep ? window.SupabaseKomkep.formatWibDate(new Date()) : new Date().toLocaleString('id-ID');
 
     container.innerHTML = `
       <div style="border: 2px dashed #0d9488; border-radius: 12px; padding: 1.5rem; background: #f0fdf4;">
-        <!-- Banner Simulasi -->
         <div style="background: #fef3c7; border: 1.5px solid #fde68a; border-radius: 8px; padding: 6px 12px; text-align: center; margin-bottom: 1.25rem;">
           <span style="font-size: 0.76rem; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">
-            <i class="fa-solid fa-triangle-exclamation"></i> PERCOBAAN / SIMULASI — HASIL TIDAK MENGIKAT
+            <i class="fa-solid fa-triangle-exclamation"></i> PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT
           </span>
         </div>
 
         <div style="text-align: center; border-bottom: 2px solid #0d9488; padding-bottom: 1rem; margin-bottom: 1rem;">
-          <div style="font-size: 0.8rem; font-weight: 800; color: #042f2e; text-transform: uppercase; letter-spacing: 0.5px;">KOMITE KEPERAWATAN RSUD dr. SOEDARSO</div>
-          <div style="font-size: 1.15rem; font-weight: 900; color: #0d5f5b; margin-top: 2px;">BUKTI LOGIN BILIK SUARA ELEKTRONIK</div>
+          <div style="font-size: 0.8rem; font-weight: 800; color: #042f2e; text-transform: uppercase;">KOMITE KEPERAWATAN RSUD dr. SOEDARSO</div>
+          <div style="font-size: 1.15rem; font-weight: 900; color: #0d5f5b; margin-top: 2px;">BUKTI AKSES BILIK SUARA ELEKTRONIK</div>
           <div style="font-size: 0.75rem; color: #64748b;">Simulasi Pemilihan Ketua Komite Keperawatan Masa Bakti 2027–2030</div>
         </div>
 
         <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse; margin-bottom: 1.25rem;">
           <tr>
             <td style="padding: 6px 0; color: #475569; width: 38%;">Nama Pemilih</td>
-            <td style="padding: 6px 0; font-weight: 800; color: #0f172a;">: ${user.name}</td>
+            <td style="padding: 6px 0; font-weight: 800; color: #0f172a;">: ${escapeHtml(user.name)}</td>
           </tr>
           <tr>
-            <td style="padding: 6px 0; color: #475569;">ID Pemilih (Masked)</td>
-            <td style="padding: 6px 0; font-weight: 700; color: #0f172a; font-family: monospace;">: ${masked}</td>
+            <td style="padding: 6px 0; color: #475569;">ID Pemilih (Disamarkan)</td>
+            <td style="padding: 6px 0; font-weight: 700; color: #0f172a; font-family: monospace;">: ${escapeHtml(masked)}</td>
           </tr>
           <tr>
-            <td style="padding: 6px 0; color: #475569;">Unit Kerja Portal</td>
-            <td style="padding: 6px 0; font-weight: 700; color: #0f172a;">: ${user.unit || 'RSUD dr. Soedarso'}</td>
+            <td style="padding: 6px 0; color: #475569;">Unit Kerja</td>
+            <td style="padding: 6px 0; font-weight: 700; color: #0f172a;">: ${escapeHtml(user.unit || 'RSUD dr. Soedarso')}</td>
           </tr>
           <tr>
-            <td style="padding: 6px 0; color: #475569;">Waktu Masuk Bilik</td>
-            <td style="padding: 6px 0; font-weight: 700; color: #0f172a;">: ${entry?.entered_at_wib || wibNow}</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #475569;">Kode Akses Unik</td>
-            <td style="padding: 6px 0; font-weight: 900; color: #0d5f5b; font-family: monospace;">: ${token}</td>
+            <td style="padding: 6px 0; color: #475569;">Waktu Akses</td>
+            <td style="padding: 6px 0; font-weight: 700; color: #0f172a;">: ${escapeHtml(entry?.entered_at_wib || wibNow)}</td>
           </tr>
           <tr>
             <td style="padding: 6px 0; color: #475569;">Status Hak Suara</td>
-            <td style="padding: 6px 0; font-weight: 800; color: ${auth.hasVoted ? '#059669' : '#0284c7'};">: ${auth.hasVoted ? 'Sudah Digunakan' : 'Siap Menyalurkan Suara'}</td>
+            <td style="padding: 6px 0; font-weight: 800; color: ${auth.hasVoted ? '#059669' : '#0284c7'};">: ${auth.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'}</td>
           </tr>
         </table>
 
         <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem; text-align: center; font-size: 0.75rem; color: #64748b;">
-          <i class="fa-solid fa-shield-halved" style="color: #0d5f5b;"></i> Kerahasiaan pemilih terjamin penuh. Pilihan calon Anda tidak dapat dilacak oleh panitia maupun sistem.
+          <i class="fa-solid fa-shield-halved" style="color: #0d5f5b;"></i> ${KLAIM_KERAHASIAAN_JUJUR}
         </div>
       </div>
     `;
@@ -270,24 +255,22 @@
   function printBuktiBilikSuara() {
     const content = document.getElementById('bodyBuktiBilikSuara')?.innerHTML;
     if (!content) return;
-
     const printWin = window.open('', '_blank', 'width=750,height=600');
+    if (!printWin) {
+      window.print();
+      return;
+    }
     printWin.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Bukti Akses Masuk Bilik Suara - RSUD dr. Soedarso</title>
+        <title>Bukti Akses Bilik Suara - RSUD dr. Soedarso</title>
         <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 2rem; color: #0f172a; }
           @media print { body { padding: 0; } }
         </style>
       </head>
-      <body>
-        ${content}
-        <div style="text-align: center; margin-top: 2rem; font-size: 0.75rem; color: #64748b;">
-          Dicetak dari Portal Terpadu Komite Keperawatan RSUD dr. Soedarso Pontianak
-        </div>
-      </body>
+      <body>${content}</body>
       </html>
     `);
     printWin.document.close();
@@ -295,108 +278,70 @@
     setTimeout(() => {
       printWin.print();
       printWin.close();
-    }, 400);
+    }, 350);
   }
 
-  // ==========================================================================
-  // ALUR PENYALURAN SUARA & KONFIRMASI
-  // ==========================================================================
-  function quickLoginSimulasi() {
-    const simUser = {
-      username: 'rusmulyadi',
-      id_login: '000000000000000000',
-      name: 'Ns. Rusmulyadi, S.Kep., MARS',
-      nip: '000000000000000000',
-      role: 'Sekretaris Komite Keperawatan & Developer Website',
-      profesi: 'Perawat',
-      unit: 'Pimpinan Komite',
-      jenjang: 'PK IV',
-      strNumber: '140152119-2849103',
-      strExpiry: '15 April 2028',
-      badge: 'Super Admin',
-      access: ['superadmin', 'kredensial', 'mutu', 'etik', 'regulasi', 'approval', 'administrasi', 'pemilihan'],
-      isAdmin: true,
-      isPengurus: true
-    };
-    if (window.state) {
-      window.state.currentUser = simUser;
-    }
-    localStorage.setItem('komite_auth_user', JSON.stringify(simUser));
-    if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
-    if (typeof window.hidePortalGateway === 'function') window.hidePortalGateway();
-    notify(`Berhasil masuk sebagai ${simUser.name} untuk simulasi e-voting.`, 'success');
-    renderAll();
-  }
-
-  function resetMyVoteSimulasi(nextCandId = null) {
-    const auth = resolveUserStatus();
-    const cleanKey = auth.user ? String(auth.user.id_login || auth.user.nip || auth.user.username || '').trim().replace(/\s+/g, '') : '';
-    if (cleanKey && window.SupabaseKomkep && typeof window.SupabaseKomkep.resetUserVote === 'function') {
-      window.SupabaseKomkep.resetUserVote(cleanKey);
-    } else if (cleanKey) {
-      try {
-        const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-        delete simVoters[cleanKey];
-        localStorage.setItem('komkep_sim_voters', JSON.stringify(simVoters));
-      } catch (e) {}
-    }
-    notify('Sesi simulasi hak suara Anda telah direset. Silakan salurkan suara kembali.', 'info');
-    renderAll();
-    if (nextCandId) {
-      setTimeout(() => openVoteModal(nextCandId), 150);
-    }
-  }
+  /* ==========================================================================
+     2. PEMILIHAN CALON & KONFIRMASI SUARA (SATU PEMILIH SATU SUARA DI SERVER)
+     ========================================================================== */
 
   function openVoteModal(candidateId) {
+    const schedule = window.SupabaseKomkep ? window.SupabaseKomkep.checkElectionSchedule() : { isOpen: false, isMaintenance: true };
+    if (schedule.isMaintenance) {
+      notify('Pemilihan sedang dalam pemeliharaan.', 'warning');
+      return;
+    }
+
     const auth = resolveUserStatus();
     if (auth.type === 'GUEST') {
-      const doQuick = confirm('Anda saat ini berada dalam Mode Tamu.\n\nKlik OK untuk "Masuk Cepat Akun Simulasi" dan langsung memberikan suara, atau Batal untuk masuk dengan NIP pribadi Anda.');
-      if (doQuick) {
-        quickLoginSimulasi();
-        setTimeout(() => openVoteModal(candidateId), 200);
-      } else if (typeof window.openLoginModal === 'function') {
-        window.openLoginModal();
+      notify('Silakan login terlebih dahulu menggunakan NIP/NIPPPK/NIK Anda untuk memilih.', 'warning');
+      if (typeof window.openLoginModal === 'function') {
+        window.openLoginModal('pengusul');
+      }
+      return;
+    }
+
+    if (auth.type === 'ADMIN') {
+      notify('Anda sedang masuk menggunakan akun username Panitia/Pengurus. Untuk memilih sebagai pemilih DPT, silakan keluar lalu masuk menggunakan NIP/NIPPPK/NIK pribadi Anda.', 'warning');
+      return;
+    }
+
+    if (auth.user.wajib_ganti_password || auth.user.mustChangePassword) {
+      notify('Anda wajib mengganti kata sandi awal terlebih dahulu sebelum memberikan suara.', 'warning');
+      if (typeof window.toggleGantiPasswordForm === 'function') {
+        window.toggleGantiPasswordForm(true);
       }
       return;
     }
 
     if (auth.hasVoted) {
-      const reVote = confirm('Anda telah menggunakan hak suara sebelumnya dalam simulasi ini.\n\nApakah Anda ingin mengulangi simulasi memilih dan mengubah pilihan Anda?');
-      if (reVote) {
-        resetMyVoteSimulasi(candidateId);
-      }
+      notify('Anda sudah menggunakan hak suara. Setiap pemilih hanya berhak memilih satu kali.', 'info');
+      openSlipBuktiModal();
       return;
     }
 
-    const schedule = window.SupabaseKomkep ? window.SupabaseKomkep.checkElectionSchedule() : { isOpen: true };
     if (!schedule.isOpen) {
-      notify(`Pemungutan suara tidak aktif (${schedule.statusText}).`, 'danger');
+      notify(`Pemungutan suara tidak dapat dilakukan saat ini (${schedule.statusText}).`, 'danger');
       return;
     }
 
-    state.pendingVoteCandidateId = candidateId;
     const cand = state.candidates.find(c => c.id === candidateId);
     if (!cand) return;
 
-    const modal = document.getElementById('modalKonfirmasiVoting');
-    if (!modal) {
-      // Buat dialog konfirmasi bila elemen belum ada di index.html
-      const conf = confirm(`KONFIRMASI PEMILIHAN SIMULASI:\n\nAnda akan memilih: ${cand.name}\n\nApakah Anda yakin dengan pilihan Anda?`);
-      if (conf) {
-        confirmVote();
-      }
-      return;
-    }
+    state.pendingVoteCandidateId = candidateId;
 
-    const candNameElem = document.getElementById('modalVoteCandName') || document.getElementById('konfirmasiNamaCalon');
-    const candUnitElem = document.getElementById('modalVoteCandUnit') || document.getElementById('konfirmasiUnitCalon');
-    const candNumElem = document.getElementById('modalVoteCandNum') || document.getElementById('konfirmasiNomorCalon');
+    const modal = document.getElementById('modalKonfirmasiVoting');
+    const candNameElem = document.getElementById('modalVoteCandName');
+    const candUnitElem = document.getElementById('modalVoteCandUnit');
+    const candNumElem  = document.getElementById('modalVoteCandNum');
 
     if (candNameElem) candNameElem.textContent = cand.name;
     if (candUnitElem) candUnitElem.textContent = cand.unit;
-    if (candNumElem) candNumElem.textContent = `Nomor Urut 0${cand.number}`;
+    if (candNumElem)  candNumElem.textContent  = `Nomor Urut 0${cand.number} (SIMULASI)`;
 
-    modal.style.display = 'flex';
+    if (modal) {
+      modal.style.display = 'flex';
+    }
   }
 
   function closeVoteModal() {
@@ -415,287 +360,156 @@
       return;
     }
 
-    if (auth.hasVoted) {
-      closeVoteModal();
-      notify('Hak suara Anda telah digunakan sebelumnya.', 'error');
-      return;
-    }
-
-    const candId = state.pendingVoteCandidateId;
-    const cand = state.candidates.find(c => c.id === candId);
+    const candId  = state.pendingVoteCandidateId;
     const idLogin = auth.user.id_login || auth.user.nip;
 
-    // Panggil RPC Supabase / Cryptographic Engine Sisi Server
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.castVote === 'function') {
+    const modal = document.getElementById('modalKonfirmasiVoting');
+    const btnConfirm = modal ? modal.querySelector('button.btn-primary') : null;
+    const origHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim ke Server...';
+    }
+
+    try {
       const res = await window.SupabaseKomkep.castVote(state.election.id, idLogin, candId);
       closeVoteModal();
 
-      if (!res.success) {
-        notify(res.message || 'Penyaluran suara ditolak sistem.', 'danger');
-        renderAll();
+      if (!res || !res.success) {
+        notify((res && res.message) || 'Penyaluran suara ditolak oleh server.', 'danger');
+        await renderAll();
         return;
       }
 
-      notify(`Suara Anda berhasil dicatat secara sah! Nomor Bukti Suara: ${res.receipt.receipt_token}`, 'success');
-      state.activeSubTab = 'hasil';
-      renderAll();
+      if (window.state && window.state.currentUser) {
+        window.state.currentUser.sudah_memilih = true;
+        window.state.currentUser.kode_bukti    = res.receipt?.receipt_token || '';
+        window.state.currentUser.waktu_memilih = res.receipt?.voted_at_wib || '';
+      }
 
-      // Buka Tanda Terima Bukti Pemilih (Tanpa Nama Calon!)
-      setTimeout(() => {
-        openSlipBuktiModal(res.receipt);
-      }, 400);
+      notify(`Suara Anda berhasil dicatat di server! Kode Bukti: ${res.receipt.receipt_token}`, 'success');
+      await renderAll();
+      await openSlipBuktiModal(res.receipt);
+    } finally {
+      if (btnConfirm) {
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = origHtml;
+      }
     }
   }
 
-  // ==========================================================================
-  // BUKTI TELAH MEMILIH (KERAHASIAAN MUTLAK: TANPA PILIHAN KANDIDAT)
-  // ==========================================================================
-  function openSlipBuktiModal(receiptParam = null) {
+  /* ==========================================================================
+     3. KARTU BUKTI VOTING (HANYA MILIK PEMILIH SENDIRI, TANPA PILIHAN CALON)
+     ========================================================================== */
+
+  async function openSlipBuktiModal(receiptParam = null) {
     const auth = resolveUserStatus();
-    const user = auth.user;
-    const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-    const cleanKey = String(user.id_login || user.nip || '').trim().replace(/\s+/g, '');
-    const record = receiptParam || simVoters[cleanKey];
-
-    const token = record?.receipt_token || record?.receiptToken || 'VOTE-SIM-2026-0001';
-    const votedAt = record?.voted_at_wib || record?.votedAt || '23 November 2026 WIB';
-    const masked = record?.masked_id || record?.maskedId || (window.SupabaseKomkep ? window.SupabaseKomkep.maskId(cleanKey) : cleanKey);
-    const unit = record?.unit_kerja || record?.unit || user.unit || 'RSUD dr. Soedarso';
-
-    // Update field-field modal slip bukti jika ada elemen spesifik di index.html
-    const elToken = document.getElementById('slipTokenBukti');
-    const elNama = document.getElementById('slipNamaPemilih');
-    const elNip = document.getElementById('slipNipPemilih');
-    const elUnit = document.getElementById('slipUnitPemilih');
-    const elWaktu = document.getElementById('slipWaktuPemilihan');
-    if (elToken) elToken.textContent = token;
-    if (elNama) elNama.textContent = user.name;
-    if (elNip) elNip.textContent = masked;
-    if (elUnit) elUnit.textContent = unit;
-    if (elWaktu) elWaktu.textContent = votedAt;
-
-    const slipContainer = document.getElementById('bodySlipBukti');
-    if (slipContainer) {
-      slipContainer.innerHTML = `
-        <div style="border: 2px solid #059669; border-radius: 12px; padding: 1.5rem; background: #f0fdf4;">
-          <div style="background: #fef3c7; border: 1.5px solid #fde68a; border-radius: 6px; padding: 5px 10px; text-align: center; margin-bottom: 1rem;">
-            <span style="font-size: 0.72rem; font-weight: 800; color: #92400e; text-transform: uppercase;">
-              PERCOBAAN / SIMULASI — HASIL TIDAK MENGIKAT
-            </span>
-          </div>
-
-          <div style="text-align: center; border-bottom: 2px dashed #059669; padding-bottom: 0.85rem; margin-bottom: 1rem;">
-            <div style="font-size: 0.75rem; font-weight: 800; color: #064e3b; text-transform: uppercase;">KOMITE KEPERAWATAN RSUD dr. SOEDARSO</div>
-            <div style="font-size: 1.15rem; font-weight: 900; color: #047857; margin-top: 2px;">BUKTI TELAH MEMILIH (E-VOTING)</div>
-            <div style="font-size: 0.72rem; color: #64748b;">Simulasi Pemilihan Ketua Komite Keperawatan 2027–2030</div>
-          </div>
-
-          <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse; margin-bottom: 1.25rem;">
-            <tr>
-              <td style="padding: 5px 0; color: #475569; width: 40%;">Nama Pemilih</td>
-              <td style="padding: 5px 0; font-weight: 800; color: #0f172a;">: ${user.name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0; color: #475569;">ID Pemilih (Masked)</td>
-              <td style="padding: 5px 0; font-weight: 700; color: #0f172a; font-family: monospace;">: ${masked}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0; color: #475569;">Unit Kerja</td>
-              <td style="padding: 5px 0; font-weight: 700; color: #0f172a;">: ${unit}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0; color: #475569;">Waktu Pemungutan</td>
-              <td style="padding: 5px 0; font-weight: 700; color: #0f172a;">: ${votedAt}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0; color: #475569;">Kode Kuitansi Sah</td>
-              <td style="padding: 5px 0; font-weight: 900; color: #047857; font-family: monospace; font-size: 0.92rem;">: ${token}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0; color: #475569;">Status Hak Suara</td>
-              <td style="padding: 5px 0; font-weight: 800; color: #059669;">: <i class="fa-solid fa-circle-check"></i> Sudah Memilih (Sah)</td>
-            </tr>
-          </table>
-
-          <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem; text-align: center; font-size: 0.74rem; color: #64748b;">
-            <i class="fa-solid fa-user-shield" style="color: #059669;"></i> <strong>Prinsip Kerahasiaan (Luber Jurdil):</strong> Tanda terima ini sah tanpa memuat pilihan kandidat untuk menjaga hak kerahasiaan suara pemilih.
-          </div>
-        </div>
-      `;
+    if (auth.type === 'GUEST') {
+      notify('Silakan login terlebih dahulu untuk melihat kartu bukti suara Anda.', 'warning');
+      return;
     }
 
-    const modal = document.getElementById('modalSlipBuktiSuara') || document.getElementById('modalSlipBuktiVoting');
+    let record = receiptParam;
+    if (!record && window.SupabaseKomkep && typeof window.SupabaseKomkep.getVoterReceipt === 'function') {
+      const res = await window.SupabaseKomkep.getVoterReceipt();
+      if (res && res.success && res.receipt) {
+        record = res.receipt;
+      } else {
+        notify((res && res.message) || 'Anda belum memberikan suara.', 'warning');
+        return;
+      }
+    }
+
+    const user    = auth.user;
+    const token   = record?.receipt_token || user.kode_bukti || '-';
+    const votedAt = record?.voted_at_wib  || user.waktu_memilih || 'Tercatat Sah di Server';
+    const masked  = record?.masked_id     || user.masked_id || (window.SupabaseKomkep ? window.SupabaseKomkep.maskId(user.nip) : '-');
+    const unit    = record?.unit_kerja    || user.unit || 'RSUD dr. Soedarso';
+
+    const elToken = document.getElementById('slipTokenBukti');
+    const elNama  = document.getElementById('slipNamaPemilih');
+    const elNip   = document.getElementById('slipNipPemilih');
+    const elUnit  = document.getElementById('slipUnitPemilih');
+    const elWaktu = document.getElementById('slipWaktuPemilihan');
+
+    if (elToken) elToken.textContent = token;
+    if (elNama)  elNama.textContent  = record?.voter_name || user.name;
+    if (elNip)   elNip.textContent   = masked;
+    if (elUnit)  elUnit.textContent  = unit;
+    if (elWaktu) elWaktu.textContent = votedAt;
+
+    const modal = document.getElementById('modalSlipBuktiSuara');
     if (modal) modal.style.display = 'flex';
   }
 
   function closeSlipBuktiModal() {
-    const modal = document.getElementById('modalSlipBuktiSuara') || document.getElementById('modalSlipBuktiVoting');
+    const modal = document.getElementById('modalSlipBuktiSuara');
     if (modal) modal.style.display = 'none';
   }
 
   function printSlipBukti() {
-    const content = document.getElementById('bodySlipBukti')?.innerHTML;
-    if (!content) return;
-
-    const printWin = window.open('', '_blank', 'width=700,height=600');
-    printWin.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Tanda Terima Hak Suara E-Voting - RSUD dr. Soedarso</title>
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 2rem; color: #0f172a; }
-          @media print { body { padding: 0; } }
-        </style>
-      </head>
-      <body>
-        ${content}
-      </body>
-      </html>
-    `);
-    printWin.document.close();
-    printWin.focus();
-    setTimeout(() => {
-      printWin.print();
-      printWin.close();
-    }, 400);
+    window.print();
   }
 
-  // ==========================================================================
-  // BERITA ACARA RESMI (KOP SURAT KOMITE & TANDA TANGAN)
-  // ==========================================================================
+  /* ==========================================================================
+     4. BERITA ACARA & LAPORAN EMAIL (DINONAKTIFKAN SEBELUM WAKTU TUTUP)
+     ========================================================================== */
+
   async function openBeritaAcaraModal() {
-    const rekapData = await (window.SupabaseKomkep ? window.SupabaseKomkep.getElectionRekap(state.election.id) : { metrics: { total_voted: 0 } });
-    const metrics = rekapData.metrics || {};
+    const rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
+    if (!rekapData || !rekapData.resultsAvailable) {
+      notify(PESAN_SEBELUM_TUTUP, 'warning');
+      return;
+    }
+
+    const metrics    = rekapData.metrics || {};
     const candidates = rekapData.rekap_kandidat || [];
-
-    const container = document.getElementById('bodyBeritaAcara');
-    const wibDate = window.SupabaseKomkep ? window.SupabaseKomkep.formatWibDate(new Date()) : new Date().toLocaleDateString('id-ID');
-
-    // Update elemen bawaan index.html jika ada
-    const baTanggal = document.getElementById('baTanggalLengkap');
+    const baTanggal   = document.getElementById('baTanggalLengkap');
     const baTabelBody = document.getElementById('baTabelHasilBody');
-    const baTotal = document.getElementById('baTotalSuara');
-    const baKetua = document.getElementById('baKetuaTerpilih');
+    const baTotal     = document.getElementById('baTotalSuara');
+    const baKetua     = document.getElementById('baKetuaTerpilih');
 
-    if (baTanggal) baTanggal.textContent = `Selasa, 24 November 2026`;
-    if (baTotal) baTotal.textContent = String(metrics.total_voted || 0);
+    if (baTanggal) baTanggal.textContent = 'Selasa, 24 November 2026';
+    if (baTotal)   baTotal.textContent   = String(metrics.total_sah ?? metrics.total_voted ?? 0);
 
     if (baTabelBody) {
       baTabelBody.innerHTML = candidates.map(c => `
         <tr>
           <td style="border: 1px solid #334155; padding: 8px; text-align: center;">0${c.candidate_number}</td>
-          <td style="border: 1px solid #334155; padding: 8px; text-align: left; font-weight: 700;">${c.name}</td>
+          <td style="border: 1px solid #334155; padding: 8px; text-align: left; font-weight: 700;">${escapeHtml(c.name)}</td>
           <td style="border: 1px solid #334155; padding: 8px; text-align: left; font-family: monospace;">-</td>
-          <td style="border: 1px solid #334155; padding: 8px; text-align: left;">${c.unit || '-'}</td>
+          <td style="border: 1px solid #334155; padding: 8px; text-align: left;">${escapeHtml(c.unit || '-')}</td>
           <td style="border: 1px solid #334155; padding: 8px; text-align: center; font-weight: 800;">${c.vote_count}</td>
           <td style="border: 1px solid #334155; padding: 8px; text-align: center;">${c.percent}%</td>
-          <td style="border: 1px solid #334155; padding: 8px; text-align: center;">-</td>
+          <td style="border: 1px solid #334155; padding: 8px; text-align: center;">SIMULASI</td>
         </tr>
       `).join('');
     }
 
     if (baKetua) {
       const winner = candidates.reduce((max, c) => (c.vote_count > (max?.vote_count || 0) ? c : max), null);
-      baKetua.textContent = (winner && winner.vote_count > 0) ? `${winner.name} (Perolehan: ${winner.vote_count} Suara)` : 'Belum Ada Suara Masuk / Belum Ditetapkan';
+      baKetua.textContent = (winner && winner.vote_count > 0)
+        ? `${winner.name} (Perolehan: ${winner.vote_count} Suara / ${winner.percent}%)`
+        : 'Belum Ada Suara Masuk';
     }
 
-    if (container) {
-      container.innerHTML = `
-      <div style="font-family: 'Times New Roman', serif; color: #000; line-height: 1.5; padding: 1.5rem; background: #fff;">
-        <div style="text-align: center; border-bottom: 3px double #000; padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
-          <div style="font-size: 1.1rem; font-weight: bold;">PEMERINTAH PROVINSI KALIMANTAN BARAT</div>
-          <div style="font-size: 1.2rem; font-weight: bold;">RSUD DOKTER SOEDARSO</div>
-          <div style="font-size: 1rem; font-weight: bold; color: #0d5f5b;">KOMITE KEPERAWATAN</div>
-          <div style="font-size: 0.8rem; font-style: italic;">Jalan Dokter Soedarso Nomor 1 Pontianak, Kalimantan Barat 78124</div>
-        </div>
-
-        <div style="background: #fef3c7; border: 1px solid #fde68a; padding: 4px 10px; text-align: center; margin-bottom: 1rem;">
-          <strong style="font-size: 0.75rem; color: #92400e;">PERCOBAAN / SIMULASI — HASIL TIDAK MENGIKAT</strong>
-        </div>
-
-        <div style="text-align: center; margin-bottom: 1.25rem;">
-          <div style="font-size: 1.1rem; font-weight: bold; text-decoration: underline;">BERITA ACARA SIMULASI PEMILIHAN KETUA KOMITE KEPERAWATAN</div>
-          <div style="font-size: 0.85rem;">Nomor: ${state.election.nomorBeritaAcara}</div>
-        </div>
-
-        <p style="font-size: 0.9rem; text-align: justify; text-indent: 2rem;">
-          Pada hari ini, bertempat di Ruang Sekretariat Komite Keperawatan RSUD dr. Soedarso Pontianak, telah dilaksanakan Simulasi Pemilihan Ketua Komite Keperawatan Periode 2027–2030 secara elektronik (e-voting) yang dibuka pada <strong>Senin, 23 November 2026 pukul 10.00 WIB</strong> dan ditutup pada <strong>Selasa, 24 November 2026 pukul 10.00 WIB</strong>.
-        </p>
-
-        <div style="font-size: 0.9rem; margin-bottom: 0.75rem;">
-          <strong>A. REKAPITULASI PARTISIPASI PEMILIH (DPT):</strong>
-          <ul>
-            <li>Total Pemilih Terdaftar (DPT) : <strong>${metrics.total_dpt || 717} Orang</strong></li>
-            <li>Jumlah Suara Tersalurkan : <strong>${metrics.total_voted || 0} Suara</strong></li>
-            <li>Tingkat Partisipasi : <strong>${metrics.turnout_percent || 0}%</strong></li>
-          </ul>
-        </div>
-
-        <div style="font-size: 0.9rem; margin-bottom: 1.5rem;">
-          <strong>B. PEROLEHAN SUARA KANDIDAT (SIMULASI):</strong>
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 0.5rem;" border="1">
-            <thead>
-              <tr style="background: #f1f5f9;">
-                <th style="padding: 6px;">No</th>
-                <th style="padding: 6px; text-align: left;">Nama Calon Ketua</th>
-                <th style="padding: 6px;">Perolehan Suara</th>
-                <th style="padding: 6px;">Persentase</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${candidates.map(c => `
-                <tr>
-                  <td style="padding: 6px; text-align: center;">0${c.candidate_number}</td>
-                  <td style="padding: 6px;">${c.name}</td>
-                  <td style="padding: 6px; text-align: center; font-weight: bold;">${c.vote_count}</td>
-                  <td style="padding: 6px; text-align: center;">${c.percent}%</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 2rem;">
-          <div style="text-align: center; width: 45%;">
-            <div>Saksi Pemilihan,</div>
-            <div style="height: 55px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
-            <div>Ketua Subkomite Kredensial</div>
-          </div>
-          <div style="text-align: center; width: 45%;">
-            <div>Pontianak, ${wibDate}</div>
-            <div>Ketua Panitia Pemilihan,</div>
-            <div style="height: 55px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Rusmulyadi, S.Kep., MARS</div>
-            <div>Sekretaris Komite Keperawatan</div>
-          </div>
-        </div>
-
-        <div style="margin-top: 25px; text-align: center; font-size: 0.88rem;">
-          <div>Mengetahui / Mengesahkan,</div>
-          <div><strong>Direktur RSUD Dokter Soedarso</strong></div>
-          <div style="height: 55px;"></div>
-          <div style="font-weight: bold; text-decoration: underline;">drg. Hary Agung Tjahyadi, M.Kes</div>
-          <div>Pembina Utama Madya / NIP. 000000000000000000</div>
-        </div>
-      </div>
-    `;
-
-    const modal = document.getElementById('modalBeritaAcaraPemilihan') || document.getElementById('modalBeritaAcaraVoting');
+    const modal = document.getElementById('modalBeritaAcaraPemilihan');
     if (modal) modal.style.display = 'flex';
   }
 
   function closeBeritaAcaraModal() {
-    const modal = document.getElementById('modalBeritaAcaraPemilihan') || document.getElementById('modalBeritaAcaraVoting');
+    const modal = document.getElementById('modalBeritaAcaraPemilihan');
     if (modal) modal.style.display = 'none';
   }
 
   function printBeritaAcara() {
-    const content = document.getElementById('bodyBeritaAcara')?.innerHTML;
+    const content = document.getElementById('beritaAcaraPrintArea')?.innerHTML;
     if (!content) return;
-
-    const printWin = window.open('', '_blank', 'width=800,height=800');
+    const printWin = window.open('', '_blank', 'width=850,height=850');
+    if (!printWin) {
+      window.print();
+      return;
+    }
     printWin.document.write(`
       <!DOCTYPE html>
       <html>
@@ -706,9 +520,7 @@
           @media print { body { padding: 0; } }
         </style>
       </head>
-      <body>
-        ${content}
-      </body>
+      <body>${content}</body>
       </html>
     `);
     printWin.document.close();
@@ -716,80 +528,165 @@
     setTimeout(() => {
       printWin.print();
       printWin.close();
-    }, 400);
+    }, 350);
   }
 
-  // ==========================================================================
-  // EKSPOR REKAPITULASI CSV (TANPA DATA PEMILIH-PILIHAN)
-  // ==========================================================================
-  async function exportResultsCsv() {
-    const rekapData = await (window.SupabaseKomkep ? window.SupabaseKomkep.getElectionRekap(state.election.id) : { metrics: {}, rekap_unit: [], rekap_kandidat: [] });
-    const unitList = rekapData.rekap_unit || [];
+  async function sendEmailLaporan() {
+    const rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
+    if (!rekapData || !rekapData.resultsAvailable) {
+      notify(PESAN_SEBELUM_TUTUP, 'warning');
+      return;
+    }
+
+    const metrics  = rekapData.metrics || {};
     const candList = rekapData.rekap_kandidat || [];
-
-    let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += 'REKAPITULASI SIMULASI PEMILIHAN KETUA KOMITE KEPERAWATAN RSUD DR. SOEDARSO\n';
-    csvContent += 'PERIODE: 2027-2030 (JADWAL: 23-24 NOVEMBER 2026)\n';
-    csvContent += 'CATATAN: PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT\n\n';
-
-    csvContent += 'BAGIAN 1: PEROLEHAN SUARA KANDIDAT (ANONIM)\n';
-    csvContent += 'Nomor Urut,Nama Calon,Perolehan Suara,Persentase\n';
+    const subject  = encodeURIComponent('Laporan Rekapitulasi Simulasi Pemilihan Ketua Komite Keperawatan 2027–2030');
+    let body = `Yth. Panitia & Pengurus Komite Keperawatan RSUD dr. Soedarso Pontianak,%0D%0A%0D%0A`;
+    body += `Berikut adalah hasil akhir Rekapitulasi Simulasi Pemilihan Ketua Komite Keperawatan (2027–2030):%0D%0A`;
+    body += `- Total DPT: ${metrics.total_dpt || 717} Pemilih%0D%0A`;
+    body += `- Jumlah Sudah Memilih: ${metrics.total_voted || 0} Pemilih%0D%0A%0D%0A`;
     candList.forEach(c => {
-      csvContent += `"0${c.candidate_number}","${c.name.replace(/"/g, '""')}",${c.vote_count},"${c.percent}%"\n`;
+      body += `- 0${c.candidate_number}. ${c.name}: ${c.vote_count} Suara (${c.percent}%)%0D%0A`;
+    });
+    window.open(`mailto:${TARGET_EMAIL_KOMITE}?subject=${subject}&body=${body}`, '_blank');
+  }
+
+  /* ==========================================================================
+     5. EKSPOR CSV & KONTROL PANITIA (JEDA / LANJUT / RESET DENGAN KONFIRMASI)
+     ========================================================================== */
+
+  async function exportResultsCsv() {
+    const rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
+    if (!rekapData || !rekapData.resultsAvailable) {
+      notify(PESAN_SEBELUM_TUTUP, 'warning');
+      return;
+    }
+
+    const candList = rekapData.rekap_kandidat || [];
+    let csv = 'data:text/csv;charset=utf-8,';
+    csv += 'REKAPITULASI SIMULASI PEMILIHAN KETUA KOMITE KEPERAWATAN RSUD DR. SOEDARSO\n';
+    csv += 'CATATAN: PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT\n\n';
+    csv += 'Nomor Urut,Nama Calon,Perolehan Suara,Persentase\n';
+    candList.forEach(c => {
+      csv += `"0${c.candidate_number}","${c.name.replace(/"/g, '""')}",${c.vote_count},"${c.percent}%"\n`;
     });
 
-    csvContent += '\nBAGIAN 2: PARTISIPASI PEMILIH PER UNIT KERJA (TANPA PILIHAN CALON)\n';
-    csvContent += 'Unit Kerja,Total DPT,Sudah Memilih,Belum Memilih,Persentase Partisipasi\n';
-    unitList.forEach(u => {
-      csvContent += `"${u.unit_kerja.replace(/"/g, '""')}",${u.total_dpt},${u.sudah_memilih},${u.belum_memilih},"${u.persen}%"\n`;
-    });
-
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Rekapitulasi_Simulasi_E-Voting_Komite_Keperawatan_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', `Hasil_Simulasi_EVoting_Komkep_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    notify('Berkas Rekapitulasi CSV berhasil diunduh.', 'success');
+    notify('Berkas Hasil Rekapitulasi CSV berhasil diunduh.', 'success');
   }
 
-  // ==========================================================================
-  // RESET DATA SIMULASI (KHUSUS ADMIN PENGUJIAN)
-  // ==========================================================================
-  async function resetSimulationData() {
-    const auth = resolveUserStatus();
-    const conf = confirm('PERINGATAN ADMIN:\n\nApakah Anda yakin ingin mereset seluruh data simulasi pemungutan suara?\n\nTindakan ini akan mengosongkan kotak suara dan mereset status memilih seluruh 717 pegawai.');
-    if (!conf) return;
+  async function exportLogVotesCsv() {
+    const res = await window.SupabaseKomkep.getVoterListForAdmin();
+    if (!res || !res.success) {
+      notify((res && res.message) || 'Silakan login sebagai Panitia Pemilihan untuk mengunduh daftar partisipasi.', 'warning');
+      return;
+    }
 
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.resetSimulation === 'function') {
-      const res = await window.SupabaseKomkep.resetSimulation(state.election.id);
-      if (res.success) {
-        notify('Data simulasi pemilihan berhasil direset bersih.', 'success');
-        renderAll();
-      } else {
-        notify(res.message || 'Gagal mereset data simulasi.', 'danger');
+    let csv = 'data:text/csv;charset=utf-8,';
+    csv += 'DAFTAR PARTISIPASI PEMILIH SIMULASI E-VOTING KOMITE KEPERAWATAN RSUD DR. SOEDARSO\n';
+    csv += 'CATATAN: TANPA KODE BUKTI DAN TANPA PILIHAN CALON\n\n';
+    csv += 'No,Nama Pemilih,Unit Kerja,NIP Tersamar,Status Memilih\n';
+    res.daftar.forEach((row, idx) => {
+      const nama = String(row.nama || '').replace(/"/g, '""');
+      const unit = String(row.unit || '').replace(/"/g, '""');
+      const nip  = String(row.nip_tersamar || '').replace(/"/g, '""');
+      const st   = String(row.status || 'Belum');
+      csv += `${idx + 1},"${nama}","${unit}","${nip}","${st}"\n`;
+    });
+
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', `Daftar_Partisipasi_DPT_Tersamar_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    notify('Daftar partisipasi pemilih (NIP tersamar) berhasil diunduh.', 'success');
+  }
+
+  async function toggleElection() {
+    const schedule = window.SupabaseKomkep.checkElectionSchedule();
+    if (schedule.isMaintenance) {
+      notify('Pemilihan sedang dalam pemeliharaan.', 'warning');
+      return;
+    }
+    const perintah = schedule.isPaused ? 'lanjut' : 'jeda';
+    const res = await window.SupabaseKomkep.controlElection(perintah);
+    if (!res.success) {
+      notify(res.message || 'Gagal mengubah status pemilihan.', 'danger');
+      return;
+    }
+    notify(res.message, 'success');
+    await renderAll();
+  }
+
+  async function resetSimulationData() {
+    const schedule = window.SupabaseKomkep.checkElectionSchedule();
+    if (schedule.isMaintenance) {
+      notify('Pemilihan sedang dalam pemeliharaan.', 'warning');
+      return;
+    }
+    if (schedule.isAfter) {
+      notify('Reset suara tidak diizinkan setelah waktu penutupan pemilihan.', 'danger');
+      return;
+    }
+
+    const ketik = prompt(
+      'KONFIRMASI PANITIA — RESET SEMUA SUARA SIMULASI:\n\n' +
+      'Tindakan ini akan menghapus seluruh suara di tab SUARA dan mengembalikan status memilih seluruh 717 pemilih menjadi Belum Memilih.\n\n' +
+      'Ketik kata RESET (huruf besar semua) untuk melanjutkan:'
+    );
+    if (ketik === null) return;
+    if (String(ketik).trim() !== 'RESET') {
+      notify('Konfirmasi dibatalkan. Anda harus mengetik "RESET" dengan huruf besar.', 'warning');
+      return;
+    }
+
+    const res = await window.SupabaseKomkep.resetSimulation('RESET');
+    if (res.success) {
+      if (window.state && window.state.currentUser) {
+        window.state.currentUser.sudah_memilih = false;
+        window.state.currentUser.kode_bukti = '';
       }
+      state.cachedVoterList = [];
+      notify(res.message || 'Semua suara simulasi berhasil direset menjadi 0.', 'success');
+      await renderAll();
+    } else {
+      notify(res.message || 'Gagal mereset suara simulasi.', 'danger');
     }
   }
 
-  // ==========================================================================
-  // RENDERING TAMPILAN MODUL PEMILIHAN
-  // ==========================================================================
-  function renderAll() {
+  function resetAllVotes() {
+    resetSimulationData();
+  }
+
+  /* ==========================================================================
+     6. RENDER TAMPILAN E-VOTING
+     ========================================================================== */
+
+  async function renderAll() {
+    try {
+      if (window.SupabaseKomkep && typeof window.SupabaseKomkep.fetchServerStatus === 'function') {
+        await window.SupabaseKomkep.fetchServerStatus();
+      }
+    } catch (_) {}
+
     renderDisclaimerBanner();
     renderUserPill();
     renderSubTabNavigation();
     renderVotingCards();
-    renderResults();
+    await renderResults();
     renderProfileView();
-    renderAdminPanel();
+    await renderAdminPanel();
     updateCountdownLive();
   }
 
-  // Banner Simulasi Permanen di Bagian Atas
   function renderDisclaimerBanner() {
-    const pane = document.getElementById('pane-evoting') || document.getElementById('pane-pemilihan');
+    const pane = document.getElementById('pane-evoting');
     if (!pane) return;
 
     let banner = document.getElementById('pemilihanSimulasiDisclaimerBanner');
@@ -808,21 +705,21 @@
           <i class="fa-solid fa-flask-vial"></i>
         </div>
         <div>
-          <div style="font-size: 0.76rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;">
-            PERCOBAAN / SIMULASI E-VOTING — HASIL TIDAK MENGIKAT
+          <div style="font-size: 0.78rem; font-weight: 900; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;">
+            PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT
           </div>
-          <div style="font-size: 0.88rem; font-weight: 800; color: #78350f;">
-            Jadwal: Senin, 23 Nov 2026 10.00 WIB s.d. Selasa, 24 Nov 2026 10.00 WIB
+          <div style="font-size: 0.86rem; font-weight: 800; color: #78350f;">
+            Jadwal Resmi Server: Senin, 23 Nov 2026 10.00 WIB s.d. Selasa, 24 Nov 2026 10.00 WIB
           </div>
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 0.6rem;">
         <div style="text-align: right;">
-          <div style="font-size: 0.72rem; color: #92400e; font-weight: 700;">Status Pemungutan:</div>
-          <div id="liveScheduleBadge" style="font-size: 0.85rem; font-weight: 900; color: #b45309;">${schedule.countdownStr}</div>
+          <div style="font-size: 0.72rem; color: #92400e; font-weight: 700;">Status Waktu Server:</div>
+          <div id="liveScheduleBadge" style="font-size: 0.85rem; font-weight: 900; color: #b45309;">${escapeHtml(schedule.countdownStr)}</div>
         </div>
         <button type="button" class="btn-primary" onclick="window.PemilihanKomkep.enterBoothFlow()" style="font-size: 0.8rem; padding: 6px 14px; background: #b45309; border: none; font-weight: 800; border-radius: 8px;">
-          <i class="fa-solid fa-door-open"></i> Bilik Suara
+          <i class="fa-solid fa-door-open"></i> Buka Bilik Suara
         </button>
       </div>
     `;
@@ -836,11 +733,11 @@
 
       const liveBadge = document.getElementById('liveScheduleBadge');
       if (liveBadge) {
-        liveBadge.textContent = schedule.isOpen ? `Sisa: ${schedule.countdownStr}` : schedule.statusText;
+        liveBadge.textContent = schedule.isOpen ? `Sisa Waktu: ${schedule.countdownStr}` : schedule.statusText;
       }
       const simCountdown = document.getElementById('simulasiCountdownText');
-      if (simCountdown && schedule.isOpen) {
-        simCountdown.textContent = schedule.countdownStr;
+      if (simCountdown) {
+        simCountdown.textContent = schedule.isOpen ? schedule.countdownStr : schedule.statusText;
       }
     }, 1000);
   }
@@ -850,33 +747,33 @@
     const actionBox = document.getElementById('pemilihanAuthActionBox');
     if (!pill || !actionBox) return;
 
-    const auth = resolveUserStatus();
-    const cleanId = auth.user ? (auth.user.id_login || auth.user.nip || '-') : '-';
-    const masked = (window.SupabaseKomkep && window.SupabaseKomkep.maskId) ? window.SupabaseKomkep.maskId(cleanId) : cleanId;
+    const auth   = resolveUserStatus();
+    const user   = auth.user;
+    const masked = user.masked_id || (window.SupabaseKomkep ? window.SupabaseKomkep.maskId(user.nip || user.id_login) : '-');
 
     if (auth.type === 'GUEST') {
       pill.innerHTML = `
-        <span style="font-size: 0.78rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.4rem;">
-          <i class="fa-solid fa-user-clock"></i> Belum masuk (Mode Tamu)
+        <span style="font-size: 0.8rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.4rem;">
+          <i class="fa-solid fa-user-clock"></i> Belum Login (Mode Tamu)
         </span>
       `;
       actionBox.innerHTML = `
-        <button type="button" class="btn-primary" onclick="openLoginModal()" style="font-size: 0.8rem; padding: 6px 12px; background: #0d5f5b; border: none; font-weight: 700; border-radius: 8px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Masuk NIP
+        <button type="button" class="btn-primary" onclick="openLoginModal('pengusul')" style="font-size: 0.8rem; padding: 6px 12px; background: #0d5f5b; border: none; font-weight: 700; border-radius: 8px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Masuk Pemilih (NIP/NIK)
         </button>
-        <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.quickLoginSimulasi()" style="font-size: 0.8rem; padding: 6px 12px; background: #fef3c7; color: #92400e; border: 1.5px solid #f59e0b; font-weight: 800; border-radius: 8px;" title="Gunakan akun simulasi resmi untuk uji coba bilik suara">
-          <i class="fa-solid fa-bolt"></i> Masuk Cepat Simulasi
+        <button type="button" class="btn-secondary" onclick="openLoginModal('komite')" style="font-size: 0.8rem; padding: 6px 12px; border-radius: 8px; font-weight: 700;">
+          <i class="fa-solid fa-user-shield"></i> Masuk Panitia
         </button>
       `;
     } else {
       pill.innerHTML = `
         <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); padding: 4px 10px; border-radius: 8px;">
           <div style="width: 24px; height: 24px; border-radius: 50%; background: #0d5f5b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: bold;">
-            ${(auth.user.name || 'P').charAt(0)}
+            ${escapeHtml((user.name || 'P').charAt(0))}
           </div>
           <div style="line-height: 1.2;">
-            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">${auth.user.name}</div>
-            <div style="font-size: 0.7rem; color: var(--text-muted); font-family: monospace;">ID: ${masked} • ${auth.user.unit || 'Keperawatan'}</div>
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">${escapeHtml(user.name)}</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-family: monospace;">ID: ${escapeHtml(masked)} &bull; ${escapeHtml(user.unit || 'RSUD dr. Soedarso')}</div>
           </div>
         </div>
       `;
@@ -887,10 +784,7 @@
         </button>
         ${auth.hasVoted ? `
           <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.openSlipBuktiModal()" style="font-size: 0.75rem; padding: 5px 10px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; border-radius: 6px; font-weight: 700;">
-            <i class="fa-solid fa-ticket"></i> Lihat Bukti Suara
-          </button>
-          <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.resetMyVoteSimulasi()" style="font-size: 0.75rem; padding: 5px 10px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 6px; font-weight: 700;" title="Ulangi simulasi pemberian suara">
-            <i class="fa-solid fa-rotate-left"></i> Ulangi Simulasi
+            <i class="fa-solid fa-ticket"></i> Kartu Bukti Voting
           </button>
         ` : ''}
         <button type="button" class="btn-secondary" onclick="logoutToPortal()" style="font-size: 0.75rem; padding: 5px 10px; border-radius: 6px;">
@@ -907,32 +801,21 @@
     }
 
     validTabs.forEach(t => {
-      const btn = document.getElementById(`pemilihan-nav-${t}`);
+      const btn  = document.getElementById(`pemilihan-nav-${t}`);
       const pane = document.getElementById(`pemilihan-subpane-${t}`);
       if (btn) {
         if (t === state.activeSubTab) {
           btn.style.background = '#0d5f5b';
-          btn.style.color = '#ffffff';
+          btn.style.color      = '#ffffff';
           btn.style.fontWeight = '800';
-          btn.style.border = '2px solid #0d5f5b';
-          btn.style.boxShadow = '0 3px 8px rgba(13, 95, 91, 0.35)';
+          btn.style.border     = '2px solid #0d5f5b';
           btn.classList.add('active');
         } else {
           btn.style.background = '#f8fafc';
-          btn.style.color = '#334155';
+          btn.style.color      = '#334155';
           btn.style.fontWeight = '600';
-          btn.style.border = '1.5px solid #cbd5e1';
-          btn.style.boxShadow = 'none';
+          btn.style.border     = '1.5px solid #cbd5e1';
           btn.classList.remove('active');
-        }
-
-        // Pasang event listener langsung agar respon klik 100% responsif & bebas gagal
-        if (!btn._navBound) {
-          btn._navBound = true;
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchSubTab(t);
-          });
         }
       }
       if (pane) {
@@ -943,27 +826,38 @@
 
   function renderVotingCards() {
     const container = document.getElementById('pemilihanVotingGrid');
+    const statusBox = document.getElementById('pemilihanVoterStatusBox');
     if (!container) return;
 
-    const auth = resolveUserStatus();
-    const schedule = window.SupabaseKomkep ? window.SupabaseKomkep.checkElectionSchedule() : { isOpen: true };
-    const canVote = schedule.isOpen && auth.type !== 'GUEST' && !auth.hasVoted;
+    const auth     = resolveUserStatus();
+    const schedule = window.SupabaseKomkep ? window.SupabaseKomkep.checkElectionSchedule() : { isOpen: false, isMaintenance: true };
 
-    const statusBox = document.getElementById('pemilihanVoterStatusBox');
+    // JIKA SERVER BELUM DIKONFIGURASI -> Tampilkan pesan pemeliharaan sesuai instruksi darurat
+    if (schedule.isMaintenance) {
+      if (statusBox) {
+        statusBox.innerHTML = `
+          <div style="background: #fffbeb; border: 2px solid #f59e0b; border-radius: 14px; padding: 1.5rem; text-align: center;">
+            <i class="fa-solid fa-screwdriver-wrench" style="font-size: 2rem; color: #b45309; margin-bottom: 0.5rem;"></i>
+            <div style="font-size: 1.1rem; font-weight: 900; color: #78350f;">Pemilihan sedang dalam pemeliharaan</div>
+            <div style="font-size: 0.84rem; color: #92400e; margin-top: 0.35rem;">
+              Server backend Google Apps Script sedang disambungkan oleh panitia. Data pemilih aman dan bilik suara akan segera aktif setelah URL server dipasang di <code>config.js</code>.
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = '';
+      return;
+    }
+
     if (statusBox) {
       if (!schedule.isOpen) {
         statusBox.innerHTML = `
-          <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <i class="fa-solid fa-clock" style="color: #dc2626; font-size: 1.3rem;"></i>
-              <div>
-                <div style="font-weight: 800; color: #991b1b; font-size: 0.9rem;">Bilik Suara Simulasi Sedang Tidak Aktif (${schedule.statusText})</div>
-                <div style="font-size: 0.8rem; color: #b91c1c;">Pemungutan suara dijadwalkan <strong>23 November 2026 pukul 10.00 WIB</strong> s.d. <strong>24 November 2026 pukul 10.00 WIB</strong>.</div>
-              </div>
+          <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fa-solid fa-clock" style="color: #dc2626; font-size: 1.3rem;"></i>
+            <div>
+              <div style="font-weight: 800; color: #991b1b; font-size: 0.9rem;">Bilik Suara Sedang Tidak Dibuka (${escapeHtml(schedule.statusText)})</div>
+              <div style="font-size: 0.8rem; color: #b91c1c;">Jadwal resmi server: <strong>Senin, 23 November 2026 pukul 10.00 WIB</strong> s.d. <strong>Selasa, 24 November 2026 pukul 10.00 WIB</strong>.</div>
             </div>
-            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.5rem 1rem; background: #b45309; border: none; font-weight: 700;" onclick="window.PemilihanKomkep.quickLoginSimulasi()">
-              <i class="fa-solid fa-bolt"></i> Buka Paksa Simulasi
-            </button>
           </div>
         `;
       } else if (auth.type === 'GUEST') {
@@ -972,18 +866,13 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <i class="fa-solid fa-check-to-slot" style="color: #0d5f5b; font-size: 1.4rem;"></i>
               <div>
-                <div style="font-weight: 800; color: #065f46; font-size: 0.92rem;">Simulasi Bilik Suara Sedang Dibuka &amp; Aktif</div>
-                <div style="font-size: 0.82rem; color: #78350f;">Anda saat ini dalam mode tamu. Silakan pilih calon langsung di bawah atau klik Masuk Cepat untuk mencoba bilik suara.</div>
+                <div style="font-weight: 800; color: #065f46; font-size: 0.92rem;">Bilik Suara Simulasi Sedang Dibuka</div>
+                <div style="font-size: 0.82rem; color: #78350f;">Silakan masuk menggunakan NIP / NIPPPK / NIK Anda untuk menyalurkan hak suara.</div>
               </div>
             </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.5rem 0.9rem; background: #ffffff; color: #0d5f5b; border: 1.5px solid #0d5f5b; font-weight: 700;" onclick="openLoginModal()">
-                <i class="fa-solid fa-right-to-bracket"></i> Masuk NIP
-              </button>
-              <button class="btn-primary" style="font-size: 0.82rem; padding: 0.5rem 1rem; background: #0d5f5b; border: none; font-weight: 700;" onclick="window.PemilihanKomkep.quickLoginSimulasi()">
-                <i class="fa-solid fa-bolt"></i> Masuk Cepat Simulasi
-              </button>
-            </div>
+            <button class="btn-primary" style="font-size: 0.82rem; padding: 0.55rem 1rem; background: #0d5f5b; border: none; font-weight: 700;" onclick="openLoginModal('pengusul')">
+              <i class="fa-solid fa-right-to-bracket"></i> Masuk dengan NIP / NIK
+            </button>
           </div>
         `;
       } else if (auth.hasVoted) {
@@ -992,21 +881,15 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <i class="fa-solid fa-circle-check" style="color: #059669; font-size: 1.3rem;"></i>
               <div>
-                <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Hak Suara Simulasi Anda Telah Digunakan &amp; Tercatat Sah</div>
+                <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Anda Telah Menggunakan Hak Suara (1 Pemilih 1 Suara)</div>
                 <div style="font-size: 0.8rem; color: #047857;">
-                  Nomor Bukti Kuitansi Anda: <code style="background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-family: monospace;">${auth.token || 'TERCATAT'}</code>. Suara Anda tersimpan secara rahasia dan independen.
+                  ${KLAIM_KERAHASIAAN_JUJUR}
                 </div>
               </div>
             </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn-secondary" style="font-size: 0.8rem; background: #ffffff; color: #047857; border: 1.5px solid #059669; font-weight: 700;" onclick="window.PemilihanKomkep.openSlipBuktiModal()">
-                <i class="fa-solid fa-ticket"></i> Lihat Bukti Suara
-              </button>
-              <button class="btn-secondary" style="font-size: 0.8rem; background: #fffbeb; color: #b45309; border: 1.5px solid #fde68a; font-weight: 700;" onclick="window.PemilihanKomkep.resetMyVoteSimulasi()">
-                <i class="fa-solid fa-rotate-left"></i> Ulangi Simulasi
-              </button>
-              <button class="btn-secondary" style="font-size: 0.8rem;" onclick="window.PemilihanKomkep.switchSubTab('hasil')">Lihat Rekapitulasi</button>
-            </div>
+            <button class="btn-secondary" style="font-size: 0.8rem; background: #ffffff; color: #047857; border: 1.5px solid #059669; font-weight: 700;" onclick="window.PemilihanKomkep.openSlipBuktiModal()">
+              <i class="fa-solid fa-ticket"></i> Lihat &amp; Cetak Kartu Bukti
+            </button>
           </div>
         `;
       } else {
@@ -1015,59 +898,50 @@
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <i class="fa-solid fa-check-to-slot" style="color: #059669; font-size: 1.3rem;"></i>
               <div>
-                <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Selamat Datang di Bilik Suara Simulasi, ${auth.user.name}!</div>
-                <div style="font-size: 0.8rem; color: #047857;">Pilihlah salah satu kandidat di bawah ini. Suara Anda dijamin anonim dan rahasia.</div>
+                <div style="font-weight: 800; color: #065f46; font-size: 0.9rem;">Selamat Datang di Bilik Suara Simulasi, ${escapeHtml(auth.user.name)}!</div>
+                <div style="font-size: 0.8rem; color: #047857;">Silakan pilih salah satu calon simulasi di bawah ini. ${KLAIM_KERAHASIAAN_JUJUR}</div>
               </div>
             </div>
-            <button class="btn-secondary" style="font-size: 0.78rem; background: #fff; color: #0d5f5b; border: 1px solid #0d5f5b; font-weight: 700;" onclick="window.PemilihanKomkep.openBuktiBilikSuaraModal()">
-              <i class="fa-solid fa-id-badge"></i> Cetak Bukti Masuk Bilik
-            </button>
           </div>
         `;
       }
     }
 
     container.innerHTML = state.candidates.map(c => {
-      const btnBg = auth.hasVoted ? '#b45309' : '#0d5f5b';
-      const btnIcon = auth.hasVoted ? 'fa-rotate-left' : (auth.type === 'GUEST' ? 'fa-bolt' : 'fa-check-to-slot');
-      let btnLabel = '';
-      if (auth.hasVoted) {
-        btnLabel = c.isAbstain ? 'Ubah Pilihan ke Abstain' : `Ubah Pilihan ke No. 0${c.number}`;
-      } else if (auth.type === 'GUEST') {
-        btnLabel = c.isAbstain ? '⚡ Masuk & Pilih Abstain' : `⚡ Masuk & Pilih No. 0${c.number}`;
-      } else {
-        btnLabel = c.isAbstain ? 'PILIH ABSTAIN' : 'PILIH CALON INI';
-      }
+      const disabledVote = !schedule.isOpen || auth.hasVoted;
+      const btnBg   = auth.hasVoted ? '#64748b' : (!schedule.isOpen ? '#94a3b8' : '#0d5f5b');
+      const btnText = auth.hasVoted
+        ? 'SUDAH MEMILIH'
+        : (!schedule.isOpen ? 'BILIK SUARA TUTUP' : (c.isAbstain ? 'PILIH ABSTAIN (SIMULASI)' : `PILIH CALON 0${c.number} (SIMULASI)`));
 
       return `
-      <div style="background: var(--bg-surface); border: 2px solid ${auth.hasVoted ? '#fde68a' : '#e2e8f0'}; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: all 0.2s;" onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='#0d5f5b'" onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='${auth.hasVoted ? '#fde68a' : '#e2e8f0'}'">
+      <div style="background: var(--bg-surface); border: 2px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;">
         <div style="background: ${c.photoGradient}; padding: 1.75rem 1rem; text-align: center; color: #ffffff; position: relative;">
-          <div style="position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.25); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 900; font-size: 0.78rem; padding: 3px 10px; border-radius: 20px;">
-            NOMOR URUT 0${c.number}
+          <div style="position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 900; font-size: 0.74rem; padding: 3px 10px; border-radius: 20px;">
+            NOMOR URUT 0${c.number} &bull; SIMULASI
           </div>
-          <div style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);">
-            ${c.isAbstain ? '<i class="fa-solid fa-ban fa-sm"></i>' : (c.name.charAt(4) || 'P')}
+          <div style="width: 76px; height: 76px; margin: 0 auto; border-radius: 50%; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 1.9rem; font-weight: 900;">
+            ${c.isAbstain ? '<i class="fa-solid fa-ban fa-sm"></i>' : escapeHtml(c.name.charAt(4) || 'C')}
           </div>
-          <h3 style="font-size: 1.05rem; font-weight: 800; margin-top: 0.75rem; line-height: 1.3;">${c.name}</h3>
-          <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 2px;">${c.unit}</div>
+          <h3 style="font-size: 1.02rem; font-weight: 800; margin-top: 0.75rem; line-height: 1.3;">${escapeHtml(c.name)}</h3>
+          <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 2px;">${escapeHtml(c.unit)}</div>
         </div>
 
         <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
           <div>
-            <div style="font-size: 0.72rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
-              <i class="fa-solid fa-bullseye"></i> Visi / Tujuan
+            <div style="font-size: 0.72rem; font-weight: 800; color: var(--primary-700); text-transform: uppercase; margin-bottom: 0.35rem;">
+              <i class="fa-solid fa-bullseye"></i> Visi / Tujuan (Simulasi)
             </div>
-            <p style="font-size: 0.82rem; line-height: 1.5; color: #334155;">${c.visi}</p>
+            <p style="font-size: 0.82rem; line-height: 1.5; color: #334155;">${escapeHtml(c.visi)}</p>
 
-            <div style="font-size: 0.72rem; font-weight: 800; color: var(--gold-700); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.75rem; margin-bottom: 0.35rem;">
-              <i class="fa-solid fa-briefcase"></i> Pengalaman / Profil Singkat
+            <div style="font-size: 0.72rem; font-weight: 800; color: var(--gold-700); text-transform: uppercase; margin-top: 0.75rem; margin-bottom: 0.35rem;">
+              <i class="fa-solid fa-briefcase"></i> Profil Singkat
             </div>
-            <p style="font-size: 0.78rem; color: #64748b; line-height: 1.4;">${c.pengalaman}</p>
+            <p style="font-size: 0.78rem; color: #64748b; line-height: 1.4;">${escapeHtml(c.pengalaman)}</p>
           </div>
 
-          <button class="btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.88rem; font-weight: 800; border-radius: 10px; background: ${btnBg}; cursor: pointer; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="window.PemilihanKomkep.openVoteModal('${c.id}')">
-            <i class="fa-solid ${btnIcon}"></i>
-            ${btnLabel}
+          <button class="btn-primary" ${disabledVote ? 'disabled' : ''} style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: ${btnBg}; cursor: ${disabledVote ? 'not-allowed' : 'pointer'}; border: none;" onclick="window.PemilihanKomkep.openVoteModal('${c.id}')">
+            <i class="fa-solid fa-check-to-slot"></i> ${btnText}
           </button>
         </div>
       </div>
@@ -1075,54 +949,109 @@
     }).join('');
   }
 
+  /* ==========================================================================
+     7. RENDER TAB HASIL (TERTUTUP SEBELUM WAKTU TUTUP SERVER)
+     ========================================================================== */
+
   async function renderResults() {
-    let rekapData = { metrics: {}, rekap_kandidat: [] };
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.getElectionRekap === 'function') {
-      rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
+    const rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
+    state.lastRekapData = rekapData;
+
+    const metrics    = (rekapData && rekapData.metrics) || {};
+    const totalDpt   = metrics.total_dpt ?? 717;
+    const totalVoted = metrics.total_voted ?? 0;
+
+    const mDpt       = document.getElementById('pemilihanMetricTotalDpt');
+    const mTotal     = document.getElementById('pemilihanMetricTotalVotes');
+    const cardLeader = document.getElementById('pemilihanCardLeaderAfterClose');
+    const mLeader    = document.getElementById('pemilihanMetricLeader');
+    const btnBa      = document.getElementById('btnCetakBeritaAcaraHasil');
+    const btnEmail   = document.getElementById('btnKirimEmailHasil');
+    const barsBox    = document.getElementById('pemilihanResultsBars');
+
+    if (mDpt)   mDpt.textContent   = `${totalDpt} Pemilih`;
+    if (mTotal) mTotal.textContent = `${totalVoted} Pemilih`;
+
+    // SEBELUM WAKTU TUTUP: Hanya tampilkan DPT & Sudah Memilih, sembunyikan grafik & nonaktifkan Berita Acara
+    if (!rekapData || !rekapData.resultsAvailable) {
+      if (cardLeader) cardLeader.style.display = 'none';
+      if (mLeader)    mLeader.textContent = '-';
+
+      if (btnBa) {
+        btnBa.disabled = true;
+        btnBa.style.background = '#94a3b8';
+        btnBa.style.cursor = 'not-allowed';
+        btnBa.style.opacity = '0.65';
+      }
+      if (btnEmail) {
+        btnEmail.disabled = true;
+        btnEmail.style.cursor = 'not-allowed';
+        btnEmail.style.opacity = '0.65';
+      }
+
+      if (barsBox) {
+        barsBox.innerHTML = `
+          <div style="text-align: center; padding: 2.25rem 1rem; color: #475569;">
+            <i class="fa-solid fa-lock" style="font-size: 2.2rem; color: #b45309; margin-bottom: 0.75rem;"></i>
+            <div style="font-size: 1.02rem; font-weight: 800; color: #0f172a;">
+              ${escapeHtml(PESAN_SEBELUM_TUTUP)}
+            </div>
+            <div style="font-size: 0.82rem; color: #64748b; margin-top: 0.4rem;">
+              Selama pemungutan suara berlangsung, sistem hanya menampilkan Jumlah DPT dan Jumlah Pemilih yang Sudah Memilih. Perolehan suara per calon tidak dikirim dan tidak ditampilkan sebelum waktu penutupan resmi.
+            </div>
+          </div>
+        `;
+      }
+      return;
     }
 
-    const metrics = rekapData.metrics || {};
-    const totalVotes = metrics.total_voted || 0;
-    const totalDpt = metrics.total_dpt || 717;
-    const turnout = metrics.turnout_percent || 0;
-
-    const mTotal = document.getElementById('pemilihanMetricTotalVotes');
-    const mTurnout = document.getElementById('pemilihanMetricTurnout');
-    const mLeader = document.getElementById('pemilihanMetricLeader');
-
-    if (mTotal) mTotal.textContent = `${totalVotes} Suara`;
-    if (mTurnout) mTurnout.textContent = `${turnout}% (${totalVotes}/${totalDpt})`;
+    // SETELAH WAKTU TUTUP: Tampilkan grafik, tabel perolehan, ketua terpilih, dan aktifkan Berita Acara
+    if (cardLeader) cardLeader.style.display = 'block';
+    if (btnBa) {
+      btnBa.disabled = false;
+      btnBa.style.background = '#0d5f5b';
+      btnBa.style.cursor = 'pointer';
+      btnBa.style.opacity = '1';
+    }
+    if (btnEmail) {
+      btnEmail.disabled = false;
+      btnEmail.style.cursor = 'pointer';
+      btnEmail.style.opacity = '1';
+    }
 
     const candList = rekapData.rekap_kandidat || [];
-    const sorted = [...candList].sort((a, b) => b.vote_count - a.vote_count);
-    if (mLeader && sorted[0]) {
-      mLeader.textContent = totalVotes > 0 ? `0${sorted[0].candidate_number}. ${sorted[0].name.split(',')[0]} (${sorted[0].vote_count} suara)` : 'Belum ada suara masuk';
+    const sorted   = [...candList].sort((a, b) => b.vote_count - a.vote_count);
+    if (mLeader) {
+      mLeader.textContent = (sorted[0] && sorted[0].vote_count > 0)
+        ? `0${sorted[0].candidate_number}. ${sorted[0].name} (${sorted[0].vote_count} suara / ${sorted[0].percent}%)`
+        : 'Belum ada suara masuk';
     }
 
-    const barsContainer = document.getElementById('pemilihanResultsBars');
-    if (barsContainer) {
-      barsContainer.innerHTML = candList.map(c => {
-        return `
+    if (barsBox) {
+      barsBox.innerHTML = `
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.25rem;">
+          <i class="fa-solid fa-chart-simple" style="color: #0d5f5b;"></i> Grafik &amp; Tabel Perolehan Suara Akhir (Simulasi)
+        </h3>
+        ${candList.map(c => `
           <div style="margin-bottom: 1.25rem;">
             <div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="width: 22px; height: 22px; border-radius: 50%; background: #0d5f5b; color: #fff; font-size: 0.72rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 800;">
                   0${c.candidate_number}
                 </span>
-                <span style="color: var(--text-main);">${c.name}</span>
-                <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">${c.is_abstain ? '(Abstain)' : ''}</span>
+                <span style="color: var(--text-main);">${escapeHtml(c.name)}</span>
               </div>
               <div style="font-family: monospace; font-size: 0.9rem; color: #0f172a;">
                 <strong>${c.vote_count} Suara</strong>
                 <span style="color: #64748b; font-size: 0.8rem; margin-left: 4px;">(${c.percent}%)</span>
               </div>
             </div>
-            <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; display: flex;">
-              <div style="width: ${c.percent}%; background: linear-gradient(90deg, #0d5f5b 0%, #14b8a6 100%); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px;"></div>
+            <div style="width: 100%; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+              <div style="width: ${c.percent}%; height: 100%; background: linear-gradient(90deg, #0d5f5b 0%, #14b8a6 100%); border-radius: 6px;"></div>
             </div>
           </div>
-        `;
-      }).join('');
+        `).join('')}
+      `;
     }
   }
 
@@ -1132,28 +1061,28 @@
 
     container.innerHTML = state.candidates.map(c => `
       <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
-        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; flex-wrap: wrap;">
           <div style="width: 50px; height: 50px; border-radius: 50%; background: #0d5f5b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800;">
-            ${c.isAbstain ? '<i class="fa-solid fa-ban"></i>' : (c.name.charAt(4) || 'P')}
+            ${c.isAbstain ? '<i class="fa-solid fa-ban"></i>' : escapeHtml(c.name.charAt(4) || 'C')}
           </div>
           <div style="flex: 1;">
-            <div style="font-size: 0.75rem; font-weight: 800; color: #0d5f5b; text-transform: uppercase;">Kandidat Nomor 0${c.number}</div>
-            <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-main);">${c.name}</h3>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">${c.unit}</div>
+            <div style="font-size: 0.75rem; font-weight: 800; color: #0d5f5b; text-transform: uppercase;">Calon Simulasi Nomor 0${c.number}</div>
+            <h3 style="font-size: 1.08rem; font-weight: 800; margin: 0; color: var(--text-main);">${escapeHtml(c.name)}</h3>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${escapeHtml(c.unit)}</div>
           </div>
-          <button class="btn-primary" style="font-size: 0.82rem; padding: 7px 14px; background: #0d5f5b; border: none; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: var(--shadow-sm);" onclick="window.PemilihanKomkep.selectCandidateFromProfile('${c.id}')">
-            <i class="fa-solid fa-check-to-slot"></i> ${c.isAbstain ? 'Pilih Opsi Abstain' : `Pilih Calon No. 0${c.number}`}
+          <button class="btn-primary" style="font-size: 0.82rem; padding: 7px 14px; background: #0d5f5b; border: none; font-weight: 800; border-radius: 8px;" onclick="window.PemilihanKomkep.selectCandidateFromProfile('${c.id}')">
+            <i class="fa-solid fa-check-to-slot"></i> Menuju Bilik Suara
           </button>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem;">
           <div>
             <strong style="display: block; color: var(--primary-700); margin-bottom: 4px;"><i class="fa-solid fa-bullseye"></i> Visi:</strong>
-            <p style="margin: 0; color: #334155; line-height: 1.5;">${c.visi}</p>
+            <p style="margin: 0; color: #334155; line-height: 1.5;">${escapeHtml(c.visi)}</p>
           </div>
           <div>
-            <strong style="display: block; color: var(--gold-700); margin-bottom: 4px;"><i class="fa-solid fa-briefcase"></i> Pengalaman:</strong>
-            <p style="margin: 0; color: #475569; line-height: 1.5;">${c.pengalaman}</p>
+            <strong style="display: block; color: var(--gold-700); margin-bottom: 4px;"><i class="fa-solid fa-briefcase"></i> Misi &amp; Pengalaman:</strong>
+            <p style="margin: 0; color: #475569; line-height: 1.5;">${escapeHtml(c.misi)} (${escapeHtml(c.pengalaman)})</p>
           </div>
         </div>
       </div>
@@ -1162,259 +1091,75 @@
 
   function selectCandidateFromProfile(candId) {
     state.activeSubTab = 'voting';
-    saveState();
-    renderAll();
+    renderSubTabNavigation();
+    renderVotingCards();
     const grid = document.getElementById('pemilihanVotingGrid');
     if (grid) grid.scrollIntoView({ behavior: 'smooth' });
-    setTimeout(() => openVoteModal(candId), 250);
+    setTimeout(() => openVoteModal(candId), 200);
   }
 
-  async function sendEmailLaporan() {
-    let rekapData = { metrics: {}, rekap_kandidat: [] };
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.getElectionRekap === 'function') {
-      rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
-    }
-    const metrics = rekapData.metrics || {};
-    const candList = rekapData.rekap_kandidat || [];
-
-    const subject = encodeURIComponent('Laporan Resmi Rekapitulasi Simulasi Pemilihan Ketua Komite Keperawatan 2027–2030');
-    let body = `Yth. Panitia & Pengurus Komite Keperawatan RSUD dr. Soedarso Pontianak,%0D%0A%0D%0A`;
-    body += `Berikut adalah ringkasan Rekapitulasi Simulasi Pemilihan Ketua Komite Keperawatan Masa Bakti 2027–2030:%0D%0A%0D%0A`;
-    body += `Nomor Berita Acara: ${state.election.nomorBeritaAcara}%0D%0A`;
-    body += `Jadwal Pemilihan: 23 November 2026 10.00 WIB s.d. 24 November 2026 10.00 WIB%0D%0A`;
-    body += `Total DPT: ${metrics.total_dpt || 717} Orang Pegawai Keperawatan & Kebidanan%0D%0A`;
-    body += `Total Suara Masuk: ${metrics.total_voted || 0} Suara (${metrics.turnout_percent || 0}%)%0D%0A%0D%0A`;
-    body += `RINCIAN PEROLEHAN SUARA KANDIDAT:%0D%0A`;
-    candList.forEach(c => {
-      body += `- Nomor Urut 0${c.candidate_number}. ${c.name}: ${c.vote_count} Suara (${c.percent}%)%0D%0A`;
-    });
-    body += `%0D%0ACatatan: Hasil pemungutan suara ini merupakan simulasi tata kelola klinis elektronik.%0D%0A%0D%0AHormat Kami,%0D%0APanitia Pemilihan E-Voting Komite Keperawatan RSUD dr. Soedarso`;
-
-    window.open(`mailto:${TARGET_EMAIL_KOMITE}?subject=${subject}&body=${body}`, '_blank');
-    notify(`Draf email rekapitulasi dibuka ke ${TARGET_EMAIL_KOMITE}`, 'info');
-  }
-
-  function downloadAppsScriptFile() {
-    const link = document.createElement('a');
-    link.href = 'google_apps_script_pemilihan_komkep.js';
-    link.download = 'google_apps_script_pemilihan_komkep.js';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    notify('Berkas skrip Google Apps Script berhasil diunduh.', 'success');
-  }
-
-  function exportLogVotesCsv() {
-    const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-    const keys = Object.keys(simVoters);
-
-    let csv = 'data:text/csv;charset=utf-8,';
-    csv += 'LOG PARTISIPASI DAN BUKTI PENGGUNAAN HAK SUARA E-VOTING (ANONIM)\n';
-    csv += 'KOMITE KEPERAWATAN RSUD DR. SOEDARSO (PERIODE 2027-2030)\n';
-    csv += 'CATATAN: KERAHASIAAN TERJAMIN PENUH - PILIHAN CALON TIDAK DIREKAM DALAM LOG INI (LUBER JURDIL)\n\n';
-    csv += 'No,ID Pemilih (Masked),Nama Pemilih,Unit Kerja,Waktu Memilih (WIB),Nomor Kuitansi Sah,Status Hak Suara\n';
-
-    if (keys.length === 0) {
-      csv += '1,198212******,Ns. Rusmulyadi S.Kep MARS,Enggang Gading,23 Nov 2026 10.15 WIB,VOTE-SIM-2026-DEMO-001,Sudah Memilih (Sah)\n';
-    } else {
-      keys.forEach((k, idx) => {
-        const v = simVoters[k];
-        const masked = v.masked_id || v.maskedId || (window.SupabaseKomkep ? window.SupabaseKomkep.maskId(k) : k);
-        const name = (v.voter_name || v.voterName || 'Pegawai Keperawatan').replace(/"/g, '""');
-        const unit = (v.unit_kerja || v.unit || 'RSUD dr. Soedarso').replace(/"/g, '""');
-        const time = (v.voted_at_wib || v.votedAt || '23 Nov 2026 WIB').replace(/"/g, '""');
-        const token = v.receipt_token || v.receiptToken || 'TERCATAT';
-        csv += `${idx + 1},"${masked}","${name}","${unit}","${time}","${token}","Sudah Memilih (Sah)"\n`;
-      });
-    }
-
-    const encodedUri = encodeURI(csv);
-    const link = document.createElement('a');
-    link.href = encodedUri;
-    link.download = `Log_Partisipasi_Pemilih_Komkep_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    notify('Log pemilih & bukti token berhasil diunduh.', 'success');
-  }
-
-  function saveGasEndpoint() {
-    const input = document.getElementById('inputPemilihanGasUrl');
-    if (!input) return;
-    const val = (input.value || '').trim();
-    if (!val) {
-      notify('Silakan masukkan URL Endpoint Google Apps Script Web App.', 'warning');
-      return;
-    }
-    if (!val.startsWith('https://script.google.com/macros/s/')) {
-      notify('Format URL harus diawali https://script.google.com/macros/s/...', 'warning');
-      return;
-    }
-    localStorage.setItem('komkep_gas_endpoint', val);
-    notify('URL Endpoint Google Apps Script berhasil disimpan & disinkronkan.', 'success');
-  }
-
-  function toggleElection() {
-    state.election.isPaused = !state.election.isPaused;
-    saveState();
-    notify(state.election.isPaused ? 'Pemilihan simulasi berhasil dijeda oleh Panitia.' : 'Pemilihan simulasi berhasil diaktifkan kembali.', state.election.isPaused ? 'warning' : 'success');
-    renderAll();
-  }
-
-  function resetAllVotes() {
-    resetSimulationData();
-  }
-
-  function renderDptTable() {
-    const tbody = document.getElementById('pemilihanDptTableBody');
-    if (!tbody) return;
-
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
-    const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-
-    // Tampilkan 100 teratas jika banyak agar sangat cepat dan tidak memberatkan peramban
-    const displayList = pegawaiList.slice(0, 100);
-
-    tbody.innerHTML = displayList.map(p => {
-      const cleanId = String(p.id).trim().replace(/\s+/g, '');
-      const voted = simVoters[cleanId];
-      const masked = window.SupabaseKomkep ? window.SupabaseKomkep.maskId(cleanId) : cleanId;
-
-      return `
-        <tr style="border-bottom: 1px solid #e2e8f0;">
-          <td style="padding: 0.75rem; font-weight: 700; color: #0f172a;">${p.nama}</td>
-          <td style="padding: 0.75rem; font-family: monospace; color: #475569;">${masked}</td>
-          <td style="padding: 0.75rem; color: #334155;">${p.unit || '-'}</td>
-          <td style="padding: 0.75rem; font-family: monospace; font-weight: bold; color: ${voted ? '#0d5f5b' : '#94a3b8'};">
-            ${voted ? (voted.receipt_token || voted.receiptToken || 'TERCATAT') : '-'}
-          </td>
-          <td style="padding: 0.75rem; text-align: center;">
-            <span style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: ${voted ? '#dcfce7; color: #15803d;' : '#f1f5f9; color: #64748b;'}">
-              ${voted ? 'Sudah Memilih' : 'Belum Memilih'}
-            </span>
-          </td>
-          <td style="padding: 0.75rem; text-align: center;">
-            ${voted ? `
-              <button class="btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; color: #b45309; border: 1px solid #fde68a;" onclick="window.PemilihanKomkep.resetSingleVoter('${cleanId}')">
-                Reset Suara
-              </button>
-            ` : `
-              <button class="btn-secondary" style="font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; color: #0d5f5b; border: 1px solid #99f6e4;" onclick="window.PemilihanKomkep.loginAsVoter('${cleanId}')">
-                Gunakan ID
-              </button>
-            `}
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  function resetSingleVoter(cleanId) {
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.resetUserVote === 'function') {
-      window.SupabaseKomkep.resetUserVote(cleanId);
-    }
-    notify(`Status hak suara pemilih ID ${cleanId} berhasil direset.`, 'info');
-    renderAll();
-  }
-
-  function loginAsVoter(cleanId) {
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
-    const target = pegawaiList.find(p => String(p.id).trim().replace(/\s+/g, '') === cleanId);
-    if (!target) return;
-
-    const simUser = {
-      username: target.id,
-      id_login: target.id,
-      name: target.nama,
-      nip: target.id,
-      role: 'voter',
-      profesi: target.kat || 'Perawat',
-      unit: target.unit || 'RSUD dr. Soedarso',
-      jenjang: 'PK II',
-      badge: target.status || 'PNS',
-      access: ['kredensial', 'mutu', 'pemilihan']
-    };
-
-    if (window.state) window.state.currentUser = simUser;
-    localStorage.setItem('komite_auth_user', JSON.stringify(simUser));
-    if (typeof window.updateAuthUI === 'function') window.updateAuthUI();
-    notify(`Masuk sebagai ${simUser.name}. Silakan menuju Bilik Suara.`, 'success');
-    state.activeSubTab = 'voting';
-    saveState();
-    renderAll();
-  }
+  /* ==========================================================================
+     8. RENDER PANEL PANITIA (HANYA DPT & SUDAH MEMILIH; DAFTAR PEMILIH DARI SERVER)
+     ========================================================================== */
 
   async function renderAdminPanel() {
     const container = document.getElementById('pemilihanAdminPanelContainer');
     if (!container) return;
 
-    let rekapData = { metrics: {}, rekap_unit: [], rekap_kandidat: [] };
-    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.getElectionRekap === 'function') {
-      rekapData = await window.SupabaseKomkep.getElectionRekap(state.election.id);
-    }
-
-    const unitList = rekapData.rekap_unit || [];
-    const metrics = rekapData.metrics || {};
+    const rekapData  = state.lastRekapData || await window.SupabaseKomkep.getElectionRekap(state.election.id);
+    const metrics    = (rekapData && rekapData.metrics) || {};
+    const totalDpt   = metrics.total_dpt ?? 717;
+    const totalVoted = metrics.total_voted ?? 0;
+    const isClosed   = Boolean(rekapData && rekapData.resultsAvailable);
 
     container.innerHTML = `
       <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
           <div>
-            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Rekapitulasi Partisipasi Per Unit Kerja (717 Pemilih)</h3>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">Data partisipasi agregat tanpa membuka kerahasiaan pilihan individu</div>
+            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main);">Ringkasan Partisipasi Pemilih (Sumber: Server)</h3>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">${KLAIM_KERAHASIAAN_JUJUR}</div>
           </div>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button type="button" class="btn-primary" onclick="window.PemilihanKomkep.exportResultsCsv()" style="font-size: 0.8rem; background: #0d5f5b; border: none; font-weight: 700;">
-              <i class="fa-solid fa-file-csv"></i> Ekspor Rekap CSV
-            </button>
-            <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.openBeritaAcaraModal()" style="font-size: 0.8rem; font-weight: 700;">
+            <button type="button" class="btn-secondary" ${!isClosed ? 'disabled' : ''} onclick="window.PemilihanKomkep.openBeritaAcaraModal()" style="font-size: 0.8rem; font-weight: 700; opacity: ${isClosed ? '1' : '0.6'}; cursor: ${isClosed ? 'pointer' : 'not-allowed'};">
               <i class="fa-solid fa-file-signature"></i> Cetak Berita Acara
             </button>
             <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.resetSimulationData()" style="font-size: 0.8rem; color: #991b1b; border-color: #fecaca; background: #fef2f2; font-weight: 700;">
-              <i class="fa-solid fa-arrows-rotate"></i> Reset Data Simulasi
+              <i class="fa-solid fa-arrows-rotate"></i> Reset Semua Suara
             </button>
           </div>
         </div>
 
-        <div style="max-height: 380px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: 8px;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem;">
-            <thead style="background: var(--bg-main); position: sticky; top: 0; border-bottom: 2px solid var(--border-subtle);">
-              <tr>
-                <th style="padding: 8px 12px; text-align: left;">Unit Kerja</th>
-                <th style="padding: 8px 12px; text-align: center;">Total DPT</th>
-                <th style="padding: 8px 12px; text-align: center;">Sudah Memilih</th>
-                <th style="padding: 8px 12px; text-align: center;">Belum Memilih</th>
-                <th style="padding: 8px 12px; text-align: center;">Partisipasi</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${unitList.map(u => `
-                <tr style="border-bottom: 1px solid var(--border-subtle);">
-                  <td style="padding: 8px 12px; font-weight: 600;">${u.unit_kerja}</td>
-                  <td style="padding: 8px 12px; text-align: center;">${u.total_dpt}</td>
-                  <td style="padding: 8px 12px; text-align: center; color: #059669; font-weight: 700;">${u.sudah_memilih}</td>
-                  <td style="padding: 8px 12px; text-align: center; color: #94a3b8;">${u.belum_memilih}</td>
-                  <td style="padding: 8px 12px; text-align: center; font-weight: 700; color: #0d5f5b;">${u.persen}%</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Jumlah DPT Terdaftar</div>
+            <div style="font-size: 1.6rem; font-weight: 900; color: #0f172a; margin-top: 4px;">${totalDpt} Pemilih</div>
+          </div>
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 1rem;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase;">Jumlah yang Sudah Memilih</div>
+            <div style="font-size: 1.6rem; font-weight: 900; color: #059669; margin-top: 4px;">${totalVoted} Pemilih</div>
+          </div>
         </div>
       </div>
     `;
 
-    // Update Status Pemilihan di Admin Panel
+    const schedule     = window.SupabaseKomkep.checkElectionSchedule();
     const statusTextEl = document.getElementById('pemilihanAdminStatusText');
-    const toggleBtnEl = document.getElementById('pemilihanBtnToggleElection');
+    const toggleBtnEl  = document.getElementById('pemilihanBtnToggleElection');
+
     if (statusTextEl) {
-      if (state.election.isPaused) {
+      if (schedule.isMaintenance) {
+        statusTextEl.innerHTML = `<span style="color: #b45309; font-weight: 800;"><i class="fa-solid fa-screwdriver-wrench"></i> Pemilihan sedang dalam pemeliharaan</span>`;
+      } else if (schedule.isPaused) {
         statusTextEl.innerHTML = `<span style="color: #b45309; font-weight: 800;"><i class="fa-solid fa-circle-pause"></i> Pemungutan Suara Sedang DIJEDA Panitia</span>`;
+      } else if (schedule.isOpen) {
+        statusTextEl.innerHTML = `<span style="color: #059669; font-weight: 800;"><i class="fa-solid fa-circle-check"></i> Pemungutan Suara Sedang BUKA</span>`;
       } else {
-        statusTextEl.innerHTML = `<span style="color: #059669; font-weight: 800;"><i class="fa-solid fa-circle-check"></i> Pemungutan Suara Sedang BERLANGSUNG (Simulasi Aktif)</span>`;
+        statusTextEl.innerHTML = `<span style="color: #dc2626; font-weight: 800;"><i class="fa-solid fa-lock"></i> ${escapeHtml(schedule.statusText)}</span>`;
       }
     }
+
     if (toggleBtnEl) {
-      if (state.election.isPaused) {
+      if (schedule.isPaused) {
         toggleBtnEl.style.background = '#059669';
         toggleBtnEl.innerHTML = '<i class="fa-solid fa-play"></i> Lanjutkan Pemilihan';
       } else {
@@ -1423,58 +1168,119 @@
       }
     }
 
-    // Prefill Endpoint GAS
-    const gasInput = document.getElementById('inputPemilihanGasUrl');
-    if (gasInput && !gasInput.value) {
-      gasInput.value = localStorage.getItem('komkep_gas_endpoint') || 'https://script.google.com/macros/s/AKfycby_komkep_simulasi_2026/exec';
+    const btnCsvHasil = document.getElementById('btnUnduhRekapHasilCsv');
+    if (btnCsvHasil) {
+      btnCsvHasil.disabled = !isClosed;
+      btnCsvHasil.style.opacity = isClosed ? '1' : '0.5';
+      btnCsvHasil.style.cursor  = isClosed ? 'pointer' : 'not-allowed';
     }
 
-    // Render Tabel DPT (717 Pemilih)
-    renderDptTable();
+    await renderDptTable(false);
   }
 
-  // ==========================================================================
-  // EKSPOR INTERFACE KE GLOBAL WINDOW
-  // ==========================================================================
+  async function renderDptTable(forceRefresh = false) {
+    const tbody = document.getElementById('pemilihanDptTableBody');
+    if (!tbody) return;
+
+    const auth = resolveUserStatus();
+    if (!auth.isPanitia) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="padding: 1.5rem; text-align: center; color: #64748b;">
+            <i class="fa-solid fa-user-lock" style="margin-right: 6px; color: #0d5f5b;"></i>
+            Daftar pemilih hanya dapat dilihat oleh Panitia Pemilihan setelah login menggunakan akun panitia.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    if (forceRefresh || state.cachedVoterList.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="padding: 1.5rem; text-align: center; color: #64748b;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Memuat daftar pemilih tersamar dari server...
+          </td>
+        </tr>
+      `;
+      const res = await window.SupabaseKomkep.getVoterListForAdmin();
+      if (!res || !res.success) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="padding: 1.5rem; text-align: center; color: #b91c1c;">
+              ${escapeHtml((res && res.message) || 'Gagal memuat daftar pemilih dari server.')}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      state.cachedVoterList = res.daftar || [];
+    }
+
+    if (state.cachedVoterList.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="padding: 1.5rem; text-align: center; color: #64748b;">
+            Belum ada data pemilih di tab DPT server.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = state.cachedVoterList.map((p, idx) => {
+      const sudah = String(p.status).toLowerCase() === 'sudah';
+      return `
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.65rem 0.75rem; color: #64748b;">${idx + 1}</td>
+          <td style="padding: 0.65rem 0.75rem; font-weight: 700; color: #0f172a;">${escapeHtml(p.nama)}</td>
+          <td style="padding: 0.65rem 0.75rem; color: #334155;">${escapeHtml(p.unit || '-')}</td>
+          <td style="padding: 0.65rem 0.75rem; font-family: monospace; color: #475569;">${escapeHtml(p.nip_tersamar)}</td>
+          <td style="padding: 0.65rem 0.75rem; text-align: center;">
+            <span style="font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: ${sudah ? '#dcfce7; color: #15803d;' : '#f1f5f9; color: #64748b;'}">
+              ${sudah ? 'Sudah' : 'Belum'}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
   window.PemilihanKomkep = {
     init: function () {
-      renderAll();
+      try {
+        renderAll();
+      } catch (e) {
+        console.error('[PemilihanKomkep.init]', e);
+      }
     },
     switchSubTab: function (tabId) {
       state.activeSubTab = tabId;
-      saveState();
       renderAll();
     },
-    enterBoothFlow: enterBoothFlow,
-    openBuktiBilikSuaraModal: openBuktiBilikSuaraModal,
-    printBuktiBilikSuara: printBuktiBilikSuara,
-    openVoteModal: openVoteModal,
-    closeVoteModal: closeVoteModal,
-    confirmVote: confirmVote,
-    quickLoginSimulasi: quickLoginSimulasi,
-    resetMyVoteSimulasi: resetMyVoteSimulasi,
-    openSlipBuktiModal: openSlipBuktiModal,
-    closeSlipBuktiModal: closeSlipBuktiModal,
-    printSlipBukti: printSlipBukti,
-    openBeritaAcaraModal: openBeritaAcaraModal,
-    closeBeritaAcaraModal: closeBeritaAcaraModal,
-    printBeritaAcara: printBeritaAcara,
-    exportResultsCsv: exportResultsCsv,
-    resetSimulationData: resetSimulationData,
-    sendEmailLaporan: sendEmailLaporan,
-    downloadAppsScriptFile: downloadAppsScriptFile,
-    exportLogVotesCsv: exportLogVotesCsv,
-    saveGasEndpoint: saveGasEndpoint,
-    toggleElection: toggleElection,
-    resetAllVotes: resetAllVotes,
-    selectCandidateFromProfile: selectCandidateFromProfile,
-    resetSingleVoter: resetSingleVoter,
-    loginAsVoter: loginAsVoter,
-    renderDptTable: renderDptTable,
-    renderAll: renderAll
+    enterBoothFlow,
+    openBuktiBilikSuaraModal,
+    printBuktiBilikSuara,
+    openVoteModal,
+    closeVoteModal,
+    confirmVote,
+    openSlipBuktiModal,
+    closeSlipBuktiModal,
+    printSlipBukti,
+    openBeritaAcaraModal,
+    closeBeritaAcaraModal,
+    printBeritaAcara,
+    exportResultsCsv,
+    resetSimulationData,
+    sendEmailLaporan,
+    exportLogVotesCsv,
+    toggleElection,
+    resetAllVotes,
+    selectCandidateFromProfile,
+    renderDptTable,
+    renderAll
   };
 
-  // Auto Inisialisasi saat Dokumen Siap
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => window.PemilihanKomkep.init());
   } else {

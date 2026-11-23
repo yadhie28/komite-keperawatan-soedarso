@@ -32,7 +32,7 @@ function onFormSubmit(e) {
     const jenisPermohonan = getResp('Jenis Permohonan', 'Re-Kredensial Berkala');
     const nama = getResp('Nama Lengkap (beserta Gelar)', 'Ns. Hendra Kurniawan, S.Kep');
     const jenisNip = getResp('Jenis Nomor Pegawai', 'NIP');
-    const rawNip = getResp('Nomor Induk Pegawai (NIP/NIPPPK/NIK)', '000000000000000000');
+    const rawNip = getResp('Nomor Induk Pegawai (NIP/NIPPPK/NIK)', '00000000 000000 0 001');
     const nipFull = rawNip ? `${jenisNip !== 'NIP' ? jenisNip + '. ' : ''}${rawNip}` : 'Ketik di sini';
     const ttl = getResp('Tempat / Tanggal Lahir', 'Pontianak, 15 April 1992');
     const kelamin = getResp('Jenis Kelamin', 'Laki-laki');
@@ -64,7 +64,7 @@ function onFormSubmit(e) {
 
     const tglSurat = Utilities.formatDate(new Date(), "Asia/Jakarta", "d MMMM yyyy");
     const pemeriksaNama = 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep';
-    const pemeriksaNip = '000000000000000000';
+    const pemeriksaNip = '000000000000001002';
 
     // 2. Susun HTML 3 Halaman Presisi Sesuai Template Fisik RSUD dr. Soedarso
     const htmlBody = `

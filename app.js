@@ -42,18 +42,25 @@ const state = {
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  loadData();
-  populateAllRoomDropdowns();
-  initAuth();
-  setupNavigation();
-  updateBerandaElectionBanner();
-  setupEventListeners();
-  renderAllViews();
-  initLogbookAutocomplete();
-  initCredentialingSync();
-  initSessionSecurityGuard();
-  updateWorkflowNotificationUI();
+  const safeInit = (label, fn) => {
+    try {
+      fn();
+    } catch (err) {
+      console.error(`[Init:${label}] Galat inisialisasi:`, err);
+    }
+  };
+  safeInit('initTheme', initTheme);
+  safeInit('loadData', loadData);
+  safeInit('populateAllRoomDropdowns', populateAllRoomDropdowns);
+  safeInit('initAuth', initAuth);
+  safeInit('setupNavigation', setupNavigation);
+  safeInit('updateBerandaElectionBanner', updateBerandaElectionBanner);
+  safeInit('setupEventListeners', setupEventListeners);
+  safeInit('renderAllViews', renderAllViews);
+  safeInit('initLogbookAutocomplete', initLogbookAutocomplete);
+  safeInit('initCredentialingSync', initCredentialingSync);
+  safeInit('initSessionSecurityGuard', initSessionSecurityGuard);
+  safeInit('updateWorkflowNotificationUI', updateWorkflowNotificationUI);
 });
 
 /* ==========================================================================
@@ -85,25 +92,40 @@ function updateThemeIcon() {
    AUTHENTICATION & ADMIN ACCESS SYSTEM
    ========================================================================== */
 function initAuth() {
-  const savedUser = localStorage.getItem('komite_auth_user');
-  if (savedUser) {
-    try {
-      state.currentUser = JSON.parse(savedUser);
-    } catch (e) {
-      state.currentUser = null;
-    }
+  // Bersihkan sisa sesi lama yang pernah tersimpan di localStorage agar tidak otomatis menjadi Admin
+  try {
+    localStorage.removeItem('komite_auth_user');
+    localStorage.removeItem('komkep_password_hashes');
+    localStorage.removeItem('komkep_passwords_changed');
+  } catch (_) {}
+
+  const activeSession = (window.SupabaseKomkep && typeof window.SupabaseKomkep.getActiveSession === 'function')
+    ? window.SupabaseKomkep.getActiveSession()
+    : null;
+
+  if (activeSession && activeSession.user) {
+    state.currentUser = activeSession.user;
   } else {
     state.currentUser = null;
   }
-  
-  initGatewayPortal();
 
-  if (!state.currentUser) {
-    showPortalGateway();
-  } else {
-    hidePortalGateway();
-  }
+  initGatewayPortal();
+  // Keadaan awal adalah TAMU (belum login), jangan kunci halaman dengan overlay penuh
+  hidePortalGateway();
   updateAuthUI();
+
+  // Verifikasi token sesi ke server di latar belakang
+  if (activeSession && activeSession.token && window.SupabaseKomkep && typeof window.SupabaseKomkep.verifySession === 'function') {
+    window.SupabaseKomkep.verifySession().then(verifiedUser => {
+      if (!verifiedUser) {
+        state.currentUser = null;
+      } else {
+        state.currentUser = verifiedUser;
+      }
+      updateAuthUI();
+      try { renderAllViews(); } catch (_) {}
+    }).catch(() => {});
+  }
 }
 
 function openLoginModal(tab) {
@@ -160,10 +182,8 @@ function fillAdminPreset(username) {
   if (found) {
     const inputU = document.getElementById('loginUsername');
     const inputP = document.getElementById('loginPassword');
-    if (inputU) inputU.value = found.nip || found.username;
-    const cleanId = (found.nip || found.username).replace(/\s+/g, '');
-    const customPass = localStorage.getItem(`komkep_pwd_${cleanId}`);
-    if (inputP) inputP.value = customPass || found.password || 'REDACTED_PASSWORD';
+    if (inputU) inputU.value = found.username;
+    if (inputP) inputP.value = '';
     const select = document.getElementById('selectSKPengurus');
     if (select) select.value = found.username;
     const errBox = document.getElementById('loginErrorMessage');
@@ -184,9 +204,10 @@ async function handleAdminLogin(e) {
   e.preventDefault();
   const rawInput = (document.getElementById('loginUsername')?.value || '').trim();
   const pass = document.getElementById('loginPassword')?.value || '';
-  const remember = document.getElementById('loginRememberMe')?.checked;
   const errBox = document.getElementById('loginErrorMessage');
   const errText = document.getElementById('loginErrorText');
+  const submitBtn = e.target?.querySelector('button[type="submit"]');
+  const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
   if (errBox) errBox.style.display = 'none';
 
@@ -198,91 +219,54 @@ async function handleAdminLogin(e) {
     return;
   }
 
-  const cleanInput = rawInput.toLowerCase().replace(/\s+/g, '');
-  const adminList = (typeof getAllAdminAccounts === 'function') ? getAllAdminAccounts() : (window.KOMITE_DATA?.adminUsers || []);
-
-  const matchedUser = adminList.find(u => {
-    const uName = (u.username || '').toLowerCase().replace(/\s+/g, '');
-    const uAlias = (u.alias || '').toLowerCase().replace(/\s+/g, '');
-    const uAlt = (u.altAlias || '').toLowerCase().replace(/\s+/g, '');
-    const uDev = (u.devAlias || '').toLowerCase().replace(/\s+/g, '');
-    const uEmail = (u.email || '').toLowerCase().replace(/\s+/g, '');
-    const uNip = (u.nip || '').replace(/\s+/g, '');
-    return (uName === cleanInput || uAlias === cleanInput || uAlt === cleanInput || uDev === cleanInput || uEmail === cleanInput || (uNip && uNip === cleanInput));
-  });
-
-  // 1. Verifikasi Kriptografis / Supabase jika NIP/ID tersedia
-  const idToCheck = matchedUser?.nip || rawInput;
-  let supaRes = null;
-  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.login === 'function') {
-    supaRes = await window.SupabaseKomkep.login(idToCheck, pass);
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi ke Server...';
   }
 
-  const isSupaValid = Boolean(supaRes && supaRes.success);
-  // Verifikasi autentikasi terpusat via Supabase / Cryptographic Security Layer
-  const isDefaultAdminPass = false;
-
-  if (isSupaValid || (matchedUser && isDefaultAdminPass)) {
-    const activeAdmin = matchedUser || {
-      username: supaRes?.user?.id_login || rawInput,
-      name: supaRes?.user?.name || rawInput,
-      nip: supaRes?.user?.id_login || rawInput,
-      role: 'Pengurus Komite Keperawatan',
-      badge: 'Admin Komite',
-      access: ['kredensial', 'mutu', 'etik', 'regulasi', 'approval', 'administrasi', 'pemilihan']
-    };
-
-    const mustChange = supaRes?.wajib_ganti_password ?? (pass === 'REDACTED_PASSWORD');
-
-    state.currentUser = {
-      username: activeAdmin.username,
-      id_login: activeAdmin.nip || activeAdmin.username,
-      name: activeAdmin.name,
-      nip: activeAdmin.nip || (supaRes?.user?.id_login) || rawInput,
-      role: activeAdmin.role,
-      badge: activeAdmin.badge,
-      access: Array.from(new Set([...(activeAdmin.access || []), 'pemilihan'])),
-      group: activeAdmin.group || 'Pimpinan Komite',
-      isAdmin: true,
-      isPengurus: true,
-      wajib_ganti_password: mustChange,
-      mustChangePassword: mustChange
-    };
-
-    if (remember) {
-      localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
+  try {
+    let supaRes = null;
+    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.login === 'function') {
+      supaRes = await window.SupabaseKomkep.login(rawInput, pass);
     }
-    closeModal('modalAdminLogin');
-    updateAuthUI();
-    renderAllViews();
 
-    if (mustChange) {
-      showToast('Demi keamanan, segera perbarui kata sandi awal Anda.', 'warning');
-      toggleGantiPasswordForm(true);
+    if (supaRes && supaRes.success && supaRes.user) {
+      state.currentUser = supaRes.user;
+      closeModal('modalAdminLogin');
+      hidePortalGateway();
+      updateAuthUI();
+      try { renderAllViews(); } catch (_) {}
+
+      if (supaRes.wajib_ganti_password) {
+        showToast('Demi keamanan, segera perbarui kata sandi awal Anda.', 'warning');
+        toggleGantiPasswordForm(true);
+      } else {
+        showToast(`Selamat datang, ${state.currentUser.name}!`, 'success');
+      }
     } else {
-      showToast(`Selamat datang, ${activeAdmin.name}! Anda berhasil masuk sebagai ${activeAdmin.role} (${activeAdmin.badge}).`, 'success');
-      showSimulasiElectionBanner(state.currentUser);
+      if (errBox && errText) {
+        errText.textContent = supaRes?.message || 'NIP/username atau kata sandi salah.';
+        errBox.style.display = 'block';
+      }
     }
-  } else {
-    if (errBox && errText) {
-      errText.textContent = supaRes?.message || 'Kombinasi username/NIP atau kata sandi tidak valid. Silakan periksa kembali.';
-      errBox.style.display = 'block';
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origBtnHtml;
     }
   }
 }
 
-function logoutAdmin() {
-  const isPengusul = state.currentUser?.role === 'pengusul';
+async function logoutAdmin() {
   const userName = state.currentUser ? state.currentUser.name : 'Pengguna';
   state.currentUser = null;
-  localStorage.removeItem('komite_auth_user');
-  updateAuthUI();
-  renderAllViews();
-  if (isPengusul) {
-    showToast(`Anda telah keluar dari Portal Pengusul Kredensialing (${userName}).`, 'info');
-  } else {
-    showToast(`Anda telah keluar dari sesi administrator (${userName}).`, 'info');
+  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.logout === 'function') {
+    await window.SupabaseKomkep.logout();
   }
+  hidePortalGateway();
+  updateAuthUI();
+  try { renderAllViews(); } catch (_) {}
+  showToast(`Anda telah keluar dari sesi (${userName}).`, 'info');
 }
 
 /* ==========================================================================
@@ -393,125 +377,61 @@ async function handlePengusulLogin(e) {
   e.preventDefault();
   const rawInput = (document.getElementById('loginPengusulUsername')?.value || '').trim();
   const pass = document.getElementById('loginPengusulPassword')?.value || '';
-  const remember = document.getElementById('pengusulRememberMe')?.checked;
   const errBox = document.getElementById('pengusulLoginError');
   const errText = document.getElementById('pengusulLoginErrorText');
+  const submitBtn = e.target?.querySelector('button[type="submit"]');
+  const origBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
   if (errBox) errBox.style.display = 'none';
 
-  // 1. Verifikasi Terpusat via Supabase / Cryptographic Security Layer (717 Pegawai)
-  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.login === 'function') {
-    const res = await window.SupabaseKomkep.login(rawInput, pass);
-    if (res.success && res.user) {
-      const u = res.user;
-      const cleanId = String(u.id_login || u.nip || '').trim().replace(/\s+/g, '');
-      const adminList = (typeof getAllAdminAccounts === 'function') ? getAllAdminAccounts() : (window.KOMITE_DATA?.adminUsers || []);
-      const matchedAdmin = adminList.find(a => {
-        const anip = (a.nip || '').replace(/\s+/g, '');
-        const auser = (a.username || '').toLowerCase();
-        const aalias = (a.alias || '').toLowerCase();
-        const adev = (a.devAlias || '').toLowerCase();
-        return (anip && anip === cleanId) || auser === cleanId.toLowerCase() || aalias === cleanId.toLowerCase() || adev === cleanId.toLowerCase();
-      });
-
-      state.currentUser = {
-        username: matchedAdmin ? matchedAdmin.username : (u.id_login || u.nip),
-        id_login: u.id_login || u.nip,
-        name: matchedAdmin ? matchedAdmin.name : u.name,
-        nip: u.id_login || u.nip,
-        role: matchedAdmin ? matchedAdmin.role : 'pengusul',
-        profesi: u.kategori || u.profesi || 'Perawat',
-        unit: u.unit || (matchedAdmin?.group) || 'Keperawatan',
-        jenjang: u.jenjang || 'PK',
-        strNumber: u.strNumber || '',
-        strExpiry: u.strExpiry || '',
-        badge: matchedAdmin ? matchedAdmin.badge : `Pengusul (${u.kategori || 'Keperawatan'})`,
-        access: matchedAdmin ? Array.from(new Set([...(matchedAdmin.access || []), 'pengusul', 'kredensial', 'pemilihan'])) : ['pengusul', 'kredensial', 'pemilihan'],
-        isAdmin: Boolean(matchedAdmin),
-        isPengurus: Boolean(matchedAdmin),
-        wajib_ganti_password: res.wajib_ganti_password,
-        mustChangePassword: res.wajib_ganti_password
-      };
-
-      if (remember) {
-        localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-      }
-
-      closeModal('modalAdminLogin');
-      updateAuthUI();
-      try {
-        syncApplicantToCvMaster(state.currentUser);
-      } catch (e) {
-        console.warn('[handlePengusulLogin] Sync CV warn:', e);
-      }
-      try {
-        renderAllViews();
-      } catch (e) {
-        console.warn('[handlePengusulLogin] renderAllViews warn:', e);
-      }
-
-      // Alur Pasca Login: Jika wajib ganti password, langsung buka modal wajib ganti password
-      if (res.wajib_ganti_password) {
-        showToast('Demi keamanan, segera ganti password awal Anda.', 'warning');
-        toggleGantiPasswordForm(true);
-      } else {
-        showToast(`Selamat datang, ${u.name}! Anda berhasil masuk ke Portal.`, 'success');
-        showSimulasiElectionBanner(state.currentUser);
-      }
-      return;
-    } else {
-      if (errBox && errText) {
-        errText.textContent = res.message || 'NIP/NIPPPK/NIK atau password salah';
-        errBox.style.display = 'block';
-      }
-      return;
+  if (!rawInput || !pass) {
+    if (errBox && errText) {
+      errText.textContent = 'NIP/NIPPPK/NIK dan kata sandi wajib diisi.';
+      errBox.style.display = 'block';
     }
+    return;
   }
 
-  // Fallback demo/legacy accounts
-  const cleanInput = rawInput.toLowerCase().replace(/\s+/g, '');
-  const accounts = getAllPengusulAccounts();
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi ke Server...';
+  }
 
-  const matched = accounts.find(a => {
-    const u = (a.username || '').toLowerCase().replace(/\s+/g, '');
-    const altU = (a.altUsername || '').toLowerCase().replace(/\s+/g, '');
-    const nip = (a.nip || '').toLowerCase().replace(/\s+/g, '');
-    const passMatch = (a.password && a.password === pass) || (a.namaSandi && a.namaSandi === pass);
-    return (u === cleanInput || altU === cleanInput || nip === cleanInput) && passMatch;
-  });
+  try {
+    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.login === 'function') {
+      const res = await window.SupabaseKomkep.login(rawInput, pass);
+      if (res && res.success && res.user) {
+        state.currentUser = res.user;
+        closeModal('modalAdminLogin');
+        hidePortalGateway();
+        updateAuthUI();
+        try { syncApplicantToCvMaster(state.currentUser); } catch (_) {}
+        try { renderAllViews(); } catch (_) {}
 
-  if (matched) {
-    state.currentUser = {
-      username: matched.username || matched.nip,
-      id_login: matched.nip || matched.username,
-      name: matched.name,
-      nip: matched.nip,
-      role: 'pengusul',
-      profesi: matched.profesi || 'Perawat',
-      unit: matched.unit || 'Kakap',
-      jenjang: matched.jenjang || 'PK III',
-      strNumber: matched.strNumber || '',
-      strExpiry: matched.strExpiry || '',
-      badge: `Pengusul (${matched.jenjang || 'PK'})`,
-      access: ['pengusul', 'kredensial', 'pemilihan'],
-      wajib_ganti_password: false,
-      mustChangePassword: false
-    };
-    if (remember) {
-      localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
+        if (res.wajib_ganti_password) {
+          showToast('Demi keamanan, segera ganti kata sandi awal Anda.', 'warning');
+          toggleGantiPasswordForm(true);
+        } else {
+          showToast(`Selamat datang, ${state.currentUser.name}!`, 'success');
+        }
+        return;
+      } else {
+        if (errBox && errText) {
+          errText.textContent = res?.message || 'NIP/username atau kata sandi salah.';
+          errBox.style.display = 'block';
+        }
+        return;
+      }
     }
 
-    syncApplicantToCvMaster(matched);
-
-    closeModal('modalAdminLogin');
-    updateAuthUI();
-    renderAllViews();
-    showToast(`Selamat datang, ${matched.name}!`, 'success');
-    showSimulasiElectionBanner(state.currentUser);
-  } else {
     if (errBox && errText) {
-      errText.textContent = 'NIP/NIPPPK/NIK atau password salah';
+      errText.textContent = 'Server autentikasi belum terhubung.';
       errBox.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origBtnHtml;
     }
   }
 }
@@ -739,18 +659,17 @@ function getAllAdminAccounts() {
     const altKey = (u.devAlias || u.alias || '').toLowerCase();
     const nipKey = (u.nip || '').replace(/\s+/g, '');
     const custom = customMap[key] || customMap[altKey] || customMap[nipKey];
-    const savedLocalPwd = localStorage.getItem(`komkep_pwd_${nipKey}`) || localStorage.getItem(`komkep_pwd_${key}`);
-    const resolvedPwd = savedLocalPwd || custom?.password || u.password || 'REDACTED_PASSWORD';
     if (custom) {
-      return { ...u, ...custom, password: resolvedPwd };
+      const { password, ...safeCustom } = custom;
+      return { ...u, ...safeCustom };
     }
-    return { ...u, password: resolvedPwd };
+    return { ...u };
   });
 }
 
 function handleUserPillClick() {
-  if (!state.currentUser) {
-    showPortalGateway();
+  if (!state.currentUser || state.currentUser.role === 'guest') {
+    openLoginModal('pengusul');
     return;
   }
   openAccountSettingsModal();
@@ -911,7 +830,7 @@ function checkPasswordStrength(val) {
   }
 }
 
-function simpanPengaturanPassword() {
+async function simpanPengaturanPassword() {
   const curUser = state.currentUser;
   if (!curUser) return;
 
@@ -924,66 +843,22 @@ function simpanPengaturanPassword() {
   const newPass = (document.getElementById('settingsNewPass')?.value || '').trim();
   const confirmPass = (document.getElementById('settingsConfirmPass')?.value || '').trim();
 
-  if (!newPass || newPass.length < 4) {
-    showToast('Kata sandi baru minimal 4 karakter.', 'warning');
-    return;
-  }
-  if (newPass !== confirmPass) {
-    showToast('Konfirmasi kata sandi baru tidak cocok. Harap periksa kembali.', 'warning');
+  if (!currentPass || !newPass || !confirmPass) {
+    showToast('Kata sandi lama, baru, dan konfirmasi wajib diisi.', 'warning');
     return;
   }
 
-  const expectedPass = curUser.password;
-  if (currentPass && expectedPass && currentPass !== expectedPass) {
-    showToast('Kata sandi saat ini tidak cocok.', 'warning');
-    return;
-  }
-
-  if (curUser.role === 'super' || curUser.role.toLowerCase().includes('admin') || curUser.role.toLowerCase().includes('ketua') || curUser.role.toLowerCase().includes('sekretaris') || curUser.role.toLowerCase().includes('subkomite')) {
-    // Admin / Super Admin
-    const customSaved = localStorage.getItem('komite_custom_admin_profiles');
-    let customMap = {};
-    if (customSaved) {
-      try { customMap = JSON.parse(customSaved); } catch (e) { customMap = {}; }
+  const idLogin = curUser.id_login || curUser.nip || curUser.username;
+  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.changePassword === 'function') {
+    const res = await window.SupabaseKomkep.changePassword(idLogin, currentPass, newPass, confirmPass);
+    if (!res.success) {
+      showToast(res.message || 'Gagal memperbarui kata sandi.', 'warning');
+      return;
     }
-    const key = (curUser.username || '').toLowerCase();
-    customMap[key] = { ...(customMap[key] || {}), password: newPass };
-    if (curUser.nip) {
-      customMap[(curUser.nip || '').replace(/\s+/g, '')] = { ...(customMap[key] || {}), password: newPass };
-    }
-    localStorage.setItem('komite_custom_admin_profiles', JSON.stringify(customMap));
-
-    curUser.password = newPass;
-    localStorage.setItem('komite_auth_user', JSON.stringify(curUser));
-    showToast('Kata sandi Admin berhasil diperbarui! Gunakan sandi baru saat login berikutnya.', 'success');
+    showToast(res.message || 'Kata sandi berhasil diperbarui di server!', 'success');
   } else {
-    // Pengusul / Perawat
-    const regSaved = localStorage.getItem('komite_registered_pengusul');
-    let regList = [];
-    if (regSaved) {
-      try { regList = JSON.parse(regSaved); } catch (e) { regList = []; }
-    }
-    const cleanNip = (curUser.nip || curUser.username || '').replace(/\s+/g, '');
-    let found = regList.find(a => (a.nip || a.username || '').replace(/\s+/g, '') === cleanNip);
-    if (found) {
-      found.password = newPass;
-      found.namaSandi = newPass;
-    } else {
-      const accounts = getAllPengusulAccounts();
-      const orig = accounts.find(a => (a.nip || a.username || '').replace(/\s+/g, '') === cleanNip) || {};
-      regList.push({
-        ...orig,
-        nip: curUser.nip,
-        username: curUser.username,
-        name: curUser.name,
-        password: newPass,
-        namaSandi: newPass
-      });
-    }
-    localStorage.setItem('komite_registered_pengusul', JSON.stringify(regList));
-    curUser.password = newPass;
-    localStorage.setItem('komite_auth_user', JSON.stringify(curUser));
-    showToast('Kata sandi Perawat berhasil diperbarui! Gunakan sandi baru saat login berikutnya.', 'success');
+    showToast('Server autentikasi belum terhubung.', 'warning');
+    return;
   }
 
   // Clear password inputs
@@ -1234,9 +1109,17 @@ function updateAuthUI() {
       }
     }
   } else {
-    showPortalGateway();
+    hidePortalGateway();
     if (banner) banner.style.display = 'none';
-    if (adminUserPill) adminUserPill.style.display = 'none';
+    if (adminUserPill) {
+      adminUserPill.style.display = 'flex';
+      adminUserPill.title = 'Mode Tamu (Belum Login). Klik untuk Masuk dengan NIP/Username.';
+    }
+    if (adminNavName) adminNavName.textContent = 'Tamu (Belum Login)';
+    if (adminNavRole) adminNavRole.textContent = 'Klik untuk Masuk';
+    if (adminAvatar) {
+      adminAvatar.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i>';
+    }
     state.privacyModeRevealed = false;
   }
   updatePrivacyToggleButton();
@@ -1351,11 +1234,11 @@ function loadData() {
         id: 'NOTIF-2026-001',
         timestamp: '21 Oktober 2026, 11:20 WIB',
         eventType: 'Formulir Surat Permohonan Kredensial (Langkah 3)',
-        applicantName: 'Ns. Hendra Kurniawan, S.Kep',
-        applicantNip: '000000000000000000',
+        applicantName: 'Ns. Contoh Perawat, S.Kep',
+        applicantNip: '00000000 000000 0 001',
         unit: 'Ruang Kakap (Bedah)',
-        subject: '[PERMOHONAN KREDENSIAL] Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Kakap)',
-        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Hendra Kurniawan, S.Kep (NIP: 000000000000000000) dari Ruang Kakap. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 4.',
+        subject: '[PERMOHONAN KREDENSIAL] Ns. Contoh Perawat, S.Kep (PK III - Ruang Kakap)',
+        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Contoh Perawat, S.Kep (NIP: 00000000 000000 0 001) dari Ruang Kakap. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 4.',
         recipients: ['komitekeperawatanrsds2023@gmail.com', 'komitekeperawatanrsds2023@gmail.com'],
         status: 'Terkoneksi'
       },
@@ -1364,7 +1247,7 @@ function loadData() {
         timestamp: '20 Oktober 2026, 14:05 WIB',
         eventType: 'Pendaftaran Asesmen Mandiri RKK (Langkah 5)',
         applicantName: 'Bd. Siti Nurhaliza, S.Tr.Keb',
-        applicantNip: '000000000000000000',
+        applicantNip: '00000000 000000 1 001',
         unit: 'Ruang VK (Bersalin)',
         subject: '[ASESMEN MANDIRI RKK] Bd. Siti Nurhaliza, S.Tr.Keb (PMB II - Ruang VK Bersalin)',
         bodyText: 'Asesmen Mandiri Rincian Kewenangan Klinis (RKK) Bd. Siti Nurhaliza, S.Tr.Keb telah berhasil disubmit. Berkas dialokasikan untuk telaah Mitra Bestari.',
@@ -2077,7 +1960,7 @@ function getSecurityAuditLogs() {
       actor: 'dr. H. Batara Hendarto, Sp.An',
       role: 'Subkomite Kredensial',
       action: 'Validasi Berkas Kredensial',
-      target: 'Ns. Hendra Kurniawan, S.Kep',
+      target: 'Ns. Contoh Perawat, S.Kep',
       nip: '1992••••••••••004',
       status: 'DISETUJUI'
     },
@@ -2094,10 +1977,10 @@ function getSecurityAuditLogs() {
     {
       id: 'AUD-SEC-003',
       timeDisplay: '27/10/2026, 10:05:22',
-      actor: 'Ns. Hendra Kurniawan, S.Kep',
+      actor: 'Ns. Contoh Perawat, S.Kep',
       role: 'Pengusul Mandiri',
       action: 'Unduh Berkas Mandiri RKK',
-      target: 'Ns. Hendra Kurniawan, S.Kep',
+      target: 'Ns. Contoh Perawat, S.Kep',
       nip: '1992••••••••••004',
       status: 'DISETUJUI'
     }
@@ -2260,7 +2143,7 @@ function lockCurrentSession() {
   openModal('modalSessionLock');
 }
 
-function handleUnlockSession(event) {
+async function handleUnlockSession(event) {
   if (event) event.preventDefault();
 
   const passInput = document.getElementById('inputUnlockPassword');
@@ -2275,36 +2158,20 @@ function handleUnlockSession(event) {
     return;
   }
 
+  const curUser = state.currentUser;
+  const idLogin = curUser ? (curUser.id_login || curUser.nip || curUser.username) : '';
+
   let isMatch = false;
+  let errMsg  = 'Kata sandi tidak sesuai. Silakan coba lagi atau gunakan "Keluar / Ganti Akun".';
 
-  // Master bypass for testing / demo
-  if (enteredPass === 'admin123' || enteredPass === 'komite123') {
-    isMatch = true;
-  }
-
-  // Check against admin list
-  if (!isMatch && window.KOMITE_DATA?.adminUsers) {
-    const admin = window.KOMITE_DATA.adminUsers.find(u => {
-      const uUser = (u.username || '').toLowerCase();
-      const uNip = (u.nip || '').trim();
-      const curUser = (state.currentUser?.username || '').toLowerCase();
-      const curNip = (state.currentUser?.nip || '').trim();
-      return (uUser === curUser || uNip === curNip) && u.password === enteredPass;
-    });
-    if (admin) isMatch = true;
-  }
-
-  // Check against applicant list
-  if (!isMatch && window.KOMITE_DATA?.credentialApplicants) {
-    const app = window.KOMITE_DATA.credentialApplicants.find(a => {
-      const aUser = (a.username || '').toLowerCase();
-      const aNip = (a.nip || '').trim();
-      const curUser = (state.currentUser?.username || '').toLowerCase();
-      const curNip = (state.currentUser?.nip || '').trim();
-      const matchIdentity = aUser === curUser || aNip === curNip;
-      return matchIdentity && (a.password === enteredPass || a.namaSandi === enteredPass);
-    });
-    if (app) isMatch = true;
+  if (idLogin && window.SupabaseKomkep && typeof window.SupabaseKomkep.login === 'function') {
+    const res = await window.SupabaseKomkep.login(idLogin, enteredPass);
+    if (res && res.success) {
+      isMatch = true;
+      if (res.user) state.currentUser = res.user;
+    } else if (res && res.message) {
+      errMsg = res.message;
+    }
   }
 
   if (isMatch) {
@@ -2321,7 +2188,7 @@ function handleUnlockSession(event) {
     });
   } else {
     if (errBox) {
-      errBox.textContent = 'Kata sandi tidak sesuai. Silakan coba lagi atau gunakan "Keluar / Ganti Akun".';
+      errBox.textContent = errMsg;
       errBox.style.display = 'block';
     }
 
@@ -3209,7 +3076,7 @@ function openNewKredensialModal() {
   const hJenjang = document.getElementById('rkkHeaderJenjang');
   const hArea = document.getElementById('rkkHeaderArea');
 
-  if (hNama) hNama.textContent = master.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (hNama) hNama.textContent = master.nama || 'Ns. Contoh Perawat, S.Kep';
   if (hNip) hNip.textContent = master.nip || '-';
   if (hStr) hStr.textContent = master.noStr || '-';
   if (hUnit) hUnit.textContent = master.unit || 'Kakap';
@@ -3225,7 +3092,7 @@ function openNewKredensialModal() {
   const fStr = document.getElementById('formStr');
   const fJenjang = document.getElementById('formJenjang');
   const fUnit = document.getElementById('formUnit');
-  if (fNama) fNama.value = master.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (fNama) fNama.value = master.nama || 'Ns. Contoh Perawat, S.Kep';
   if (fNip) fNip.value = master.nip || '-';
   if (fStr) fStr.value = master.noStr || '-';
   if (fJenjang) fJenjang.value = master.jenjang || 'PK III';
@@ -4961,8 +4828,8 @@ function getActiveCvMasterData() {
   const getElVal = id => document.getElementById(id)?.value?.trim() || '';
   const stored = state.cvData || (window.KOMITE_DATA?.sampleCv?.perawat || {});
   
-  const nama = getElVal('cvNama') || stored.nama || 'Ns. Hendra Kurniawan, S.Kep';
-  const nip = getElVal('cvNip') || stored.nip || '000000000000000000';
+  const nama = getElVal('cvNama') || stored.nama || 'Ns. Contoh Perawat, S.Kep';
+  const nip = getElVal('cvNip') || stored.nip || '00000000 000000 0 001';
   const ttl = getElVal('cvTtl') || stored.ttl || 'Pontianak, 15 April 1992';
   const jabatan = getElVal('cvJabatan') || stored.jabatan || 'Perawat Pelaksana / Ketua Tim';
   const unit = getElVal('cvUnit') || stored.unit || 'Kakap';
@@ -7597,9 +7464,9 @@ function generateSuratKredensialHVS(mode) {
   }
 
   // Bagian I: Identitas Personal
-  const nama = isBlank ? '' : getVal('suratNama', 'Ns. Hendra Kurniawan, S.Kep');
+  const nama = isBlank ? '' : getVal('suratNama', 'Ns. Contoh Perawat, S.Kep');
   const jenisNip = isBlank ? '' : getVal('suratJenisNip', 'NIP');
-  const rawNip = isBlank ? '' : getVal('suratNip', '000000000000000000');
+  const rawNip = isBlank ? '' : getVal('suratNip', '00000000 000000 0 001');
   const nipFull = isBlank ? '' : (rawNip ? `${jenisNip !== 'NIP' ? jenisNip + '. ' : ''}${rawNip}` : '');
   const ttl = isBlank ? '' : getVal('suratTtl', 'Pontianak, 15 April 1992');
   const kelamin = isBlank ? '' : getVal('suratKelamin', 'Laki-laki');
@@ -7657,7 +7524,7 @@ function generateSuratKredensialHVS(mode) {
   // Bagian IV: Pernyataan & Tanggal
   const tglSurat = isBlank ? '' : getVal('suratTanggal', '21 Oktober 2026');
   const pemeriksaNama = isBlank ? '' : getVal('suratPemeriksaNama', 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep');
-  const pemeriksaNip = isBlank ? '' : getVal('suratPemeriksaNip', '000000000000000000');
+  const pemeriksaNip = isBlank ? '' : getVal('suratPemeriksaNip', '000000000000001002');
 
   // Logo base64 jika ada agar Word & cetak offline selalu tampil jernih
   const logoSrc = (typeof window !== 'undefined' && window.LOGO_KALBAR_BASE64) ? window.LOGO_KALBAR_BASE64 : 'logo_kalbar.png';
@@ -8079,7 +7946,7 @@ function fillGoogleFormPreset(presetKey) {
       jenis: 'berkala',
       nama: 'Ns. Rusmulyadi, S.Kep., MARS',
       jenisNip: 'NIP',
-      nip: '000000000000000000',
+      nip: '00000000 000000 1 003',
       ttl: 'Pontianak, 15 Agustus 1980',
       kelamin: 'Laki-laki',
       alamat: 'Jl. Danau Sentarum Komplek Griya Asri No. B-4, Kota Pontianak',
@@ -8099,9 +7966,9 @@ function fillGoogleFormPreset(presetKey) {
     },
     hendra: {
       jenis: 'berkala',
-      nama: 'Ns. Hendra Kurniawan, S.Kep',
+      nama: 'Ns. Contoh Perawat, S.Kep',
       jenisNip: 'NIP',
-      nip: '000000000000000000',
+      nip: '00000000 000000 0 001',
       ttl: 'Pontianak, 15 April 1992',
       kelamin: 'Laki-laki',
       alamat: 'Jl. Danau Sentarum No. 42, Kota Pontianak',
@@ -8123,7 +7990,7 @@ function fillGoogleFormPreset(presetKey) {
       jenis: 'kenaikan',
       nama: 'Bd. Siti Aminah, S.Tr.Keb',
       jenisNip: 'NIPPPK',
-      nip: '000000000000000000',
+      nip: '00000000 000000 1 004',
       ttl: 'Singkawang, 12 Juli 1995',
       kelamin: 'Perempuan',
       alamat: 'Jl. Ampera No. 15, Pontianak Kota',
@@ -8309,8 +8176,8 @@ function simpanUploadSurat(e) {
   if (e) e.preventDefault();
 
   const master = getActiveCvMasterData();
-  const pemohon = document.getElementById('uploadNamaPemohon')?.value?.trim() || state.currentApplicant?.nama || master.nama || 'Ns. Hendra Kurniawan, S.Kep';
-  const nip = master.nip || state.currentApplicant?.nip || '000000000000000000';
+  const pemohon = document.getElementById('uploadNamaPemohon')?.value?.trim() || state.currentApplicant?.nama || master.nama || 'Ns. Contoh Perawat, S.Kep';
+  const nip = master.nip || state.currentApplicant?.nip || '00000000 000000 0 001';
   const str = master.str || state.currentApplicant?.str || '140152119-3284910';
   const strExp = master.strExpiry || state.currentApplicant?.strExpiry || '2028-11-20';
   const jenjang = master.jenjangKlinis || state.currentApplicant?.jenjang || document.getElementById('formJenjang')?.value || 'PK III';
@@ -8665,9 +8532,9 @@ function renderKredensialTrackerVisual(query) {
     reviewerNote = 'Dokumen RKK resmi telah diterbitkan. Lanjutkan ke Langkah 5 untuk mengunggah seluruh berkas bertanda tangan.';
   }
 
-  const nName = nurse ? nurse.name : 'Ns. Hendra Kurniawan, S.Kep';
+  const nName = nurse ? nurse.name : 'Ns. Contoh Perawat, S.Kep';
   const nPk = nurse ? nurse.pkLevel : 'PK III';
-  const nNip = nurse ? nurse.nip : '000000000000000000';
+  const nNip = nurse ? nurse.nip : '00000000 000000 0 001';
   const nUnit = nurse ? nurse.unit : 'Ruang Kakap';
   const nStr = nurse ? nurse.strNumber : '140152123-2893812';
   const isApproved = nurse && nurse.credentialStatus === 'Disetujui';
@@ -8878,8 +8745,9 @@ function exportOfficialWord() {
           <td style="width: 50%;">
             Ditetapkan di Pontianak,<br><b>Direktur RSUD Dokter Soedarso</b>
             <div class="sig-space"></div>
-            <b><u>HARY AGUNG TJAHYADI</u></b><br>
-            Direktur Rumah Sakit
+            <b><u>drg. Hary Agung Tjahyadi, M.Kes</u></b><br>
+            Pembina Utama Muda<br>
+            NIP. 000000000000000000
           </td>
         </tr>
       </table>
@@ -9265,8 +9133,8 @@ function testSendAdminEmailPing() {
  */
 function openQuickAdminEmailDispatch(type) {
   const applicant = state.currentApplicant || {
-    nama: 'Ns. Hendra Kurniawan, S.Kep',
-    nip: '000000000000000000',
+    nama: 'Ns. Contoh Perawat, S.Kep',
+    nip: '00000000 000000 0 001',
     unit: 'Ruang Kakap (Bedah)',
     jenjang: 'PK III'
   };
@@ -9317,9 +9185,9 @@ function getDefaultWorkflowNotifications() {
       timestamp: "28 Oktober 2026, 08:30 WIB",
       category: "kredensial",
       title: "Pengusulan Kredensial Baru: Berkas Perlu Diverifikasi",
-      message: "Berkas pengusulan kredensialing atas nama Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Kakap) telah diajukan lengkap (6 tahap) dan membutuhkan verifikasi berkas persyaratan serta verifikasi sumber primer (PSV) oleh Subkomite.",
-      applicantName: "Ns. Hendra Kurniawan, S.Kep",
-      applicantNip: "000000000000000000",
+      message: "Berkas pengusulan kredensialing atas nama Ns. Contoh Perawat, S.Kep (PK III - Ruang Kakap) telah diajukan lengkap (6 tahap) dan membutuhkan verifikasi berkas persyaratan serta verifikasi sumber primer (PSV) oleh Subkomite.",
+      applicantName: "Ns. Contoh Perawat, S.Kep",
+      applicantNip: "00000000 000000 0 001",
       sourceUnit: "Ruang Kakap",
       sourceId: "KRED-2026-001",
       actionTab: "kredensial",
@@ -9336,7 +9204,7 @@ function getDefaultWorkflowNotifications() {
       title: "Pengusulan Rekredensialing Ruang Kakap: Berkas Perlu Diverifikasi",
       message: "Pengajuan perpanjangan SPK & RKK atas nama Ns. Ratna Juwita, S.Kep (PK II - Ruang Rawat Inap Bedah / Kakap) telah masuk di portal. Berkas siap diverifikasi oleh Subkomite Mutu & Kredensial.",
       applicantName: "Ns. Ratna Juwita, S.Kep",
-      applicantNip: "000000000000000000",
+      applicantNip: "00000000 000000 1 005",
       sourceUnit: "Ruang Bedah / Kakap",
       sourceId: "KRED-2026-002",
       actionTab: "kredensial",
@@ -9826,7 +9694,7 @@ function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
   const elPendidikan = document.getElementById('verifPendidikan');
   const elTotalTindakan = document.getElementById('verifTotalTindakan');
 
-  if (elNama) elNama.textContent = app.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  if (elNama) elNama.textContent = app.nama || 'Ns. Contoh Perawat, S.Kep';
   if (elReg) elReg.textContent = app.nomorRegistrasi || app.id;
   if (elStatus) {
     elStatus.textContent = app.status;
@@ -9836,7 +9704,7 @@ function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
       app.status === 'Perlu Revisi' || app.status.includes('Perbaikan') ? 'status-revisi' : 'status-subkomite'
     );
   }
-  if (elNip) elNip.textContent = app.nip || '000000000000000000';
+  if (elNip) elNip.textContent = app.nip || '00000000 000000 0 001';
   if (elUnit) elUnit.textContent = app.unit || 'Ruang Kakap';
   if (elJenjang) elJenjang.textContent = app.jenjang ? `${app.jenjang} (${app.jenjang === 'PK III' ? 'Perawat Klinis III' : app.jenjang})` : 'Perawat Klinis III (PK III)';
   if (elArea) elArea.textContent = app.areaName || 'Keperawatan Bedah Dewasa Lanjut (PK III)';
@@ -9849,7 +9717,7 @@ function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
   // Tentukan verifikator berdasarkan sesi pengguna login
   const curUser = state.currentUser;
   let verifNama = 'Ns. Laila Istiqomah, S.Kep (Ketua Subkomite Mutu)';
-  let verifNip = '000000000000000000';
+  let verifNip = '00000000 000000 1 006';
 
   if (curUser) {
     const uName = (curUser.username || '').toLowerCase().replace(/\s+/g, '');
@@ -9858,19 +9726,19 @@ function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
 
     if (uName === 'yohanes' || uAlias === 'kredensial' || uRole.includes('kredensial')) {
       verifNama = (curUser.name || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep') + ' (Ketua Subkomite Kredensial)';
-      verifNip = curUser.nip || '000000000000000000';
+      verifNip = curUser.nip || '00000000 000000 1 007';
     } else if (uName === 'rusmulyadi' || uAlias === 'sekretaris' || uRole.includes('sekretaris')) {
       verifNama = (curUser.name || 'Ns. Rusmulyadi, S.Kep., MARS') + ' (Sekretaris Komite Keperawatan)';
-      verifNip = curUser.nip || '000000000000000000';
+      verifNip = curUser.nip || '00000000 000000 1 008';
     } else if (uName === 'separia' || uRole.includes('ketua komite')) {
       verifNama = (curUser.name || 'Ns. Separia, S.Kep') + ' (Ketua Komite Keperawatan)';
-      verifNip = curUser.nip || '000000000000000000';
+      verifNip = curUser.nip || '00000000 000000 1 009';
     } else if (uName === 'alfonsus' || uRole.includes('etik')) {
       verifNama = (curUser.name || 'Ns. Alfonsus, S.Kep') + ' (Ketua Subkomite Etik & Disiplin)';
-      verifNip = curUser.nip || '000000000000000000';
+      verifNip = curUser.nip || '00000000 000000 1 010';
     } else if (uName === 'laila' || uAlias === 'mutu' || uRole.includes('mutu')) {
       verifNama = (curUser.name || 'Ns. Laila Istiqomah, S.Kep') + ' (Ketua Subkomite Mutu)';
-      verifNip = curUser.nip || '000000000000000000';
+      verifNip = curUser.nip || '00000000 000000 1 006';
     } else {
       verifNama = (curUser.name || 'Verifikator Subkomite') + ' (' + (curUser.role || 'Komite Keperawatan') + ')';
       verifNip = curUser.nip || '-';
@@ -9927,7 +9795,7 @@ function simpanTanggapanVerifikasiSubkomite(event) {
   const selectedStatus = elSelect ? elSelect.value : 'Proses Telaah Mitra Bestari';
   const catatanTelaah = elCatatan ? elCatatan.value.trim() : 'Berkas memenuhi syarat verifikasi subkomite.';
   const verifNama = elVerifNama ? elVerifNama.value : 'Ns. Laila Istiqomah, S.Kep (Ketua Subkomite Mutu)';
-  const verifNip = elVerifNip ? elVerifNip.value : '000000000000000000';
+  const verifNip = elVerifNip ? elVerifNip.value : '00000000 000000 1 006';
   const nowFormatted = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ', ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
 
   // 1. Update data permohonan kredensialing di state
@@ -10014,8 +9882,8 @@ function simpanTanggapanVerifikasiSubkomite(event) {
 
 // Pratinjau Dokumen 6 Tahap Pengusul pada Modal Verifikasi
 function bukaPratinjauSuratVerifikasi() {
-  document.getElementById('suratNama') && (document.getElementById('suratNama').value = 'Ns. Hendra Kurniawan, S.Kep');
-  document.getElementById('suratNip') && (document.getElementById('suratNip').value = '000000000000000000');
+  document.getElementById('suratNama') && (document.getElementById('suratNama').value = 'Ns. Contoh Perawat, S.Kep');
+  document.getElementById('suratNip') && (document.getElementById('suratNip').value = '00000000 000000 0 001');
   document.getElementById('suratUnit') && (document.getElementById('suratUnit').value = 'Ruang Kakap');
   document.getElementById('suratJenjang') && (document.getElementById('suratJenjang').value = 'PK III');
   previewSuratKredensialHVS('filled');
@@ -10042,31 +9910,9 @@ function bukaModalUploadBerkasVerifikasi() {
 }
 
 function demoWorkflowLogin(username) {
-  const adminList = window.KOMITE_DATA?.adminUsers || [];
-  const found = adminList.find(u => {
-    const uName = (u.username || '').toLowerCase().replace(/\s+/g, '');
-    const uAlias = (u.alias || '').toLowerCase().replace(/\s+/g, '');
-    const cleanTarget = (username || '').toLowerCase().replace(/\s+/g, '');
-    return uName === cleanTarget || uAlias === cleanTarget;
-  });
-
-  if (found) {
-    state.currentUser = {
-      username: found.username,
-      name: found.name,
-      nip: found.nip,
-      role: found.role,
-      badge: found.badge,
-      access: found.access
-    };
-    localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-    updateAuthUI();
-    renderAllViews();
-    updateWorkflowNotificationUI();
-    renderWorkflowAuthorityBanner();
-    renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
-    showToast(`Beralih login pengujian ke: ${found.name} (${found.role})`, 'success');
-  }
+  fillAdminPreset(username);
+  openLoginModal('komite');
+  showToast('Demi keamanan, silakan masukkan kata sandi untuk masuk.', 'info');
 }
 
 /* ==========================================================================
@@ -10078,7 +9924,7 @@ function openPreviewRkkModal() {
   const applicantBadge = document.getElementById('previewRkkApplicantBadge');
   const banner = document.getElementById('previewRkkSuccessBanner');
   
-  const nama = document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  const nama = document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Contoh Perawat, S.Kep';
   if (applicantBadge) applicantBadge.textContent = nama;
   if (banner) banner.style.display = 'block';
 
@@ -10116,8 +9962,8 @@ function togglePreviewRkkMode() {
 function generateRkkHVS(mode) {
   const isBlank = (mode === 'blank');
   
-  const nama = isBlank ? '....................................................................' : (document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
-  const nip = isBlank ? '....................................................................' : (document.getElementById('formNip')?.value.trim() || state.currentApplicant?.nip || '000000000000000000');
+  const nama = isBlank ? '....................................................................' : (document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Contoh Perawat, S.Kep');
+  const nip = isBlank ? '....................................................................' : (document.getElementById('formNip')?.value.trim() || state.currentApplicant?.nip || '00000000 000000 0 001');
   const jenjang = isBlank ? '....................................................................' : (document.getElementById('formJenjang')?.value || state.currentApplicant?.jenjang || 'PK III');
   const unit = isBlank ? '....................................................................' : (document.getElementById('formUnit')?.value || state.currentApplicant?.unit || 'Kakap');
   const str = isBlank ? '....................................................................' : (document.getElementById('formStr')?.value.trim() || state.currentApplicant?.str || '140152119-3284910');
@@ -10420,7 +10266,7 @@ function generateRkkHVS(mode) {
             <div>Ketua Sub Komite Kredensial,</div>
             <div style="height: 60px;"></div>
             <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
-            <div>NIP. 000000000000000000</div>
+            <div>NIP. 00000000 000000 1 007</div>
           </td>
           <td style="width: 50%; vertical-align: top; padding: 4px 10px;">
             <div>Mengetahui,<br>Ketua Komite Keperawatan RSUD dr. Soedarso,</div>
@@ -10697,8 +10543,8 @@ function handlePsvSubmit(e) {
   const getVal = (id, def = '') => document.getElementById(id)?.value?.trim() || def;
 
   state.psvData = {
-    nama: getVal('psvNama', 'Ns. Hendra Kurniawan, S.Kep'),
-    nip: getVal('psvNip', '000000000000000000'),
+    nama: getVal('psvNama', 'Ns. Contoh Perawat, S.Kep'),
+    nip: getVal('psvNip', '00000000 000000 0 001'),
     pendidikan: getVal('psvPendidikan', 'S1 Keperawatan & Profesi Ners / Universitas Tanjungpura'),
     unit: getVal('psvUnit', 'Kakap'),
     ijazahInstitusi: getVal('psvIjazahInstitusi', 'Universitas Tanjungpura'),
@@ -10728,7 +10574,7 @@ function handlePsvSubmit(e) {
     verifikatorNip: '',
     tanggalPsv: getVal('psvTanggal', '__________________ 2026'),
     ketuaSubkomiteNama: 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep',
-    ketuaSubkomiteNip: '000000000000000000'
+    ketuaSubkomiteNip: '00000000 000000 1 007'
   };
 
   state.kredensialPsvGenerated = true;
@@ -10769,7 +10615,7 @@ function previewPsvHVS(mode) {
 
   const badge = document.getElementById('previewPsvApplicantBadge');
   const banner = document.getElementById('previewPsvSuccessBanner');
-  const currentNama = document.getElementById('psvNama')?.value.trim() || state.psvData?.nama || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep';
+  const currentNama = document.getElementById('psvNama')?.value.trim() || state.psvData?.nama || state.currentApplicant?.nama || 'Ns. Contoh Perawat, S.Kep';
   if (badge) badge.textContent = currentNama;
   if (banner) banner.style.display = 'block';
 }
@@ -10783,8 +10629,8 @@ function generatePsvHVS(mode) {
   const isBlank = (mode === 'blank');
   const d = state.psvData || {};
 
-  const nama = isBlank ? '[ Nama dan Gelar Lengkap ]' : (d.nama || document.getElementById('psvNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
-  const nip = isBlank ? '[ NIP / NIPPPK / NIK ]' : (d.nip || document.getElementById('psvNip')?.value.trim() || state.currentApplicant?.nip || '000000000000000000');
+  const nama = isBlank ? '[ Nama dan Gelar Lengkap ]' : (d.nama || document.getElementById('psvNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Contoh Perawat, S.Kep');
+  const nip = isBlank ? '[ NIP / NIPPPK / NIK ]' : (d.nip || document.getElementById('psvNip')?.value.trim() || state.currentApplicant?.nip || '00000000 000000 0 001');
   const pendidikan = isBlank ? '[ Universitas / Poltekkes / Sekolah Tinggi Asal ]' : (d.pendidikan || document.getElementById('psvPendidikan')?.value.trim() || 'S1 Keperawatan & Profesi Ners / Universitas Tanjungpura');
   const unit = isBlank ? '[ Misal: Instalasi Gawat Darurat / ICU / Rawat Inap ]' : (d.unit || document.getElementById('psvUnit')?.value.trim() || state.currentApplicant?.unit || 'Kakap');
 
@@ -10851,7 +10697,7 @@ function generatePsvHVS(mode) {
   const verifikatorNip = '..................................................';
   const tanggalPsv = isBlank ? '__________________ 2026' : (d.tanggalPsv || '__________________ 2026');
   const ketuaNama = isBlank ? '( ___________________________ )' : (d.ketuaSubkomiteNama || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep');
-  const ketuaNip = isBlank ? 'NIP. ..................................................' : (d.ketuaSubkomiteNip ? (d.ketuaSubkomiteNip.startsWith('NIP') ? d.ketuaSubkomiteNip : `NIP. ${d.ketuaSubkomiteNip}`) : 'NIP. 000000000000000000');
+  const ketuaNip = isBlank ? 'NIP. ..................................................' : (d.ketuaSubkomiteNip ? (d.ketuaSubkomiteNip.startsWith('NIP') ? d.ketuaSubkomiteNip : `NIP. ${d.ketuaSubkomiteNip}`) : 'NIP. 00000000 000000 1 007');
 
   const logoSrc = (window.KOMITE_DATA && window.KOMITE_DATA.logoKalbar) ? window.KOMITE_DATA.logoKalbar : 'logo_kalbar.png';
 
@@ -11530,23 +11376,23 @@ async function simpanGantiPassword(e) {
       return false;
     }
   } else {
-    if (!passLama || !passBaru) {
+    if (!passLama || !passBaru || !passKonf) {
       if (errBox && errText) {
-        errText.textContent = 'Password lama dan baru wajib diisi!';
+        errText.textContent = 'Kata sandi lama, baru, dan konfirmasi wajib diisi!';
         errBox.style.display = 'block';
       }
       return false;
     }
     if (passBaru.length < 8) {
       if (errBox && errText) {
-        errText.textContent = 'Password baru minimal 8 karakter!';
+        errText.textContent = 'Kata sandi baru minimal 8 karakter!';
         errBox.style.display = 'block';
       }
       return false;
     }
-    if (passBaru === 'REDACTED_PASSWORD' || passBaru === 'REDACTED_PASSWORD') {
+    if (passBaru === passLama) {
       if (errBox && errText) {
-        errText.textContent = 'Password baru tidak boleh menggunakan password default!';
+        errText.textContent = 'Kata sandi baru tidak boleh sama dengan kata sandi awal!';
         errBox.style.display = 'block';
       }
       return false;
@@ -11570,9 +11416,6 @@ async function simpanGantiPassword(e) {
   if (state.currentUser) {
     state.currentUser.wajib_ganti_password = false;
     state.currentUser.mustChangePassword = false;
-    try {
-      localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-    } catch (err) {}
   }
 
   closeModal('modalGantiPassword');
@@ -11880,89 +11723,38 @@ async function handleUnifiedPortalLogin(e) {
 
   if (!rawUser || !rawPass) {
     if (errBox) {
-      if (errText) errText.textContent = 'NIP / NIPPPK / NIK dan password wajib diisi.';
+      if (errText) errText.textContent = 'NIP / NIPPPK / NIK / username dan kata sandi wajib diisi.';
       errBox.style.display = 'block';
     }
-    showToast('NIP / NIPPPK / NIK dan password wajib diisi!', 'warning');
+    showToast('NIP / NIPPPK / NIK / username dan kata sandi wajib diisi!', 'warning');
     return;
   }
 
-  const cleanInput = rawUser.toLowerCase().replace(/\s+/g, '');
   const btnSubmit = document.getElementById('btnSubmitPortalMain');
   const origBtnHtml = btnSubmit ? btnSubmit.innerHTML : '';
   if (btnSubmit) {
     btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Memvalidasi Akses...</span>';
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Memvalidasi ke Server...</span>';
   }
 
   try {
-    // 1. Verifikasi Terpusat via Supabase / Cryptographic Security Layer (717 Pegawai)
     if (window.SupabaseKomkep && typeof window.SupabaseKomkep.login === 'function') {
       const res = await window.SupabaseKomkep.login(rawUser, rawPass);
       if (res && res.success && res.user) {
-        const u = res.user;
-        const cleanId = String(u.id_login || u.nip || '').trim().replace(/\s+/g, '');
-        const adminList = (typeof getAllAdminAccounts === 'function') ? getAllAdminAccounts() : (window.KOMITE_DATA?.adminUsers || []);
-        const matchedAdmin = adminList.find(a => {
-          const anip = (a.nip || '').replace(/\s+/g, '');
-          const auser = (a.username || '').toLowerCase();
-          const aalias = (a.alias || '').toLowerCase();
-          const adev = (a.devAlias || '').toLowerCase();
-          return (anip && anip === cleanId) || auser === cleanId.toLowerCase() || aalias === cleanId.toLowerCase() || adev === cleanId.toLowerCase();
-        });
-
-        state.currentUser = {
-          username: matchedAdmin ? matchedAdmin.username : (u.id_login || u.nip),
-          id_login: u.id_login || u.nip,
-          name: matchedAdmin ? matchedAdmin.name : u.name,
-          nip: u.id_login || u.nip,
-          role: matchedAdmin ? matchedAdmin.role : 'pengusul',
-          profesi: u.kategori || u.profesi || 'Perawat',
-          unit: u.unit || (matchedAdmin?.group) || 'RSUD dr. Soedarso',
-          jenjang: u.jenjang || 'PK',
-          strNumber: u.strNumber || '',
-          strExpiry: u.strExpiry || '',
-          badge: matchedAdmin ? matchedAdmin.badge : `Tenaga Keperawatan &bull; ${u.unit || 'RSUD dr. Soedarso'}`,
-          access: matchedAdmin ? Array.from(new Set([...(matchedAdmin.access || []), 'pengusul', 'kredensial', 'pemilihan'])) : ['pengusul', 'kredensial', 'pemilihan'],
-          isAdmin: Boolean(matchedAdmin),
-          isPengurus: Boolean(matchedAdmin),
-          wajib_ganti_password: res.wajib_ganti_password,
-          mustChangePassword: res.wajib_ganti_password
-        };
-        localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-
-        // Respon instan tanpa lag: pulihkan tombol & segera sembunyikan gateway portal
-        if (btnSubmit) {
-          btnSubmit.disabled = false;
-          btnSubmit.innerHTML = origBtnHtml;
-        }
+        state.currentUser = res.user;
         if (errBox) errBox.style.display = 'none';
 
         hidePortalGateway();
         updateAuthUI();
 
-        // Operasi sinkronisasi sekunder diproteksi agar tidak menghambat UX login
         try {
           if (typeof syncApplicantToCvMaster === 'function') {
             syncApplicantToCvMaster(state.currentUser);
           }
-        } catch (e) {
-          console.warn('[Login] Sync CV warn:', e);
-        }
+        } catch (_) {}
+        try { renderAllViews(); } catch (_) {}
+        try { updateWorkflowNotificationUI(); } catch (_) {}
 
-        try {
-          renderAllViews();
-        } catch (e) {
-          console.warn('[Login] renderAllViews warn:', e);
-        }
-
-        try {
-          updateWorkflowNotificationUI();
-        } catch (e) {
-          console.warn('[Login] updateWorkflowNotificationUI warn:', e);
-        }
-
-        // Jika URL saat ini memuat hash tab (misal #pemilihan atau #evoting), pastikan tab tersebut langsung aktif
         const curHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
         if (curHash === 'evoting' || curHash === 'pemilihan') {
           if (typeof switchTab === 'function') switchTab('evoting');
@@ -11971,128 +11763,36 @@ async function handleUnifiedPortalLogin(e) {
         }
 
         if (res.wajib_ganti_password) {
-          showToast('Demi keamanan, segera ganti password awal Anda.', 'warning');
+          showToast('Demi keamanan, segera ganti kata sandi awal Anda.', 'warning');
           toggleGantiPasswordForm(true);
         } else {
-          showToast(`Selamat datang, ${state.currentUser.name}! Anda berhasil masuk ke Portal.`, 'success');
-          showSimulasiElectionBanner(state.currentUser);
+          showToast(`Selamat datang, ${state.currentUser.name}!`, 'success');
         }
         return;
-      } else if (res && res.isLocked) {
-        if (btnSubmit) {
-          btnSubmit.disabled = false;
-          btnSubmit.innerHTML = origBtnHtml;
-        }
-        if (errBox && errText) {
-          errText.textContent = res.message;
-          errBox.style.display = 'block';
-        }
-        showToast(res.message, 'error');
-        return;
       }
-    }
 
-    // 2. Fallback Akun Pengurus SK Direktur
-    const adminList = (typeof getAllAdminAccounts === 'function') ? getAllAdminAccounts() : (window.KOMITE_DATA?.adminUsers || []);
-    const matchedAdmin = adminList.find(u => {
-      const uName = (u.username || '').toLowerCase().replace(/\s+/g, '');
-      const uAlias = (u.alias || '').toLowerCase().replace(/\s+/g, '');
-      const uAlt = (u.altAlias || '').toLowerCase().replace(/\s+/g, '');
-      const uDev = (u.devAlias || '').toLowerCase().replace(/\s+/g, '');
-      const uEmail = (u.email || '').toLowerCase().replace(/\s+/g, '');
-      const uNip = (u.nip || '').replace(/\s+/g, '');
-      const matchesUser = (uName === cleanInput || uAlias === cleanInput || uAlt === cleanInput || uDev === cleanInput || uEmail === cleanInput || (uNip && uNip === cleanInput));
-      const matchesPass = false; // Plaintext bypass dihapus, wajib via SupabaseKomkep.login
-      return matchesUser && matchesPass;
-    });
-
-    if (matchedAdmin) {
-      state.currentUser = {
-        username: matchedAdmin.username,
-        name: matchedAdmin.name,
-        nip: matchedAdmin.nip || rawUser,
-        role: matchedAdmin.role,
-        badge: matchedAdmin.badge,
-        access: Array.from(new Set([...(matchedAdmin.access || []), 'pemilihan'])),
-        unit: matchedAdmin.group || 'Komite Keperawatan',
-        phone: matchedAdmin.phone || '',
-        email: matchedAdmin.email || '',
-        isAdmin: true,
-        isPengurus: true
-      };
-      localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-
-      if (btnSubmit) {
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = origBtnHtml;
+      if (errBox && errText) {
+        errText.textContent = res?.message || 'NIP/username atau kata sandi salah.';
+        errBox.style.display = 'block';
       }
-      if (errBox) errBox.style.display = 'none';
-
-      hidePortalGateway();
-      updateAuthUI();
-      renderAllViews();
-      updateWorkflowNotificationUI();
-      showToast(`Selamat datang, ${matchedAdmin.name}! Berhasil masuk sebagai ${matchedAdmin.role}.`, 'success');
+      showToast(res?.message || 'NIP/username atau kata sandi salah.', 'error');
       return;
     }
 
-    // 3. Fallback Akun Pengusul (Bebas Demo Plaintext)
-    const matchedNurse = null;
-
-    if (matchedNurse) {
-      state.currentUser = {
-        username: matchedNurse.username || matchedNurse.nip,
-        name: matchedNurse.name,
-        nip: matchedNurse.nip,
-        role: 'pengusul',
-        profesi: matchedNurse.profesi || 'Perawat',
-        unit: matchedNurse.unit || 'Ruang Pelayanan Rawat Inap',
-        jenjang: matchedNurse.jenjang || 'PK II',
-        strNumber: matchedNurse.strNumber || '',
-        strExpiry: matchedNurse.strExpiry || '',
-        badge: `Tenaga Keperawatan &bull; ${matchedNurse.unit || 'Rawat Inap'}`,
-        access: ['pengusul', 'kredensial', 'pemilihan']
-      };
-      localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-
-      if (typeof syncApplicantToCvMaster === 'function') {
-        syncApplicantToCvMaster(matchedNurse);
-      }
-
-      if (btnSubmit) {
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = origBtnHtml;
-      }
-      if (errBox) errBox.style.display = 'none';
-
-      hidePortalGateway();
-      updateAuthUI();
-      renderAllViews();
-      showToast(`Selamat datang, ${matchedNurse.name}! Berhasil masuk ke Portal E-Kredensialing.`, 'success');
-      return;
-    }
-
-    // 4. Jika Tidak Cocok: Pesan Galat Umum Sesuai Spesifikasi (UU PDP)
-    if (btnSubmit) {
-      btnSubmit.disabled = false;
-      btnSubmit.innerHTML = origBtnHtml;
-    }
-    if (errBox) {
-      if (errText) {
-        errText.textContent = 'NIP/NIPPPK/NIK atau password salah';
-      }
+    if (errBox && errText) {
+      errText.textContent = 'Server autentikasi belum terhubung.';
       errBox.style.display = 'block';
     }
-    showToast('NIP/NIPPPK/NIK atau password salah', 'error');
   } catch (err) {
     console.error('[handleUnifiedPortalLogin] Error saat memproses login:', err);
-    if (btnSubmit) {
-      btnSubmit.disabled = false;
-      btnSubmit.innerHTML = origBtnHtml;
-    }
     if (errBox && errText) {
       errText.textContent = 'Terjadi kendala saat login (' + (err.message || 'silakan muat ulang') + ').';
       errBox.style.display = 'block';
+    }
+  } finally {
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = origBtnHtml;
     }
   }
 }
@@ -12135,33 +11835,25 @@ function handleGatewayLogin(e, roleType) {
 }
 
 function loginAsGuest() {
-  state.currentUser = {
-    username: 'guest',
-    name: 'Tamu / Pengunjung Publik',
-    nip: '-',
-    role: 'guest',
-    unit: 'Publik (Akses Terbuka)',
-    badge: 'Tamu Publik (UU PDP Terkunci)',
-    access: ['public'],
-    phone: '',
-    email: '',
-    password: ''
-  };
-  localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
+  state.currentUser = null;
+  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.logout === 'function') {
+    window.SupabaseKomkep.logout();
+  }
   hidePortalGateway();
   updateAuthUI();
-  renderAllViews();
-  showToast('Selamat datang di Portal Resmi Komite Keperawatan RSUD dr. Soedarso. Anda masuk dalam Mode Tamu / Publik (Akses Terbuka & Terlindungi UU PDP).', 'info');
+  try { renderAllViews(); } catch (_) {}
+  showToast('Anda masuk dalam Mode Tamu / Publik.', 'info');
 }
 
-function logoutToPortal() {
-  const userName = state.currentUser ? state.currentUser.name : 'Pengguna';
+async function logoutToPortal() {
   state.currentUser = null;
-  localStorage.removeItem('komite_auth_user');
+  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.logout === 'function') {
+    await window.SupabaseKomkep.logout();
+  }
+  hidePortalGateway();
   updateAuthUI();
-  showPortalGateway();
-  renderAllViews();
-  showToast(`Sesi berakhir. Anda telah kembali ke Portal Login Resmi Komite Keperawatan.`, 'info');
+  try { renderAllViews(); } catch (_) {}
+  showToast('Anda telah keluar dan kembali ke Mode Tamu.', 'info');
 }
 
 window.handleUnifiedPortalLogin = handleUnifiedPortalLogin;

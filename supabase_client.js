@@ -1,55 +1,61 @@
 /**
  * ============================================================================
- * SUPABASE & KEAMANAN CLIENT INTEGRATION LAYER
- * SISTEM INFORMASI & PORTAL KOMITE KEPERAWATAN RSUD dr. SOEDARSO PONTIANAK
+ * KLIEN INTEGRASI BACKEND GOOGLE APPS SCRIPT (SUMBER KEBENARAN: SERVER)
+ * PORTAL & E-VOTING KOMITE KEPERAWATAN RSUD dr. SOEDARSO PONTIANAK
  * ============================================================================
- * Fitur Utama:
- * 1. Autentikasi NIP/NIPPPK/NIK Terverifikasi Server/Kriptografis (Salted SHA-256)
- * 2. Rate-Limiting & Lockout Otomatis (5x gagal -> kunci 15 menit)
- * 3. Wajib Ganti Password Pertama Kali (Min 8 karakter, huruf+angka, bukan default)
- * 4. Penegakan Jadwal Simulasi Bilik Suara (23 Nov 2026 10.00 WIB - 24 Nov 2026 10.00 WIB)
- * 5. Pemisahan Mutlak Tabel Suara (Anonim) vs Tanda Terima Pemilih (Rahasia)
- * 6. Pencatatan Bukti Masuk Bilik Suara & Bukti Telah Memilih
+ * Prinsip Keamanan:
+ * 1. Tidak ada kata sandi, hash kata sandi, garam, atau daftar DPT 717 pegawai
+ *    di dalam kode klien maupun localStorage.
+ * 2. Seluruh autentikasi, penggantian kata sandi, pemungutan suara, jadwal
+ *    buka/tutup, daftar pemilih tersamar, dan hasil rekapitulasi diputuskan
+ *    oleh server Google Apps Script.
+ * 3. Klien hanya menghitung mundur tampilan waktu berdasarkan selisih
+ *    (offset) waktuServer dari server, dan tidak pernah memutuskan buka/tutup.
+ * 4. Sesi disimpan di sessionStorage (token + kedaluwarsa + profil dasar),
+ *    bukan kata sandi.
  * ============================================================================
  */
 
 (function (window) {
   'use strict';
 
-  const SALT_PEPPER = 'rsds_soedarso_salt_2026';
-  const DEFAULT_PASS_HASH = 'b3b21041d6775add44aa44c10820f6623254e5192e485bd4cb9614428a2bac59';
+  const SESSION_STORAGE_KEY = 'komkep_sesi_aktif_v1';
   const SIMULATION_ELECTION_ID = 'e1ec7100-2026-1123-0000-000000000001';
 
-  // Jadwal Resmi Simulasi Sisi Server (WIB: UTC+7)
   const SCHEDULE = {
-    START_ISO: '2026-11-23T10:00:00+07:00',
-    END_ISO: '2026-11-24T10:00:00+07:00',
-    DISCLAIMER: 'PERCOBAAN / SIMULASI — hasil tidak mengikat'
+    START_ISO: (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.WAKTU_BUKA_DEFAULT) || '2026-11-23T10:00:00+07:00',
+    END_ISO:   (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.WAKTU_TUTUP_DEFAULT) || '2026-11-24T10:00:00+07:00',
+    DISCLAIMER: (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.LABEL_SIMULASI) || 'PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT'
   };
 
-  // Konfigurasi Kunci Proyek Supabase
-  const CONFIG = {
-    SUPABASE_URL: window.SUPABASE_URL || localStorage.getItem('komkep_supabase_url') || '',
-    SUPABASE_ANON_KEY: window.SUPABASE_ANON_KEY || localStorage.getItem('komkep_supabase_anon_key') || ''
+  // Status terakhir dari server + selisih waktu server terhadap jam perangkat
+  const serverSync = {
+    configured: false,
+    reachable: false,
+    offsetMs: 0,
+    dpt: 717,
+    sudah_memilih: 0,
+    status: 'PEMELIHARAAN', // 'BUKA' | 'TUTUP' | 'DIJEDA' | 'PEMELIHARAAN'
+    fase: 'BELUM_DIBUKA',   // 'BELUM_DIBUKA' | 'BERLANGSUNG' | 'SELESAI'
+    bukaIso: SCHEDULE.START_ISO,
+    tutupIso: SCHEDULE.END_ISO,
+    hasilTersedia: false,
+    lastFetchedAt: 0
   };
 
-  let sbClient = null;
-
-  function initClient() {
-    if (sbClient) return sbClient;
-    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-      if (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && !CONFIG.SUPABASE_URL.includes('YOUR_PROJECT_ID')) {
-        try {
-          sbClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-        } catch (e) {
-          console.warn('[SupabaseClient] Gagal inisialisasi SDK:', e);
-        }
-      }
-    }
-    return sbClient;
+  function getEndpointUrl() {
+    const cfgUrl = (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.GAS_EXEC_URL)
+      ? String(window.KOMKEP_CONFIG.GAS_EXEC_URL).trim()
+      : '';
+    return cfgUrl;
   }
 
-  // Helper Sanitasi HTML (Cegah Stored/Reflected XSS)
+  function isBackendConfigured() {
+    const url = getEndpointUrl();
+    return Boolean(url && /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec/.test(url));
+  }
+
+  // Sanitasi HTML (cegah XSS)
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -60,33 +66,28 @@
       .replace(/'/g, '&#39;');
   }
 
-  // Helper Masking ID (NIP/NIPPPK/NIK): mis. 1977••••••••••2023 atau 6171••••••••0006
+  // Normalisasi NIP / ID: hapus spasi, titik, strip, petik
+  function normalizeId(rawId) {
+    return String(rawId === null || rawId === undefined ? '' : rawId)
+      .replace(/^'+/, '')
+      .replace(/[\s.\-'"]/g, '')
+      .trim();
+  }
+
+  // Penyamaran NIP: 4 digit awal + xxxx + 4 digit akhir (mis. 1969xxxxxxxxxx1008)
   function maskId(rawId) {
     if (!rawId) return '-';
-    const clean = String(rawId).trim().replace(/\s+/g, '');
-    if (clean.length < 8) return clean;
+    const clean = normalizeId(rawId);
+    if (clean.length <= 8) return clean || '-';
     const start = clean.substring(0, 4);
-    const end = clean.substring(clean.length - 4);
-    const maskedLen = clean.length - 8;
-    return `${start}${'•'.repeat(maskedLen)}${end}`;
+    const end   = clean.substring(clean.length - 4);
+    return start + 'x'.repeat(clean.length - 8) + end;
   }
 
-  // Helper Hash SHA-256 Sisi Klien / Standar Kriptografi WebCrypto
-  async function computeSha256(text) {
-    const combined = text + SALT_PEPPER;
-    if (window.crypto && window.crypto.subtle) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(combined);
-      const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-    // Fallback sync hasher sederhana jika subtle tidak tersedia
-    return DEFAULT_PASS_HASH;
-  }
-
-  // Helper Waktu Sekarang dalam Format WIB
-  function formatWibDate(dateObj = new Date()) {
+  // Format tanggal dalam WIB (Asia/Jakarta)
+  function formatWibDate(dateInput = new Date()) {
+    const dateObj = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
+    if (isNaN(dateObj.getTime())) return '-';
     try {
       const options = {
         timeZone: 'Asia/Jakarta',
@@ -99,610 +100,716 @@
         hour12: false
       };
       return new Intl.DateTimeFormat('id-ID', options).format(dateObj) + ' WIB';
-    } catch (e) {
+    } catch (_) {
       return dateObj.toLocaleString('id-ID') + ' WIB';
     }
   }
 
-  // ==========================================================================
-  // MANAJEMEN PENYIMPANAN LOCAL SECURE ENGINE (FALLBACK JIKA SUPABASE OFFLINE)
-  // ==========================================================================
-  function getCustomPasswordHash(idLogin) {
+  /* ==========================================================================
+     MANAJEMEN SESI DI sessionStorage (HANYA TOKEN + KEDALUWARSA + PROFIL)
+     ========================================================================== */
+
+  function getActiveSession() {
     try {
-      const map = JSON.parse(localStorage.getItem('komkep_password_hashes') || '{}');
-      return map[idLogin] || null;
-    } catch (e) {
+      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.token) return null;
+      if (parsed.kedaluwarsa && Date.now() >= new Date(parsed.kedaluwarsa).getTime()) {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        return null;
+      }
+      return parsed;
+    } catch (_) {
       return null;
     }
   }
 
-  function setCustomPasswordHash(idLogin, hash) {
+  function saveActiveSession(sessionObj) {
     try {
-      const map = JSON.parse(localStorage.getItem('komkep_password_hashes') || '{}');
-      map[idLogin] = hash;
-      localStorage.setItem('komkep_password_hashes', JSON.stringify(map));
-    } catch (e) {}
-  }
-
-  function isPasswordMustChange(idLogin) {
-    try {
-      const changedList = JSON.parse(localStorage.getItem('komkep_passwords_changed') || '[]');
-      return !changedList.includes(idLogin);
-    } catch (e) {
-      return true;
-    }
-  }
-
-  function setPasswordChanged(idLogin) {
-    try {
-      const changedList = JSON.parse(localStorage.getItem('komkep_passwords_changed') || '[]');
-      if (!changedList.includes(idLogin)) {
-        changedList.push(idLogin);
-        localStorage.setItem('komkep_passwords_changed', JSON.stringify(changedList));
+      if (!sessionObj || !sessionObj.token) {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        return;
       }
-    } catch (e) {}
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
+        token: sessionObj.token,
+        kedaluwarsa: sessionObj.kedaluwarsa || new Date(Date.now() + 6 * 3600 * 1000).toISOString(),
+        wajib_ganti_sandi: Boolean(sessionObj.wajib_ganti_sandi),
+        user: sessionObj.user || null
+      }));
+    } catch (_) {}
   }
 
-  function checkLoginRateLimit(idLogin) {
+  function clearActiveSession() {
     try {
-      const attemptsMap = JSON.parse(localStorage.getItem('komkep_login_attempts') || '{}');
-      const item = attemptsMap[idLogin];
-      if (!item) return { isLocked: false };
-
-      const now = Date.now();
-      if (item.lockedUntil && item.lockedUntil > now) {
-        const remainingMinutes = Math.ceil((item.lockedUntil - now) / 60000);
-        return { isLocked: true, remainingMinutes };
-      }
-      return { isLocked: false };
-    } catch (e) {
-      return { isLocked: false };
-    }
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      localStorage.removeItem('komite_auth_user');
+      localStorage.removeItem('komkep_password_hashes');
+      localStorage.removeItem('komkep_passwords_changed');
+      localStorage.removeItem('komkep_sim_voters');
+      localStorage.removeItem('komkep_sim_ballots');
+    } catch (_) {}
   }
 
-  function recordLoginAttempt(idLogin, isSuccess) {
-    try {
-      const attemptsMap = JSON.parse(localStorage.getItem('komkep_login_attempts') || '{}');
-      if (isSuccess) {
-        delete attemptsMap[idLogin];
-      } else {
-        const item = attemptsMap[idLogin] || { count: 0 };
-        item.count += 1;
-        if (item.count >= 5) {
-          item.lockedUntil = Date.now() + (15 * 60 * 1000); // 15 Menit Lockout
-        }
-        attemptsMap[idLogin] = item;
-      }
-      localStorage.setItem('komkep_login_attempts', JSON.stringify(attemptsMap));
-    } catch (e) {}
+  function getSessionToken() {
+    const s = getActiveSession();
+    return s ? s.token : '';
   }
 
-  // ==========================================================================
-  // 1. AUTENTIKASI LOGIN NIP/NIPPPK/NIK
-  // ==========================================================================
-  async function login(usernameOrId, password) {
-    const cleanId = String(usernameOrId || '').trim().replace(/\s+/g, '');
-    const cleanPass = String(password || '');
+  /* ==========================================================================
+     PEMANGGILAN API SERVER GOOGLE APPS SCRIPT (TANPA PREFLIGHT CORS)
+     ========================================================================== */
 
-    if (!cleanId || !cleanPass) {
+  async function callApi(aksi, payload = {}) {
+    const url = getEndpointUrl();
+    serverSync.configured = isBackendConfigured();
+
+    if (!serverSync.configured) {
       return {
-        success: false,
-        message: 'NIP/NIPPPK/NIK dan password wajib diisi.'
+        ok: false,
+        sukses: false,
+        kode: 'PEMELIHARAAN',
+        pesan: 'Pemilihan sedang dalam pemeliharaan (server backend belum dihubungkan).'
       };
     }
 
-    // 1. Cek Rate-Limiting & Lockout
-    const rateCheck = checkLoginRateLimit(cleanId);
-    if (rateCheck.isLocked) {
-      return {
-        success: false,
-        isLocked: true,
-        message: `Akun terkunci sementara karena beberapa kali percobaan gagal. Silakan coba kembali dalam ${rateCheck.remainingMinutes} menit.`
-      };
-    }
-
-    // 2. Hubungi Supabase RPC jika Supabase telah dikonfigurasi
-    const sb = initClient();
-    if (sb) {
-      try {
-        const { data, error } = await sb.rpc('portal_login', {
-          p_id_login: cleanId,
-          p_password: cleanPass
-        });
-        if (!error && data) {
-          recordLoginAttempt(cleanId, data.success);
-          return data;
-        }
-      } catch (err) {
-        console.warn('[SupabaseClient] Gagal RPC portal_login, menggunakan fallback aman:', err);
-      }
-    }
-
-    // 3. Fallback Engine Aman Terhadap 717 Data Pegawai
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
-    let lookupId = cleanId;
-
-    // Jika input berupa username/alias pengurus (misal: rusmulyadi, separia, sekretaris), petakan ke NIP resmi
-    if (!/^\d+$/.test(cleanId) && window.KOMITE_DATA && Array.isArray(window.KOMITE_DATA.adminUsers)) {
-      const foundAdmin = window.KOMITE_DATA.adminUsers.find(a => {
-        const u = (a.username || '').toLowerCase();
-        const al = (a.alias || '').toLowerCase();
-        const alt = (a.altAlias || '').toLowerCase();
-        const dev = (a.devAlias || '').toLowerCase();
-        return u === cleanId.toLowerCase() || al === cleanId.toLowerCase() || alt === cleanId.toLowerCase() || dev === cleanId.toLowerCase();
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({ aksi, ...payload }),
+        redirect: 'follow'
       });
-      if (foundAdmin && foundAdmin.nip) {
-        lookupId = String(foundAdmin.nip).trim().replace(/\s+/g, '');
-      }
-    }
 
-    const matched = pegawaiList.find(p => p.id === lookupId);
-
-    if (!matched) {
-      recordLoginAttempt(cleanId, false);
+      const data = await res.json();
+      serverSync.reachable = true;
+      return data;
+    } catch (err) {
+      console.warn('[GasClient] Gagal menghubungi server Apps Script:', err);
       return {
-        success: false,
-        message: 'NIP/NIPPPK/NIK atau password salah'
+        ok: false,
+        sukses: false,
+        kode: 'JARINGAN_GAGAL',
+        pesan: 'Tidak dapat terhubung ke server pemilihan. Periksa koneksi internet Anda dan coba lagi.'
+      };
+    }
+  }
+
+  /* ==========================================================================
+     1. SINKRONISASI STATUS PUBLIK & WAKTU SERVER
+     ========================================================================== */
+
+  async function fetchServerStatus() {
+    serverSync.configured = isBackendConfigured();
+    if (!serverSync.configured) {
+      serverSync.reachable = false;
+      serverSync.status = 'PEMELIHARAAN';
+      return {
+        ok: false,
+        maintenance: true,
+        dpt: serverSync.dpt,
+        sudah_memilih: 0,
+        status: 'PEMELIHARAAN',
+        pesan: 'Pemilihan sedang dalam pemeliharaan'
       };
     }
 
-    // Verifikasi Hash Password
-    const inputHash = await computeSha256(cleanPass);
-    const activeHash = getCustomPasswordHash(lookupId) || getCustomPasswordHash(cleanId) || DEFAULT_PASS_HASH;
+    const clientSentAt = Date.now();
+    const res = await callApi('status');
+    const clientReceivedAt = Date.now();
 
-    if (inputHash !== activeHash) {
-      recordLoginAttempt(cleanId, false);
-      return {
-        success: false,
-        message: 'NIP/NIPPPK/NIK atau password salah'
-      };
-    }
-
-    // Berhasil Login
-    recordLoginAttempt(cleanId, true);
-    if (lookupId !== cleanId) recordLoginAttempt(lookupId, true);
-    const mustChange = isPasswordMustChange(lookupId) && isPasswordMustChange(cleanId);
-
-    const userObj = {
-      id_login: matched.id,
-      nip: matched.id,
-      jenis_id: matched.jenis,
-      name: matched.nama,
-      id_pegawai: matched.peg,
-      kategori: matched.kat,
-      profesi: matched.kat,
-      status_kepegawaian: matched.status,
-      jabatan: matched.jab,
-      unit: matched.unit,
-      masked_id: maskId(matched.id),
-      role: 'pengusul',
-      wajib_ganti_password: mustChange,
-      mustChangePassword: mustChange
-    };
-
-    return {
-      success: true,
-      message: 'Login berhasil.',
-      user: userObj,
-      wajib_ganti_password: mustChange
-    };
-  }
-
-  // ==========================================================================
-  // 2. GANTI PASSWORD PERTAMA KALI (MANDATORY PASSWORD CHANGE)
-  // ==========================================================================
-  async function changePassword(idLogin, oldPassword, newPassword, confirmPassword) {
-    const cleanId = String(idLogin || '').trim().replace(/\s+/g, '');
-
-    if (!cleanId) {
-      return { success: false, message: 'ID pengguna tidak valid.' };
-    }
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      return { success: false, message: 'Semua kolom formulir ganti password wajib diisi.' };
-    }
-    if (newPassword.length < 8) {
-      return { success: false, message: 'Password baru minimal 8 karakter.' };
-    }
-    if (newPassword === 'REDACTED_PASSWORD' || newPassword === 'REDACTED_PASSWORD') {
-      return { success: false, message: 'Password baru tidak boleh menggunakan password awal (REDACTED_PASSWORD).' };
-    }
-    if (newPassword === cleanId) {
-      return { success: false, message: 'Password baru tidak boleh sama dengan ID Login (NIP/NIPPPK/NIK).' };
-    }
-    if (newPassword !== confirmPassword) {
-      return { success: false, message: 'Konfirmasi password baru tidak cocok.' };
-    }
-    const hasLetter = /[A-Za-z]/.test(newPassword);
-    const hasNumber = /[0-9]/.test(newPassword);
-    if (!hasLetter || !hasNumber) {
-      return { success: false, message: 'Password baru harus mengandung kombinasi huruf dan angka.' };
-    }
-
-    // 1. Cek RPC Supabase jika ada
-    const sb = initClient();
-    if (sb) {
-      try {
-        const { data, error } = await sb.rpc('change_password_first_login', {
-          p_id_login: cleanId,
-          p_old_password: oldPassword,
-          p_new_password: newPassword,
-          p_confirm_password: confirmPassword
-        });
-        if (!error && data) {
-          if (data.success) {
-            setPasswordChanged(cleanId);
-          }
-          return data;
-        }
-      } catch (e) {
-        console.warn('[SupabaseClient] Gagal RPC change_password_first_login:', e);
+    if (res && (res.ok || res.sukses)) {
+      const serverTimeMs = new Date(res.waktuServer).getTime();
+      if (!isNaN(serverTimeMs)) {
+        const midpoint = Math.round((clientSentAt + clientReceivedAt) / 2);
+        serverSync.offsetMs = serverTimeMs - midpoint;
       }
+      serverSync.dpt           = typeof res.dpt === 'number' ? res.dpt : 717;
+      serverSync.sudah_memilih = typeof res.sudah_memilih === 'number' ? res.sudah_memilih : 0;
+      serverSync.status        = res.status || 'TUTUP';
+      serverSync.fase          = res.fase || 'BERLANGSUNG';
+      serverSync.bukaIso       = res.buka || SCHEDULE.START_ISO;
+      serverSync.tutupIso      = res.tutup || SCHEDULE.END_ISO;
+      serverSync.hasilTersedia = Boolean(res.hasil_tersedia);
+      serverSync.lastFetchedAt = Date.now();
+      serverSync.reachable     = true;
     }
 
-    // 2. Fallback Engine
-    const currentHash = getCustomPasswordHash(cleanId) || DEFAULT_PASS_HASH;
-    const oldHash = await computeSha256(oldPassword);
-
-    if (oldHash !== currentHash) {
-      return { success: false, message: 'Password lama yang Anda masukkan tidak sesuai.' };
-    }
-
-    const newHash = await computeSha256(newPassword);
-    setCustomPasswordHash(cleanId, newHash);
-    setPasswordChanged(cleanId);
-
-    return {
-      success: true,
-      message: 'Password berhasil diperbarui dengan aman. Silakan gunakan password baru ini untuk login berikutnya.'
-    };
+    return res;
   }
 
-  // ==========================================================================
-  // 3. E-VOTING: PENGECEKAN JADWAL SIMULASI (23 Nov 10:00 - 24 Nov 10:00 WIB)
-  // ==========================================================================
+  function getEstimatedServerNow() {
+    return new Date(Date.now() + (serverSync.offsetMs || 0));
+  }
+
   function checkElectionSchedule() {
-    const now = new Date();
-    const start = new Date(SCHEDULE.START_ISO);
-    const end = new Date(SCHEDULE.END_ISO);
+    serverSync.configured = isBackendConfigured();
+    const now   = getEstimatedServerNow();
+    const start = new Date(serverSync.bukaIso  || SCHEDULE.START_ISO);
+    const end   = new Date(serverSync.tutupIso || SCHEDULE.END_ISO);
 
-    // Kepatuhan Sistem: Jadwal resmi ditetapkan 23 Nov 2026 10.00 WIB s.d. 24 Nov 2026 10.00 WIB
-    // Agar bilik suara simulasi dapat diuji coba secara aktif oleh pegawai dan panitia kapan saja
-    // tanpa terhalang tanggal sistem perangkat yang berbeda, status simulasi diatur selalu AKTIF (isOpen: true).
-    const isStrictOpen = now >= start && now <= end;
-    const isOpen = true;
-    const isBefore = false;
-    const isAfter = false;
-
-    let remainingMs = end - now;
-    if (remainingMs <= 0 || remainingMs > 24 * 60 * 60 * 1000) {
-      remainingMs = 16 * 3600 * 1000 + 14 * 60 * 1000 + 25 * 1000;
+    if (!serverSync.configured) {
+      return {
+        isOpen: false,
+        isPaused: false,
+        isMaintenance: true,
+        isBefore: false,
+        isAfter: false,
+        serverStatus: 'PEMELIHARAAN',
+        now,
+        start,
+        end,
+        remainingMs: 0,
+        countdownStr: 'Pemilihan sedang dalam pemeliharaan',
+        statusText: 'Pemilihan sedang dalam pemeliharaan',
+        disclaimer: SCHEDULE.DISCLAIMER
+      };
     }
 
-    const diffHours = Math.floor(remainingMs / (1000 * 60 * 60));
+    const isBefore = now.getTime() < start.getTime();
+    const isAfter  = now.getTime() >= end.getTime();
+    const isPaused = serverSync.status === 'DIJEDA';
+    const isOpen   = (serverSync.status === 'BUKA') && !isBefore && !isAfter && !isPaused;
+
+    const targetDate = isBefore ? start : end;
+    const remainingMs = Math.max(0, targetDate.getTime() - now.getTime());
+    const diffHours   = Math.floor(remainingMs / (1000 * 60 * 60));
     const diffMinutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
     const diffSeconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+    const timeParts   = `${diffHours} jam ${diffMinutes} menit ${diffSeconds} detik`;
+
+    let statusText = 'Sedang Berlangsung (BUKA)';
+    let countdownStr = timeParts;
+
+    if (isPaused) {
+      statusText = 'Dijeda Sementara oleh Panitia';
+      countdownStr = 'Pemungutan Suara Dijeda';
+    } else if (isBefore) {
+      statusText = 'Belum Dibuka';
+      countdownStr = `Dibuka dalam ${timeParts}`;
+    } else if (isAfter || serverSync.status === 'TUTUP') {
+      statusText = 'Pemungutan Suara Telah Ditutup';
+      countdownStr = 'Pemilihan Telah Ditutup';
+    }
 
     return {
-      isOpen: true,
-      isBefore: false,
-      isAfter: false,
-      isStrictOpen,
+      isOpen,
+      isPaused,
+      isMaintenance: false,
+      isBefore,
+      isAfter,
+      serverStatus: serverSync.status,
       now,
       start,
       end,
       remainingMs,
-      countdownStr: `${diffHours} jam ${diffMinutes} menit ${diffSeconds} detik`,
-      statusText: 'Sedang Berlangsung (Simulasi Aktif)',
+      countdownStr,
+      statusText,
       disclaimer: SCHEDULE.DISCLAIMER
     };
   }
 
-  // ==========================================================================
-  // 4. E-VOTING: MASUK BILIK SUARA (BUKTI MASUK BILIK SUARA)
-  // ==========================================================================
-  async function enterBooth(electionId = SIMULATION_ELECTION_ID, idLogin) {
-    const cleanId = String(idLogin || '').trim().replace(/\s+/g, '');
-    const schedule = checkElectionSchedule();
+  /* ==========================================================================
+     2. LOGIN & VERIFIKASI SESI KE SERVER
+     ========================================================================== */
 
-    const sb = initClient();
-    if (sb) {
-      try {
-        const { data, error } = await sb.rpc('enter_voting_booth', {
-          p_election_id: electionId,
-          p_id_login: cleanId
-        });
-        if (!error && data) return data;
-      } catch (e) {
-        console.warn('[SupabaseClient] Gagal RPC enter_voting_booth:', e);
-      }
+  function mapServerUserToPortalUser(pengguna, wajibGanti) {
+    if (!pengguna) return null;
+
+    if (pengguna.tipe === 'panitia') {
+      const uLower = String(pengguna.username || '').toLowerCase();
+      const adminList = (window.KOMITE_DATA && Array.isArray(window.KOMITE_DATA.adminUsers))
+        ? window.KOMITE_DATA.adminUsers
+        : [];
+      const matched = adminList.find(a => String(a.username || '').toLowerCase() === uLower);
+      const peran   = String(pengguna.peran || 'pengurus').toLowerCase();
+      const isSuper = peran === 'superadmin' || (matched && String(matched.badge || '').toLowerCase().includes('super'));
+      const isPanitiaEvoting = peran === 'superadmin' || peran === 'panitia';
+
+      return {
+        tipe: 'panitia',
+        peran_server: peran,
+        username: pengguna.username,
+        id_login: pengguna.username,
+        name: pengguna.nama || (matched ? matched.name : pengguna.username),
+        nip: matched ? matched.nip : '-',
+        masked_id: matched && matched.nip ? maskId(matched.nip) : pengguna.username,
+        role: matched ? matched.role : (peran === 'panitia' ? 'Panitia Pemilihan E-Voting' : 'Pengurus Komite Keperawatan'),
+        badge: matched ? matched.badge : (isSuper ? 'Super Admin' : (peran === 'panitia' ? 'Panitia Pemilihan' : 'Pengurus Komite')),
+        unit: (matched && matched.group) ? matched.group : 'Komite Keperawatan',
+        access: Array.from(new Set([
+          ...((matched && matched.access) || ['kredensial', 'mutu', 'etik', 'regulasi']),
+          'pemilihan',
+          ...(isSuper ? ['superadmin', 'approval', 'administrasi'] : [])
+        ])),
+        isAdmin: true,
+        isPengurus: true,
+        isPanitiaEvoting: isPanitiaEvoting,
+        wajib_ganti_password: Boolean(wajibGanti),
+        mustChangePassword: Boolean(wajibGanti)
+      };
     }
 
-    // Fallback Local Engine
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
-    const matched = pegawaiList.find(p => p.id === cleanId);
-
-    const voterName = matched ? matched.nama : 'Pemilih Keperawatan';
-    const voterUnit = matched ? matched.unit : 'RSUD dr. Soedarso';
-    const masked = maskId(cleanId);
-    const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const token = `BILIK-SIM-2026-${cleanId.slice(-4)}-${randomHex}`;
-    const enteredAtWib = formatWibDate(new Date());
-
-    const boothEntry = {
-      voter_name: voterName,
-      masked_id: masked,
-      unit_kerja: voterUnit,
-      access_token: token,
-      entered_at_wib: enteredAtWib,
-      disclaimer: SCHEDULE.DISCLAIMER
-    };
-
-    // Simpan log akses lokal
-    try {
-      const logs = JSON.parse(localStorage.getItem('komkep_booth_logs') || '[]');
-      logs.push(boothEntry);
-      localStorage.setItem('komkep_booth_logs', JSON.stringify(logs));
-    } catch (e) {}
-
+    // Pemilih DPT (717 Pegawai)
+    const nipClean = normalizeId(pengguna.nip);
     return {
-      success: true,
-      message: 'Akses masuk bilik suara simulasi terverifikasi.',
-      booth_entry: boothEntry
+      tipe: 'pemilih',
+      peran_server: 'pemilih',
+      username: nipClean,
+      id_login: nipClean,
+      name: pengguna.nama || 'Tenaga Keperawatan',
+      nip: nipClean,
+      masked_id: pengguna.nip_tersamar || maskId(nipClean),
+      jenis_id: pengguna.jenis_id || 'NIP',
+      kategori: pengguna.kategori || 'Perawat',
+      profesi: pengguna.kategori || 'Perawat',
+      jabatan: pengguna.jabatan || 'Tenaga Keperawatan',
+      unit: pengguna.unit || 'RSUD dr. Soedarso',
+      role: 'pengusul',
+      badge: `Tenaga ${pengguna.kategori || 'Keperawatan'}`,
+      access: ['pengusul', 'kredensial', 'pemilihan'],
+      isAdmin: false,
+      isPengurus: false,
+      isPanitiaEvoting: false,
+      sudah_memilih: Boolean(pengguna.sudah_memilih),
+      wajib_ganti_password: Boolean(wajibGanti),
+      mustChangePassword: Boolean(wajibGanti)
     };
   }
 
-  // ==========================================================================
-  // 5. E-VOTING: SALURKAN SUARA SIMULASI (ATOMIC & KERAHASIAAN PENUH)
-  // ==========================================================================
-  async function castVote(electionId = SIMULATION_ELECTION_ID, idLogin, candidateId) {
-    const cleanId = String(idLogin || '').trim().replace(/\s+/g, '');
-    const schedule = checkElectionSchedule();
+  async function login(usernameOrId, password) {
+    const rawId   = String(usernameOrId || '').trim();
+    const rawPass = String(password || '');
 
-    // 1. PENEGAKAN JADWAL SISI SERVER
-    if (schedule.isBefore) {
+    if (!rawId || !rawPass) {
       return {
         success: false,
-        code: 'VOTE_NOT_OPEN',
-        message: 'Pemungutan suara simulasi belum dibuka. Jadwal buka: Senin, 23 November 2026 pukul 10:00 WIB'
-      };
-    }
-    if (schedule.isAfter) {
-      return {
-        success: false,
-        code: 'VOTE_CLOSED',
-        message: 'Pemungutan suara simulasi telah resmi ditutup pada Selasa, 24 November 2026 pukul 10:00 WIB'
+        message: 'NIP/username dan kata sandi wajib diisi.'
       };
     }
 
-    // 2. Hubungi Supabase RPC
-    const sb = initClient();
-    if (sb) {
-      try {
-        const { data, error } = await sb.rpc('cast_simulation_vote', {
-          p_election_id: electionId,
-          p_id_login: cleanId,
-          p_candidate_id: candidateId
-        });
-        if (!error && data) return data;
-      } catch (e) {
-        console.warn('[SupabaseClient] Gagal RPC cast_simulation_vote:', e);
+    // Jika pengguna memasukkan alias pengurus (mis. ketua / sekretaris), petakan ke username resmi
+    let loginId = rawId;
+    const cleanLower = rawId.toLowerCase().replace(/\s+/g, '');
+    if (!/^\d+$/.test(normalizeId(rawId)) && window.KOMITE_DATA && Array.isArray(window.KOMITE_DATA.adminUsers)) {
+      const foundAdmin = window.KOMITE_DATA.adminUsers.find(a => {
+        const u   = String(a.username || '').toLowerCase();
+        const al  = String(a.alias || '').toLowerCase();
+        const alt = String(a.altAlias || '').toLowerCase();
+        return u === cleanLower || al === cleanLower || alt === cleanLower;
+      });
+      if (foundAdmin && foundAdmin.username) {
+        loginId = foundAdmin.username;
       }
     }
 
-    // 3. Fallback Engine Aman: Cek Suara Ganda
-    const votedMap = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-    if (votedMap[cleanId]) {
-      return {
-        success: false,
-        code: 'ALREADY_VOTED',
-        message: 'Hak suara untuk ID ini sudah digunakan sebelumnya. Setiap pemilih hanya memiliki 1 hak suara.'
-      };
-    }
-
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
-    const matched = pegawaiList.find(p => p.id === cleanId);
-    const voterName = matched ? matched.nama : 'Pemilih Keperawatan';
-    const voterUnit = matched ? matched.unit : 'RSUD dr. Soedarso';
-    const masked = maskId(cleanId);
-
-    const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const receiptToken = `VOTE-SIM-2026-${cleanId.slice(-4)}-${randomSuffix}`;
-    const votedAtWib = formatWibDate(new Date());
-
-    // A. Simpan Status Pemilih di Partisipasi (TANPA PILIHAN KANDIDAT!)
-    votedMap[cleanId] = {
-      receiptToken: receiptToken,
-      votedAt: votedAtWib,
-      maskedId: masked,
-      unit: voterUnit
-    };
-    localStorage.setItem('komkep_sim_voters', JSON.stringify(votedMap));
-
-    // B. Simpan Surat Suara Anonim di Tabel Suara (TANPA ID PEMILIH!)
-    const ballots = JSON.parse(localStorage.getItem('komkep_sim_ballots') || '[]');
-    ballots.push({
-      candidateId: candidateId,
-      castAt: new Date().toISOString()
+    const res = await callApi('login', {
+      id: loginId,
+      sandi: rawPass
     });
-    localStorage.setItem('komkep_sim_ballots', JSON.stringify(ballots));
+
+    if (!res || !(res.ok || res.sukses)) {
+      return {
+        success: false,
+        isLocked: res && res.kode === 'TERKUNCI',
+        code: (res && res.kode) || 'LOGIN_GAGAL',
+        message: (res && res.pesan) || 'NIP/username atau kata sandi salah.'
+      };
+    }
+
+    const wajibGanti = Boolean(res.wajib_ganti_sandi ?? res.perlu_ganti_sandi);
+    const userObj    = mapServerUserToPortalUser(res.pengguna, wajibGanti);
+
+    saveActiveSession({
+      token: res.token,
+      kedaluwarsa: res.kedaluwarsa,
+      wajib_ganti_sandi: wajibGanti,
+      user: userObj
+    });
 
     return {
       success: true,
-      message: 'Suara simulasi Anda berhasil disalurkan secara sah, independen, dan rahasia.',
+      token: res.token,
+      kedaluwarsa: res.kedaluwarsa,
+      wajib_ganti_password: wajibGanti,
+      user: userObj,
+      message: res.pesan || 'Login berhasil.'
+    };
+  }
+
+  async function verifySession() {
+    const sess = getActiveSession();
+    if (!sess || !sess.token) return null;
+    if (!isBackendConfigured()) return sess.user || null;
+
+    const res = await callApi('sesi', { token: sess.token });
+    if (!res || !(res.ok || res.sukses) || !res.pengguna) {
+      clearActiveSession();
+      return null;
+    }
+
+    const wajibGanti = Boolean(res.wajib_ganti_sandi);
+    const userObj    = mapServerUserToPortalUser(res.pengguna, wajibGanti);
+    saveActiveSession({
+      token: sess.token,
+      kedaluwarsa: res.kedaluwarsa || sess.kedaluwarsa,
+      wajib_ganti_sandi: wajibGanti,
+      user: userObj
+    });
+    return userObj;
+  }
+
+  async function logout() {
+    const token = getSessionToken();
+    clearActiveSession();
+    if (token && isBackendConfigured()) {
+      await callApi('logout', { token });
+    }
+    return { success: true };
+  }
+
+  /* ==========================================================================
+     3. GANTI KATA SANDI (WAJIB DI LOGIN PERTAMA & PENGATURAN AKUN)
+     ========================================================================== */
+
+  async function changePassword(idLogin, oldPassword, newPassword, confirmPassword) {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return { success: false, message: 'Semua kolom kata sandi wajib diisi.' };
+    }
+    if (newPassword.length < 8) {
+      return { success: false, message: 'Kata sandi baru minimal 8 karakter.' };
+    }
+    if (!/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return { success: false, message: 'Kata sandi baru wajib mengandung kombinasi huruf dan angka.' };
+    }
+    if (newPassword !== confirmPassword) {
+      return { success: false, message: 'Konfirmasi kata sandi baru tidak cocok.' };
+    }
+    const cleanId = normalizeId(idLogin);
+    if (cleanId && normalizeId(newPassword).toLowerCase() === cleanId.toLowerCase()) {
+      return { success: false, message: 'Kata sandi baru tidak boleh sama dengan NIP atau username.' };
+    }
+    if (newPassword === oldPassword) {
+      return { success: false, message: 'Kata sandi baru tidak boleh sama dengan kata sandi awal/lama.' };
+    }
+
+    const token = getSessionToken();
+    if (!token) {
+      return { success: false, message: 'Sesi Anda telah berakhir. Silakan login kembali.' };
+    }
+
+    const res = await callApi('ganti_sandi', {
+      token: token,
+      sandi_lama: oldPassword,
+      sandi_baru: newPassword
+    });
+
+    if (!res || !(res.ok || res.sukses)) {
+      return {
+        success: false,
+        message: (res && res.pesan) || 'Gagal memperbarui kata sandi.'
+      };
+    }
+
+    const sess = getActiveSession();
+    if (sess) {
+      sess.wajib_ganti_sandi = false;
+      if (sess.user) {
+        sess.user.wajib_ganti_password = false;
+        sess.user.mustChangePassword   = false;
+      }
+      saveActiveSession(sess);
+    }
+
+    return {
+      success: true,
+      message: res.pesan || 'Kata sandi berhasil diperbarui.'
+    };
+  }
+
+  /* ==========================================================================
+     4. E-VOTING: MASUK BILIK, PILIH, BUKTI, STATUS, HASIL, DAFTAR PEMILIH, KONTROL
+     ========================================================================== */
+
+  async function enterBooth() {
+    await fetchServerStatus();
+    const sess = getActiveSession();
+    if (!sess || !sess.user) {
+      return {
+        success: false,
+        message: 'Silakan login dengan NIP/NIPPPK/NIK Anda terlebih dahulu.'
+      };
+    }
+
+    const u = sess.user;
+    return {
+      success: true,
+      message: 'Akses bilik suara terverifikasi.',
+      booth_entry: {
+        voter_name: u.name,
+        masked_id: u.masked_id || maskId(u.nip),
+        unit_kerja: u.unit || 'RSUD dr. Soedarso',
+        entered_at_wib: formatWibDate(getEstimatedServerNow()),
+        disclaimer: SCHEDULE.DISCLAIMER
+      }
+    };
+  }
+
+  async function castVote(electionId, idLogin, candidateId) {
+    const token = getSessionToken();
+    if (!token) {
+      return {
+        success: false,
+        code: 'NO_SESSION',
+        message: 'Sesi login tidak ditemukan. Silakan login kembali dengan NIP/NIPPPK/NIK Anda.'
+      };
+    }
+
+    const res = await callApi('pilih', {
+      token: token,
+      kode_calon: candidateId
+    });
+
+    if (!res || !(res.ok || res.sukses)) {
+      return {
+        success: false,
+        code: (res && res.kode) || 'VOTE_REJECTED',
+        message: (res && res.pesan) || 'Penyaluran suara ditolak oleh server.'
+      };
+    }
+
+    const sess = getActiveSession();
+    const u    = (sess && sess.user) ? sess.user : {};
+    if (sess && sess.user) {
+      sess.user.sudah_memilih = true;
+      sess.user.kode_bukti    = res.kode_bukti;
+      sess.user.waktu_memilih = formatWibDate(res.waktu || getEstimatedServerNow());
+      saveActiveSession(sess);
+    }
+
+    await fetchServerStatus();
+
+    return {
+      success: true,
+      message: res.pesan || 'Suara Anda berhasil dicatat.',
       receipt: {
-        voter_name: voterName,
-        masked_id: masked,
-        unit_kerja: voterUnit,
-        receipt_token: receiptToken,
-        voted_at_wib: votedAtWib,
+        voter_name: u.name || 'Pemilih',
+        masked_id: u.masked_id || maskId(u.nip || idLogin),
+        unit_kerja: u.unit || 'RSUD dr. Soedarso',
+        receipt_token: res.kode_bukti,
+        voted_at_wib: formatWibDate(res.waktu || getEstimatedServerNow()),
         status: 'Sudah Memilih (Sah)',
         disclaimer: SCHEDULE.DISCLAIMER
       }
     };
   }
 
-  // ==========================================================================
-  // 6. E-VOTING: REKAPITULASI PEMILIHAN (HALAMAN ADMIN)
-  // ==========================================================================
-  async function getElectionRekap(electionId = SIMULATION_ELECTION_ID) {
-    const sb = initClient();
-    if (sb) {
-      try {
-        const { data, error } = await sb.rpc('get_election_rekap', { p_election_id: electionId });
-        if (!error && data) return data;
-      } catch (e) {
-        console.warn('[SupabaseClient] Gagal RPC get_election_rekap:', e);
+  async function getVoterReceipt() {
+    const token = getSessionToken();
+    if (!token) {
+      return { success: false, message: 'Sesi tidak valid.' };
+    }
+    const res = await callApi('bukti', { token });
+    if (!res || !(res.ok || res.sukses)) {
+      return {
+        success: false,
+        code: (res && res.kode) || 'BELUM_MEMILIH',
+        message: (res && res.pesan) || 'Bukti suara tidak ditemukan.'
+      };
+    }
+    const sess = getActiveSession();
+    return {
+      success: true,
+      receipt: {
+        voter_name: res.nama,
+        masked_id: res.nip_tersamar,
+        unit_kerja: res.unit || (sess?.user?.unit) || 'RSUD dr. Soedarso',
+        receipt_token: res.kode_bukti,
+        voted_at_wib: (sess?.user?.waktu_memilih) || 'Tercatat di Server',
+        status: 'Sudah Memilih (Sah)',
+        disclaimer: SCHEDULE.DISCLAIMER
       }
+    };
+  }
+
+  async function getElectionRekap(electionId = SIMULATION_ELECTION_ID) {
+    const statusRes = await fetchServerStatus();
+
+    if (!isBackendConfigured()) {
+      return {
+        success: false,
+        maintenance: true,
+        resultsAvailable: false,
+        message: 'Pemilihan sedang dalam pemeliharaan',
+        metrics: {
+          total_dpt: 717,
+          total_voted: 0
+        },
+        rekap_kandidat: []
+      };
     }
 
-    // Fallback Engine
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
-    const votedMap = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-    const ballots = JSON.parse(localStorage.getItem('komkep_sim_ballots') || '[]');
+    const totalDpt   = serverSync.dpt || 717;
+    const totalVoted = serverSync.sudah_memilih || 0;
 
-    const totalDpt = pegawaiList.length || 717;
-    const totalVoted = Object.keys(votedMap).length;
-    const turnoutPercent = totalDpt > 0 ? ((totalVoted / totalDpt) * 100).toFixed(2) : 0;
+    // Sebelum WAKTU_TUTUP: JANGAN meminta atau menyimpan angka per calon
+    if (!serverSync.hasilTersedia) {
+      return {
+        success: true,
+        resultsAvailable: false,
+        closedMessage: 'Hasil rekapitulasi dibuka setelah pemilihan ditutup pada Selasa, 24 November 2026 pukul 10.00 WIB.',
+        election: {
+          id: electionId,
+          status: serverSync.status,
+          fase: serverSync.fase,
+          start_time: serverSync.bukaIso,
+          end_time: serverSync.tutupIso,
+          disclaimer: SCHEDULE.DISCLAIMER
+        },
+        metrics: {
+          total_dpt: totalDpt,
+          total_voted: totalVoted
+        },
+        rekap_kandidat: []
+      };
+    }
 
-    // Rekap per unit kerja
-    const unitMap = {};
-    pegawaiList.forEach(p => {
-      const u = p.unit || 'Lainnya';
-      if (!unitMap[u]) unitMap[u] = { total: 0, voted: 0 };
-      unitMap[u].total += 1;
-      if (votedMap[p.id]) unitMap[u].voted += 1;
-    });
+    // Setelah WAKTU_TUTUP: Ambil perolehan suara per calon dari server
+    const hasilRes = await callApi('hasil');
+    if (!hasilRes || !(hasilRes.ok || hasilRes.sukses)) {
+      return {
+        success: true,
+        resultsAvailable: false,
+        closedMessage: (hasilRes && hasilRes.pesan) || 'Hasil rekapitulasi dibuka setelah pemilihan ditutup pada Selasa, 24 November 2026 pukul 10.00 WIB.',
+        election: {
+          id: electionId,
+          status: serverSync.status,
+          fase: serverSync.fase,
+          start_time: serverSync.bukaIso,
+          end_time: serverSync.tutupIso,
+          disclaimer: SCHEDULE.DISCLAIMER
+        },
+        metrics: {
+          total_dpt: totalDpt,
+          total_voted: totalVoted
+        },
+        rekap_kandidat: []
+      };
+    }
 
-    const rekapUnit = Object.keys(unitMap).map(u => ({
-      unit_kerja: u,
-      total_dpt: unitMap[u].total,
-      sudah_memilih: unitMap[u].voted,
-      belum_memilih: unitMap[u].total - unitMap[u].voted,
-      persen: unitMap[u].total > 0 ? ((unitMap[u].voted / unitMap[u].total) * 100).toFixed(1) : 0
-    })).sort((a, b) => b.total_dpt - a.total_dpt);
-
-    // Rekap suara kandidat dari ballots anonim
-    const candidateVotes = {};
-    ballots.forEach(b => {
-      candidateVotes[b.candidateId] = (candidateVotes[b.candidateId] || 0) + 1;
-    });
-
-    const candidates = [
-      { id: 'cand-1', candidate_number: 1, name: 'Ns. Siti Rahmawati, S.Kep., M.Kep.', title_credentials: 'Kandidat 1' },
-      { id: 'cand-2', candidate_number: 2, name: 'Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB.', title_credentials: 'Kandidat 2' },
-      { id: 'cand-3', candidate_number: 3, name: 'Ns. Rusmulyadi, S.Kep.Ners., M.A.R.S', title_credentials: 'Kandidat 3' },
-      { id: 'cand-abstain', candidate_number: 4, name: 'Kotak Kosong / Abstain (Tidak Memilih)', title_credentials: 'Opsi Abstain', is_abstain: true }
+    const candidatesMeta = [
+      { id: 'cand-1', candidate_number: 1, name: 'Ns. Siti Rahmawati, S.Kep., M.Kep. (SIMULASI)', unit: 'Instalasi Rawat Intensif (ICU)' },
+      { id: 'cand-2', candidate_number: 2, name: 'Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB. (SIMULASI)', unit: 'Instalasi Rawat Inap Bedah' },
+      { id: 'cand-3', candidate_number: 3, name: 'Ns. Rusmulyadi, S.Kep.Ners., M.A.R.S (SIMULASI)', unit: 'Enggang Gading' },
+      { id: 'cand-abstain', candidate_number: 4, name: 'Kotak Kosong / Abstain (Tidak Memilih)', unit: 'Seluruh Unit Kerja', is_abstain: true }
     ];
 
-    const rekapKandidat = candidates.map(c => {
-      const votes = candidateVotes[c.id] || 0;
+    const rincianMap = {};
+    (hasilRes.rincian || []).forEach(r => {
+      rincianMap[r.kode_calon] = r;
+    });
+
+    const rekapKandidat = candidatesMeta.map(c => {
+      const r = rincianMap[c.id] || { jumlah: 0, persen: 0 };
       return {
         candidate_id: c.id,
         candidate_number: c.candidate_number,
         name: c.name,
-        title_credentials: c.title_credentials,
+        unit: c.unit,
         is_abstain: Boolean(c.is_abstain),
-        vote_count: votes,
-        percent: totalVoted > 0 ? ((votes / totalVoted) * 100).toFixed(2) : 0
+        vote_count: r.jumlah || 0,
+        percent: typeof r.persen === 'number' ? r.persen.toFixed(2) : '0.00'
       };
     });
 
     return {
       success: true,
+      resultsAvailable: true,
       election: {
         id: electionId,
-        title: 'Simulasi Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso',
-        period: '2027 - 2030',
-        disclaimer: SCHEDULE.DISCLAIMER,
-        start_time: SCHEDULE.START_ISO,
-        end_time: SCHEDULE.END_ISO,
-        status: 'aktif'
+        status: serverSync.status,
+        fase: serverSync.fase,
+        start_time: serverSync.bukaIso,
+        end_time: serverSync.tutupIso,
+        disclaimer: SCHEDULE.DISCLAIMER
       },
       metrics: {
-        total_dpt: totalDpt,
-        total_voted: totalVoted,
-        belum_memilih: totalDpt - totalVoted,
-        turnout_percent: turnoutPercent
+        total_dpt: hasilRes.dpt || totalDpt,
+        total_voted: hasilRes.sudah_memilih ?? totalVoted,
+        total_sah: hasilRes.total_sah ?? totalVoted
       },
-      rekap_unit: rekapUnit,
+      tertinggi: hasilRes.tertinggi || [],
       rekap_kandidat: rekapKandidat
     };
   }
 
-  // Reset Data Simulasi
-  async function resetSimulation(electionId = SIMULATION_ELECTION_ID) {
-    const sb = initClient();
-    if (sb) {
-      try {
-        const { data, error } = await sb.rpc('admin_reset_simulation_data', { p_election_id: electionId });
-        if (!error && data) return data;
-      } catch (e) {
-        console.warn('[SupabaseClient] Gagal RPC admin_reset_simulation_data:', e);
-      }
+  async function getVoterListForAdmin() {
+    const token = getSessionToken();
+    if (!token) {
+      return { success: false, daftar: [], message: 'Silakan login sebagai Panitia Pemilihan.' };
     }
-
-    localStorage.removeItem('komkep_sim_voters');
-    localStorage.removeItem('komkep_sim_ballots');
-    localStorage.removeItem('komkep_booth_logs');
-
+    const res = await callApi('daftar_pemilih', { token });
+    if (!res || !(res.ok || res.sukses)) {
+      return {
+        success: false,
+        daftar: [],
+        message: (res && res.pesan) || 'Hanya panitia pemilihan yang dapat melihat daftar pemilih.'
+      };
+    }
     return {
       success: true,
-      message: 'Data simulasi pemilihan berhasil direset bersih.'
+      daftar: Array.isArray(res.daftar) ? res.daftar : []
     };
   }
 
-  function unlockAccount(idLogin) {
-    try {
-      const clean = String(idLogin || '').trim().replace(/\s+/g, '');
-      const attemptsMap = JSON.parse(localStorage.getItem('komkep_login_attempts') || '{}');
-      delete attemptsMap[clean];
-      localStorage.setItem('komkep_login_attempts', JSON.stringify(attemptsMap));
-      return true;
-    } catch (e) {
-      return false;
+  async function controlElection(perintah, konfirmasi = '') {
+    const token = getSessionToken();
+    if (!token) {
+      return { success: false, message: 'Silakan login sebagai Panitia Pemilihan.' };
     }
+    const res = await callApi('kontrol', {
+      token,
+      perintah,
+      konfirmasi
+    });
+    await fetchServerStatus();
+    return {
+      success: Boolean(res && (res.ok || res.sukses)),
+      status: res && res.status,
+      message: (res && res.pesan) || 'Perintah kontrol selesai.'
+    };
   }
 
-  function resetUserVote(cleanId) {
-    try {
-      const id = String(cleanId || '').trim().replace(/\s+/g, '');
-      const simVoters = JSON.parse(localStorage.getItem('komkep_sim_voters') || '{}');
-      if (simVoters[id]) {
-        delete simVoters[id];
-        localStorage.setItem('komkep_sim_voters', JSON.stringify(simVoters));
-      }
-      return true;
-    } catch (e) {
-      return false;
-    }
+  async function resetSimulation(konfirmasi = '') {
+    return controlElection('reset', konfirmasi);
   }
 
-  function clearAllLockouts() {
-    try {
-      localStorage.removeItem('komkep_login_attempts');
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Ekspor Modul ke Objek Global
   window.SupabaseKomkep = {
-    init: initClient,
-    escapeHtml: escapeHtml,
-    maskId: maskId,
-    login: login,
-    changePassword: changePassword,
-    checkElectionSchedule: checkElectionSchedule,
-    enterBooth: enterBooth,
-    castVote: castVote,
-    getElectionRekap: getElectionRekap,
-    resetSimulation: resetSimulation,
-    resetUserVote: resetUserVote,
-    unlockAccount: unlockAccount,
-    clearAllLockouts: clearAllLockouts,
-    formatWibDate: formatWibDate,
-    SCHEDULE: SCHEDULE
+    init: fetchServerStatus,
+    fetchServerStatus,
+    isBackendConfigured,
+    getEndpointUrl,
+    escapeHtml,
+    normalizeId,
+    maskId,
+    formatWibDate,
+    getActiveSession,
+    verifySession,
+    login,
+    logout,
+    changePassword,
+    checkElectionSchedule,
+    enterBooth,
+    castVote,
+    getVoterReceipt,
+    getElectionRekap,
+    getVoterListForAdmin,
+    controlElection,
+    resetSimulation,
+    SCHEDULE,
+    serverSync
   };
 
 })(window);

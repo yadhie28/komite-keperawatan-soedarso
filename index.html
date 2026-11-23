@@ -133,7 +133,7 @@
   <div id="adminModeBanner" class="admin-mode-banner" style="display: none;">
     <div style="display: flex; align-items: center; gap: 0.6rem;">
       <i class="fa-solid fa-user-shield" id="adminBannerIcon" style="color: var(--gold-400); font-size: 1rem;"></i>
-      <span><strong id="adminBannerPrefix">Mode Administrator Aktif:</strong> <strong id="adminBannerUser">M. Separia Russanto, S.Kep., Ns</strong> (<span id="adminBannerRole">Ketua Komite</span>) &bull; <span id="adminBannerSub">Akses Penuh Tata Kelola Klinis</span></span>
+      <span><strong id="adminBannerPrefix">Sesi Pengguna:</strong> <strong id="adminBannerUser">-</strong> (<span id="adminBannerRole">Tamu</span>) &bull; <span id="adminBannerSub">Mode Tamu Publik</span></span>
     </div>
     <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
       <span class="badge-official" id="adminBannerBadgeTag" style="font-size: 0.7rem; background: rgba(0,0,0,0.3);">AKSES TERAUTENTIKASI</span>
@@ -245,11 +245,11 @@
         </button>
 
         <!-- Admin / Pengusul User Pill (Profil, Pengaturan Sesi & Tombol Log Out Tunggal) -->
-        <div class="admin-user-pill" id="adminUserPill" style="display: none; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk Pengaturan Akun, Kata Sandi &amp; Mode Tampilan">
-          <div class="admin-avatar" id="adminAvatarText">HW</div>
+        <div class="admin-user-pill" id="adminUserPill" style="display: flex; cursor: pointer;" onclick="handleUserPillClick()" title="Klik untuk Masuk atau Pengaturan Akun">
+          <div class="admin-avatar" id="adminAvatarText"><i class="fa-solid fa-right-to-bracket"></i></div>
           <div class="admin-info">
-            <span class="admin-name" id="adminNavName">Ns. Hendra W.</span>
-            <span class="admin-role-tag" id="adminNavRole">Super Admin</span>
+            <span class="admin-name" id="adminNavName">Tamu (Belum Login)</span>
+            <span class="admin-role-tag" id="adminNavRole">Klik untuk Masuk</span>
           </div>
           <button class="btn-pill-logout" id="btnPortalLogout" onclick="event.stopPropagation(); logoutToPortal()" title="Keluar / Log Out dari akun ini">
             <i class="fa-solid fa-right-from-bracket"></i> <span>Log Out</span>
@@ -476,7 +476,7 @@
                     <span class="org-badge-pill slate" style="font-size: 0.65rem;">Direksi RSUD</span>
                   </div>
                   <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">drg. Hary Agung Tjahyadi, M.Kes</div>
-                  <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-700);">Direktur RSUD Dokter Soedarso Pontianak</div>
+                  <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-700);">Direktur RSUD Dokter Soedarso Pontianak &bull; Pembina Utama Muda</div>
                   <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">
                     <i class="fa-solid fa-id-badge" style="color: var(--gold-600);"></i> NIP. 000000000000000000 &bull; Penerbit Resmi SK Penugasan Klinis (SPK & RKK)
                   </div>
@@ -2362,13 +2362,13 @@
           <i class="fa-solid fa-box-archive"></i> Bilik Suara (Voting)
         </button>
         <button id="pemilihan-nav-hasil" onclick="window.PemilihanKomkep.switchSubTab('hasil')" style="padding: 0.55rem 1.15rem; border-radius: 8px; border: none; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
-          <i class="fa-solid fa-chart-column"></i> Hasil Rekapitulasi Real-Time
+          <i class="fa-solid fa-chart-column"></i> Hasil Rekapitulasi
         </button>
         <button id="pemilihan-nav-profil" onclick="window.PemilihanKomkep.switchSubTab('profil')" style="padding: 0.55rem 1.15rem; border-radius: 8px; border: none; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
-          <i class="fa-solid fa-id-badge"></i> Profil Lengkap 3 Calon
+          <i class="fa-solid fa-id-badge"></i> Profil 3 Calon (Simulasi)
         </button>
         <button id="pemilihan-nav-admin" onclick="window.PemilihanKomkep.switchSubTab('admin')" style="padding: 0.55rem 1.15rem; border-radius: 8px; border: none; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
-          <i class="fa-solid fa-user-shield"></i> Panel Panitia (Admin)
+          <i class="fa-solid fa-user-shield"></i> Panel Panitia
         </button>
       </div>
 
@@ -2388,51 +2388,48 @@
         <!-- Metrics & Tombol Bukti Cetak -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
           <div style="font-size: 0.82rem; font-weight: 700; color: #475569;">
-            <i class="fa-solid fa-chart-pie" style="color: #0d5f5b;"></i> Rekapitulasi Suara &amp; Dokumen Bukti Sah
+            <i class="fa-solid fa-chart-pie" style="color: #0d5f5b;"></i> Status Partisipasi &amp; Rekapitulasi Pemilihan
           </div>
           <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button type="button" class="btn-primary" onclick="window.PemilihanKomkep.openBeritaAcaraModal()" style="font-size: 0.8rem; padding: 6px 14px; background: #0d5f5b; border: none; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; box-shadow: var(--shadow-sm);">
+            <button type="button" id="btnCetakBeritaAcaraHasil" class="btn-primary" disabled onclick="window.PemilihanKomkep.openBeritaAcaraModal()" style="font-size: 0.8rem; padding: 6px 14px; background: #94a3b8; border: none; font-weight: 800; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; cursor: not-allowed; opacity: 0.65;">
               <i class="fa-solid fa-file-signature"></i> Cetak Berita Acara Resmi (A4)
             </button>
-            <button type="button" class="btn-secondary" onclick="window.PemilihanKomkep.sendEmailLaporan()" style="font-size: 0.8rem; padding: 6px 12px; background: #ffffff; color: #0d5f5b; border: 1.5px solid #0d5f5b; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem;">
+            <button type="button" id="btnKirimEmailHasil" class="btn-secondary" disabled onclick="window.PemilihanKomkep.sendEmailLaporan()" style="font-size: 0.8rem; padding: 6px 12px; background: #f1f5f9; color: #64748b; border: 1.5px solid #cbd5e1; font-weight: 700; border-radius: 8px; display: flex; align-items: center; gap: 0.4rem; cursor: not-allowed; opacity: 0.65;">
               <i class="fa-solid fa-envelope"></i> Kirim ke Email Komite
             </button>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <!-- Hanya Dua Angka Sebelum Tutup: Jumlah DPT dan Jumlah Sudah Memilih -->
+        <div id="pemilihanMetricsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Total Suara Masuk</div>
-            <div id="pemilihanMetricTotalVotes" style="font-size: 1.8rem; font-weight: 900; color: #0d5f5b; margin-top: 0.25rem;">0 Suara</div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Jumlah Daftar Pemilih Tetap (DPT)</div>
+            <div id="pemilihanMetricTotalDpt" style="font-size: 1.8rem; font-weight: 900; color: #0f172a; margin-top: 0.25rem;">717 Pemilih</div>
           </div>
           <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
-            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Partisipasi Pemilih</div>
-            <div id="pemilihanMetricTurnout" style="font-size: 1.8rem; font-weight: 900; color: #2563eb; margin-top: 0.25rem;">0%</div>
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Jumlah yang Sudah Memilih</div>
+            <div id="pemilihanMetricTotalVotes" style="font-size: 1.8rem; font-weight: 900; color: #0d5f5b; margin-top: 0.25rem;">0 Pemilih</div>
           </div>
-          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
+          <div id="pemilihanCardLeaderAfterClose" style="display: none; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
             <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Perolehan Suara Tertinggi</div>
-            <div id="pemilihanMetricLeader" style="font-size: 1.2rem; font-weight: 900; color: #b45309; margin-top: 0.5rem;">-</div>
+            <div id="pemilihanMetricLeader" style="font-size: 1.1rem; font-weight: 900; color: #b45309; margin-top: 0.5rem;">-</div>
           </div>
         </div>
 
-        <!-- Bar chart visual -->
+        <!-- Area Hasil Rekapitulasi (Tertutup Sebelum Waktu Tutup) -->
         <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main);">
-              <i class="fa-solid fa-chart-simple" style="color: #0d5f5b;"></i> Grafik Perolehan Suara Calon
-            </h3>
-            <span style="font-size: 0.78rem; background: #f0fdf4; color: #166534; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid #bbf7d0;">
-              <i class="fa-solid fa-circle-dot" style="color: #22c55e;"></i> Data Real-Time
-            </span>
-          </div>
-
           <div id="pemilihanResultsBars">
-            <!-- Bars diisi via JS -->
+            <div style="text-align: center; padding: 2rem 1rem; color: #475569;">
+              <i class="fa-solid fa-lock" style="font-size: 2rem; color: #b45309; margin-bottom: 0.75rem;"></i>
+              <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">
+                Hasil rekapitulasi dibuka setelah pemilihan ditutup pada Selasa, 24 November 2026 pukul 10.00 WIB.
+              </div>
+            </div>
           </div>
         </div>
 
         <div style="background: #f8fafc; border: 1px dashed var(--border-strong); border-radius: 12px; padding: 1rem 1.25rem; font-size: 0.8rem; color: #64748b; line-height: 1.5;">
-          <i class="fa-solid fa-shield-halved" style="color: #0d5f5b;"></i> <strong>Transparansi &amp; Integritas Data:</strong> Seluruh perolehan suara dihitung secara otomatis dan kriptografis oleh sistem e-voting terintegrasi RSUD dr. Soedarso. Pilihan masing-masing pemilih tetap bersifat rahasia dan tidak dapat diakses oleh pihak manapun termasuk panitia pemilihan.
+          <i class="fa-solid fa-shield-halved" style="color: #0d5f5b;"></i> <strong>Kerahasiaan &amp; Pemisahan Data:</strong> Pilihan dicatat terpisah dari identitas pemilih dan antarmuka panitia tidak menampilkan pilihan individu.
         </div>
       </div>
 
@@ -2445,48 +2442,32 @@
 
       <!-- SUBPANE 4: PANEL ADMIN -->
       <div id="pemilihan-subpane-admin" style="display: none;">
-        <!-- Container Rekapitulasi Partisipasi Per Unit Kerja & Kandidat -->
+        <!-- Container Ringkasan Partisipasi Panitia (Hanya DPT & Sudah Memilih sebelum Tutup) -->
         <div id="pemilihanAdminPanelContainer"></div>
 
-        <!-- Integrasi Google Spreadsheet & Bukti Voting Sah -->
+        <!-- Informasi Backend Terpusat -->
         <div style="background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 100%); color: #ffffff; border: 2px solid #2dd4bf; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 10px 20px -5px rgba(13, 95, 91, 0.25);">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
             <div>
               <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(45, 212, 191, 0.2); border: 1px solid #2dd4bf; color: #5eead4; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
-                <i class="fa-solid fa-file-excel"></i> Cloud Database &amp; Bukti Audit
+                <i class="fa-solid fa-server"></i> Server Backend Terpusat (Google Apps Script)
               </div>
-              <h3 style="font-size: 1.15rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 0.25rem;">
-                Integrasi Google Spreadsheet: komitekeperawatanrsds2023@gmail.com
+              <h3 style="font-size: 1.1rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 0.25rem;">
+                Penyimpanan Suara &amp; Status Partisipasi Terpusat
               </h3>
               <p style="font-size: 0.82rem; color: #ccfbf1; line-height: 1.5; max-width: 680px;">
-                Seluruh suara masuk direkam secara kriptografis ke Google Spreadsheet panitia sebagai Berita Acara dan Alat Bukti Proses Voting yang Sah dan Terverifikasi.
+                Pilihan dicatat terpisah dari identitas pemilih dan antarmuka panitia tidak menampilkan pilihan individu. Konfigurasi alamat server diambil dari berkas publik <code>config.js</code> sehingga berlaku sama bagi seluruh pemilih.
               </p>
             </div>
 
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 6px 12px; background: #ffffff; color: #042f2e; font-weight: 800; border: none; border-radius: 8px;" onclick="window.PemilihanKomkep.downloadAppsScriptFile()">
-                <i class="fa-solid fa-download"></i> Unduh Skrip (.js)
-              </button>
-              <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 6px 12px; background: #fef08a; color: #854d0e; font-weight: 800; border: none; border-radius: 8px;" onclick="window.PemilihanKomkep.exportResultsCsv()">
-                <i class="fa-solid fa-file-csv"></i> Unduh Berita Acara (CSV)
-              </button>
               <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 6px 12px; background: #99f6e4; color: #115e59; font-weight: 800; border: none; border-radius: 8px;" onclick="window.PemilihanKomkep.exportLogVotesCsv()">
-                <i class="fa-solid fa-clipboard-check"></i> Unduh Log Pemilih &amp; Token (CSV)
+                <i class="fa-solid fa-clipboard-check"></i> Unduh Daftar Partisipasi (CSV)
+              </button>
+              <button type="button" id="btnUnduhRekapHasilCsv" class="btn-secondary" style="font-size: 0.78rem; padding: 6px 12px; background: #fef08a; color: #854d0e; font-weight: 800; border: none; border-radius: 8px;" onclick="window.PemilihanKomkep.exportResultsCsv()">
+                <i class="fa-solid fa-file-csv"></i> Unduh Hasil Rekapitulasi (CSV)
               </button>
             </div>
-          </div>
-
-          <!-- URL Endpoint Apps Script -->
-          <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed rgba(255, 255, 255, 0.2); display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 250px;">
-              <label for="inputPemilihanGasUrl" style="font-size: 0.75rem; font-weight: 700; color: #99f6e4; display: block; margin-bottom: 0.25rem;">
-                URL Endpoint Google Apps Script Web App (Terkoneksi ke Spreadsheet Akun komitekeperawatanrsds2023@gmail.com):
-              </label>
-              <input type="url" id="inputPemilihanGasUrl" placeholder="https://script.google.com/macros/s/.../exec" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.8rem; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.1); color: #ffffff;" />
-            </div>
-            <button type="button" class="btn-primary" style="align-self: flex-end; padding: 0.55rem 1rem; font-size: 0.8rem; background: #2dd4bf; color: #042f2e; font-weight: 800; border: none; border-radius: 6px;" onclick="window.PemilihanKomkep.saveGasEndpoint()">
-              <i class="fa-solid fa-floppy-disk"></i> Simpan URL
-            </button>
           </div>
         </div>
 
@@ -2494,18 +2475,18 @@
           <!-- Kontrol Status -->
           <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
             <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
-              <i class="fa-solid fa-sliders" style="color: #0d5f5b;"></i> Kontrol Status Pemilihan
+              <i class="fa-solid fa-sliders" style="color: #0d5f5b;"></i> Kontrol Status Pemilihan (Khusus Panitia)
             </h4>
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.85rem; margin-bottom: 1rem;">
-              <div style="font-size: 0.78rem; color: #64748b;">Status Saat Ini:</div>
+              <div style="font-size: 0.78rem; color: #64748b;">Status Server Saat Ini:</div>
               <div id="pemilihanAdminStatusText" style="font-size: 0.95rem; margin-top: 2px;"></div>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button id="pemilihanBtnToggleElection" class="btn-primary" style="font-size: 0.82rem; padding: 0.6rem 1rem; border-radius: 8px; border: none;" onclick="window.PemilihanKomkep.toggleElection()">
                 Jeda Pemilihan
               </button>
-              <button class="btn-secondary" style="font-size: 0.82rem; padding: 0.6rem 1rem; border-radius: 8px; color: #dc2626;" onclick="window.PemilihanKomkep.resetAllVotes()">
-                <i class="fa-solid fa-trash-can"></i> Reset Semua Suara (0)
+              <button id="pemilihanBtnResetVotes" class="btn-secondary" style="font-size: 0.82rem; padding: 0.6rem 1rem; border-radius: 8px; color: #dc2626;" onclick="window.PemilihanKomkep.resetAllVotes()">
+                <i class="fa-solid fa-trash-can"></i> Reset Semua Suara
               </button>
             </div>
           </div>
@@ -2516,41 +2497,40 @@
               <i class="fa-solid fa-calendar-days" style="color: #0d5f5b;"></i> Jadwal Pelaksanaan Simulasi
             </h4>
             <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 10px; margin-bottom: 0.75rem; font-size: 0.75rem; font-weight: 800; color: #92400e;">
-              <i class="fa-solid fa-flask-vial"></i> PERCOBAAN / SIMULASI — HASIL TIDAK MENGIKAT
+              <i class="fa-solid fa-flask-vial"></i> PERCOBAAN / SIMULASI - HASIL TIDAK MENGIKAT
             </div>
             <ul style="font-size: 0.82rem; color: #475569; line-height: 1.7; padding-left: 1.25rem;">
               <li><strong>Buka Pemungutan Suara:</strong> Senin, 23 November 2026, 10.00 WIB</li>
               <li><strong>Tutup Pemungutan Suara:</strong> Selasa, 24 November 2026, 10.00 WIB</li>
-              <li><strong>Zona Waktu Sistem:</strong> Waktu Indonesia Barat (WIB / Asia/Jakarta)</li>
+              <li><strong>Zona Waktu Sistem:</strong> Waktu Indonesia Barat (WIB / Asia/Jakarta, UTC+7)</li>
               <li><strong>Daftar Pemilih Tetap (DPT):</strong> 717 Pegawai Keperawatan &amp; Kebidanan</li>
             </ul>
           </div>
         </div>
 
-        <!-- Tabel DPT & Audit Bukti Suara -->
+        <!-- Tabel DPT (Hanya Nama, Unit, NIP Tersamar, Status Sudah/Belum; TANPA Token & TANPA Pilihan) -->
         <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-sm);">
           <div style="padding: 1rem 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
             <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a;">
-              <i class="fa-solid fa-users" style="color: #0d5f5b;"></i> Daftar Pemilih &amp; Log Bukti Penggunaan Hak Suara
+              <i class="fa-solid fa-users" style="color: #0d5f5b;"></i> Daftar Pemilih &amp; Status Partisipasi (NIP Tersamar, Tanpa Token &amp; Tanpa Pilihan)
             </div>
-            <span style="font-size: 0.75rem; color: #0d5f5b; font-weight: 700;">
-              <i class="fa-solid fa-shield-halved"></i> Sinkronisasi ke Spreadsheet Aktif
-            </span>
+            <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 4px 10px;" onclick="window.PemilihanKomkep.renderDptTable(true)">
+              <i class="fa-solid fa-rotate"></i> Muat Ulang Daftar dari Server
+            </button>
           </div>
-          <div style="overflow-x: auto;">
+          <div style="overflow-x: auto; max-height: 440px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; text-align: left;">
-              <thead>
+              <thead style="position: sticky; top: 0;">
                 <tr style="background: #f1f5f9; color: #475569; font-weight: 700; border-bottom: 1px solid #e2e8f0;">
-                  <th style="padding: 0.75rem;">Nama Tenaga Keperawatan</th>
-                  <th style="padding: 0.75rem;">NIP</th>
+                  <th style="padding: 0.75rem;">No</th>
+                  <th style="padding: 0.75rem;">Nama Tenaga Keperawatan / Kebidanan</th>
                   <th style="padding: 0.75rem;">Unit / Instalasi</th>
-                  <th style="padding: 0.75rem;">Nomor Bukti Suara (Token)</th>
-                  <th style="padding: 0.75rem; text-align: center;">Status Suara</th>
-                  <th style="padding: 0.75rem; text-align: center;">Aksi</th>
+                  <th style="padding: 0.75rem;">NIP / NIK (Disamarkan)</th>
+                  <th style="padding: 0.75rem; text-align: center;">Status Memilih</th>
                 </tr>
               </thead>
               <tbody id="pemilihanDptTableBody">
-                <!-- Diisi via JS -->
+                <!-- Diisi via JS dari server setelah autentikasi panitia -->
               </tbody>
             </table>
           </div>
@@ -2592,10 +2572,10 @@
             </div>
             <div>
               <div style="font-size: 1rem; font-weight: 800; color: var(--text-main);" id="rkkHeaderNama">
-                Ns. Hendra Kurniawan, S.Kep
+                Ns. Contoh Perawat, S.Kep
               </div>
               <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 2px;">
-                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="rkkHeaderNip">000000000000000000</strong></span>
+                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="rkkHeaderNip">00000000 000000 0 001</strong></span>
                 <span><i class="fa-solid fa-certificate"></i> STR: <strong id="rkkHeaderStr">140152123-2893812</strong></span>
                 <span><i class="fa-solid fa-hospital"></i> Unit: <strong id="rkkHeaderUnit">Kakap</strong></span>
                 <span><i class="fa-solid fa-layer-group"></i> Jenjang: <strong id="rkkHeaderJenjang">PK III</strong></span>
@@ -2619,7 +2599,7 @@
           <!-- Preserved Hidden Elements for 100% Backwards Compatibility -->
           <div style="display: none !important;">
             <input type="text" id="formNama" value="" placeholder="Nama dan Gelar Lengkap">
-            <input type="text" id="formNip" value="000000000000000000">
+            <input type="text" id="formNip" value="00000000 000000 0 001">
             <input type="text" id="formStr" value="140152123-2893812">
             <input type="date" id="formStrExpiry" value="2028-08-17">
             <input type="text" id="formKontak" value="081234567890">
@@ -2898,7 +2878,7 @@
             </tr>
             <tr>
               <td class="label">NIP / Identitas Pegawai</td>
-              <td>: <span id="docStaffNip">000000000000000000</span></td>
+              <td>: <span id="docStaffNip">00000000 000000 0 002</span></td>
             </tr>
             <tr>
               <td class="label">Nomor STR Kemenkes</td>
@@ -2953,7 +2933,7 @@
               <div style="font-weight: 700;">Direktur RSUD Dokter Soedarso</div>
               <div class="doc-signature-space"></div>
               <div class="doc-signer-name">drg. Hary Agung Tjahyadi, M.Kes</div>
-              <div>Direktur Rumah Sakit</div>
+              <div>Pembina Utama Muda / NIP. 000000000000000000</div>
             </div>
           </div>
 
@@ -3155,7 +3135,7 @@
 
               <div class="form-group">
                 <label class="form-label">NIP (18 Digit) <span class="req">*</span></label>
-                <input type="text" class="form-input" id="daftarNip" placeholder="Contoh: 000000000000000000" required>
+                <input type="text" class="form-input" id="daftarNip" placeholder="Contoh: 00000000 000000 0 001" required>
               </div>
 
               <div class="form-group">
@@ -3486,8 +3466,8 @@
           </div>
           <div style="flex: 1; min-width: 0;">
             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-              <h3 id="settingsUserName" style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0;">Nama Pengguna</h3>
-              <span id="settingsUserRoleBadge" class="badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; background: var(--primary-100); color: var(--primary-800); font-weight: 700;">Super Admin</span>
+              <h3 id="settingsUserName" style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0;">Tamu Publik</h3>
+              <span id="settingsUserRoleBadge" class="badge" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; background: var(--primary-100); color: var(--primary-800); font-weight: 700;">Tamu</span>
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
               <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="settingsUserNip">-</strong></span>
@@ -3848,7 +3828,7 @@
           <div class="verif-meta-grid">
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-id-badge"></i> NIP / NIK</span>
-              <span class="verif-meta-value" id="verifNip">000000000000000000</span>
+              <span class="verif-meta-value" id="verifNip">00000000 000000 0 001</span>
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-hospital-user"></i> Unit Penempatan</span>
@@ -3979,7 +3959,7 @@
               <label for="verifNipVerifikator" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
                 NIP Verifikator:
               </label>
-              <input type="text" id="verifNipVerifikator" class="form-input" value="000000000000000000" readonly style="background: var(--bg-surface-secondary);">
+              <input type="text" id="verifNipVerifikator" class="form-input" value="00000000 000000 1 006" readonly style="background: var(--bg-surface-secondary);">
             </div>
             <div>
               <label for="verifTanggalAksi" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
@@ -4167,7 +4147,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvNip" value="000000000000000000" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
+                  <input type="text" class="form-input" id="cvNip" value="00000000 000000 0 001" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Tempat / Tanggal Lahir <span class="req">*</span></label>
@@ -5065,7 +5045,7 @@
                       <option value="NIPPPK">NIPPPK</option>
                       <option value="NIK">NIK (Non-ASN)</option>
                     </select>
-                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="000000000000000000" value="000000000000000000" readonly required>
+                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="00000000 000000 0 001" value="00000000 000000 0 001" readonly required>
                   </div>
                 </div>
               </div>
@@ -6940,14 +6920,14 @@
             <div>Sekretaris Panitia Pemilihan,</div>
             <div style="height: 65px;"></div>
             <div style="font-weight: bold; text-decoration: underline;">Ns. Hendra Kurniawan, S.Kep.</div>
-            <div>NIP. 000000000000000000</div>
+            <div>NIP. 00000000 000000 1 029</div>
           </div>
 
           <div style="width: 45%; text-align: center;">
             <div>Ketua Panitia Pemilihan,</div>
             <div style="height: 65px;"></div>
             <div style="font-weight: bold; text-decoration: underline;">Ns. Agus Supriyanto, S.Kep., M.Kes.</div>
-            <div>NIP. 000000000000000000</div>
+            <div>NIP. 00000000 000000 1 030</div>
           </div>
         </div>
 
@@ -6956,7 +6936,7 @@
           <div><strong>Direktur RSUD dr. Soedarso Pontianak</strong></div>
           <div style="height: 70px;"></div>
           <div style="font-weight: bold; text-decoration: underline;">drg. Hary Agung Tjahyadi, M.Kes</div>
-          <div>Pembina Utama Madya / NIP. 000000000000000000</div>
+          <div>Pembina Utama Muda / NIP. 000000000000000000</div>
         </div>
       </div>
     </div>
@@ -7132,8 +7112,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="data_pegawai_manifest.js"></script>
+  <script src="config.js"></script>
   <script src="supabase_client.js"></script>
   <script src="logo_asset.js"></script>
   <script src="data.js"></script>

@@ -38,7 +38,7 @@ async function main() {
     prisma.candidate.create({
       data: {
         name: "Ns. Siti Rahmawati, S.Kep., M.Kep.",
-        nip: "000000000000000000",
+        nip: "000000000000001031",
         photo: null,
         visiMisi:
           "VISI:\nMewujudkan Komite Keperawatan RSUD dr. Soedarso sebagai organisasi profesional yang unggul dalam mendorong mutu pelayanan keperawatan berstandar internasional.\n\nMISI:\n1. Meningkatkan kompetensi perawat melalui program pendidikan dan pelatihan berkelanjutan yang terstruktur.\n2. Mengembangkan standar praktik keperawatan berbasis evidence-based nursing practice.\n3. Membangun sistem kredensial dan rekredensial yang transparan, akuntabel, dan berkeadilan.\n4. Mendorong inovasi pelayanan keperawatan dengan pemanfaatan teknologi digital.\n5. Memperkuat kolaborasi interprofesional untuk peningkatan keselamatan pasien.",
@@ -51,7 +51,7 @@ async function main() {
     prisma.candidate.create({
       data: {
         name: "Ns. Muhammad Fadli Hidayat, S.Kep., Sp.KMB.",
-        nip: "000000000000000000",
+        nip: "000000000000001032",
         photo: null,
         visiMisi:
           "VISI:\nMenjadikan Komite Keperawatan sebagai motor penggerak transformasi pelayanan keperawatan yang humanis, profesional, dan berorientasi pada kepuasan pasien di RSUD dr. Soedarso.\n\nMISI:\n1. Membangun budaya kerja profesional dengan mengedepankan etika keperawatan dan caring behavior.\n2. Mengoptimalkan peran komite dalam pembinaan etik dan disiplin profesi keperawatan.\n3. Meningkatkan kesejahteraan dan perlindungan hukum bagi tenaga keperawatan.\n4. Mengembangkan riset keperawatan sebagai dasar pengembangan praktik klinis.\n5. Memfasilitasi jenjang karir perawat klinis sesuai dengan Permenkes yang berlaku.",
@@ -64,7 +64,7 @@ async function main() {
     prisma.candidate.create({
       data: {
         name: "Ns. Dewi Kartika Sari, S.Kep., M.Kep.",
-        nip: "000000000000000000",
+        nip: "000000000000001035",
         photo: null,
         visiMisi:
           "VISI:\nMembangun Komite Keperawatan yang adaptif, inovatif, dan kolaboratif dalam mewujudkan pelayanan keperawatan prima di era transformasi kesehatan digital RSUD dr. Soedarso.\n\nMISI:\n1. Mengakselerasi digitalisasi dokumentasi dan sistem informasi keperawatan.\n2. Meningkatkan mutu asuhan keperawatan melalui audit klinis berkala dan terukur.\n3. Mengembangkan program mentoring dan preceptorship untuk perawat baru.\n4. Memfasilitasi kerjasama dengan institusi pendidikan keperawatan untuk pengembangan SDM.\n5. Membangun sistem penghargaan berbasis kinerja untuk memotivasi tenaga keperawatan.",
@@ -89,7 +89,7 @@ async function main() {
   const voters = await Promise.all([
     prisma.user.create({
       data: {
-        nip: "000000000000000000",
+        nip: "000000000000001037",
         name: "Ns. Rina Marlina, S.Kep.",
         email: "rina.marlina@rsud-soedarso.go.id",
         password: voterPassword,
@@ -100,7 +100,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        nip: "000000000000000000",
+        nip: "000000000000001042",
         name: "Ns. Bambang Tri Wahyudi, S.Kep.",
         email: "bambang.wahyudi@rsud-soedarso.go.id",
         password: voterPassword,
@@ -111,7 +111,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        nip: "000000000000000000",
+        nip: "000000000000001043",
         name: "Ns. Yuliana Puspitasari, S.Kep.",
         email: "yuliana.puspita@rsud-soedarso.go.id",
         password: voterPassword,
@@ -122,7 +122,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        nip: "000000000000000000",
+        nip: "000000000000001044",
         name: "Ns. Ahmad Rizki Pratama, S.Kep.",
         email: "ahmad.rizki@rsud-soedarso.go.id",
         password: voterPassword,
@@ -133,7 +133,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        nip: "000000000000000000",
+        nip: "000000000000001045",
         name: "Ns. Lestari Handayani, S.Kep.",
         email: "lestari.handayani@rsud-soedarso.go.id",
         password: voterPassword,

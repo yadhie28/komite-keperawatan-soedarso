@@ -9,15 +9,21 @@ dist/
 .env
 .env*.local
 .env*
+.env.*
 *.key
 *.pem
 service_account*.json
 
-# Data Pribadi & Database Lokal
+# Data rahasia pegawai
+_RAHASIA/
 *.csv
-data_pegawai_keperawatan_soedarso.csv
-seed_data_pegawai_717.sql
+!.github/**
+data_pegawai_*.csv
+data_pegawai_*.js
 seed_data_*.sql
+PIN_PEMILIH.csv
+
+# Database Lokal
 *.sqlite
 *.sqlite3
 *.db

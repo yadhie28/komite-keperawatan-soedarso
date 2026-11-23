@@ -98,11 +98,11 @@ Buka browser di: [http://localhost:3000](http://localhost:3000)
 ### 👥 Contoh Akun Pemilih (Voter)
 | Nama Pemilih | NIP | Password | Unit Kerja |
 | :--- | :--- | :--- | :--- |
-| Ns. Rina Marlina, S.Kep. | `000000000000000000` | `voter123` | Rawat Inap Penyakit Dalam |
-| Ns. Bambang Irawan, S.Kep. | `000000000000000000` | `voter123` | IGD |
-| Ns. Nurul Hidayati, S.Kep. | `000000000000000000` | `voter123` | Ruang Operasi (OK) |
-| Ns. Hendra Gunawan, S.Kep. | `000000000000000000` | `voter123` | Rawat Inap Anak |
-| Ns. Sri Wahyuni, A.Md.Kep. | `000000000000000000` | `voter123` | Rawat Jalan / Poliklinik |
+| Ns. Rina Marlina, S.Kep. | `000000000000001037` | `voter123` | Rawat Inap Penyakit Dalam |
+| Ns. Bambang Irawan, S.Kep. | `000000000000001038` | `voter123` | IGD |
+| Ns. Nurul Hidayati, S.Kep. | `000000000000001039` | `voter123` | Ruang Operasi (OK) |
+| Ns. Hendra Gunawan, S.Kep. | `000000000000001040` | `voter123` | Rawat Inap Anak |
+| Ns. Sri Wahyuni, A.Md.Kep. | `000000000000001041` | `voter123` | Rawat Jalan / Poliklinik |
 
 ---
 

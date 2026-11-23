@@ -4639,7 +4639,7 @@
     } catch (e) {}
     return {
       name: "Ns. Siti Rahmah, S.Kep.",
-      nip: "000000000000000000",
+      nip: "000000000000001033",
       role: "perawat",
       badge: "Perawat Klinis II (PK II)",
       unit: "Ruang Rawat Inap Bedah (Puring Lt. 3)"
@@ -5581,14 +5581,14 @@
             '<div style="font-weight: bold;">Kepala Ruangan / Preseptor Klinik</div>' +
             '<div style="height: 55px;"></div>' +
             '<div style="font-weight: bold; text-decoration: underline;">Ns. Hendra Wijaya, S.Kep.</div>' +
-            '<div>NIP. 000000000000000000</div>' +
+            '<div>NIP. 00000000 000000 1 034</div>' +
           '</div>' +
           '<div style="text-align: center; width: 45%;">' +
             '<div>Pontianak, ' + today + '</div>' +
             '<div style="font-weight: bold;">Perawat Pelaksana</div>' +
             '<div style="height: 55px;"></div>' +
             '<div style="font-weight: bold; text-decoration: underline;">' + (user.name || 'Ns. Siti Rahmah, S.Kep.') + '</div>' +
-            '<div>NIP. ' + (user.nip || '000000000000000000') + '</div>' +
+            '<div>NIP. ' + (user.nip || '00000000 000000 1 033') + '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
