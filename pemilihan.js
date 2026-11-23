@@ -526,7 +526,7 @@
     const baTotal = document.getElementById('baTotalSuara');
     const baKetua = document.getElementById('baKetuaTerpilih');
 
-    if (baTanggal) baTanggal.textContent = `Senin, 23 November 2026`;
+    if (baTanggal) baTanggal.textContent = `Selasa, 24 November 2026`;
     if (baTotal) baTotal.textContent = String(metrics.total_voted || 0);
 
     if (baTabelBody) {
@@ -607,17 +607,25 @@
         <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 2rem;">
           <div style="text-align: center; width: 45%;">
             <div>Saksi Pemilihan,</div>
-            <div style="height: 60px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes R.A.W, S.Kep</div>
+            <div style="height: 55px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Yohanes Rindo Ari Wijoyo, S.Kep</div>
             <div>Ketua Subkomite Kredensial</div>
           </div>
           <div style="text-align: center; width: 45%;">
             <div>Pontianak, ${wibDate}</div>
             <div>Ketua Panitia Pemilihan,</div>
-            <div style="height: 60px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">Ns. Rusmulyadi, S.Kep., M.A.R.S</div>
+            <div style="height: 55px;"></div>
+            <div style="font-weight: bold; text-decoration: underline;">Ns. Rusmulyadi, S.Kep., MARS</div>
             <div>Sekretaris Komite Keperawatan</div>
           </div>
+        </div>
+
+        <div style="margin-top: 25px; text-align: center; font-size: 0.88rem;">
+          <div>Mengetahui / Mengesahkan,</div>
+          <div><strong>Direktur RSUD Dokter Soedarso</strong></div>
+          <div style="height: 55px;"></div>
+          <div style="font-weight: bold; text-decoration: underline;">drg. Hary Agung Tjahyadi, M.Kes</div>
+          <div>Pembina Utama Madya / NIP. 000000000000000000</div>
         </div>
       </div>
     `;
