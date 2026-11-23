@@ -75,15 +75,16 @@
         </div>
 
         <form id="formPortalMain" onsubmit="handleUnifiedPortalLogin(event)" style="max-width: 380px; width: 100%; margin: 0 auto;">
-          <!-- Field 1: NIP / NIPPPK / NIK -->
+          <!-- Field 1: NIP / NIPPPK / NIK (Tanpa Spasi) -->
           <div class="portal-form-floating">
             <i class="fa-solid fa-id-card portal-input-icon"></i>
             <input type="text"
                    class="portal-form-control"
                    id="portalMainUser"
-                   placeholder="NIP / NIPPPK / NIK"
+                   placeholder="NIP / NIPPPK / NIK (Tanpa Spasi)"
                    required
-                   autocomplete="username">
+                   autocomplete="username"
+                   oninput="this.value = this.value.replace(/\s+/g, '')">
           </div>
 
           <!-- Field 2: Password -->
@@ -326,26 +327,26 @@
         </div>
       </div>
 
-      <!-- Banner Pengumuman Pemilihan Ketua Komite Keperawatan 2027-2030 (Dinamis Sesuai Jadwal) -->
-      <div id="bannerPemilihanBeranda" style="background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 50%, #1e3a8a 100%); border: 2px solid #fbbf24; border-radius: 16px; padding: 1.5rem 1.75rem; margin-top: 1.75rem; color: #ffffff; box-shadow: 0 10px 25px -5px rgba(13, 95, 91, 0.3); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+      <!-- Banner Pengumuman Pemilihan Ketua Komite Keperawatan 2027-2030 (Simulasi Dibatalkan Sementara) -->
+      <div id="bannerPemilihanBeranda" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border: 2px solid #94a3b8; border-radius: 16px; padding: 1.5rem 1.75rem; margin-top: 1.75rem; color: #ffffff; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 1.25rem; min-width: 280px; flex: 1;">
-          <div style="width: 58px; height: 58px; border-radius: 14px; background: rgba(251, 191, 36, 0.2); border: 2px solid #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fbbf24; flex-shrink: 0; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);">
-            <i class="fa-solid fa-check-to-slot"></i>
+          <div style="width: 58px; height: 58px; border-radius: 14px; background: rgba(248, 113, 113, 0.2); border: 2px solid #f87171; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #f87171; flex-shrink: 0;">
+            <i class="fa-solid fa-ban"></i>
           </div>
           <div>
             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-              <span style="background: #fbbf24; color: #78350f; font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
-                Agenda Utama Rumah Sakit
+              <span style="background: #f87171; color: #450a0a; font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
+                Pemberitahuan Panitia
               </span>
-              <span id="bannerStatusTag" style="font-size: 0.78rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(74, 222, 128, 0.2); color: #4ade80;">
-                <i class="fa-solid fa-circle-dot" style="color: #4ade80;"></i> Bilik Suara Elektronik Dibuka
+              <span id="bannerStatusTag" style="font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(248, 113, 113, 0.2); color: #fca5a5;">
+                <i class="fa-solid fa-circle-pause"></i> Simulasi Dibatalkan / Ditunda Sementara
               </span>
             </div>
             <h3 style="font-size: 1.25rem; font-weight: 800; margin-top: 0.35rem; color: #ffffff; line-height: 1.3;">
               Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso (2027–2030)
             </h3>
-            <p id="bannerStatusSub" style="font-size: 0.85rem; color: #ccfbf1; margin-top: 0.25rem; line-height: 1.5; max-width: 650px;">
-              Bilik Suara Dibuka s.d. 24 Nov 2026 10.00 WIB. Gunakan hak pilih Anda secara bebas, langsung, umum, dan rahasia.
+            <p id="bannerStatusSub" style="font-size: 0.85rem; color: #e2e8f0; margin-top: 0.25rem; line-height: 1.5; max-width: 650px;">
+              Simulasi pemungutan suara elektronik (E-Voting) dibatalkan sementara selama penataan dan pembenahan sistem akses masuk akun pegawai.
             </p>
           </div>
         </div>
@@ -478,7 +479,7 @@
                   <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">drg. Hary Agung Tjahyadi, M.Kes</div>
                   <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-700);">Direktur RSUD Dokter Soedarso Pontianak &bull; Pembina Utama Muda</div>
                   <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">
-                    <i class="fa-solid fa-id-badge" style="color: var(--gold-600);"></i> NIP. 000000000000000000 &bull; Penerbit Resmi SK Penugasan Klinis (SPK & RKK)
+                    <i class="fa-solid fa-id-badge" style="color: var(--gold-600);"></i> NIP. 196905201998031008 &bull; Penerbit Resmi SK Penugasan Klinis (SPK & RKK)
                   </div>
                 </div>
               </div>
@@ -2575,7 +2576,7 @@
                 Ns. Contoh Perawat, S.Kep
               </div>
               <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 2px;">
-                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="rkkHeaderNip">00000000 000000 0 001</strong></span>
+                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="rkkHeaderNip">000000000000000001</strong></span>
                 <span><i class="fa-solid fa-certificate"></i> STR: <strong id="rkkHeaderStr">140152123-2893812</strong></span>
                 <span><i class="fa-solid fa-hospital"></i> Unit: <strong id="rkkHeaderUnit">Kakap</strong></span>
                 <span><i class="fa-solid fa-layer-group"></i> Jenjang: <strong id="rkkHeaderJenjang">PK III</strong></span>
@@ -2599,7 +2600,7 @@
           <!-- Preserved Hidden Elements for 100% Backwards Compatibility -->
           <div style="display: none !important;">
             <input type="text" id="formNama" value="" placeholder="Nama dan Gelar Lengkap">
-            <input type="text" id="formNip" value="00000000 000000 0 001">
+            <input type="text" id="formNip" value="000000000000000001">
             <input type="text" id="formStr" value="140152123-2893812">
             <input type="date" id="formStrExpiry" value="2028-08-17">
             <input type="text" id="formKontak" value="081234567890">
@@ -2878,7 +2879,7 @@
             </tr>
             <tr>
               <td class="label">NIP / Identitas Pegawai</td>
-              <td>: <span id="docStaffNip">00000000 000000 0 002</span></td>
+              <td>: <span id="docStaffNip">000000000000000002</span></td>
             </tr>
             <tr>
               <td class="label">Nomor STR Kemenkes</td>
@@ -2933,7 +2934,7 @@
               <div style="font-weight: 700;">Direktur RSUD Dokter Soedarso</div>
               <div class="doc-signature-space"></div>
               <div class="doc-signer-name">drg. Hary Agung Tjahyadi, M.Kes</div>
-              <div>Pembina Utama Muda / NIP. 000000000000000000</div>
+              <div>Pembina Utama Muda / NIP. 196905201998031008</div>
             </div>
           </div>
 
@@ -3135,7 +3136,7 @@
 
               <div class="form-group">
                 <label class="form-label">NIP (18 Digit) <span class="req">*</span></label>
-                <input type="text" class="form-input" id="daftarNip" placeholder="Contoh: 00000000 000000 0 001" required>
+                <input type="text" class="form-input" id="daftarNip" placeholder="Contoh: 000000000000000001" required>
               </div>
 
               <div class="form-group">
@@ -3828,7 +3829,7 @@
           <div class="verif-meta-grid">
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-id-badge"></i> NIP / NIK</span>
-              <span class="verif-meta-value" id="verifNip">00000000 000000 0 001</span>
+              <span class="verif-meta-value" id="verifNip">000000000000000001</span>
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-hospital-user"></i> Unit Penempatan</span>
@@ -3959,7 +3960,7 @@
               <label for="verifNipVerifikator" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
                 NIP Verifikator:
               </label>
-              <input type="text" id="verifNipVerifikator" class="form-input" value="00000000 000000 1 006" readonly style="background: var(--bg-surface-secondary);">
+              <input type="text" id="verifNipVerifikator" class="form-input" value="000000000000001006" readonly style="background: var(--bg-surface-secondary);">
             </div>
             <div>
               <label for="verifTanggalAksi" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">
@@ -4147,7 +4148,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvNip" value="00000000 000000 0 001" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
+                  <input type="text" class="form-input" id="cvNip" value="000000000000000001" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Tempat / Tanggal Lahir <span class="req">*</span></label>
@@ -5045,7 +5046,7 @@
                       <option value="NIPPPK">NIPPPK</option>
                       <option value="NIK">NIK (Non-ASN)</option>
                     </select>
-                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="00000000 000000 0 001" value="00000000 000000 0 001" readonly required>
+                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="000000000000000001" value="000000000000000001" readonly required>
                   </div>
                 </div>
               </div>
@@ -6920,14 +6921,14 @@
             <div>Sekretaris Panitia Pemilihan,</div>
             <div style="height: 65px;"></div>
             <div style="font-weight: bold; text-decoration: underline;">Ns. Hendra Kurniawan, S.Kep.</div>
-            <div>NIP. 00000000 000000 1 029</div>
+            <div>NIP. 000000000000001029</div>
           </div>
 
           <div style="width: 45%; text-align: center;">
             <div>Ketua Panitia Pemilihan,</div>
             <div style="height: 65px;"></div>
             <div style="font-weight: bold; text-decoration: underline;">Ns. Agus Supriyanto, S.Kep., M.Kes.</div>
-            <div>NIP. 00000000 000000 1 030</div>
+            <div>NIP. 000000000000001030</div>
           </div>
         </div>
 
@@ -6936,7 +6937,7 @@
           <div><strong>Direktur RSUD dr. Soedarso Pontianak</strong></div>
           <div style="height: 70px;"></div>
           <div style="font-weight: bold; text-decoration: underline;">drg. Hary Agung Tjahyadi, M.Kes</div>
-          <div>Pembina Utama Muda / NIP. 000000000000000000</div>
+          <div>Pembina Utama Muda / NIP. 196905201998031008</div>
         </div>
       </div>
     </div>
@@ -7113,6 +7114,7 @@
 
   <!-- Scripts -->
   <script src="config.js"></script>
+  <script src="data_pegawai_manifest.js"></script>
   <script src="supabase_client.js"></script>
   <script src="logo_asset.js"></script>
   <script src="data.js"></script>

@@ -91,22 +91,13 @@ function namaDepan_(nama) {
   return '';
 }
 
+var DEFAULT_INITIAL_PASSWORD = 'soedarso2026';
+
 function sandiAwalDiharapkan_(rowObj, pinAcak) {
   if (pinAcak) {
     return String(rowObj.pin_awal || '').replace(/^'+/, '').trim();
   }
-  var nd    = namaDepan_(rowObj.nama);
-  var tahun = String(rowObj.tahun_lahir || '').trim();
-  if (!tahun || !/^\d{4}$/.test(tahun)) {
-    var nipBersih = normalisasiId_(rowObj.nip);
-    if (String(rowObj.jenis_id || '').toUpperCase() === 'NIK' && nipBersih.length === 16) {
-      var yy = parseInt(nipBersih.substring(10, 12), 10);
-      tahun = String(yy <= 10 ? 2000 + yy : 1900 + yy);
-    } else if (nipBersih.length >= 4) {
-      tahun = nipBersih.substring(0, 4);
-    }
-  }
-  return (nd + tahun).toLowerCase();
+  return DEFAULT_INITIAL_PASSWORD;
 }
 
 function cocokSandiAwal_(masukan, diharapkan, pinAcak) {
@@ -114,8 +105,7 @@ function cocokSandiAwal_(masukan, diharapkan, pinAcak) {
   if (pinAcak) {
     return String(masukan || '').trim() === diharapkan;
   }
-  var bersihMasukan = String(masukan || '').toLowerCase().replace(/\s+/g, '');
-  return bersihMasukan === diharapkan.toLowerCase().replace(/\s+/g, '');
+  return String(masukan || '').trim() === DEFAULT_INITIAL_PASSWORD;
 }
 
 function validasiSandi_(sandiBaru, idAkun, sandiAwal, sandiLama) {

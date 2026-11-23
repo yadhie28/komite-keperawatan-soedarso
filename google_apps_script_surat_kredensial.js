@@ -32,7 +32,7 @@ function onFormSubmit(e) {
     const jenisPermohonan = getResp('Jenis Permohonan', 'Re-Kredensial Berkala');
     const nama = getResp('Nama Lengkap (beserta Gelar)', 'Ns. Hendra Kurniawan, S.Kep');
     const jenisNip = getResp('Jenis Nomor Pegawai', 'NIP');
-    const rawNip = getResp('Nomor Induk Pegawai (NIP/NIPPPK/NIK)', '00000000 000000 0 001');
+    const rawNip = getResp('Nomor Induk Pegawai (NIP/NIPPPK/NIK)', '000000000000000001');
     const nipFull = rawNip ? `${jenisNip !== 'NIP' ? jenisNip + '. ' : ''}${rawNip}` : 'Ketik di sini';
     const ttl = getResp('Tempat / Tanggal Lahir', 'Pontianak, 15 April 1992');
     const kelamin = getResp('Jenis Kelamin', 'Laki-laki');

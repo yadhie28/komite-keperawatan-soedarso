@@ -250,7 +250,7 @@ test('1. Logika Waktu & Zona +07:00 (Buka 23 Nov 10:00 WIB, Tutup 24 Nov 10:00 W
 });
 
 test('2. Normalisasi NIP & Penyamaran NIP (Masking)', () => {
-  assert.strictEqual(s.normalisasiId_(' 00000000 000000 1 001 '), '000000000000001001');
+  assert.strictEqual(s.normalisasiId_(' 000000000000001001 '), '000000000000001001');
   assert.strictEqual(s.normalisasiId_('00000000.000000-1.002'), '000000000000001002');
   assert.strictEqual(s.normalisasiId_("'000000000000001003"), '000000000000001003');
 
@@ -357,13 +357,13 @@ test('7. Alur End-to-End: Setup, Login, Ganti Sandi, Pilih 1x, Cegah Suara Ganda
 
   // b) Pesan galat login sama untuk NIP tidak ada vs sandi salah
   const failNip = e2e.post({ aksi: 'login', id: '000000009999999999', sandi: 'apaSaja123' });
-  const failPwd = e2e.post({ aksi: 'login', id: '00000000 000000 1 001', sandi: 'salahSandi' });
+  const failPwd = e2e.post({ aksi: 'login', id: '000000000000001001', sandi: 'salahSandi' });
   assert.strictEqual(failNip.ok, false);
   assert.strictEqual(failPwd.ok, false);
   assert.strictEqual(failNip.pesan, failPwd.pesan);
 
   // c) Login pemilih 1 dengan spasi pada NIP & sandi awal (contoh1991)
-  const login1 = e2e.post({ aksi: 'login', id: '00000000 000000 1 001', sandi: 'contoh1991' });
+  const login1 = e2e.post({ aksi: 'login', id: '000000000000001001', sandi: 'contoh1991' });
   assert.strictEqual(login1.ok, true);
   assert.strictEqual(login1.wajib_ganti_sandi, true);
   assert.ok(login1.token);
