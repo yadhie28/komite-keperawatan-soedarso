@@ -352,24 +352,40 @@ function fillPengusulPreset(target) {
   }
 }
 
+function saveActiveCvMasterData(updatedCv) {
+  if (!updatedCv) return;
+  state.cvData = updatedCv;
+  try {
+    localStorage.setItem('komite_cv_data', JSON.stringify(updatedCv));
+  } catch (e) {
+    console.warn('[CV] Gagal menyimpan CV ke localStorage:', e);
+  }
+}
+
 function syncApplicantToCvMaster(applicant) {
   if (!applicant) return;
-  const curCv = getActiveCvMasterData();
-  const cleanAppNip = (applicant.nip || '').replace(/\s+/g, '');
-  const cleanCurNip = (curCv.nip || '').replace(/\s+/g, '');
+  try {
+    const curCv = getActiveCvMasterData();
+    const cleanAppNip = (applicant.nip || '').replace(/\s+/g, '');
+    const cleanCurNip = (curCv.nip || '').replace(/\s+/g, '');
 
-  if (cleanAppNip !== cleanCurNip || !curCv.nama) {
-    const updatedCv = {
-      ...curCv,
-      nama: applicant.name || applicant.nama,
-      nip: applicant.nip,
-      unit: applicant.unit || curCv.unit || 'Kakap',
-      jenjang: applicant.jenjang || curCv.jenjang || 'PK III',
-      noStr: applicant.strNumber || applicant.noStr || applicant.str || curCv.noStr || '',
-      tglKadaluarsaStr: applicant.strExpiry || curCv.tglKadaluarsaStr || '2028-08-17'
-    };
-    saveActiveCvMasterData(updatedCv);
-    syncAllDownstreamFormsFromCv();
+    if (cleanAppNip !== cleanCurNip || !curCv.nama) {
+      const updatedCv = {
+        ...curCv,
+        nama: applicant.name || applicant.nama,
+        nip: applicant.nip,
+        unit: applicant.unit || curCv.unit || 'Kakap',
+        jenjang: applicant.jenjang || curCv.jenjang || 'PK III',
+        noStr: applicant.strNumber || applicant.noStr || applicant.str || curCv.noStr || '',
+        tglKadaluarsaStr: applicant.strExpiry || curCv.tglKadaluarsaStr || '2028-08-17'
+      };
+      saveActiveCvMasterData(updatedCv);
+      if (typeof syncAllDownstreamFormsFromCv === 'function') {
+        syncAllDownstreamFormsFromCv();
+      }
+    }
+  } catch (err) {
+    console.warn('[SyncCV] Gagal menyinkronkan data pemohon ke CV master:', err);
   }
 }
 
@@ -421,10 +437,18 @@ async function handlePengusulLogin(e) {
         localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
       }
 
-      syncApplicantToCvMaster(state.currentUser);
       closeModal('modalAdminLogin');
       updateAuthUI();
-      renderAllViews();
+      try {
+        syncApplicantToCvMaster(state.currentUser);
+      } catch (e) {
+        console.warn('[handlePengusulLogin] Sync CV warn:', e);
+      }
+      try {
+        renderAllViews();
+      } catch (e) {
+        console.warn('[handlePengusulLogin] renderAllViews warn:', e);
+      }
 
       // Alur Pasca Login: Jika wajib ganti password, langsung buka modal wajib ganti password
       if (res.wajib_ganti_password) {
@@ -11907,10 +11931,7 @@ async function handleUnifiedPortalLogin(e) {
         };
         localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
 
-        if (typeof syncApplicantToCvMaster === 'function') {
-          syncApplicantToCvMaster(state.currentUser);
-        }
-
+        // Respon instan tanpa lag: pulihkan tombol & segera sembunyikan gateway portal
         if (btnSubmit) {
           btnSubmit.disabled = false;
           btnSubmit.innerHTML = origBtnHtml;
@@ -11919,8 +11940,35 @@ async function handleUnifiedPortalLogin(e) {
 
         hidePortalGateway();
         updateAuthUI();
-        renderAllViews();
-        updateWorkflowNotificationUI();
+
+        // Operasi sinkronisasi sekunder diproteksi agar tidak menghambat UX login
+        try {
+          if (typeof syncApplicantToCvMaster === 'function') {
+            syncApplicantToCvMaster(state.currentUser);
+          }
+        } catch (e) {
+          console.warn('[Login] Sync CV warn:', e);
+        }
+
+        try {
+          renderAllViews();
+        } catch (e) {
+          console.warn('[Login] renderAllViews warn:', e);
+        }
+
+        try {
+          updateWorkflowNotificationUI();
+        } catch (e) {
+          console.warn('[Login] updateWorkflowNotificationUI warn:', e);
+        }
+
+        // Jika URL saat ini memuat hash tab (misal #pemilihan atau #evoting), pastikan tab tersebut langsung aktif
+        const curHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
+        if (curHash === 'evoting' || curHash === 'pemilihan') {
+          if (typeof switchTab === 'function') switchTab('evoting');
+        } else if (curHash && typeof switchTab === 'function' && document.getElementById(`pane-${curHash}`)) {
+          switchTab(curHash);
+        }
 
         if (res.wajib_ganti_password) {
           showToast('Demi keamanan, segera ganti password awal Anda.', 'warning');
@@ -12037,12 +12085,13 @@ async function handleUnifiedPortalLogin(e) {
     }
     showToast('NIP/NIPPPK/NIK atau password salah', 'error');
   } catch (err) {
+    console.error('[handleUnifiedPortalLogin] Error saat memproses login:', err);
     if (btnSubmit) {
       btnSubmit.disabled = false;
       btnSubmit.innerHTML = origBtnHtml;
     }
     if (errBox && errText) {
-      errText.textContent = 'NIP/NIPPPK/NIK atau password salah';
+      errText.textContent = 'Terjadi kendala saat login (' + (err.message || 'silakan muat ulang') + ').';
       errBox.style.display = 'block';
     }
   }
