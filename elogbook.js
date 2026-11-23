@@ -4574,78 +4574,7 @@
     }
   ];
 
-  const INITIAL_SEED_LOGBOOK = [
-    {
-      id: "LOG-001",
-      date: "2026-09-16",
-      shift: "Pagi",
-      patientMrn: "RM-59281",
-      workUnit: "Ruang Rawat Inap Bedah (Puring Lt. 3)",
-      nurseName: "Ns. Siti Rahmah, S.Kep.",
-      sdkiDiagnosis: "D.0077 - Nyeri Akut b.d Agen Pencedera Fisik (Post-Op Laparatomi)",
-      sikiIntervention: "I.08238 - Manajemen Nyeri (Identifikasi PQRST, teknik relaksasi napas dalam, kolaborasi analgetik)",
-      slkiOutcome: "L.08066 - Tingkat Nyeri Menurun (Skor VAS awal 6 turun menjadi 3)",
-      actionCategory: "Mandiri",
-      notes: "Pasien kooperatif, edukasi teknik non-farmakologis berjalan lancar.",
-      verifiedByHeadNurse: true
-    },
-    {
-      id: "LOG-002",
-      date: "2026-09-16",
-      shift: "Pagi",
-      patientMrn: "RM-59304",
-      workUnit: "Ruang Rawat Inap Bedah (Puring Lt. 3)",
-      nurseName: "Ns. Siti Rahmah, S.Kep.",
-      sdkiDiagnosis: "D.0142 - Risiko Infeksi d.d Efek Prosedur Invasif (Luka Operasi & CVC Line)",
-      sikiIntervention: "I.14539 - Pencegahan Infeksi (Ganti balutan steril teknik aseptik, pemantauan tanda infeksi)",
-      slkiOutcome: "L.14137 - Tingkat Infeksi Menurun (Tidak ada pus, kemerahan minimal, leukosit stabil)",
-      actionCategory: "Kolaboratif",
-      notes: "Kultur luka swab telah dikirim ke laboratorium mikrobiologi klinik.",
-      verifiedByHeadNurse: true
-    },
-    {
-      id: "LOG-003",
-      date: "2026-09-15",
-      shift: "Malam",
-      patientMrn: "RM-59112",
-      workUnit: "Ruang Rawat Inap Bedah (Puring Lt. 3)",
-      nurseName: "Ns. Siti Rahmah, S.Kep.",
-      sdkiDiagnosis: "D.0005 - Pola Napas Tidak Efektif b.d Hambatan Upaya Napas (Nyeri Insisi Subkostal)",
-      sikiIntervention: "I.01011 - Manajemen Jalan Napas (Posisikan semi-fowler, observasi SpO2 & frekuensi napas)",
-      slkiOutcome: "L.01004 - Pola Napas Membaik (RR 20x/menit reguler, SpO2 98% room air)",
-      actionCategory: "Mandiri",
-      notes: "EWS stabil pada skor 1 (kategori hijau).",
-      verifiedByHeadNurse: true
-    },
-    {
-      id: "LOG-004",
-      date: "2026-09-14",
-      shift: "Sore",
-      patientMrn: "RM-58994",
-      workUnit: "Ruang Rawat Inap Enggang Gading 2",
-      nurseName: "Ns. Hendra Wijaya, S.Kep.",
-      sdkiDiagnosis: "D.0019 - Defisit Nutrisi b.d Ketidakmampuan Menelan Makanan",
-      sikiIntervention: "I.03119 - Manajemen Nutrisi (Identifikasi status nutrisi, kolaborasi dengan ahli gizi pemberian diet sonde tinggi protein)",
-      slkiOutcome: "L.03030 - Status Nutrisi Membaik (Porsi makanan enteral habis 90%, IMT stabil)",
-      actionCategory: "Kolaboratif",
-      notes: "Toleransi sonde baik, residu lambung minimal (<20 cc).",
-      verifiedByHeadNurse: true
-    },
-    {
-      id: "LOG-005",
-      date: "2026-09-14",
-      shift: "Pagi",
-      patientMrn: "RM-58721",
-      workUnit: "Instalasi Gawat Darurat (IGD)",
-      nurseName: "Ns. Bambang Sutrisno, S.Kep.",
-      sdkiDiagnosis: "D.0001 - Bersihan Jalan Napas Tidak Efektif b.d Spasme jalan napas & hipersekresi jalan napas",
-      sikiIntervention: "I.01011 - Manajemen Jalan Napas (Monitor pola napas, lakukan fisioterapi dada, lakukan penghisapan lendir/suction)",
-      slkiOutcome: "L.01001 - Bersihan Jalan Napas Meningkat (Produksi sputum berkurang, ronki minimal, suara napas vesikuler)",
-      actionCategory: "Mandiri",
-      notes: "Suction dilakukan 2 siklus, sekret kental putih berkurang, SpO2 naik dari 93% ke 98%.",
-      verifiedByHeadNurse: false
-    }
-  ];
+  const INITIAL_SEED_LOGBOOK = [];
 
   const STORAGE_KEY_LOGBOOK = 'komite_elogbook_records_3s';
   const STORAGE_KEY_CPD = 'komite_cpd_registered_ids';
@@ -4668,13 +4597,12 @@
     try {
       const stored = localStorage.getItem(STORAGE_KEY_LOGBOOK);
       if (!stored) {
-        localStorage.setItem(STORAGE_KEY_LOGBOOK, JSON.stringify(INITIAL_SEED_LOGBOOK));
-        return INITIAL_SEED_LOGBOOK;
+        return [];
       }
       return JSON.parse(stored);
     } catch (e) {
       console.error("Gagal membaca logbook records:", e);
-      return INITIAL_SEED_LOGBOOK;
+      return [];
     }
   }
 
@@ -4689,9 +4617,9 @@
   function getRegisteredCpdIds() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_CPD);
-      return stored ? JSON.parse(stored) : ["CPD-02"];
+      return stored ? JSON.parse(stored) : [];
     } catch (e) {
-      return ["CPD-02"];
+      return [];
     }
   }
 

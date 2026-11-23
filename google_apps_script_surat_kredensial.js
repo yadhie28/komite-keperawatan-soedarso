@@ -8,14 +8,14 @@
  * 2. Meng-generate Formulir Surat Permohonan Kredensial 3 Halaman A4 fisik resmi.
  * 3. Mengonversi ke file PDF dan menyimpannya di Google Drive.
  * 4. Mengirimkan PDF surat otomatis ke email Komite Keperawatan (komitekeperawatanrsds2023@gmail.com)
- *    dan email Sekretaris Komite (yadhie28@gmail.com) serta salinan ke perawat pemohon.
+ *    dan email Sekretaris Komite (komitekeperawatanrsds2023@gmail.com) serta salinan ke perawat pemohon.
  * ==============================================================================
  */
 
 // Konfigurasi Email Resmi Administrasi Komite Keperawatan RSUD dr. Soedarso
 const EMAIL_KOMITE = "komitekeperawatanrsds2023@gmail.com";
-const EMAIL_SEKRETARIS = "yadhie28@gmail.com";
-const ADMIN_EMAILS = "komitekeperawatanrsds2023@gmail.com, yadhie28@gmail.com";
+const EMAIL_SEKRETARIS = "komitekeperawatanrsds2023@gmail.com";
+const ADMIN_EMAILS = "komitekeperawatanrsds2023@gmail.com, komitekeperawatanrsds2023@gmail.com";
 
 function onFormSubmit(e) {
   try {

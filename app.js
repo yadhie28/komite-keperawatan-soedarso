@@ -44,6 +44,7 @@ const state = {
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   loadData();
+  populateAllRoomDropdowns();
   initAuth();
   setupNavigation();
   setupEventListeners();
@@ -360,7 +361,7 @@ function syncApplicantToCvMaster(applicant) {
       ...curCv,
       nama: applicant.name || applicant.nama,
       nip: applicant.nip,
-      unit: applicant.unit || curCv.unit || 'Enggang Gading 2',
+      unit: applicant.unit || curCv.unit || 'Kakap',
       jenjang: applicant.jenjang || curCv.jenjang || 'PK III',
       noStr: applicant.strNumber || applicant.noStr || applicant.str || curCv.noStr || '',
       tglKadaluarsaStr: applicant.strExpiry || curCv.tglKadaluarsaStr || '2028-08-17'
@@ -461,7 +462,7 @@ async function handlePengusulLogin(e) {
       nip: matched.nip,
       role: 'pengusul',
       profesi: matched.profesi || 'Perawat',
-      unit: matched.unit || 'Enggang Gading 2',
+      unit: matched.unit || 'Kakap',
       jenjang: matched.jenjang || 'PK III',
       strNumber: matched.strNumber || '',
       strExpiry: matched.strExpiry || '',
@@ -581,7 +582,7 @@ function openDashboardPengusul(user) {
 
   const elJenjangUnit = document.getElementById('dashPengusulJenjangUnit');
   if (elJenjangUnit) {
-    elJenjangUnit.innerHTML = `${curUser.jenjang || 'PK III'} &bull; ${curUser.unit || 'Enggang Gading 2'} &bull; <i class="fa-solid fa-certificate"></i> STR: ${curUser.strNumber || '-'}`;
+    elJenjangUnit.innerHTML = `${curUser.jenjang || 'PK III'} &bull; ${curUser.unit || 'Kakap'} &bull; <i class="fa-solid fa-certificate"></i> STR: ${curUser.strNumber || '-'}`;
   }
 
   // Find their application in credential applications
@@ -1321,10 +1322,10 @@ function loadData() {
         eventType: 'Formulir Surat Permohonan Kredensial (Langkah 3)',
         applicantName: 'Ns. Hendra Kurniawan, S.Kep',
         applicantNip: '000000000000000000',
-        unit: 'Ruang Enggang Gading 2 (Penyakit Dalam)',
-        subject: '[PERMOHONAN KREDENSIAL] Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Enggang Gading 2)',
-        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Hendra Kurniawan, S.Kep (NIP: 000000000000000000) dari Ruang Enggang Gading 2. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 4.',
-        recipients: ['komitekeperawatanrsds2023@gmail.com', 'yadhie28@gmail.com'],
+        unit: 'Ruang Kakap (Bedah)',
+        subject: '[PERMOHONAN KREDENSIAL] Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Kakap)',
+        bodyText: 'Telah diterbitkan Formulir Surat Permohonan Kredensial mandiri untuk Ns. Hendra Kurniawan, S.Kep (NIP: 000000000000000000) dari Ruang Kakap. Berkas surat siap ditandatangani mandiri dan diunggah pada Langkah 4.',
+        recipients: ['komitekeperawatanrsds2023@gmail.com', 'komitekeperawatanrsds2023@gmail.com'],
         status: 'Terkoneksi'
       },
       {
@@ -1336,7 +1337,7 @@ function loadData() {
         unit: 'Ruang VK (Bersalin)',
         subject: '[ASESMEN MANDIRI RKK] Bd. Siti Nurhaliza, S.Tr.Keb (PMB II - Ruang VK Bersalin)',
         bodyText: 'Asesmen Mandiri Rincian Kewenangan Klinis (RKK) Bd. Siti Nurhaliza, S.Tr.Keb telah berhasil disubmit. Berkas dialokasikan untuk telaah Mitra Bestari.',
-        recipients: ['komitekeperawatanrsds2023@gmail.com', 'yadhie28@gmail.com'],
+        recipients: ['komitekeperawatanrsds2023@gmail.com', 'komitekeperawatanrsds2023@gmail.com'],
         status: 'Terkoneksi'
       }
     ];
@@ -2377,7 +2378,7 @@ function renderNursesTable() {
         name: state.currentUser.name,
         profession: state.currentUser.profesi || 'Perawat Klinis',
         nip: state.currentUser.nip || '-',
-        unit: state.currentUser.unit || 'Enggang Gading 2',
+        unit: state.currentUser.unit || 'Kakap',
         pkLevel: state.currentUser.jenjang || 'PK III',
         strNumber: state.currentUser.strNumber || '140152119-2849103',
         strExpiry: state.currentUser.strExpiry || '2028-04-15',
@@ -2595,7 +2596,7 @@ function changeNurseStatus(nurseId, newStatus) {
   renderNursesTable();
   renderAnalyticsCharts();
 
-  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
+  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & komitekeperawatanrsds2023@gmail.com
   recordAdminNotification({
     eventType: `Pembaruan Status Kredensial (${newStatus})`,
     subject: `[STATUS KREDENSIAL DIUBAH] ${nurse.name} (${nurse.pkLevel}) -> ${newStatus}`,
@@ -2842,7 +2843,7 @@ function handleEthicsSubmit(e) {
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `PEMBERITAHUAN PENERIMAAN LAPORAN / KONSULTASI ETIK & DISIPLIN PROFESI (KONFIDENSIAL):\n\n` +
     `• Nomor Tiket     : ${newTicket.ticketCode}\n` +
     `• Kategori        : ${category}\n` +
@@ -3159,7 +3160,7 @@ function openNewKredensialModal() {
   if (hNama) hNama.textContent = master.nama || 'Ns. Hendra Kurniawan, S.Kep';
   if (hNip) hNip.textContent = master.nip || '-';
   if (hStr) hStr.textContent = master.noStr || '-';
-  if (hUnit) hUnit.textContent = master.unit || 'Enggang Gading 2';
+  if (hUnit) hUnit.textContent = master.unit || 'Kakap';
   if (hJenjang) hJenjang.textContent = master.jenjang || 'PK III';
   if (hArea) {
     const areaOpt = selArea?.querySelector(`option[value="${selArea.value}"]`);
@@ -3176,7 +3177,7 @@ function openNewKredensialModal() {
   if (fNip) fNip.value = master.nip || '-';
   if (fStr) fStr.value = master.noStr || '-';
   if (fJenjang) fJenjang.value = master.jenjang || 'PK III';
-  if (fUnit) fUnit.value = master.unit || 'Enggang Gading 2';
+  if (fUnit) fUnit.value = master.unit || 'Kakap';
 
   // Sinkronkan filter area ke pilihan aktif
   const filterAreaEl = document.getElementById('formRkkAreaFilter');
@@ -4496,7 +4497,7 @@ function resetCvForm() {
     if (el) el.value = '';
   });
   const unitEl = document.getElementById('cvUnit');
-  if (unitEl) unitEl.value = 'Enggang Gading 2';
+  if (unitEl) unitEl.value = 'Kakap';
   const pkSaatIniEl = document.getElementById('cvPkSaatIni');
   if (pkSaatIniEl) pkSaatIniEl.value = 'PK II';
   const pkDiusulkanEl = document.getElementById('cvPkDiusulkan');
@@ -4704,7 +4705,7 @@ function handleCvSubmit(e) {
   const adminBody =
     `Kepada Yth.\n` +
     `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `Pemberitahuan Penerbitan Curriculum Vitae (CV) Resmi Portofolio Klinis (Langkah 1):\n\n` +
     `• Nama Lengkap    : ${nama}\n` +
     `• NIP/NIPPPK/NIK  : ${nip}\n` +
@@ -4912,7 +4913,7 @@ function getActiveCvMasterData() {
   const nip = getElVal('cvNip') || stored.nip || '000000000000000000';
   const ttl = getElVal('cvTtl') || stored.ttl || 'Pontianak, 15 April 1992';
   const jabatan = getElVal('cvJabatan') || stored.jabatan || 'Perawat Pelaksana / Ketua Tim';
-  const unit = getElVal('cvUnit') || stored.unit || 'Enggang Gading 2';
+  const unit = getElVal('cvUnit') || stored.unit || 'Kakap';
   const pkSaatIni = getElVal('cvPkSaatIni') || stored.pkSaatIni || 'PK II';
   const pkDiusulkan = getElVal('cvPkDiusulkan') || stored.pkDiusulkan || 'PK III';
 
@@ -5965,7 +5966,7 @@ const WHITE_BOOK_RUMPUN_10_ACTIONS = {
     ]
   },
   neurosains: {
-    title: 'Neurologi / Neurosains & Stroke Unit (Ruang Ruai)',
+    title: 'Neurologi / Neurosains & Stroke Unit (Ruang ULS)',
     actions: [
       'Penilaian tingkat kesadaran GCS dan evaluasi refleks pupil berkala',
       'Pengkajian defisit neurologis akut dengan skala NIHSS (National Institutes of Health Stroke Scale)',
@@ -7016,7 +7017,7 @@ function handleLogbookSubmit(e) {
   const adminBody =
     `Kepada Yth.\n` +
     `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `Pemberitahuan Penerbitan Buku Catatan Kinerja Klinis Harian (Logbook) Resmi (Langkah 2):\n\n` +
     `• Nama Lengkap    : ${nama}\n` +
     `• NIP/NIPPPK/NIK  : ${nip}\n` +
@@ -7486,12 +7487,12 @@ function handleSuratPermohonanSubmit(e) {
   // Buka pratinjau surat hasil isian
   previewSuratKredensialHVS('filled');
 
-  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com
+  // Rekam notifikasi administrasi ke komitekeperawatanrsds2023@gmail.com & komitekeperawatanrsds2023@gmail.com
   const adminSubject = `[PERMOHONAN KREDENSIAL] ${nama} (${jenjang} - ${unit})`;
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `Dengan hormat,\n` +
     `Telah diterbitkan Formulir Surat Permohonan Kredensialing Mandiri dengan data sbb:\n\n` +
     `• Nama Pemohon    : ${nama}\n` +
@@ -7502,7 +7503,7 @@ function handleSuratPermohonanSubmit(e) {
     `• Status Berkas   : Lembar Surat Permohonan 3 Halaman telah siap untuk diunduh dan ditandatangani mandiri.\n\n` +
     `Saluran Notifikasi Terhubung:\n` +
     `1. Komite: komitekeperawatanrsds2023@gmail.com\n` +
-    `2. Sekretaris: yadhie28@gmail.com\n\n` +
+    `2. Sekretaris: komitekeperawatanrsds2023@gmail.com\n\n` +
     `Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
 
@@ -7553,7 +7554,7 @@ function generateSuratKredensialHVS(mode) {
   const alamat = isBlank ? '' : getVal('suratAlamat', 'Jl. Danau Sentarum No. 42, Kota Pontianak');
   const hp = isBlank ? '' : getVal('suratHp', '0812-5678-9012');
   const email = isBlank ? '' : getVal('suratEmail', 'hendra.kurniawan@soedarso.kalbarprov.go.id');
-  const unit = isBlank ? '' : getVal('suratUnit', 'Enggang Gading 2');
+  const unit = isBlank ? '' : getVal('suratUnit', 'Kakap');
   const jabatan = isBlank ? '' : getVal('suratJabatanFungsional', 'Perawat Ahli Pertama');
   const pkSaatIni = isBlank ? '' : getVal('suratPkSaatIni', 'PK II');
   const pkDiusulkan = isBlank ? '' : getVal('suratJenjang', 'PK III');
@@ -8054,7 +8055,7 @@ function fillGoogleFormPreset(presetKey) {
       alamat: 'Jl. Danau Sentarum No. 42, Kota Pontianak',
       hp: '0812-5678-9012',
       email: 'hendra.kurniawan@soedarso.kalbarprov.go.id',
-      unit: 'Enggang Gading 2',
+      unit: 'Kakap',
       jabatan: 'Perawat Ahli Pertama',
       pkSaatIni: 'PK II',
       jenjang: 'PK III',
@@ -8261,7 +8262,7 @@ function simpanUploadSurat(e) {
   const str = master.str || state.currentApplicant?.str || '140152119-3284910';
   const strExp = master.strExpiry || state.currentApplicant?.strExpiry || '2028-11-20';
   const jenjang = master.jenjangKlinis || state.currentApplicant?.jenjang || document.getElementById('formJenjang')?.value || 'PK III';
-  const unit = master.unitKerja || state.currentApplicant?.unit || document.getElementById('formUnit')?.value || 'Enggang Gading 2';
+  const unit = master.unitKerja || state.currentApplicant?.unit || document.getElementById('formUnit')?.value || 'Kakap';
   const areaKey = master.areaKlinis || state.currentApplicant?.areaKlinis || document.getElementById('formAreaKlinis')?.value || 'kmb_bedah_pk3';
   const areaName = getAreaDisplayName(areaKey, jenjang);
   const totalCount = (state.currentWizardRkkList && state.currentWizardRkkList.length) || state.currentApplicant?.totalCompetencies || 40;
@@ -8386,7 +8387,7 @@ function simpanUploadSurat(e) {
   const adminBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `PEMBERITAHUAN PENGAJUAN KREDENSIALING LENGKAP (6 TAHAP SELESAI):\n\n` +
     `Dengan ini diberitahukan bahwa seluruh rangkaian permohonan Kredensialing & Rekredensialing Tenaga Keperawatan telah LENGKAP diajukan dan terunggah di sistem oleh pemohon:\n\n` +
     `A. DATA IDENTITAS & KUALIFIKASI PEMOHON:\n` +
@@ -8572,7 +8573,7 @@ function renderKredensialTrackerVisual(query) {
         name: state.currentUser.name,
         nip: state.currentUser.nip || '-',
         pkLevel: state.currentUser.jenjang || 'PK III',
-        unit: state.currentUser.unit || 'Enggang Gading 2',
+        unit: state.currentUser.unit || 'Kakap',
         strNumber: state.currentUser.strNumber || '140152119-2849103',
         credentialStatus: 'Proses Review'
       };
@@ -8615,7 +8616,7 @@ function renderKredensialTrackerVisual(query) {
   const nName = nurse ? nurse.name : 'Ns. Hendra Kurniawan, S.Kep';
   const nPk = nurse ? nurse.pkLevel : 'PK III';
   const nNip = nurse ? nurse.nip : '000000000000000000';
-  const nUnit = nurse ? nurse.unit : 'Ruang Enggang Gading 2';
+  const nUnit = nurse ? nurse.unit : 'Ruang Kakap';
   const nStr = nurse ? nurse.strNumber : '140152123-2893812';
   const isApproved = nurse && nurse.credentialStatus === 'Disetujui';
 
@@ -8978,16 +8979,16 @@ function showToast(message, type = 'info') {
 /* ==========================================================================
    SISTEM NOTIFIKASI & KONEKSI EMAIL ADMINISTRASI RESMI RSUD DR. SOEDARSO
    Email Komite    : komitekeperawatanrsds2023@gmail.com
-   Email Sekretaris: yadhie28@gmail.com
+   Email Sekretaris: komitekeperawatanrsds2023@gmail.com
    ========================================================================== */
 
 const ADMIN_EMAIL_CONFIG = {
   committeeEmail: "komitekeperawatanrsds2023@gmail.com",
   committeeName: "Komite Keperawatan RSUD dr. Soedarso",
-  secretaryEmail: "yadhie28@gmail.com",
+  secretaryEmail: "komitekeperawatanrsds2023@gmail.com",
   secretaryName: "Ns. Rusmulyadi, S.Kep., MARS (Sekretaris)",
-  combinedRecipients: "komitekeperawatanrsds2023@gmail.com, yadhie28@gmail.com",
-  allEmails: ["komitekeperawatanrsds2023@gmail.com", "yadhie28@gmail.com"]
+  combinedRecipients: "komitekeperawatanrsds2023@gmail.com",
+  allEmails: ["komitekeperawatanrsds2023@gmail.com"]
 };
 
 /**
@@ -9119,10 +9120,10 @@ function renderAdminNotificationsTable() {
       </td>
       <td style="font-size: 0.76rem;">
         <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; margin-bottom: 2px; display: inline-block;">
-          <i class="fa-solid fa-check-double"></i> 2 Penerima Terhubung
+          <i class="fa-solid fa-check-circle"></i> Penerima Terhubung (Sekretariat)
         </span><br>
         <code style="font-size: 0.7rem; color: var(--text-muted);">komitekeperawatanrsds2023@gmail.com</code><br>
-        <code style="font-size: 0.7rem; color: var(--text-muted);">yadhie28@gmail.com</code>
+        <code style="font-size: 0.7rem; color: var(--text-muted);">komitekeperawatanrsds2023@gmail.com</code>
       </td>
       <td style="text-align: right; white-space: nowrap;">
         <button class="btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" onclick="viewAdminNotifDetail('${item.id}')" title="Lihat Draf Notifikasi">
@@ -9152,18 +9153,17 @@ function testSendAdminEmailPing() {
   const testBody = 
     `Kepada Yth.\n` +
     `1. Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `UJI KONEKSI SISTEM NOTIFIKASI ADMINISTRASI:\n\n` +
     `Koneksi saluran email administrasi Komite Keperawatan RSUD dr. Soedarso Pontianak dinyatakan BERFUNGSI DENGAN BAIK.\n\n` +
     `Seluruh berkas administrasi meliputi:\n` +
     `1. Formulir CV Portofolio Klinis (Langkah 1)\n` +
     `2. Formulir Logbook Kinerja Klinis Ka.Ru (Langkah 2)\n` +
-    `3. Formulir Surat Permohonan Kredensialing (Langkah 3)\n` +
-    `4. Unggah Dokumen Portofolio Lengkap (Langkah 4)\n` +
-    `5. Pengisian Asesmen Mandiri RKK Online (Langkah 5)\n` +
-    `6. Pelaporan & Konsultasi Etika / Disiplin Profesi\n` +
-    `7. Penerbitan Rekomendasi SPK/RKK Mitra Bestari\n\n` +
-    `Kini otomatis terhubung ke email komitekeperawatanrsds2023@gmail.com dan email sekretaris yadhie28@gmail.com.\n\n` +
+    `3. Formulir Surat Permohonan Kredensial (Langkah 3)\n` +
+    `4. Pengisian Asesmen Mandiri RKK Online (Langkah 4)\n` +
+    `5. Verifikasi Sumber Primer / PSV (Langkah 5)\n` +
+    `6. Unggah Portofolio & Berkas Lengkap (Langkah 6)\n\n` +
+    `Kini otomatis terhubung ke email komitekeperawatanrsds2023@gmail.com dan email sekretaris komitekeperawatanrsds2023@gmail.com.\n\n` +
     `Waktu Pengujian: ${new Date().toLocaleString('id-ID')}\n` +
     `Sistem Portal Komite Keperawatan RSUD dr. Soedarso Pontianak\n` +
     `https://yadhie28.github.io/komite-keperawatan-soedarso/`;
@@ -9186,7 +9186,7 @@ function testSendAdminEmailPing() {
     bodyText: testBody
   });
 
-  showToast('Uji koneksi dibuat! Notifikasi tercatat untuk komitekeperawatanrsds2023@gmail.com & yadhie28@gmail.com', 'success');
+  showToast('Uji koneksi dibuat! Notifikasi tercatat untuk komitekeperawatanrsds2023@gmail.com & komitekeperawatanrsds2023@gmail.com', 'success');
 }
 
 /**
@@ -9196,7 +9196,7 @@ function openQuickAdminEmailDispatch(type) {
   const applicant = state.currentApplicant || {
     nama: 'Ns. Hendra Kurniawan, S.Kep',
     nip: '000000000000000000',
-    unit: 'Ruang Enggang Gading 2 (Penyakit Dalam)',
+    unit: 'Ruang Kakap (Bedah)',
     jenjang: 'PK III'
   };
 
@@ -9204,7 +9204,7 @@ function openQuickAdminEmailDispatch(type) {
   const bodyText = 
     `Kepada Yth.\n` +
     `1. Ketua Komite Keperawatan RSUD dr. Soedarso (komitekeperawatanrsds2023@gmail.com)\n` +
-    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (yadhie28@gmail.com)\n\n` +
+    `2. Ns. Rusmulyadi, S.Kep., MARS - Sekretaris Komite (komitekeperawatanrsds2023@gmail.com)\n\n` +
     `Dengan hormat,\n` +
     `Berikut adalah pemberitahuan resmi pengajuan permohonan kredensialing tenaga keperawatan:\n\n` +
     `• Nama Lengkap    : ${applicant.nama}\n` +
@@ -9246,10 +9246,10 @@ function getDefaultWorkflowNotifications() {
       timestamp: "28 Oktober 2026, 08:30 WIB",
       category: "kredensial",
       title: "Pengusulan Kredensial Baru: Berkas Perlu Diverifikasi",
-      message: "Berkas pengusulan kredensialing atas nama Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Enggang Gading 2) telah diajukan lengkap (6 tahap) dan membutuhkan verifikasi berkas persyaratan serta verifikasi sumber primer (PSV) oleh Subkomite.",
+      message: "Berkas pengusulan kredensialing atas nama Ns. Hendra Kurniawan, S.Kep (PK III - Ruang Kakap) telah diajukan lengkap (6 tahap) dan membutuhkan verifikasi berkas persyaratan serta verifikasi sumber primer (PSV) oleh Subkomite.",
       applicantName: "Ns. Hendra Kurniawan, S.Kep",
       applicantNip: "000000000000000000",
-      sourceUnit: "Ruang Enggang Gading 2",
+      sourceUnit: "Ruang Kakap",
       sourceId: "KRED-2026-001",
       actionTab: "kredensial",
       targetRoles: ["mutu", "kredensial", "sekretaris", "pimpinan"],
@@ -9297,10 +9297,10 @@ function getDefaultWorkflowNotifications() {
       timestamp: "28 Oktober 2026, 11:20 WIB",
       category: "mutu",
       title: "Audit Mutu Profesi: Hasil Audit Asuhan Keperawatan Baru",
-      message: "Laporan audit mutu asuhan keperawatan terbaru untuk Ruang Enggang Gading 2 (Kepala Ruangan: Ns. Desi Ratnasari, S.Kep) telah selesai dicatat dengan skor Kepatuhan CPPT 98.4%, Hand Hygiene 99.1%, predikat A (Sangat Baik). Laporan siap diverifikasi dan ditelaah Ketua Subkomite Mutu.",
+      message: "Laporan audit mutu asuhan keperawatan terbaru untuk Ruang Kakap (Kepala Ruangan: Ns. Desi Ratnasari, S.Kep) telah selesai dicatat dengan skor Kepatuhan CPPT 98.4%, Hand Hygiene 99.1%, predikat A (Sangat Baik). Laporan siap diverifikasi dan ditelaah Ketua Subkomite Mutu.",
       applicantName: "Auditor Mutu Klinis",
       applicantNip: "-",
-      sourceUnit: "Ruang Enggang Gading 2",
+      sourceUnit: "Ruang Kakap",
       sourceId: "AUDIT-EG2",
       actionTab: "mutu",
       targetRoles: ["mutu", "sekretaris", "pimpinan"],
@@ -9323,7 +9323,7 @@ function getWorkflowNotificationsForUser(user = state.currentUser) {
   const uRole = (user.role || '').toLowerCase();
   const uBadge = (user.badge || '').toLowerCase();
 
-  const isSekretaris = uName === 'rusmulyadi' || uAlias === 'sekretaris' || (user.devAlias === 'yadhie28') || uRole.includes('sekretaris');
+  const isSekretaris = uName === 'rusmulyadi' || uAlias === 'sekretaris' || uRole.includes('sekretaris');
   const isKetuaKomite = uName === 'separia' || uAlias === 'admin.komite' || uRole.includes('ketua komite') || uBadge.includes('super');
   const isKetuaMutu = uName === 'laila' || uAlias === 'mutu' || uRole.includes('mutu');
   const isKetuaEtik = uName === 'alfonsus' || uAlias === 'etik' || uRole.includes('etik') || uRole.includes('etika');
@@ -9517,7 +9517,7 @@ function renderWorkflowAuthorityBanner() {
   const uRole = (user.role || '').toLowerCase();
   const uBadge = (user.badge || '').toLowerCase();
 
-  const isSekretaris = uName === 'rusmulyadi' || uAlias === 'sekretaris' || (user.devAlias === 'yadhie28') || uRole.includes('sekretaris');
+  const isSekretaris = uName === 'rusmulyadi' || uAlias === 'sekretaris' || uRole.includes('sekretaris');
   const isKetuaKomite = uName === 'separia' || uAlias === 'admin.komite' || uRole.includes('ketua komite') || uBadge.includes('super');
   const isKetuaMutu = uName === 'laila' || uAlias === 'mutu' || uRole.includes('mutu');
   const isKetuaEtik = uName === 'alfonsus' || uAlias === 'etik' || uRole.includes('etik') || uRole.includes('etika');
@@ -9766,7 +9766,7 @@ function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
     );
   }
   if (elNip) elNip.textContent = app.nip || '000000000000000000';
-  if (elUnit) elUnit.textContent = app.unit || 'Ruang Enggang Gading 2';
+  if (elUnit) elUnit.textContent = app.unit || 'Ruang Kakap';
   if (elJenjang) elJenjang.textContent = app.jenjang ? `${app.jenjang} (${app.jenjang === 'PK III' ? 'Perawat Klinis III' : app.jenjang})` : 'Perawat Klinis III (PK III)';
   if (elArea) elArea.textContent = app.areaName || 'Keperawatan Bedah Dewasa Lanjut (PK III)';
   if (elStr) elStr.textContent = `${app.strNumber || '140152123-2893812'} (Berlaku s.d. ${app.strExpiry || '2028-08-17'})`;
@@ -9788,7 +9788,7 @@ function openVerifikasiBerkasSubkomite(appId = 'KRED-2026-001') {
     if (uName === 'yohanes' || uAlias === 'kredensial' || uRole.includes('kredensial')) {
       verifNama = (curUser.name || 'Ns. Yohanes Rindo Ari Wijoyo, S.Kep') + ' (Ketua Subkomite Kredensial)';
       verifNip = curUser.nip || '000000000000000000';
-    } else if (uName === 'rusmulyadi' || uAlias === 'sekretaris' || (curUser.devAlias === 'yadhie28') || uRole.includes('sekretaris')) {
+    } else if (uName === 'rusmulyadi' || uAlias === 'sekretaris' || uRole.includes('sekretaris')) {
       verifNama = (curUser.name || 'Ns. Rusmulyadi, S.Kep., MARS') + ' (Sekretaris Komite Keperawatan)';
       verifNip = curUser.nip || '000000000000000000';
     } else if (uName === 'separia' || uRole.includes('ketua komite')) {
@@ -9945,7 +9945,7 @@ function simpanTanggapanVerifikasiSubkomite(event) {
 function bukaPratinjauSuratVerifikasi() {
   document.getElementById('suratNama') && (document.getElementById('suratNama').value = 'Ns. Hendra Kurniawan, S.Kep');
   document.getElementById('suratNip') && (document.getElementById('suratNip').value = '000000000000000000');
-  document.getElementById('suratUnit') && (document.getElementById('suratUnit').value = 'Ruang Enggang Gading 2');
+  document.getElementById('suratUnit') && (document.getElementById('suratUnit').value = 'Ruang Kakap');
   document.getElementById('suratJenjang') && (document.getElementById('suratJenjang').value = 'PK III');
   previewSuratKredensialHVS('filled');
 }
@@ -10048,7 +10048,7 @@ function generateRkkHVS(mode) {
   const nama = isBlank ? '....................................................................' : (document.getElementById('formNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
   const nip = isBlank ? '....................................................................' : (document.getElementById('formNip')?.value.trim() || state.currentApplicant?.nip || '000000000000000000');
   const jenjang = isBlank ? '....................................................................' : (document.getElementById('formJenjang')?.value || state.currentApplicant?.jenjang || 'PK III');
-  const unit = isBlank ? '....................................................................' : (document.getElementById('formUnit')?.value || state.currentApplicant?.unit || 'Enggang Gading 2');
+  const unit = isBlank ? '....................................................................' : (document.getElementById('formUnit')?.value || state.currentApplicant?.unit || 'Kakap');
   const str = isBlank ? '....................................................................' : (document.getElementById('formStr')?.value.trim() || state.currentApplicant?.str || '140152119-3284910');
   const strExp = isBlank ? '........................' : (document.getElementById('formStrExpiry')?.value || '2028-11-20');
   
@@ -10629,7 +10629,7 @@ function handlePsvSubmit(e) {
     nama: getVal('psvNama', 'Ns. Hendra Kurniawan, S.Kep'),
     nip: getVal('psvNip', '000000000000000000'),
     pendidikan: getVal('psvPendidikan', 'S1 Keperawatan & Profesi Ners / Universitas Tanjungpura'),
-    unit: getVal('psvUnit', 'Enggang Gading 2'),
+    unit: getVal('psvUnit', 'Kakap'),
     ijazahInstitusi: getVal('psvIjazahInstitusi', 'Universitas Tanjungpura'),
     ijazahNomor: getVal('psvIjazahNomor', '1401/UNTAN/NERS/2018'),
     ijazahTahun: getVal('psvIjazahTahun', '2018'),
@@ -10715,7 +10715,7 @@ function generatePsvHVS(mode) {
   const nama = isBlank ? '[ Nama dan Gelar Lengkap ]' : (d.nama || document.getElementById('psvNama')?.value.trim() || state.currentApplicant?.nama || 'Ns. Hendra Kurniawan, S.Kep');
   const nip = isBlank ? '[ NIP / NIPPPK / NIK ]' : (d.nip || document.getElementById('psvNip')?.value.trim() || state.currentApplicant?.nip || '000000000000000000');
   const pendidikan = isBlank ? '[ Universitas / Poltekkes / Sekolah Tinggi Asal ]' : (d.pendidikan || document.getElementById('psvPendidikan')?.value.trim() || 'S1 Keperawatan & Profesi Ners / Universitas Tanjungpura');
-  const unit = isBlank ? '[ Misal: Instalasi Gawat Darurat / ICU / Rawat Inap ]' : (d.unit || document.getElementById('psvUnit')?.value.trim() || state.currentApplicant?.unit || 'Enggang Gading 2');
+  const unit = isBlank ? '[ Misal: Instalasi Gawat Darurat / ICU / Rawat Inap ]' : (d.unit || document.getElementById('psvUnit')?.value.trim() || state.currentApplicant?.unit || 'Kakap');
 
   const ijazahInst = isBlank ? '[ Tulis Perguruan Tinggi Asal / Universitas ]' : (d.ijazahInstitusi || document.getElementById('psvIjazahInstitusi')?.value.trim() || 'Universitas Tanjungpura');
   const ijazahNo = isBlank ? '____________' : (d.ijazahNomor || document.getElementById('psvIjazahNomor')?.value.trim() || '1401/UNTAN/NERS/2018');
@@ -12128,3 +12128,55 @@ window.bukaModalUploadBerkasVerifikasi = bukaModalUploadBerkasVerifikasi;
 
 
 
+
+
+/**
+ * Single source of truth untuk seluruh dropdown ruangan berdasarkan SK 749 TT 2026
+ */
+function populateAllRoomDropdowns() {
+  if (typeof komiteData === 'undefined' || !komiteData.hospitalRoomsSK || !komiteData.hospitalRoomsSK.categories) {
+    return;
+  }
+  const categories = komiteData.hospitalRoomsSK.categories;
+
+  function buildOptionsHtml(includeEmptyPlaceholder = true, emptyLabel = '-- Pilih Unit Kerja / Ruangan (SK 749 TT 2026) --') {
+    let html = '';
+    if (includeEmptyPlaceholder) {
+      html += `<option value="">${emptyLabel}</option>`;
+    }
+    categories.forEach(cat => {
+      const ttLabel = cat.totalTT ? ` (${cat.totalTT} TT)` : '';
+      html += `<optgroup label="${cat.kode}. ${cat.nama}${ttLabel}">`;
+      cat.rooms.forEach(r => {
+        const rtt = r.tt ? ` (${r.tt} TT)` : '';
+        html += `<option value="${r.nama}">${r.nama}${rtt}</option>`;
+      });
+      html += `</optgroup>`;
+    });
+    return html;
+  }
+
+  const targetDropdowns = [
+    { id: 'filterUnit', isFilter: true, emptyLabel: 'Semua Ruangan / Unit (SK 749 TT 2026)' },
+    { id: 'filterLogbookUnit', isFilter: true, emptyLabel: 'Semua Ruangan / Unit (SK 749 TT 2026)' },
+    { id: 'logWorkUnit', isFilter: false, emptyLabel: '-- Pilih Unit Kerja / Ruangan (SK 749 TT 2026) --' },
+    { id: 'cvUnit', isFilter: false, emptyLabel: '-- Pilih Unit Kerja / Ruangan (SK 749 TT 2026) --' },
+    { id: 'formUnit', isFilter: false, emptyLabel: '-- Pilih Ruangan --' },
+    { id: 'suratUnit', isFilter: false, emptyLabel: '-- Terisi Otomatis Sesuai Langkah 1 --' },
+    { id: 'psvUnit', isFilter: false, emptyLabel: '-- Terisi Otomatis Sesuai Langkah 1 --' },
+    { id: 'logbookUnit', isFilter: false, emptyLabel: '-- Sesuai Penempatan --' },
+    { id: 'logbookKaRuRuangan', isFilter: false, emptyLabel: '-- Pilih Ruangan Supervisi Ka.Ru --' }
+  ];
+
+  targetDropdowns.forEach(cfg => {
+    const el = document.getElementById(cfg.id);
+    if (!el) return;
+    const curVal = el.value;
+    el.innerHTML = buildOptionsHtml(true, cfg.emptyLabel);
+    if (curVal && Array.from(el.options).some(o => o.value === curVal)) {
+      el.value = curVal;
+    } else if (!cfg.isFilter && !el.value && Array.from(el.options).some(o => o.value === 'Kakap')) {
+      el.value = 'Kakap';
+    }
+  });
+}

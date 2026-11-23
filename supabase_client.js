@@ -222,7 +222,7 @@
     const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
     let lookupId = cleanId;
 
-    // Jika input berupa username/alias pengurus (misal: rusmulyadi, separia, yadhie28, sekretaris), petakan ke NIP resmi
+    // Jika input berupa username/alias pengurus (misal: rusmulyadi, separia, sekretaris), petakan ke NIP resmi
     if (!/^\d+$/.test(cleanId) && window.KOMITE_DATA && Array.isArray(window.KOMITE_DATA.adminUsers)) {
       const foundAdmin = window.KOMITE_DATA.adminUsers.find(a => {
         const u = (a.username || '').toLowerCase();
