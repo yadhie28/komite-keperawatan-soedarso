@@ -1,3 +1,11 @@
 *.zip
 .DS_Store
 scratch_logos/
+*.csv
+data_pegawai_keperawatan_soedarso.csv
+seed_data_pegawai_717.sql
+seed_data_*.sql
+.env*
+*.key
+*.pem
+service_account*.json
