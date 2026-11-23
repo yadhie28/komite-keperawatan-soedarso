@@ -218,7 +218,8 @@ async function handleAdminLogin(e) {
   }
 
   const isSupaValid = Boolean(supaRes && supaRes.success);
-  const isDefaultAdminPass = (pass === 'REDACTED_PASSWORD' || pass === 'admin123' || pass === 'komite123' || (matchedUser && matchedUser.password === pass));
+  // Verifikasi autentikasi terpusat via Supabase / Cryptographic Security Layer
+  const isDefaultAdminPass = false;
 
   if (isSupaValid || (matchedUser && isDefaultAdminPass)) {
     const activeAdmin = matchedUser || {
@@ -1477,6 +1478,13 @@ function setupNavigation() {
 }
 
 function switchTab(tabId) {
+  // Penegakan Wajib Ganti Password: Kunci seluruh navigasi modul hingga password diubah
+  if (state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword)) {
+    toggleGantiPasswordForm(true);
+    showToast('Akses modul terkunci! Anda wajib mengganti kata sandi awal terlebih dahulu.', 'warning');
+    return;
+  }
+
   // Normalisasi alias: 'pemilihan' <-> 'evoting'
   const canonicalId = (tabId === 'pemilihan') ? 'evoting' : tabId;
   state.activeTab = canonicalId;
@@ -1600,9 +1608,7 @@ function renderStructureSK() {
           <div style="font-weight: 700; color: var(--text-main); font-size: 0.92rem;">${item.name}</div>
           <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
             Username: <code style="background: var(--bg-surface); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--primary-700); font-weight: 600;">${item.username}</code>
-            <button type="button" class="btn-table-action" onclick="fillAdminPreset('${item.username}'); openLoginModal();" title="Login sebagai ${item.name}" style="margin-left: 6px; font-size: 0.7rem; padding: 1px 6px;">
-              <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
-            </button>
+            
           </div>
         </td>
         <td style="font-weight: 600; color: var(--text-main);">${item.role}</td>
@@ -2185,7 +2191,7 @@ function initSessionSecurityGuard() {
 
   // Check every 30 seconds
   setInterval(() => {
-    if (!isAdmin() || state.isSessionLocked) return;
+    if (!state.currentUser || state.isSessionLocked) return;
     const idleMs = Date.now() - state.lastActivityTime;
     const maxIdleMs = 15 * 60 * 1000; // 15 Menit Timeout
     if (idleMs > maxIdleMs) {
@@ -2195,7 +2201,7 @@ function initSessionSecurityGuard() {
 }
 
 function lockCurrentSession() {
-  if (!isAdmin() || state.isSessionLocked) return;
+  if (!state.currentUser || state.isSessionLocked) return;
 
   state.isSessionLocked = true;
   const user = state.currentUser;
@@ -8938,12 +8944,31 @@ function closeModal(modalId) {
   }
 }
 
-// Close modal when clicking on overlay background
+// Close modal when clicking on overlay background (dengan proteksi modal terkunci)
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
+    if (e.target.id === 'modalSessionLock') return;
+    if (e.target.id === 'modalGantiPassword' && state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword)) {
+      showToast('Anda wajib mengganti kata sandi awal terlebih dahulu.', 'warning');
+      return;
+    }
     e.target.classList.remove('active');
     e.target.style.display = 'none';
     document.body.style.overflow = 'auto';
+  }
+});
+
+// Penutupan modal dengan tombol Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const activeModals = document.querySelectorAll('.modal-overlay.active');
+    activeModals.forEach(m => {
+      if (m.id === 'modalSessionLock') return;
+      if (m.id === 'modalGantiPassword' && state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword)) {
+        return;
+      }
+      closeModal(m.id);
+    });
   }
 });
 
@@ -11907,7 +11932,7 @@ async function handleUnifiedPortalLogin(e) {
       const uEmail = (u.email || '').toLowerCase().replace(/\s+/g, '');
       const uNip = (u.nip || '').replace(/\s+/g, '');
       const matchesUser = (uName === cleanInput || uAlias === cleanInput || uAlt === cleanInput || uDev === cleanInput || uEmail === cleanInput || (uNip && uNip === cleanInput));
-      const matchesPass = (u.password && u.password === rawPass) || (rawPass === 'REDACTED_PASSWORD' || rawPass === 'admin123' || rawPass === 'komite123');
+      const matchesPass = false; // Plaintext bypass dihapus, wajib via SupabaseKomkep.login
       return matchesUser && matchesPass;
     });
 
@@ -11941,15 +11966,8 @@ async function handleUnifiedPortalLogin(e) {
       return;
     }
 
-    // 3. Fallback Akun Demo Pengusul
-    const pengusulList = (typeof getAllPengusulAccounts === 'function') ? getAllPengusulAccounts() : [];
-    const matchedNurse = pengusulList.find(a => {
-      const u = (a.username || '').toLowerCase().replace(/\s+/g, '');
-      const altU = (a.altUsername || '').toLowerCase().replace(/\s+/g, '');
-      const nip = (a.nip || '').toLowerCase().replace(/\s+/g, '');
-      const passMatch = ((a.password && a.password === rawPass) || (a.namaSandi && a.namaSandi === rawPass) || rawPass === 'REDACTED_PASSWORD');
-      return (u === cleanInput || altU === cleanInput || nip === cleanInput) && passMatch;
-    });
+    // 3. Fallback Akun Pengusul (Bebas Demo Plaintext)
+    const matchedNurse = null;
 
     if (matchedNurse) {
       state.currentUser = {
@@ -12180,3 +12198,51 @@ function populateAllRoomDropdowns() {
     }
   });
 }
+
+
+/**
+ * Role-Based Access Control (RBAC) Guard
+ */
+function canAccess(role, resource, context = {}) {
+  if (!state.currentUser) return false;
+  const user = state.currentUser;
+  const userRole = (user.role || '').toLowerCase();
+  const userBadge = (user.badge || '').toLowerCase();
+  const access = user.access || [];
+
+  // Super Admin / Administrator Komite has full access
+  if (user.isAdmin || userBadge.includes('super') || userRole.includes('admin') || userRole.includes('pimpinan')) {
+    return true;
+  }
+
+  // Komite / Subkomite access
+  if (resource === 'kredensial_manage') {
+    return hasRole('kredensial') || hasRole('komite') || access.includes('kredensial');
+  }
+  if (resource === 'mutu_manage') {
+    return hasRole('mutu') || hasRole('komite') || access.includes('mutu');
+  }
+  if (resource === 'etik_manage') {
+    return hasRole('etik') || hasRole('komite') || access.includes('etik');
+  }
+
+  // Karu (Kepala Ruangan)
+  if (userBadge.includes('karu') || userRole.includes('kepala ruangan')) {
+    if (resource === 'supervisi_ruangan') {
+      return !context.unit || context.unit === user.unit;
+    }
+  }
+
+  // Perawat / Pengusul (self-access only)
+  if (resource === 'portofolio_milik_sendiri' || resource === 'logbook_milik_sendiri' || resource === 'rkk_milik_sendiri') {
+    return !context.nip || context.nip === user.nip || context.id_login === user.id_login;
+  }
+
+  // Pemilihan / E-Voting
+  if (resource === 'pemilihan' || resource === 'evoting') {
+    return true;
+  }
+
+  return false;
+}
+window.canAccess = canAccess;
