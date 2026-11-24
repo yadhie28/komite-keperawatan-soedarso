@@ -166,6 +166,11 @@
   async function renderAll() {
     const sched = getSchedule();
     state.lastOpenState = sched.isOpen;
+    // Sinkronkan status suara pemilih dari server pusat bila aktif
+    const user = getActivePortalUser();
+    if (user && window.SupabaseKomkep && typeof window.SupabaseKomkep.getVoterRecordAsync === 'function') {
+      await window.SupabaseKomkep.getVoterRecordAsync(user.id_login || user.nip || user.username);
+    }
     renderDisclaimerBanner(sched);
     renderUserPill();
     renderSubTabNavigation();
@@ -598,7 +603,16 @@
     const votersMap = rekap.voters_map || {};
 
     if (container) {
+      const isCentral = Boolean(window.SupabaseKomkep && typeof window.SupabaseKomkep.isCentralBackendActive === 'function' && window.SupabaseKomkep.isCentralBackendActive());
+      const syncBanner = isCentral
+        ? `<div style="background:#ecfdf5;border:1.5px solid #10b981;border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.85rem;color:#065f46;font-size:0.83rem;">
+             <i class="fa-solid fa-cloud-check"></i> <strong>Server Pusat Lintas-Perangkat AKTIF:</strong> Seluruh suara dari semua HP &amp; komputer masuk ke 1 kotak suara Google Sheets pusat secara real-time.
+           </div>`
+        : `<div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.85rem;color:#92400e;font-size:0.83rem;">
+             <i class="fa-solid fa-triangle-exclamation"></i> <strong>Mode Lokal (Perangkat Ini Saja):</strong> URL Server Pusat Google Apps Script (<code>GAS_EXEC_URL</code> di <code>config.js</code>) belum diisi, sehingga suara dari HP/device lain belum tergabung. Pasang <code>apps-script/SimulasiTahap2.gs</code> lalu isi <code>GAS_EXEC_URL</code> untuk mengaktifkan voting lintas-perangkat.
+           </div>`;
       container.innerHTML = `
+        ${syncBanner}
         <div style="background: #f0fdfa; border: 1.5px solid #14b8a6; border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem; color: #115e59; font-weight: 700; font-size: 0.86rem;">
           <i class="fa-solid fa-user-shield"></i> Panel Panitia Simulasi Tahap 2 (Khusus Pengurus Komite SK Direktur) &bull;
           Partisipasi: <strong>${rekap.metrics?.total_voted || 0} / ${rekap.metrics?.total_dpt || 717}</strong> pemilih.

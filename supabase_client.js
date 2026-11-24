@@ -35,12 +35,35 @@
       .replace(/'/g, '&#39;');
   }
 
-  // Normalisasi ID: hapus semua spasi, titik, strip
+  // Normalisasi ID: hapus semua spasi (termasuk non-breaking/zero-width), titik, strip, tanda kutip
   function normalizeId(rawId) {
     return String(rawId === null || rawId === undefined ? '' : rawId)
-      .replace(/^'+/, '')
-      .replace(/[\s.\-'"]/g, '')
+      .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
       .trim();
+  }
+
+  function getCentralApiUrl() {
+    const cfgUrl = (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.GAS_EXEC_URL) ? String(window.KOMKEP_CONFIG.GAS_EXEC_URL).trim() : '';
+    const lsUrl = (localStorage.getItem('komkep_gas_exec_url') || '').trim();
+    const url = cfgUrl || lsUrl;
+    return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/i.test(url) ? url : '';
+  }
+
+  function isCentralBackendActive() {
+    return Boolean(getCentralApiUrl());
+  }
+
+  async function callCentralApi(aksi, payload = {}) {
+    const url = getCentralApiUrl();
+    if (!url) return null;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ aksi, ...payload })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
   }
 
   // Penyamaran ID tanpa spasi
@@ -85,9 +108,13 @@
     }
   }
 
+  const KEY_PASS_HASHES = 'komkep_sim2_password_hashes';
+  const KEY_PASS_CHANGED = 'komkep_sim2_passwords_changed';
+  const KEY_LOGIN_ATTEMPTS = 'komkep_sim2_login_attempts';
+
   function getCustomPasswordHash(idLogin) {
     try {
-      const map = JSON.parse(localStorage.getItem('komkep_password_hashes') || '{}');
+      const map = JSON.parse(localStorage.getItem(KEY_PASS_HASHES) || '{}');
       return map[idLogin] || null;
     } catch (_) {
       return null;
@@ -96,25 +123,25 @@
 
   function setCustomPasswordHash(idLogin, hash) {
     try {
-      const map = JSON.parse(localStorage.getItem('komkep_password_hashes') || '{}');
+      const map = JSON.parse(localStorage.getItem(KEY_PASS_HASHES) || '{}');
       map[idLogin] = hash;
-      localStorage.setItem('komkep_password_hashes', JSON.stringify(map));
+      localStorage.setItem(KEY_PASS_HASHES, JSON.stringify(map));
     } catch (_) {}
   }
 
   function setPasswordChanged(idLogin) {
     try {
-      const changedList = JSON.parse(localStorage.getItem('komkep_passwords_changed') || '[]');
+      const changedList = JSON.parse(localStorage.getItem(KEY_PASS_CHANGED) || '[]');
       if (!changedList.includes(idLogin)) {
         changedList.push(idLogin);
-        localStorage.setItem('komkep_passwords_changed', JSON.stringify(changedList));
+        localStorage.setItem(KEY_PASS_CHANGED, JSON.stringify(changedList));
       }
     } catch (_) {}
   }
 
   function checkLoginRateLimit(idLogin) {
     try {
-      const attemptsMap = JSON.parse(localStorage.getItem('komkep_login_attempts') || '{}');
+      const attemptsMap = JSON.parse(localStorage.getItem(KEY_LOGIN_ATTEMPTS) || '{}');
       const item = attemptsMap[idLogin];
       if (!item) return { isLocked: false };
       const now = Date.now();
@@ -130,18 +157,18 @@
 
   function recordLoginAttempt(idLogin, isSuccess) {
     try {
-      const attemptsMap = JSON.parse(localStorage.getItem('komkep_login_attempts') || '{}');
+      const attemptsMap = JSON.parse(localStorage.getItem(KEY_LOGIN_ATTEMPTS) || '{}');
       if (isSuccess) {
         delete attemptsMap[idLogin];
       } else {
         const item = attemptsMap[idLogin] || { count: 0 };
         item.count += 1;
-        if (item.count >= 5) {
-          item.lockedUntil = Date.now() + (15 * 60 * 1000);
+        if (item.count >= 10) {
+          item.lockedUntil = Date.now() + (5 * 60 * 1000);
         }
         attemptsMap[idLogin] = item;
       }
-      localStorage.setItem('komkep_login_attempts', JSON.stringify(attemptsMap));
+      localStorage.setItem(KEY_LOGIN_ATTEMPTS, JSON.stringify(attemptsMap));
     } catch (_) {}
   }
 
@@ -150,7 +177,7 @@
      ========================================================================== */
   async function login(usernameOrId, password) {
     const cleanId = normalizeId(usernameOrId);
-    const cleanPass = String(password || '');
+    const cleanPass = String(password || '').trim();
 
     if (!cleanId || !cleanPass) {
       return {
@@ -183,23 +210,25 @@
       recordLoginAttempt(cleanId, false);
       return {
         success: false,
-        message: 'NIP/NIPPPK/NIK atau password salah.'
+        message: 'NIP/NIPPPK/NIK tidak ditemukan dalam daftar 717 pegawai. Pastikan angka NIP/NIPPPK/NIK benar tanpa spasi.'
       };
     }
 
     // Verifikasi Password:
-    // - Belum pernah ganti sandi  -> hanya sandi awal 'soedarso2026' yang berlaku.
-    // - Sudah ganti sandi         -> hanya sandi baru yang berlaku (sandi awal tidak bisa dipakai lagi).
+    // - Belum pernah ganti sandi  -> sandi awal 'soedarso2026' (toleran huruf besar/kecil akibat keyboard HP).
+    // - Sudah ganti sandi         -> hanya sandi baru yang berlaku.
     const inputHash = await computeSha256(cleanPass);
     const customHash = getCustomPasswordHash(lookupId);
-    const isDefaultPass = (cleanPass === 'soedarso2026' || inputHash === DEFAULT_PASS_HASH);
+    const isDefaultPass = (cleanPass.toLowerCase() === 'soedarso2026' || inputHash === DEFAULT_PASS_HASH);
     const isValid = customHash ? (inputHash === customHash) : isDefaultPass;
 
     if (!isValid) {
       recordLoginAttempt(cleanId, false);
       return {
         success: false,
-        message: 'NIP/NIPPPK/NIK atau password salah.'
+        message: customHash
+          ? 'Kata sandi salah. Gunakan kata sandi baru yang sudah Anda buat sebelumnya.'
+          : 'Kata sandi salah. Untuk login pertama, gunakan password awal: soedarso2026'
       };
     }
 
@@ -318,10 +347,11 @@
     }
 
     const customHash = getCustomPasswordHash(cleanId);
-    const oldHash = await computeSha256(oldPassword);
+    const cleanOld = String(oldPassword || '').trim();
+    const oldHash = await computeSha256(cleanOld);
     const oldValid = customHash
       ? (oldHash === customHash)
-      : (oldPassword === 'soedarso2026' || oldHash === DEFAULT_PASS_HASH);
+      : (cleanOld.toLowerCase() === 'soedarso2026' || oldHash === DEFAULT_PASS_HASH);
     if (!oldValid) {
       return { success: false, message: 'Password lama yang Anda masukkan tidak sesuai.' };
     }
@@ -427,6 +457,28 @@
     return voters[clean] || null;
   }
 
+  async function getVoterRecordAsync(idLogin) {
+    const clean = normalizeId(idLogin);
+    if (!clean) return null;
+    if (isCentralBackendActive()) {
+      try {
+        const res = await callCentralApi('cek_pemilih', { nip: clean });
+        if (res && res.ok) {
+          if (res.sudah_memilih && res.receipt) {
+            const voters = readJson(KEY_VOTERS, {});
+            voters[clean] = res.receipt;
+            writeJson(KEY_VOTERS, voters);
+            return res.receipt;
+          }
+          return null;
+        }
+      } catch (err) {
+        console.warn('[getVoterRecordAsync] Gagal cek server pusat:', err);
+      }
+    }
+    return getVoterRecord(clean);
+  }
+
   async function enterBooth(idLogin) {
     const sched = checkElectionSchedule();
     if (!sched.isOpen) {
@@ -464,6 +516,48 @@
     if (!clean || !candidateId) {
       return { success: false, message: 'Data pemilih atau calon tidak lengkap.' };
     }
+
+    // Jika Server Pusat (Google Apps Script) sudah dikonfigurasi, rekam suara di server pusat (lintas-perangkat)
+    if (isCentralBackendActive()) {
+      try {
+        const waktuWib = formatWibDate(new Date());
+        const res = await callCentralApi('pilih', {
+          nip: clean,
+          kode_calon: candidateId,
+          waktu_wib: waktuWib
+        });
+        if (!res) {
+          return { success: false, message: 'Server pusat tidak merespons. Coba lagi.' };
+        }
+        if (!res.ok) {
+          if (res.receipt) {
+            const voters = readJson(KEY_VOTERS, {});
+            voters[clean] = res.receipt;
+            writeJson(KEY_VOTERS, voters);
+          }
+          return {
+            success: false,
+            code: res.kode || 'VOTE_REJECTED',
+            message: res.pesan || 'Gagal merekam suara di server pusat.',
+            receipt: res.receipt || null
+          };
+        }
+        const voters = readJson(KEY_VOTERS, {});
+        voters[clean] = res.receipt;
+        writeJson(KEY_VOTERS, voters);
+        return {
+          success: true,
+          message: res.pesan || 'Suara rahasia Anda berhasil direkam di server pusat.',
+          receipt: res.receipt
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message: 'Gagal terhubung ke server pusat (' + (err.message || 'cek koneksi internet') + '). Silakan coba kirim suara lagi.'
+        };
+      }
+    }
+
     const voters = readJson(KEY_VOTERS, {});
     if (voters[clean]) {
       return {
@@ -505,9 +599,40 @@
   async function getElectionRekap(electionId = SIMULATION_ELECTION_ID) {
     const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
     const totalDpt = pegawaiList.length || 717;
+    const sched = checkElectionSchedule();
+
+    if (isCentralBackendActive()) {
+      try {
+        const res = await callCentralApi('rekap', {});
+        if (res && res.ok) {
+          const totalVoted = res.total_voted || 0;
+          return {
+            success: true,
+            isCentral: true,
+            isCancelled: false,
+            resultsAvailable: sched.isAfter,
+            closedMessage: 'Hasil perolehan suara per calon dibuka resmi setelah penutupan pada Rabu, 25 November 2026 pukul 09.00 WIB.',
+            election: {
+              id: electionId,
+              status: sched.isOpen ? 'BERLANGSUNG' : (sched.isBefore ? 'BELUM_DIMULAI' : 'SELESAI'),
+              disclaimer: SCHEDULE.DISCLAIMER
+            },
+            metrics: {
+              total_dpt: totalDpt,
+              total_voted: totalVoted,
+              participation_pct: totalDpt > 0 ? ((totalVoted / totalDpt) * 100).toFixed(1) : '0.0'
+            },
+            voters_map: res.voters_map || {},
+            rekap_kandidat: res.rekap_kandidat || []
+          };
+        }
+      } catch (err) {
+        console.warn('[getElectionRekap] Gagal memuat rekap server pusat:', err);
+      }
+    }
+
     const voters = readJson(KEY_VOTERS, {});
     const ballots = readJson(KEY_BALLOTS, []);
-    const sched = checkElectionSchedule();
 
     const counts = {};
     ballots.forEach(b => {
@@ -548,6 +673,13 @@
   }
 
   async function resetSimulation() {
+    if (isCentralBackendActive()) {
+      try {
+        await callCentralApi('reset', { konfirmasi: 'RESET_SIM2' });
+      } catch (err) {
+        console.warn('[resetSimulation] Gagal reset server pusat:', err);
+      }
+    }
     localStorage.removeItem(KEY_VOTERS);
     localStorage.removeItem(KEY_BALLOTS);
     localStorage.removeItem(KEY_BOOTH_LOGS);
@@ -560,6 +692,7 @@
 
   function clearAllLockouts() {
     try {
+      localStorage.removeItem(KEY_LOGIN_ATTEMPTS);
       localStorage.removeItem('komkep_login_attempts');
       return true;
     } catch (_) {
@@ -580,6 +713,8 @@
     setGmail,
     checkElectionSchedule,
     getVoterRecord,
+    getVoterRecordAsync,
+    isCentralBackendActive,
     setManualScheduleOverride,
     enterBooth,
     castVote,
