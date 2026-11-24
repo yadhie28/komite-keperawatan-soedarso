@@ -12,7 +12,7 @@
 
   window.KOMKEP_CONFIG = {
     // Tempel URL Web App Google Apps Script yang berakhiran /exec di sini:
-    GAS_EXEC_URL: '',
+    GAS_EXEC_URL: 'https://script.google.com/macros/s/AKfycbzglms4tYovrpOL0256Iu9hDMBSI824UrMtmrraAExt13GVyEBfY6BNWNszxnD_HPQX/exec',
 
     // Jadwal Resmi Simulasi Tahap 2 (Zona Waktu Asia/Jakarta, UTC+7)
     WAKTU_BUKA_DEFAULT: '2026-11-24T09:00:00+07:00',
