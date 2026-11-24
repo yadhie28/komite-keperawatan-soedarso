@@ -17,6 +17,7 @@
 
 var TAB_PEMILIH = 'PEMILIH';
 var TAB_SUARA   = 'SUARA';
+var TAB_AKUN    = 'AKUN';
 var WAKTU_BUKA  = '2026-11-24T09:00:00+07:00';
 var WAKTU_TUTUP = '2026-11-25T09:00:00+07:00';
 var CALON_SAH   = ['cand-1', 'cand-2', 'cand-3', 'cand-abstain'];
@@ -34,7 +35,13 @@ function getOrCreateSheets_() {
     shSuara = ss.insertSheet(TAB_SUARA);
     shSuara.appendRow(['id_acak', 'kode_calon']);
   }
-  return { pemilih: shPemilih, suara: shSuara };
+  var shAkun = ss.getSheetByName(TAB_AKUN);
+  if (!shAkun) {
+    shAkun = ss.insertSheet(TAB_AKUN);
+    shAkun.appendRow(['nip', 'hash_sandi', 'gmail', 'waktu_update']);
+    shAkun.getRange('A:A').setNumberFormat('@');
+  }
+  return { pemilih: shPemilih, suara: shSuara, akun: shAkun };
 }
 
 function jsonOut_(obj) {
@@ -78,6 +85,12 @@ function doPost(e) {
     }
     if (aksi === 'pilih') {
       return handlePilih_(body);
+    }
+    if (aksi === 'cek_akun') {
+      return handleCekAkun_(body);
+    }
+    if (aksi === 'simpan_akun') {
+      return handleSimpanAkun_(body);
     }
     if (aksi === 'reset') {
       return handleReset_(body);
@@ -223,6 +236,54 @@ function handleRekap_() {
   });
 }
 
+function handleCekAkun_(body) {
+  var nip = normalizeId_(body.nip);
+  if (!nip) return jsonOut_({ ok: true, ditemukan: false });
+  var sh = getOrCreateSheets_().akun;
+  var rows = sh.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (normalizeId_(rows[i][0]) === nip) {
+      return jsonOut_({
+        ok: true,
+        ditemukan: true,
+        hash_sandi: String(rows[i][1] || ''),
+        gmail: String(rows[i][2] || '')
+      });
+    }
+  }
+  return jsonOut_({ ok: true, ditemukan: false, hash_sandi: '', gmail: '' });
+}
+
+function handleSimpanAkun_(body) {
+  var nip = normalizeId_(body.nip);
+  if (!nip) return jsonOut_({ ok: false, pesan: 'NIP tidak valid.' });
+  var lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    var sh = getOrCreateSheets_().akun;
+    var rows = sh.getDataRange().getValues();
+    var nowIso = new Date().toISOString();
+    var newHash = typeof body.hash_sandi === 'string' ? body.hash_sandi.trim() : '';
+    var newGmail = typeof body.gmail === 'string' ? body.gmail.trim().toLowerCase() : '';
+
+    for (var i = 1; i < rows.length; i++) {
+      if (normalizeId_(rows[i][0]) === nip) {
+        var finalHash = newHash || String(rows[i][1] || '');
+        var finalGmail = newGmail || String(rows[i][2] || '');
+        sh.getRange(i + 1, 1, 1, 4).setNumberFormats([['@', '@', '@', '@']]);
+        sh.getRange(i + 1, 1, 1, 4).setValues([[nip, finalHash, finalGmail, nowIso]]);
+        return jsonOut_({ ok: true, hash_sandi: finalHash, gmail: finalGmail });
+      }
+    }
+    var nextRow = sh.getLastRow() + 1;
+    sh.getRange(nextRow, 1, 1, 4).setNumberFormats([['@', '@', '@', '@']]);
+    sh.getRange(nextRow, 1, 1, 4).setValues([[nip, newHash, newGmail, nowIso]]);
+    return jsonOut_({ ok: true, hash_sandi: newHash, gmail: newGmail });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function handleReset_(body) {
   if (String(body.konfirmasi || '') !== 'RESET_SIM2') {
     return jsonOut_({ ok: false, pesan: 'Konfirmasi reset tidak valid.' });
@@ -242,3 +303,4 @@ function handleReset_(body) {
     lock.releaseLock();
   }
 }
+

@@ -195,7 +195,23 @@
       };
     }
 
-    const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
+    let pegawaiList = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+    // Jika data_pegawai_manifest.js belum selesai dimuat (misalnya jaringan HP lambat), muat otomatis
+    if (pegawaiList.length === 0 && typeof fetch === 'function') {
+      try {
+        const resp = await fetch('data_pegawai_manifest.js?v=20261124f');
+        if (resp.ok) {
+          const txt = await resp.text();
+          const sIdx = txt.indexOf('[');
+          const eIdx = txt.lastIndexOf(']');
+          if (sIdx !== -1 && eIdx > sIdx) {
+            pegawaiList = JSON.parse(txt.slice(sIdx, eIdx + 1));
+            window.KOMKEP_PEGAWAI_717 = pegawaiList;
+          }
+        }
+      } catch (_) {}
+    }
+
     const adminList = (window.KOMITE_DATA && Array.isArray(window.KOMITE_DATA.adminUsers))
       ? window.KOMITE_DATA.adminUsers
       : [];
@@ -210,15 +226,34 @@
       recordLoginAttempt(cleanId, false);
       return {
         success: false,
-        message: 'NIP/NIPPPK/NIK tidak ditemukan dalam daftar 717 pegawai. Pastikan angka NIP/NIPPPK/NIK benar tanpa spasi.'
+        message: `NIP/NIPPPK/NIK tidak ditemukan dalam daftar ${pegawaiList.length} pegawai (ID terbaca: "${cleanId}", ${cleanId.length} digit). Pastikan angka NIP/NIPPPK/NIK benar tanpa spasi.`
       };
+    }
+
+    // Cek sinkronisasi password & Gmail dari server pusat (agar password baru berlaku di HP & laptop)
+    let remoteHash = null;
+    let remoteGmail = '';
+    if (isCentralBackendActive()) {
+      try {
+        const accRes = await callCentralApi('cek_akun', { nip: lookupId });
+        if (accRes && accRes.ok && accRes.ditemukan) {
+          if (accRes.hash_sandi) {
+            remoteHash = accRes.hash_sandi;
+            setCustomPasswordHash(lookupId, remoteHash);
+          }
+          if (accRes.gmail) {
+            remoteGmail = accRes.gmail;
+            setGmail(lookupId, remoteGmail, true);
+          }
+        }
+      } catch (_) {}
     }
 
     // Verifikasi Password:
     // - Belum pernah ganti sandi  -> sandi awal 'soedarso2026' (toleran huruf besar/kecil akibat keyboard HP).
     // - Sudah ganti sandi         -> hanya sandi baru yang berlaku.
     const inputHash = await computeSha256(cleanPass);
-    const customHash = getCustomPasswordHash(lookupId);
+    const customHash = remoteHash || getCustomPasswordHash(lookupId);
     const isDefaultPass = (cleanPass.toLowerCase() === 'soedarso2026' || inputHash === DEFAULT_PASS_HASH);
     const isValid = customHash ? (inputHash === customHash) : isDefaultPass;
 
@@ -228,7 +263,7 @@
         success: false,
         message: customHash
           ? 'Kata sandi salah. Gunakan kata sandi baru yang sudah Anda buat sebelumnya.'
-          : 'Kata sandi salah. Untuk login pertama, gunakan password awal: soedarso2026'
+          : 'Kata sandi salah. Untuk login pertama di perangkat ini, gunakan password awal: soedarso2026'
       };
     }
 
@@ -298,16 +333,20 @@
     }
   }
 
-  function setGmail(idLogin, email) {
+  function setGmail(idLogin, email, skipRemoteSync = false) {
     const clean = String(email || '').trim().toLowerCase();
     if (!isValidGmail(clean)) {
       return { success: false, message: 'Alamat Gmail tidak valid. Gunakan alamat yang berakhiran @gmail.com.' };
     }
+    const cleanId = normalizeId(idLogin);
     try {
       const map = JSON.parse(localStorage.getItem('komkep_user_gmail') || '{}');
-      map[normalizeId(idLogin)] = clean;
+      map[cleanId] = clean;
       localStorage.setItem('komkep_user_gmail', JSON.stringify(map));
     } catch (_) {}
+    if (!skipRemoteSync && isCentralBackendActive()) {
+      callCentralApi('simpan_akun', { nip: cleanId, gmail: clean }).catch(() => {});
+    }
     return { success: true, email: clean };
   }
 
@@ -359,6 +398,15 @@
     const newHash = await computeSha256(newPassword);
     setCustomPasswordHash(cleanId, newHash);
     setPasswordChanged(cleanId);
+    if (isCentralBackendActive()) {
+      try {
+        await callCentralApi('simpan_akun', {
+          nip: cleanId,
+          hash_sandi: newHash,
+          gmail: getGmail(cleanId) || ''
+        });
+      } catch (_) {}
+    }
 
     return {
       success: true,
