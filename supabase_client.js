@@ -121,6 +121,22 @@
     }
   }
 
+  function clearCustomPasswordHash(idLogin) {
+    try {
+      const map = JSON.parse(localStorage.getItem(KEY_PASS_HASHES) || '{}');
+      delete map[idLogin];
+      localStorage.setItem(KEY_PASS_HASHES, JSON.stringify(map));
+    } catch (_) {}
+  }
+
+  function clearGmail(idLogin) {
+    try {
+      const map = JSON.parse(localStorage.getItem('komkep_user_gmail') || '{}');
+      delete map[normalizeId(idLogin)];
+      localStorage.setItem('komkep_user_gmail', JSON.stringify(map));
+    } catch (_) {}
+  }
+
   function setCustomPasswordHash(idLogin, hash) {
     try {
       const map = JSON.parse(localStorage.getItem(KEY_PASS_HASHES) || '{}');
@@ -230,20 +246,25 @@
       };
     }
 
-    // Cek sinkronisasi password & Gmail dari server pusat (agar password baru berlaku di HP & laptop)
+    // Cek sinkronisasi password & Gmail dari server pusat (agar password baru & reset akun berlaku di semua HP/laptop)
     let remoteHash = null;
     let remoteGmail = '';
     if (isCentralBackendActive()) {
       try {
         const accRes = await callCentralApi('cek_akun', { nip: lookupId });
-        if (accRes && accRes.ok && accRes.ditemukan) {
-          if (accRes.hash_sandi) {
+        if (accRes && accRes.ok) {
+          if (accRes.ditemukan && accRes.hash_sandi) {
             remoteHash = accRes.hash_sandi;
             setCustomPasswordHash(lookupId, remoteHash);
+          } else {
+            // Jika belum ada / sudah direset di server pusat, bersihkan sisa hash lokal agar kembali ke sandi awal
+            clearCustomPasswordHash(lookupId);
           }
-          if (accRes.gmail) {
+          if (accRes.ditemukan && accRes.gmail) {
             remoteGmail = accRes.gmail;
             setGmail(lookupId, remoteGmail, true);
+          } else {
+            clearGmail(lookupId);
           }
         }
       } catch (_) {}
@@ -512,11 +533,16 @@
       try {
         const res = await callCentralApi('cek_pemilih', { nip: clean });
         if (res && res.ok) {
+          const voters = readJson(KEY_VOTERS, {});
           if (res.sudah_memilih && res.receipt) {
-            const voters = readJson(KEY_VOTERS, {});
             voters[clean] = res.receipt;
             writeJson(KEY_VOTERS, voters);
             return res.receipt;
+          }
+          // Jika server pusat menyatakan belum memilih, hapus sisa catatan lokal agar bisa memilih kembali
+          if (voters[clean]) {
+            delete voters[clean];
+            writeJson(KEY_VOTERS, voters);
           }
           return null;
         }
