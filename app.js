@@ -96,19 +96,18 @@ function initAuth() {
   if (savedUser) {
     try {
       const parsed = JSON.parse(savedUser);
-      if (parsed && parsed.role === 'guest') {
+      const cleanNip = String(parsed?.nip || parsed?.id_login || '').replace(/\s+/g, '');
+      const isInvalidGuest = !parsed || parsed.role === 'guest' || parsed.username === 'guest' || parsed.username === 'visitor' || !cleanNip || cleanNip === '-';
+      if (isInvalidGuest) {
         localStorage.removeItem('komite_auth_user');
         state.currentUser = null;
       } else {
         state.currentUser = parsed;
-        if (state.currentUser && state.currentUser.nip) {
-          state.currentUser.nip = String(state.currentUser.nip).replace(/\s+/g, '');
-        }
-        if (state.currentUser && state.currentUser.id_login) {
-          state.currentUser.id_login = String(state.currentUser.id_login).replace(/\s+/g, '');
-        }
+        state.currentUser.nip = cleanNip;
+        state.currentUser.id_login = cleanNip;
       }
     } catch (e) {
+      localStorage.removeItem('komite_auth_user');
       state.currentUser = null;
     }
   } else {
@@ -1083,6 +1082,11 @@ function updateAuthUI() {
   const adminNavName = document.getElementById('adminNavName');
   const adminNavRole = document.getElementById('adminNavRole');
   const adminAvatar = document.getElementById('adminAvatarText');
+  if (state.currentUser && (state.currentUser.role === 'guest' || state.currentUser.username === 'guest')) {
+    state.currentUser = null;
+    try { localStorage.removeItem('komite_auth_user'); } catch (_) {}
+  }
+
   if (state.currentUser) {
     hidePortalGateway();
 
@@ -11859,22 +11863,10 @@ function handleGatewayLogin(e, roleType) {
 }
 
 function loginAsGuest() {
-  state.currentUser = {
-    username: 'guest',
-    name: 'Tamu / Pengunjung Publik',
-    nip: '-',
-    role: 'guest',
-    unit: 'Publik (Akses Terbuka)',
-    badge: 'Tamu Publik',
-    access: ['public'],
-    phone: '',
-    email: ''
-  };
-  localStorage.setItem('komite_auth_user', JSON.stringify(state.currentUser));
-  hidePortalGateway();
-  updateAuthUI();
-  try { renderAllViews(); } catch (_) {}
-  showToast('Selamat datang di Portal Komite Keperawatan RSUD dr. Soedarso (Mode Tamu).', 'info');
+  state.currentUser = null;
+  try { localStorage.removeItem('komite_auth_user'); } catch (_) {}
+  showPortalGateway();
+  showToast('Silakan masuk menggunakan NIP / NIPPPK / NIK (tanpa spasi) & kata sandi Anda.', 'info');
 }
 
 async function logoutToPortal() {
