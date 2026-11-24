@@ -95,12 +95,18 @@ function initAuth() {
   const savedUser = localStorage.getItem('komite_auth_user');
   if (savedUser) {
     try {
-      state.currentUser = JSON.parse(savedUser);
-      if (state.currentUser && state.currentUser.nip) {
-        state.currentUser.nip = String(state.currentUser.nip).replace(/\s+/g, '');
-      }
-      if (state.currentUser && state.currentUser.id_login) {
-        state.currentUser.id_login = String(state.currentUser.id_login).replace(/\s+/g, '');
+      const parsed = JSON.parse(savedUser);
+      if (parsed && parsed.role === 'guest') {
+        localStorage.removeItem('komite_auth_user');
+        state.currentUser = null;
+      } else {
+        state.currentUser = parsed;
+        if (state.currentUser && state.currentUser.nip) {
+          state.currentUser.nip = String(state.currentUser.nip).replace(/\s+/g, '');
+        }
+        if (state.currentUser && state.currentUser.id_login) {
+          state.currentUser.id_login = String(state.currentUser.id_login).replace(/\s+/g, '');
+        }
       }
     } catch (e) {
       state.currentUser = null;
@@ -118,6 +124,13 @@ function initAuth() {
     hidePortalGateway();
   }
   updateAuthUI();
+
+  // Jika akun masih wajib ganti password awal atau belum mengisi Gmail pribadi, arahkan ke Profil Akun
+  if (state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail)) {
+    setTimeout(() => {
+      openAccountSettingsModal(true);
+    }, 150);
+  }
 }
 
 function openLoginModal() {
@@ -384,11 +397,12 @@ async function handlePengusulLogin(e) {
         try { syncApplicantToCvMaster(state.currentUser); } catch (_) {}
         try { renderAllViews(); } catch (_) {}
 
-        if (res.wajib_ganti_password) {
-          showToast('Demi keamanan, segera ganti kata sandi awal Anda.', 'warning');
-          toggleGantiPasswordForm(true);
+        if (res.wajib_ganti_password || state.currentUser.wajib_ganti_password || state.currentUser.wajib_isi_gmail) {
+          showToast('Login berhasil! Silakan isi Gmail pribadi & ganti kata sandi awal di menu Profil Akun Anda.', 'warning');
+          openAccountSettingsModal(true);
         } else {
-          showToast(`Selamat datang, ${state.currentUser.name}!`, 'success');
+          const roleNote = state.currentUser.isPengurus ? ` (${state.currentUser.role})` : '';
+          showToast(`Selamat datang, ${state.currentUser.name}${roleNote}!`, 'success');
         }
         return;
       } else {
@@ -651,7 +665,7 @@ function handleUserPillClick() {
   openAccountSettingsModal();
 }
 
-function openAccountSettingsModal() {
+function openAccountSettingsModal(isMandatory = false) {
   const u = state.currentUser || {
     username: 'visitor',
     name: 'Pengunjung / Tamu Publik',
@@ -661,6 +675,23 @@ function openAccountSettingsModal() {
     badge: 'Tamu Publik',
     access: ['public']
   };
+
+  const forceLock = Boolean(isMandatory || (u && u.role !== 'guest' && (u.wajib_ganti_password || u.mustChangePassword || u.wajib_isi_gmail)));
+  const wajibNotice = document.getElementById('settingsWajibNotice');
+  if (wajibNotice) wajibNotice.style.display = forceLock ? 'block' : 'none';
+  const btnCloseAcc = document.getElementById('btnCloseAccountSettings');
+  if (btnCloseAcc) btnCloseAcc.style.display = forceLock ? 'none' : 'flex';
+
+  const savedGmail = u.gmail || u.email || (window.SupabaseKomkep && typeof window.SupabaseKomkep.getGmail === 'function'
+    ? window.SupabaseKomkep.getGmail(u.id_login || u.nip || '')
+    : '');
+  const gmailInput = document.getElementById('settingsGmailPribadi');
+  if (gmailInput) gmailInput.value = savedGmail || '';
+  const gmailLink = document.getElementById('settingsGmailKomiteLink');
+  if (gmailLink && u.name) {
+    const subj = encodeURIComponent(`Komunikasi Komite Keperawatan - ${u.name} (${u.nip || '-'})`);
+    gmailLink.href = `https://mail.google.com/mail/?view=cm&fs=1&to=komitekeperawatanrsds2023@gmail.com&su=${subj}`;
+  }
 
   // Header identity elements
   const avatarEl = document.getElementById('settingsUserAvatar');
@@ -815,27 +846,59 @@ async function simpanPengaturanPassword() {
     return;
   }
 
+  const idLogin = curUser.id_login || curUser.nip || curUser.username;
+  const gmailEl = document.getElementById('settingsGmailPribadi');
+  const gmailVal = (gmailEl?.value || '').trim().toLowerCase();
+
+  if (!gmailVal) {
+    showToast('Alamat Gmail pribadi wajib diisi sebagai media komunikasi Komite Keperawatan.', 'warning');
+    if (gmailEl) gmailEl.focus();
+    return;
+  }
+
+  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.setGmail === 'function') {
+    const gRes = window.SupabaseKomkep.setGmail(idLogin, gmailVal);
+    if (!gRes.success) {
+      showToast(gRes.message || 'Alamat Gmail tidak valid (harus @gmail.com).', 'warning');
+      if (gmailEl) gmailEl.focus();
+      return;
+    }
+    curUser.email = gRes.email;
+    curUser.gmail = gRes.email;
+    curUser.wajib_isi_gmail = false;
+    const pEmail = document.getElementById('settingsProfileEmail');
+    if (pEmail) pEmail.value = gRes.email;
+  }
+
   const currentPass = (document.getElementById('settingsCurrentPass')?.value || '').trim();
   const newPass = (document.getElementById('settingsNewPass')?.value || '').trim();
   const confirmPass = (document.getElementById('settingsConfirmPass')?.value || '').trim();
+  const mustChangePass = Boolean(curUser.wajib_ganti_password || curUser.mustChangePassword);
+  const wantsPassChange = Boolean(currentPass || newPass || confirmPass);
 
-  if (!currentPass || !newPass || !confirmPass) {
-    showToast('Kata sandi lama, baru, dan konfirmasi wajib diisi.', 'warning');
-    return;
-  }
-
-  const idLogin = curUser.id_login || curUser.nip || curUser.username;
-  if (window.SupabaseKomkep && typeof window.SupabaseKomkep.changePassword === 'function') {
-    const res = await window.SupabaseKomkep.changePassword(idLogin, currentPass, newPass, confirmPass);
-    if (!res.success) {
-      showToast(res.message || 'Gagal memperbarui kata sandi.', 'warning');
+  if (mustChangePass || wantsPassChange) {
+    if (!currentPass || !newPass || !confirmPass) {
+      showToast('Kata sandi lama, baru, dan konfirmasi wajib diisi.', 'warning');
       return;
     }
-    showToast(res.message || 'Kata sandi berhasil diperbarui di server!', 'success');
-  } else {
-    showToast('Server autentikasi belum terhubung.', 'warning');
-    return;
+
+    if (window.SupabaseKomkep && typeof window.SupabaseKomkep.changePassword === 'function') {
+      const res = await window.SupabaseKomkep.changePassword(idLogin, currentPass, newPass, confirmPass);
+      if (!res.success) {
+        showToast(res.message || 'Gagal memperbarui kata sandi.', 'warning');
+        return;
+      }
+      curUser.wajib_ganti_password = false;
+      curUser.mustChangePassword = false;
+    } else {
+      showToast('Server autentikasi belum terhubung.', 'warning');
+      return;
+    }
   }
+
+  try {
+    localStorage.setItem('komite_auth_user', JSON.stringify(curUser));
+  } catch (_) {}
 
   // Clear password inputs
   const curPassEl = document.getElementById('settingsCurrentPass');
@@ -845,6 +908,15 @@ async function simpanPengaturanPassword() {
   if (newPassEl) newPassEl.value = '';
   if (confPassEl) confPassEl.value = '';
   checkPasswordStrength('');
+
+  const wajibNotice = document.getElementById('settingsWajibNotice');
+  if (wajibNotice) wajibNotice.style.display = 'none';
+  const btnCloseAcc = document.getElementById('btnCloseAccountSettings');
+  if (btnCloseAcc) btnCloseAcc.style.display = 'flex';
+
+  updateAuthUI();
+  closeModal('modalAccountSettings');
+  showToast('Akun Gmail pribadi & kata sandi berhasil diperbarui!', 'success');
 }
 
 function simpanPengaturanProfil() {
@@ -863,6 +935,17 @@ function simpanPengaturanProfil() {
   curUser.phone = phone;
   curUser.email = email;
   curUser.address = address;
+  if (email && window.SupabaseKomkep && typeof window.SupabaseKomkep.isValidGmail === 'function' && window.SupabaseKomkep.isValidGmail(email)) {
+    const idLogin = curUser.id_login || curUser.nip || curUser.username;
+    const gRes = window.SupabaseKomkep.setGmail(idLogin, email);
+    if (gRes && gRes.success) {
+      curUser.gmail = gRes.email;
+      curUser.email = gRes.email;
+      curUser.wajib_isi_gmail = false;
+      const gInput = document.getElementById('settingsGmailPribadi');
+      if (gInput) gInput.value = gRes.email;
+    }
+  }
   localStorage.setItem('komite_auth_user', JSON.stringify(curUser));
 
   if (curUser.role === 'pengusul') {
@@ -1098,13 +1181,19 @@ function updateAuthUI() {
 }
 
 function isAdmin() {
-  return state.currentUser !== null;
+  return isKomiteAdminUser();
 }
 
 function hasRole(roleFragment) {
-  if (!state.currentUser) return false;
-  return state.currentUser.role.toLowerCase().includes(roleFragment.toLowerCase()) || 
-         state.currentUser.badge.toLowerCase().includes('super');
+  if (!state.currentUser || !isKomiteAdminUser()) return false;
+  const frag = String(roleFragment || '').toLowerCase();
+  const badge = String(state.currentUser.badge || '').toLowerCase();
+  const role = String(state.currentUser.role || '').toLowerCase();
+  const group = String(state.currentUser.group || '').toLowerCase();
+  const access = Array.isArray(state.currentUser.access) ? state.currentUser.access : [];
+  if (badge.includes('super') || access.includes('superadmin')) return true;
+  if (frag === 'komite') return group.includes('pimpinan');
+  return access.includes(frag) || role.includes(frag) || group.includes(frag);
 }
 
 /* ==========================================================================
@@ -1363,10 +1452,10 @@ function setupNavigation() {
 }
 
 function switchTab(tabId) {
-  // Penegakan Wajib Ganti Password: Kunci seluruh navigasi modul hingga password diubah
-  if (state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword)) {
-    toggleGantiPasswordForm(true);
-    showToast('Akses modul terkunci! Anda wajib mengganti kata sandi awal terlebih dahulu.', 'warning');
+  // Penegakan Wajib Ganti Password & Gmail: Kunci seluruh navigasi modul hingga diselesaikan di Profil Akun
+  if (state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail)) {
+    openAccountSettingsModal(true);
+    showToast('Akses modul terkunci! Silakan isi Gmail pribadi & ganti kata sandi awal di menu Profil Akun terlebih dahulu.', 'warning');
     return;
   }
 
@@ -1624,6 +1713,7 @@ function maskPhone(phone) {
 // 2. Authorization Evaluation Logic
 function isKomiteAdminUser() {
   if (!state.currentUser) return false;
+  if (state.currentUser.isPengurus === true || state.currentUser.isAdmin === true) return true;
   const role = (state.currentUser.role || '').toLowerCase();
   const badge = (state.currentUser.badge || '').toLowerCase();
   return role !== 'pengusul' && role !== 'guest' && (
@@ -8830,8 +8920,9 @@ function closeModal(modalId) {
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
     if (e.target.id === 'modalSessionLock') return;
-    if (e.target.id === 'modalGantiPassword' && state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword)) {
-      showToast('Anda wajib mengganti kata sandi awal terlebih dahulu.', 'warning');
+    const mustSetup = Boolean(state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail));
+    if ((e.target.id === 'modalGantiPassword' || e.target.id === 'modalAccountSettings') && mustSetup) {
+      showToast('Anda wajib mengisi Gmail pribadi & mengganti kata sandi awal terlebih dahulu.', 'warning');
       return;
     }
     e.target.classList.remove('active');
@@ -8844,9 +8935,10 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const activeModals = document.querySelectorAll('.modal-overlay.active');
+    const mustSetup = Boolean(state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail));
     activeModals.forEach(m => {
       if (m.id === 'modalSessionLock') return;
-      if (m.id === 'modalGantiPassword' && state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword)) {
+      if ((m.id === 'modalGantiPassword' || m.id === 'modalAccountSettings') && mustSetup) {
         return;
       }
       closeModal(m.id);
@@ -11300,23 +11392,9 @@ function getStrEarlyWarning(expiryDateStr) {
   }
 }
 
-// Handler Ganti Password Pengusul / Admin (Wajib Ganti Password Awal)
+// Handler Ganti Password Pengusul / Admin -> diarahkan ke Menu Profil Akun (Pengaturan Akun)
 function toggleGantiPasswordForm(isMandatory = false) {
-  const modal = document.getElementById('modalGantiPassword');
-  if (modal) {
-    const user = state.currentUser;
-    const forceLock = isMandatory || Boolean(user && (user.wajib_ganti_password || user.mustChangePassword));
-    const btnClose = document.getElementById('btnCloseModalGantiPass');
-    if (btnClose) {
-      btnClose.style.display = forceLock ? 'none' : 'block';
-    }
-    const errBox = document.getElementById('gantiPassError');
-    if (errBox) errBox.style.display = 'none';
-
-    openModal('modalGantiPassword');
-  } else {
-    showToast('Formulir ganti password aktif.', 'info');
-  }
+  openAccountSettingsModal(isMandatory);
 }
 
 async function simpanGantiPassword(e) {
@@ -11707,11 +11785,12 @@ async function handleUnifiedPortalLogin(e) {
           switchTab(curHash);
         }
 
-        if (res.wajib_ganti_password) {
-          showToast('Demi keamanan, segera ganti kata sandi awal Anda.', 'warning');
-          toggleGantiPasswordForm(true);
+        if (res.wajib_ganti_password || state.currentUser.wajib_ganti_password || state.currentUser.wajib_isi_gmail) {
+          showToast('Login berhasil! Silakan isi Gmail pribadi & ganti kata sandi awal di menu Profil Akun Anda.', 'warning');
+          openAccountSettingsModal(true);
         } else {
-          showToast(`Selamat datang, ${state.currentUser.name}!`, 'success');
+          const roleNote = state.currentUser.isPengurus ? ` (${state.currentUser.role})` : '';
+          showToast(`Selamat datang, ${state.currentUser.name}${roleNote}!`, 'success');
         }
         return;
       }

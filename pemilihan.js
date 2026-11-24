@@ -189,16 +189,27 @@
     }
   }
 
+  function isPengurusKomite(user) {
+    return Boolean(user && (user.isPengurus === true || user.isAdmin === true));
+  }
+
   function renderSubTabNavigation() {
-    const validTabs = ['voting', 'hasil', 'profil', 'admin'];
+    const user = getActivePortalUser();
+    const canAdmin = isPengurusKomite(user);
+    const validTabs = canAdmin ? ['voting', 'hasil', 'profil', 'admin'] : ['voting', 'hasil', 'profil'];
     if (!validTabs.includes(state.activeSubTab)) {
       state.activeSubTab = 'voting';
     }
 
-    validTabs.forEach(t => {
+    const adminBtn = document.getElementById('pemilihan-nav-admin');
+    if (adminBtn) {
+      adminBtn.style.display = canAdmin ? 'flex' : 'none';
+    }
+
+    ['voting', 'hasil', 'profil', 'admin'].forEach(t => {
       const btn  = document.getElementById(`pemilihan-nav-${t}`);
       const pane = document.getElementById(`pemilihan-subpane-${t}`);
-      if (btn) {
+      if (btn && (t !== 'admin' || canAdmin)) {
         if (t === state.activeSubTab) {
           btn.style.background = '#0d5f5b';
           btn.style.color      = '#ffffff';
@@ -214,7 +225,7 @@
         }
       }
       if (pane) {
-        pane.style.display = (t === state.activeSubTab) ? 'block' : 'none';
+        pane.style.display = (t === state.activeSubTab && (t !== 'admin' || canAdmin)) ? 'block' : 'none';
       }
     });
   }
@@ -345,6 +356,10 @@
   window.PemilihanKomkep = {
     init: renderAll,
     switchSubTab: function (tabId) {
+      if (tabId === 'admin' && !isPengurusKomite(getActivePortalUser())) {
+        notify('Panel Panitia/Admin hanya dapat diakses oleh Pengurus Komite Keperawatan sesuai SK Direktur.', 'warning');
+        return;
+      }
       state.activeSubTab = tabId;
       renderAll();
     },

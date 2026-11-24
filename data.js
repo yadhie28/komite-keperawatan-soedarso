@@ -1047,36 +1047,36 @@ window.KOMITE_DATA = {
 
   // Susunan Lengkap Struktur Komite Keperawatan Berdasarkan SK Direktur No. SK/ 280801 /RSUD/2026
   structureSK: [
-    { no: 1, name: "M. Separia Russanto, S.Kep., Ns", role: "Ketua", group: "Pimpinan Komite", badge: "Super Admin", username: "separia", alias: "admin.komite" },
-    { no: 2, name: "Ns. Rusmulyadi, S.Kep., MARS", role: "Sekretaris", group: "Pimpinan Komite", badge: "Super Admin", username: "rusmulyadi", alias: "sekretaris" },
+    { no: 1, name: "M. Separia Russanto, S.Kep., Ns", role: "Ketua", group: "Pimpinan Komite", badge: "Super Admin", nip: "197009101998031007", username: "separia", alias: "admin.komite" },
+    { no: 2, name: "Ns. Rusmulyadi, S.Kep., MARS", role: "Sekretaris", group: "Pimpinan Komite", badge: "Super Admin", nip: "198212282003121005", username: "rusmulyadi", alias: "sekretaris" },
     
     // Sub Komite Kredensial
-    { no: 3, name: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep", role: "Ketua Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "yohanes", alias: "kredensial" },
-    { no: 4, name: "Tri Herda Permana Sari, A.Md.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "tri.herda" },
-    { no: 5, name: "Ns. Dwinita Wulan Purnamasari, S.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "dwinita" },
-    { no: 6, name: "Ns. Ika Yusniarti, S.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "ika.yusniarti" },
-    { no: 7, name: "F. Surayniwaty, S.ST", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "surayniwaty" },
-    { no: 8, name: "Noveriansyah Akbar, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "noveriansyah" },
-    { no: 9, name: "Mushlihuddin, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "mushlihuddin" },
-    { no: 10, name: "Herkulanus Yunus, A.Md.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "herkulanus" },
-    { no: 11, name: "Bdn. Evilita Ratnawati, S.ST", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", username: "evilita" },
+    { no: 3, name: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep", role: "Ketua Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "199305272022041001", username: "yohanes", alias: "kredensial" },
+    { no: 4, name: "Tri Herda Permana Sari, A.Md.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198502152010012013", username: "tri.herda" },
+    { no: 5, name: "Ns. Dwinita Wulan Purnamasari, S.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198309232010012015", username: "dwinita" },
+    { no: 6, name: "Ns. Ika Yusniarti, S.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198102122005022006", username: "ika.yusniarti" },
+    { no: 7, name: "F. Surayniwaty, S.ST", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "197805052003122011", username: "surayniwaty" },
+    { no: 8, name: "Noveriansyah Akbar, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "199311132020121012", username: "noveriansyah" },
+    { no: 9, name: "Mushlihuddin, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198911022014021002", username: "mushlihuddin" },
+    { no: 10, name: "Herkulanus Yunus, A.Md.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198606052022211002", username: "herkulanus" },
+    { no: 11, name: "Bdn. Evilita Ratnawati, S.ST", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "197005021989112001", username: "evilita" },
 
     // Sub Komite Etika dan Disiplin
-    { no: 12, name: "Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH", role: "Ketua Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", username: "alfonsus", alias: "etik" },
-    { no: 13, name: "Ns. Gunawan, S.Tr.Kep., SKM", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", username: "gunawan" },
-    { no: 14, name: "Ns. Marianto, S.Kep", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", username: "marianto" },
-    { no: 15, name: "Andri Muzayyin, S.Kep., Ns", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", username: "andri.muzayyin" },
-    { no: 16, name: "Diana Rachmawati, S.ST", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", username: "diana" },
-    { no: 17, name: "Nur'aini Ratnasari, S.T.Keb", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", username: "nuraini" },
+    { no: 12, name: "Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH", role: "Ketua Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", nip: "199308012020121021", username: "alfonsus", alias: "etik" },
+    { no: 13, name: "Ns. Gunawan, S.Tr.Kep., SKM", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", nip: "197403012000121004", username: "gunawan" },
+    { no: 14, name: "Ns. Marianto, S.Kep", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", nip: "198504302011011004", username: "marianto" },
+    { no: 15, name: "Andri Muzayyin, S.Kep., Ns", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", nip: "198602112011011004", username: "andri.muzayyin" },
+    { no: 16, name: "Diana Rachmawati, S.ST", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", nip: "198205292006042012", username: "diana" },
+    { no: 17, name: "Nur'aini Ratnasari, S.T.Keb", role: "Anggota Sub Komite Etika dan Disiplin", group: "Sub Komite Etika dan Disiplin", badge: "Admin Etik", nip: "198303012005022001", username: "nuraini" },
 
     // Sub Komite Mutu Keperawatan
-    { no: 18, name: "Laila Istiqomah, S.Kep., Ns", role: "Ketua Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "laila", alias: "mutu" },
-    { no: 19, name: "Bdn. Ely Lidiawati, S.Tr.Keb", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "ely.lidiawati" },
-    { no: 20, name: "Rudy Hartono, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "rudy.hartono" },
-    { no: 21, name: "Stevanus Darmo, A.Md.Kep., SKM", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "stevanus" },
-    { no: 22, name: "Ernia Wati, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "ernia.wati" },
-    { no: 23, name: "Munazzil, A.Md.Kep", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "munazzil" },
-    { no: 24, name: "Odi Pratama Setiadi, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", username: "odi.pratama" }
+    { no: 18, name: "Laila Istiqomah, S.Kep., Ns", role: "Ketua Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "199203082014022001", username: "laila", alias: "mutu" },
+    { no: 19, name: "Bdn. Ely Lidiawati, S.Tr.Keb", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "197410182000122005", username: "ely.lidiawati" },
+    { no: 20, name: "Rudy Hartono, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "198502102009031001", username: "rudy.hartono" },
+    { no: 21, name: "Stevanus Darmo, A.Md.Kep., SKM", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "198806092023211004", username: "stevanus" },
+    { no: 22, name: "Ernia Wati, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "198807152023212012", username: "ernia.wati" },
+    { no: 23, name: "Munazzil, A.Md.Kep", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "199704212022041001", username: "munazzil" },
+    { no: 24, name: "Odi Pratama Setiadi, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "199310022015021001", username: "odi.pratama" }
   ],
 
   // 24 Akun Admin Pengurus Resmi Komite Keperawatan Sesuai SK Direktur
@@ -1110,6 +1110,7 @@ window.KOMITE_DATA = {
     // 2. Sub Komite Kredensial
     {
       username: "yohanes",
+      nip: "199305272022041001",
       alias: "kredensial",
       name: "Ns. Yohanes Rindo Ari Wijoyo, S.Kep",
       role: "Ketua Sub Komite Kredensial",
@@ -1119,6 +1120,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "tri.herda",
+      nip: "198502152010012013",
       name: "Tri Herda Permana Sari, A.Md.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1127,6 +1129,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "dwinita",
+      nip: "198309232010012015",
       name: "Ns. Dwinita Wulan Purnamasari, S.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1135,6 +1138,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "ika.yusniarti",
+      nip: "198102122005022006",
       name: "Ns. Ika Yusniarti, S.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1143,6 +1147,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "surayniwaty",
+      nip: "197805052003122011",
       name: "F. Surayniwaty, S.ST",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1151,6 +1156,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "noveriansyah",
+      nip: "199311132020121012",
       name: "Noveriansyah Akbar, S.Kep., Ns",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1159,6 +1165,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "mushlihuddin",
+      nip: "198911022014021002",
       name: "Mushlihuddin, S.Kep., Ns",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1167,6 +1174,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "herkulanus",
+      nip: "198606052022211002",
       name: "Herkulanus Yunus, A.Md.Kep",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1175,6 +1183,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "evilita",
+      nip: "197005021989112001",
       name: "Bdn. Evilita Ratnawati, S.ST",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
@@ -1185,6 +1194,7 @@ window.KOMITE_DATA = {
     // 3. Sub Komite Etika dan Disiplin
     {
       username: "alfonsus",
+      nip: "199308012020121021",
       alias: "etik",
       name: "Alfonsus Agus Ainaro Simamora, S.Kep., Ns., MH",
       role: "Ketua Sub Komite Etika dan Disiplin",
@@ -1194,6 +1204,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "gunawan",
+      nip: "197403012000121004",
       name: "Ns. Gunawan, S.Tr.Kep., SKM",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1202,6 +1213,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "marianto",
+      nip: "198504302011011004",
       name: "Ns. Marianto, S.Kep",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1210,6 +1222,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "andri.muzayyin",
+      nip: "198602112011011004",
       name: "Andri Muzayyin, S.Kep., Ns",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1218,6 +1231,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "diana",
+      nip: "198205292006042012",
       name: "Diana Rachmawati, S.ST",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1226,6 +1240,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "nuraini",
+      nip: "198303012005022001",
       name: "Nur'aini Ratnasari, S.T.Keb",
       role: "Anggota Sub Komite Etika dan Disiplin",
       badge: "Admin Etik",
@@ -1236,6 +1251,7 @@ window.KOMITE_DATA = {
     // 4. Sub Komite Mutu Keperawatan
     {
       username: "laila",
+      nip: "199203082014022001",
       alias: "mutu",
       name: "Laila Istiqomah, S.Kep., Ns",
       role: "Ketua Sub Komite Mutu Keperawatan",
@@ -1245,6 +1261,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "ely.lidiawati",
+      nip: "197410182000122005",
       name: "Bdn. Ely Lidiawati, S.Tr.Keb",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -1253,6 +1270,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "rudy.hartono",
+      nip: "198502102009031001",
       name: "Rudy Hartono, S.Kep., Ns",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -1261,6 +1279,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "stevanus",
+      nip: "198806092023211004",
       name: "Stevanus Darmo, A.Md.Kep., SKM",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -1269,6 +1288,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "ernia.wati",
+      nip: "198807152023212012",
       name: "Ernia Wati, S.Kep., Ns",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -1277,6 +1297,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "munazzil",
+      nip: "199704212022041001",
       name: "Munazzil, A.Md.Kep",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",
@@ -1285,6 +1306,7 @@ window.KOMITE_DATA = {
     },
     {
       username: "odi.pratama",
+      nip: "199310022015021001",
       name: "Odi Pratama Setiadi, S.Kep., Ns",
       role: "Anggota Sub Komite Mutu Keperawatan",
       badge: "Admin Mutu",

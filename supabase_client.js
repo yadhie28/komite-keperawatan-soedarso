@@ -172,21 +172,10 @@
       ? window.KOMITE_DATA.adminUsers
       : [];
 
-    let lookupId = cleanId;
-    let matchedAdmin = adminList.find(a => {
-      const anip = normalizeId(a.nip);
-      const u = String(a.username || '').toLowerCase().replace(/\s+/g, '');
-      const al = String(a.alias || '').toLowerCase().replace(/\s+/g, '');
-      const alt = String(a.altAlias || '').toLowerCase().replace(/\s+/g, '');
-      const dev = String(a.devAlias || '').toLowerCase().replace(/\s+/g, '');
-      const cLow = cleanId.toLowerCase();
-      return (anip && anip === cleanId) || u === cLow || al === cLow || alt === cLow || dev === cLow;
-    });
-
-    if (matchedAdmin && matchedAdmin.nip) {
-      lookupId = normalizeId(matchedAdmin.nip);
-    }
-
+    // Username HANYA berupa NIP / NIPPPK / NIK (tanpa spasi).
+    // Pengurus Komite dikenali dari NIP yang tercantum di SK Komite Keperawatan.
+    const lookupId = cleanId;
+    const matchedAdmin = adminList.find(a => a.nip && normalizeId(a.nip) === cleanId) || null;
     const matchedPegawai = pegawaiList.find(p => normalizeId(p.id) === lookupId);
 
     if (!matchedPegawai && !matchedAdmin) {
@@ -198,13 +187,14 @@
     }
 
     // Verifikasi Password:
-    // Password awal semua akun adalah 'soedarso2026' (atau password custom bila sudah pernah diganti di browser ini)
+    // - Belum pernah ganti sandi  -> hanya sandi awal 'soedarso2026' yang berlaku.
+    // - Sudah ganti sandi         -> hanya sandi baru yang berlaku (sandi awal tidak bisa dipakai lagi).
     const inputHash = await computeSha256(cleanPass);
-    const customHash = getCustomPasswordHash(lookupId) || getCustomPasswordHash(cleanId);
+    const customHash = getCustomPasswordHash(lookupId);
     const isDefaultPass = (cleanPass === 'soedarso2026' || inputHash === DEFAULT_PASS_HASH);
-    const isCustomValid = Boolean(customHash && inputHash === customHash);
+    const isValid = customHash ? (inputHash === customHash) : isDefaultPass;
 
-    if (!isDefaultPass && !isCustomValid) {
+    if (!isValid) {
       recordLoginAttempt(cleanId, false);
       return {
         success: false,
@@ -213,15 +203,18 @@
     }
 
     recordLoginAttempt(cleanId, true);
-    if (lookupId !== cleanId) recordLoginAttempt(lookupId, true);
 
-    const finalNip = matchedPegawai ? normalizeId(matchedPegawai.id) : (matchedAdmin ? normalizeId(matchedAdmin.nip || matchedAdmin.username) : lookupId);
-    const finalName = matchedAdmin ? matchedAdmin.name : (matchedPegawai ? matchedPegawai.nama : cleanId);
-    const finalUnit = matchedPegawai ? matchedPegawai.unit : (matchedAdmin?.group || 'Komite Keperawatan');
+    const finalNip = lookupId;
+    const finalName = matchedAdmin ? matchedAdmin.name : matchedPegawai.nama;
+    const finalUnit = matchedPegawai ? matchedPegawai.unit : (matchedAdmin.group || 'Komite Keperawatan');
     const finalKat  = matchedPegawai ? matchedPegawai.kat : 'Perawat';
+    const gmail = getGmail(finalNip);
+    const mustChange = !customHash;      // masih memakai sandi awal
+    const mustGmail = !gmail;            // belum mengisi Gmail pribadi
+    const skNo = (window.KOMITE_DATA && window.KOMITE_DATA.skKomiteNo) || 'SK/ 280801 /RSUD/2026';
 
     const userObj = {
-      username: matchedAdmin ? matchedAdmin.username : finalNip,
+      username: finalNip,
       id_login: finalNip,
       nip: finalNip,
       jenis_id: matchedPegawai ? matchedPegawai.jenis : 'NIP',
@@ -230,18 +223,23 @@
       kategori: finalKat,
       profesi: finalKat,
       status_kepegawaian: matchedPegawai ? matchedPegawai.status : 'ASN',
-      jabatan: matchedAdmin ? matchedAdmin.role : (matchedPegawai ? matchedPegawai.jab : 'Tenaga Keperawatan'),
+      jabatan: matchedAdmin ? matchedAdmin.role : (matchedPegawai.jab || 'Tenaga Keperawatan'),
       unit: finalUnit,
       masked_id: maskId(finalNip),
       role: matchedAdmin ? matchedAdmin.role : 'pengusul',
       badge: matchedAdmin ? matchedAdmin.badge : `Tenaga ${finalKat} • ${finalUnit}`,
+      group: matchedAdmin ? matchedAdmin.group : '',
+      sk_komite: matchedAdmin ? skNo : '',
       access: matchedAdmin
         ? Array.from(new Set([...(matchedAdmin.access || []), 'pengusul', 'kredensial', 'pemilihan']))
         : ['pengusul', 'kredensial', 'pemilihan'],
       isAdmin: Boolean(matchedAdmin),
       isPengurus: Boolean(matchedAdmin),
-      wajib_ganti_password: false,
-      mustChangePassword: false
+      email: gmail || '',
+      gmail: gmail || '',
+      wajib_ganti_password: mustChange,
+      mustChangePassword: mustChange,
+      wajib_isi_gmail: mustGmail
     };
 
     try {
@@ -252,8 +250,35 @@
       success: true,
       message: 'Login berhasil.',
       user: userObj,
-      wajib_ganti_password: false
+      wajib_ganti_password: mustChange || mustGmail
     };
+  }
+
+  /* Gmail pribadi per NIP (media komunikasi pengurus <-> perawat/bidan) */
+  function isValidGmail(email) {
+    return /^[a-z0-9](?:[a-z0-9.+_-]*[a-z0-9])?@(gmail|googlemail)\.com$/i.test(String(email || '').trim());
+  }
+
+  function getGmail(idLogin) {
+    try {
+      const map = JSON.parse(localStorage.getItem('komkep_user_gmail') || '{}');
+      return map[normalizeId(idLogin)] || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function setGmail(idLogin, email) {
+    const clean = String(email || '').trim().toLowerCase();
+    if (!isValidGmail(clean)) {
+      return { success: false, message: 'Alamat Gmail tidak valid. Gunakan alamat yang berakhiran @gmail.com.' };
+    }
+    try {
+      const map = JSON.parse(localStorage.getItem('komkep_user_gmail') || '{}');
+      map[normalizeId(idLogin)] = clean;
+      localStorage.setItem('komkep_user_gmail', JSON.stringify(map));
+    } catch (_) {}
+    return { success: true, email: clean };
   }
 
   async function logout() {
@@ -281,10 +306,22 @@
     if (newPassword !== confirmPassword) {
       return { success: false, message: 'Konfirmasi password baru tidak cocok.' };
     }
+    if (!/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return { success: false, message: 'Password baru harus mengandung huruf dan angka.' };
+    }
+    if (newPassword === 'soedarso2026') {
+      return { success: false, message: 'Password baru tidak boleh sama dengan password awal.' };
+    }
+    if (normalizeId(newPassword) === cleanId) {
+      return { success: false, message: 'Password baru tidak boleh sama dengan NIP/NIPPPK/NIK.' };
+    }
 
-    const currentHash = getCustomPasswordHash(cleanId) || DEFAULT_PASS_HASH;
+    const customHash = getCustomPasswordHash(cleanId);
     const oldHash = await computeSha256(oldPassword);
-    if (oldPassword !== 'soedarso2026' && oldHash !== currentHash) {
+    const oldValid = customHash
+      ? (oldHash === customHash)
+      : (oldPassword === 'soedarso2026' || oldHash === DEFAULT_PASS_HASH);
+    if (!oldValid) {
       return { success: false, message: 'Password lama yang Anda masukkan tidak sesuai.' };
     }
 
@@ -386,6 +423,9 @@
     login,
     logout,
     changePassword,
+    isValidGmail,
+    getGmail,
+    setGmail,
     checkElectionSchedule,
     enterBooth,
     castVote,
