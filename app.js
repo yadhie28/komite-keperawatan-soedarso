@@ -3068,43 +3068,439 @@ function renderCredentialStatusChart() {
   `;
 }
 
-// 3. Chart Distribusi per Ruangan
+// 3. Infografis Interaktif Distribusi Jenjang PK per Unit & Ruang Rawat
+window._pkInfogState = window._pkInfogState || {
+  cluster: 'Semua Klaster',
+  pk: 'ALL',
+  search: '',
+  sort: 'total_desc',
+  view: 'bar',
+  selectedUnit: null
+};
+
+function normalizeAnalyticsUnit(rawUnit) {
+  const cleaned = String(rawUnit || '').split('(')[0].trim();
+  if (!cleaned || /^rsud\s+(dr\.?|dokter)\s*soedarso$/i.test(cleaned) || cleaned === '-') return null;
+  const low = cleaned.toLowerCase().replace(/^r\.\s*/, '').trim();
+  const map = {
+    'icu': ['ICU', 'Kritis & Intensif'],
+    'picu': ['PICU', 'Kritis & Intensif'],
+    'nicu': ['NICU', 'Kritis & Intensif'],
+    'icvcu': ['ICVCU', 'Kritis & Intensif'],
+    'hcu umum': ['HCU Umum', 'Kritis & Intensif'],
+    'unit stroke': ['Unit Stroke', 'Kritis & Intensif'],
+    'instalasi gawat darurat': ['IGD', 'IGD & Kamar Operasi'],
+    'ok igd': ['OK IGD', 'IGD & Kamar Operasi'],
+    'ok bedah sentral': ['OK Bedah Sentral', 'IGD & Kamar Operasi'],
+    'ibs': ['IBS (Bedah Sentral)', 'IGD & Kamar Operasi'],
+    'rawat inap isolasi paru': ['Rawat Inap Isolasi Paru', 'Rawat Inap'],
+    'isolasi': ['Ruang Isolasi', 'Rawat Inap'],
+    'a': ['Ruang A', 'Rawat Inap'],
+    'b': ['Ruang B', 'Rawat Inap'],
+    'pjt': ['Ruang PJT', 'Rawat Inap'],
+    'enggang gading': ['Enggang Gading', 'Rawat Inap'],
+    'eg': ['Enggang Gading', 'Rawat Inap'],
+    'eg 2': ['Enggang Gading', 'Rawat Inap'],
+    'camar': ['Ruang Camar', 'Rawat Inap'],
+    'ppt': ['Ruang PPT', 'Rawat Inap'],
+    'kerapu': ['Ruang Kerapu', 'Rawat Inap'],
+    'meranti': ['Ruang Meranti', 'Rawat Inap'],
+    'singkut buluh': ['Singkut Buluh', 'Rawat Inap'],
+    'mahoni': ['Ruang Mahoni', 'Rawat Inap'],
+    'uls': ['Ruang ULS', 'Rawat Inap'],
+    'anak': ['Ruang Anak', 'Rawat Inap'],
+    'ramin': ['Ruang Ramin', 'Rawat Inap'],
+    'hemodialisa': ['Hemodialisa', 'Unit Khusus & Penunjang'],
+    'cathlab': ['Cathlab', 'Unit Khusus & Penunjang'],
+    'instalasi kedokteran nuklir dan terapi molekuler': ['Kedokteran Nuklir', 'Unit Khusus & Penunjang'],
+    'thalasemia': ['Thalasemia', 'Unit Khusus & Penunjang'],
+    'radioterapi': ['Radioterapi', 'Unit Khusus & Penunjang'],
+    'kemoterapi': ['Kemoterapi', 'Unit Khusus & Penunjang'],
+    'unit medik sentral': ['Unit Medik Sentral', 'Unit Khusus & Penunjang']
+  };
+  if (map[low]) return map[low];
+  if (low.startsWith('poli ')) {
+    const title = cleaned
+      .replace(/^POLI\s+/i, 'Poli ')
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .replace(/\bEswl\b/g, 'ESWL')
+      .replace(/\bTht\b/g, 'THT')
+      .replace(/\bTb\b/g, 'TB')
+      .replace(/\bMdr\b/g, 'MDR')
+      .replace(/\bDots\b/g, 'DOTS')
+      .replace(/\bDan\b/g, '&');
+    return [title, 'Poliklinik / Rawat Jalan'];
+  }
+  return [cleaned, 'Lainnya'];
+}
+
+function escapeInfogHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+window.pkInfogSetCluster = function(cat) {
+  window._pkInfogState.cluster = (window._pkInfogState.cluster === cat && cat !== 'Semua Klaster') ? 'Semua Klaster' : cat;
+  renderUnitDistributionChart();
+};
+window.pkInfogSetPk = function(val) {
+  window._pkInfogState.pk = val;
+  renderUnitDistributionChart();
+};
+window.pkInfogSetSearch = function(val) {
+  window._pkInfogState.search = val;
+  renderUnitDistributionChart();
+};
+window.pkInfogSetSort = function(val) {
+  window._pkInfogState.sort = val;
+  renderUnitDistributionChart();
+};
+window.pkInfogSetView = function(mode) {
+  window._pkInfogState.view = mode;
+  renderUnitDistributionChart();
+};
+window.pkInfogToggleDetail = function(unitName) {
+  window._pkInfogState.selectedUnit = (window._pkInfogState.selectedUnit === unitName) ? null : unitName;
+  renderUnitDistributionChart();
+};
+
 function renderUnitDistributionChart() {
   const container = document.getElementById('chartUnitDistribution');
   if (!container) return;
 
-  const unitCounts = {};
-  state.nurses.forEach(n => {
-    const shortUnit = String(n.unit || '').split('(')[0].trim();
-    if (!shortUnit || /^rsud\s+(dr\.?|dokter)\s*soedarso$/i.test(shortUnit) || shortUnit === '-') return;
-    unitCounts[shortUnit] = (unitCounts[shortUnit] || 0) + 1;
+  const st = window._pkInfogState;
+  const grouped = {};
+  let unmappedCount = 0;
+
+  (state.nurses || []).forEach(n => {
+    const res = normalizeAnalyticsUnit(n.unit);
+    const pk = String(n.pkLevel || '').trim().toUpperCase();
+    if (!res) {
+      unmappedCount++;
+      return;
+    }
+    const [unitName, cat] = res;
+    if (!grouped[unitName]) {
+      grouped[unitName] = { name: unitName, cat, pk3: 0, pk2: 0, pk1: 0, other: 0, total: 0 };
+    }
+    grouped[unitName].total++;
+    if (pk === 'PK III') grouped[unitName].pk3++;
+    else if (pk === 'PK II') grouped[unitName].pk2++;
+    else if (pk === 'PK I') grouped[unitName].pk1++;
+    else grouped[unitName].other++;
   });
 
-  const isDark = state.theme === 'dark';
-  const textColor = isDark ? '#cbd5e1' : '#334155';
-  const sortedUnits = Object.entries(unitCounts).sort((a, b) => b[1] - a[1]);
-  const maxVal = Math.max(...sortedUnits.map(u => u[1]), 1);
+  const allUnits = Object.values(grouped).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+  const totals = allUnits.reduce((acc, u) => {
+    acc.total += u.total;
+    acc.pk3 += u.pk3;
+    acc.pk2 += u.pk2;
+    acc.pk1 += u.pk1;
+    acc.other += u.other;
+    return acc;
+  }, { total: 0, pk3: 0, pk2: 0, pk1: 0, other: 0 });
 
-  const bars = sortedUnits.map(([unit, count]) => {
-    const pct = (count / maxVal) * 100;
-    return `
-      <div style="margin-bottom: 0.75rem;">
-        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: ${textColor};">
-          <span>${unit}</span>
-          <span>${count} Perawat/Bidan</span>
+  const pct = (v, d) => d ? ((v / d) * 100).toFixed(1) : '0.0';
+
+  const badgeEl = document.getElementById('unitDistTotalBadge');
+  if (badgeEl) {
+    badgeEl.textContent = `${totals.total} Terpetakan · ${allUnits.length} Unit`;
+  }
+
+  // Klaster summary
+  const clusterOrder = ['Rawat Inap', 'Kritis & Intensif', 'IGD & Kamar Operasi', 'Unit Khusus & Penunjang', 'Poliklinik / Rawat Jalan', 'Lainnya'];
+  const byCluster = {};
+  allUnits.forEach(u => {
+    if (!byCluster[u.cat]) byCluster[u.cat] = { cat: u.cat, units: 0, total: 0, pk3: 0, pk2: 0, pk1: 0, other: 0 };
+    byCluster[u.cat].units++;
+    byCluster[u.cat].total += u.total;
+    byCluster[u.cat].pk3 += u.pk3;
+    byCluster[u.cat].pk2 += u.pk2;
+    byCluster[u.cat].pk1 += u.pk1;
+    byCluster[u.cat].other += u.other;
+  });
+  const clusterList = Object.values(byCluster).sort((a, b) => b.total - a.total);
+  const maxCluster = Math.max(...clusterList.map(c => c.total), 1);
+
+  // Insights
+  const top3 = allUnits.slice(0, 3);
+  const topPk3 = [...allUnits].filter(u => u.total >= 8).sort((a, b) => (b.pk3 / b.total) - (a.pk3 / a.total)).slice(0, 3);
+  const topJunior = [...allUnits].filter(u => u.total >= 10).sort((a, b) => ((b.pk1 + b.pk2) / b.total) - ((a.pk1 + a.pk2) / a.total)).slice(0, 3);
+
+  // Filtered units
+  const q = String(st.search || '').trim().toLowerCase();
+  let filtered = allUnits.filter(u => {
+    if (st.cluster !== 'Semua Klaster' && u.cat !== st.cluster) return false;
+    if (st.pk !== 'ALL' && u[st.pk] === 0) return false;
+    if (q && !u.name.toLowerCase().includes(q) && !u.cat.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (st.sort === 'total_desc') filtered.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+  else if (st.sort === 'pk3_pct') filtered.sort((a, b) => {
+    const ab = a.total >= 5 ? 1 : 0;
+    const bb = b.total >= 5 ? 1 : 0;
+    if (ab !== bb) return bb - ab;
+    return (b.pk3 / b.total) - (a.pk3 / a.total) || b.total - a.total;
+  });
+  else if (st.sort === 'pk3_desc') filtered.sort((a, b) => b.pk3 - a.pk3 || b.total - a.total);
+  else if (st.sort === 'pk1_desc') filtered.sort((a, b) => b.pk1 - a.pk1 || b.total - a.total);
+  else if (st.sort === 'name_asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+  const visTotal = filtered.reduce((s, u) => s + u.total, 0);
+  const maxUnitVal = Math.max(...filtered.map(u => u.total), 1);
+
+  const selectedObj = st.selectedUnit ? allUnits.find(u => u.name === st.selectedUnit) : null;
+  const detailHtml = selectedObj ? `
+    <div class="pk-detail-banner">
+      <div>
+        <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-main);">
+          ${escapeInfogHtml(selectedObj.name)}
+          <span style="font-weight: 600; font-size: 0.74rem; color: var(--text-muted); margin-left: 0.4rem;">· ${escapeInfogHtml(selectedObj.cat)}</span>
         </div>
-        <div style="width: 100%; height: 10px; background: ${isDark ? '#1e293b' : '#e2e8f0'}; border-radius: 999px; overflow: hidden;">
-          <div style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, var(--gold-600), var(--gold-400)); border-radius: 999px;"></div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+          Total <strong style="color: var(--text-main);">${selectedObj.total} tenaga</strong> (${pct(selectedObj.total, totals.total)}% dari seluruh unit terpetakan)
+        </div>
+      </div>
+      <div class="pk-detail-pills">
+        <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk3-color);"></span>PK III: <strong>${selectedObj.pk3}</strong> (${pct(selectedObj.pk3, selectedObj.total)}%)</span>
+        <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk2-color);"></span>PK II: <strong>${selectedObj.pk2}</strong> (${pct(selectedObj.pk2, selectedObj.total)}%)</span>
+        <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk1-color);"></span>PK I: <strong>${selectedObj.pk1}</strong> (${pct(selectedObj.pk1, selectedObj.total)}%)</span>
+        ${selectedObj.other ? `<span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>BP II/Lain: <strong>${selectedObj.other}</strong> (${pct(selectedObj.other, selectedObj.total)}%)</span>` : ''}
+        <button type="button" class="pk-chip" onclick="pkInfogToggleDetail('${escapeInfogHtml(selectedObj.name).replace(/'/g, "\\'")}')">Tutup</button>
+      </div>
+    </div>
+  ` : '';
+
+  const clusterRowsHtml = clusterList.map(c => {
+    const barW = (c.total / maxCluster) * 100;
+    const p3 = (c.pk3 / c.total) * 100;
+    const p2 = (c.pk2 / c.total) * 100;
+    const p1 = (c.pk1 / c.total) * 100;
+    const po = (c.other / c.total) * 100;
+    const isAct = st.cluster === c.cat;
+    return `
+      <div class="pk-cluster-row ${isAct ? 'active' : ''}" onclick="pkInfogSetCluster('${escapeInfogHtml(c.cat)}')">
+        <div class="pk-cluster-head">
+          <span class="pk-cluster-name">${escapeInfogHtml(c.cat)} <span style="font-weight: 400; color: var(--text-muted);">(${c.units} unit)</span></span>
+          <span class="pk-cluster-count">${c.total} org <span style="font-weight: 400; color: var(--text-muted);">(${pct(c.total, totals.total)}%)</span></span>
+        </div>
+        <div class="pk-bar-track" style="height: 16px;">
+          <div class="pk-bar-inner" style="width: ${barW.toFixed(1)}%;">
+            ${c.pk3 ? `<div class="pk-bar-seg" style="width:${p3}%; background:var(--pk3-color);" title="PK III: ${c.pk3}"></div>` : ''}
+            ${c.pk2 ? `<div class="pk-bar-seg" style="width:${p2}%; background:var(--pk2-color);" title="PK II: ${c.pk2}"></div>` : ''}
+            ${c.pk1 ? `<div class="pk-bar-seg" style="width:${p1}%; background:var(--pk1-color);" title="PK I: ${c.pk1}"></div>` : ''}
+            ${c.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="BP II/Lain: ${c.other}"></div>` : ''}
+          </div>
+        </div>
+        <div class="pk-cluster-meta">
+          <span>PK III: <strong style="color:var(--text-main);">${c.pk3}</strong> (${pct(c.pk3, c.total)}%)</span>
+          <span>PK II: <strong style="color:var(--text-main);">${c.pk2}</strong></span>
+          <span>PK I: <strong style="color:var(--text-main);">${c.pk1}</strong></span>
+          ${c.other ? `<span>BP II/Lain: <strong style="color:var(--text-main);">${c.other}</strong></span>` : ''}
         </div>
       </div>
     `;
   }).join('');
 
+  const availableClusters = ['Semua Klaster', ...clusterOrder.filter(c => byCluster[c])];
+  const chipsHtml = availableClusters.map(c => {
+    const cnt = c === 'Semua Klaster' ? allUnits.length : (byCluster[c]?.units || 0);
+    return `<button type="button" class="pk-chip ${st.cluster === c ? 'active' : ''}" onclick="pkInfogSetCluster('${escapeInfogHtml(c)}')">${escapeInfogHtml(c)} (${cnt})</button>`;
+  }).join('');
+
+  let vizHtml = '';
+  if (!filtered.length) {
+    vizHtml = `<div style="text-align:center; padding: 2rem; color: var(--text-muted); font-size: 0.84rem;">Tidak ada unit yang cocok dengan filter pencarian.</div>`;
+  } else if (st.view === 'bar') {
+    vizHtml = `<div class="pk-unit-list">` + filtered.map((u, idx) => {
+      const totalW = Math.max((u.total / maxUnitVal) * 100, 5);
+      const p3 = (u.pk3 / u.total) * 100;
+      const p2 = (u.pk2 / u.total) * 100;
+      const p1 = (u.pk1 / u.total) * 100;
+      const po = (u.other / u.total) * 100;
+      const safeName = escapeInfogHtml(u.name).replace(/'/g, "\\'");
+      return `
+        <div class="pk-unit-row" onclick="pkInfogToggleDetail('${safeName}')" title="Klik untuk melihat rincian komposisi PK ${escapeInfogHtml(u.name)}">
+          <div class="pk-unit-rank">${idx + 1}</div>
+          <div style="min-width:0;">
+            <div class="pk-unit-name">${escapeInfogHtml(u.name)}</div>
+            <div class="pk-unit-cat">${escapeInfogHtml(u.cat)}</div>
+          </div>
+          <div class="pk-bar-track">
+            <div class="pk-bar-inner" style="width:${totalW.toFixed(1)}%;">
+              ${u.pk3 ? `<div class="pk-bar-seg" style="width:${p3}%; background:var(--pk3-color);" title="PK III: ${u.pk3} (${pct(u.pk3, u.total)}%)">${(u.pk3 / maxUnitVal) >= 0.08 ? u.pk3 : ''}</div>` : ''}
+              ${u.pk2 ? `<div class="pk-bar-seg" style="width:${p2}%; background:var(--pk2-color);" title="PK II: ${u.pk2} (${pct(u.pk2, u.total)}%)">${(u.pk2 / maxUnitVal) >= 0.08 ? u.pk2 : ''}</div>` : ''}
+              ${u.pk1 ? `<div class="pk-bar-seg" style="width:${p1}%; background:var(--pk1-color);" title="PK I: ${u.pk1} (${pct(u.pk1, u.total)}%)">${(u.pk1 / maxUnitVal) >= 0.08 ? u.pk1 : ''}</div>` : ''}
+              ${u.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="BP II/Lain: ${u.other} (${pct(u.other, u.total)}%)">${(u.other / maxUnitVal) >= 0.08 ? u.other : ''}</div>` : ''}
+            </div>
+          </div>
+          <div class="pk-unit-total">${u.total} org</div>
+        </div>
+      `;
+    }).join('') + `</div>`;
+  } else {
+    const maxCell = Math.max(...filtered.flatMap(u => [u.pk3, u.pk2, u.pk1, u.other]), 1);
+    const cellStyle = (val, rgb) => {
+      if (!val) return 'background: transparent; color: var(--text-muted); opacity: 0.45;';
+      const alpha = (0.16 + 0.68 * (val / maxCell)).toFixed(2);
+      const txt = (val / maxCell) > 0.55 ? '#ffffff' : 'var(--text-main)';
+      return `background: rgba(${rgb}, ${alpha}); color: ${txt};`;
+    };
+    vizHtml = `
+      <div class="pk-heat-wrap">
+        <table class="pk-heat-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">#</th>
+              <th>Unit / Ruang Rawat</th>
+              <th>Klaster</th>
+              <th class="center">PK III</th>
+              <th class="center">PK II</th>
+              <th class="center">PK I</th>
+              <th class="center">BP II / Lain</th>
+              <th class="right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtered.map((u, idx) => {
+              const safeName = escapeInfogHtml(u.name).replace(/'/g, "\\'");
+              return `
+                <tr onclick="pkInfogToggleDetail('${safeName}')">
+                  <td style="font-family:var(--font-mono); color:var(--text-muted);">${idx + 1}</td>
+                  <td style="font-weight:700;">${escapeInfogHtml(u.name)}</td>
+                  <td style="color:var(--text-muted); font-size:0.75rem;">${escapeInfogHtml(u.cat)}</td>
+                  <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.pk3, '13,148,136')}">${u.pk3 || '-'}</span></td>
+                  <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.pk2, '217,119,6')}">${u.pk2 || '-'}</span></td>
+                  <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.pk1, '2,132,199')}">${u.pk1 || '-'}</span></td>
+                  <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.other, '124,58,237')}">${u.other || '-'}</span></td>
+                  <td class="right" style="font-family:var(--font-mono); font-weight:800;">${u.total}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
+
   container.innerHTML = `
-    <div style="padding: 0.5rem 1rem; overflow-y: auto; max-height: 240px;">
-      ${bars}
+    <div class="pk-infog-wrap">
+      <!-- Legenda -->
+      <div class="pk-infog-legend">
+        <span style="color: var(--text-muted); font-weight: 700;">Legenda Jenjang:</span>
+        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk3-color);"></span>PK III <span class="muted">(Mandiri / Senior)</span></span>
+        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk2-color);"></span>PK II <span class="muted">(Madya)</span></span>
+        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk1-color);"></span>PK I <span class="muted">(Dasar / Pemula)</span></span>
+        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>BP II / Lainnya</span>
+      </div>
+
+      <!-- KPI Strip -->
+      <div class="pk-infog-kpi-grid">
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Terpetakan di Unit</span><span class="pk-infog-dot" style="background: var(--primary-600);"></span></div>
+          <div class="pk-infog-kpi-val">${totals.total}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:100%; background: var(--primary-600);"></div></div>
+          <div class="pk-infog-kpi-sub">${allUnits.length} unit aktif · ${unmappedCount} arsip tanpa unit</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>PK III (Dominan)</span><span class="pk-infog-dot" style="background: var(--pk3-color);"></span></div>
+          <div class="pk-infog-kpi-val">${totals.pk3}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk3, totals.total)}%; background: var(--pk3-color);"></div></div>
+          <div class="pk-infog-kpi-sub">${pct(totals.pk3, totals.total)}% dari tenaga terpetakan</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>PK II (Madya)</span><span class="pk-infog-dot" style="background: var(--pk2-color);"></span></div>
+          <div class="pk-infog-kpi-val">${totals.pk2}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk2, totals.total)}%; background: var(--pk2-color);"></div></div>
+          <div class="pk-infog-kpi-sub">${pct(totals.pk2, totals.total)}% dari tenaga terpetakan</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>PK I &amp; BP II</span><span class="pk-infog-dot" style="background: var(--pk1-color);"></span></div>
+          <div class="pk-infog-kpi-val">${totals.pk1 + totals.other}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk1 + totals.other, totals.total)}%; background: var(--pk1-color);"></div></div>
+          <div class="pk-infog-kpi-sub">PK I: ${totals.pk1} (${pct(totals.pk1, totals.total)}%) · BP II/Lain: ${totals.other}</div>
+        </div>
+      </div>
+
+      <!-- Overview: Klaster + Insights -->
+      <div class="pk-infog-overview">
+        <div class="pk-infog-panel">
+          <div class="pk-infog-panel-title">Komposisi PK Berdasarkan Klaster Layanan</div>
+          <div class="pk-infog-panel-sub">Klik salah satu klaster untuk menyaring daftar unit di bawah</div>
+          ${clusterRowsHtml}
+        </div>
+        <div class="pk-infog-panel">
+          <div class="pk-infog-panel-title">Sorotan Analitik Utama</div>
+          <div class="pk-infog-panel-sub">Ringkasan otomatis dari database SPK &amp; RKK aktif</div>
+          <div class="pk-insight-stack">
+            <div class="pk-insight-card" style="border-left-color: var(--pk3-color);">
+              <div class="pk-insight-badge">3 Unit Terbesar</div>
+              <div class="pk-insight-body">${top3.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${u.total} org)`).join(', ')} menempati posisi teratas jumlah tenaga keperawatan.</div>
+            </div>
+            <div class="pk-insight-card" style="border-left-color: var(--pk2-color);">
+              <div class="pk-insight-badge">Dominasi PK III Tertinggi (&ge; 8 org)</div>
+              <div class="pk-insight-body">${topPk3.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${pct(u.pk3, u.total)}%)`).join(', ')} memiliki konsentrasi perawat mandiri tertinggi.</div>
+            </div>
+            <div class="pk-insight-card" style="border-left-color: var(--pk1-color);">
+              <div class="pk-insight-badge">Fokus Pembinaan PK I &amp; II (&ge; 10 org)</div>
+              <div class="pk-insight-body">${topJunior.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${pct(u.pk1 + u.pk2, u.total)}%)`).join(', ')} menjadi prioritas pendampingan &amp; kenaikan jenjang.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="pk-infog-controls">
+        <div class="pk-infog-chips-row">
+          <div class="pk-infog-chips">${chipsHtml}</div>
+          <div class="pk-view-toggle">
+            <button type="button" class="pk-view-btn ${st.view === 'bar' ? 'active' : ''}" onclick="pkInfogSetView('bar')"><i class="fa-solid fa-bars-staggered"></i> Batang Bertumpuk</button>
+            <button type="button" class="pk-view-btn ${st.view === 'heat' ? 'active' : ''}" onclick="pkInfogSetView('heat')"><i class="fa-solid fa-table-cells"></i> Matriks Heatmap</button>
+          </div>
+        </div>
+        <div class="pk-infog-filters">
+          <input type="text" id="pkInfogSearchInput" class="pk-infog-input" placeholder="Cari unit atau ruang rawat (mis. ICU, Enggang, Poli)..." value="${escapeInfogHtml(st.search)}" oninput="pkInfogSetSearch(this.value)" />
+          <select class="pk-infog-select" onchange="pkInfogSetPk(this.value)">
+            <option value="ALL" ${st.pk === 'ALL' ? 'selected' : ''}>Semua Jenjang PK</option>
+            <option value="pk3" ${st.pk === 'pk3' ? 'selected' : ''}>Fokus PK III (&gt; 0)</option>
+            <option value="pk2" ${st.pk === 'pk2' ? 'selected' : ''}>Fokus PK II (&gt; 0)</option>
+            <option value="pk1" ${st.pk === 'pk1' ? 'selected' : ''}>Fokus PK I (&gt; 0)</option>
+            <option value="other" ${st.pk === 'other' ? 'selected' : ''}>Fokus BP II / Lainnya</option>
+          </select>
+          <select class="pk-infog-select" onchange="pkInfogSetSort(this.value)">
+            <option value="total_desc" ${st.sort === 'total_desc' ? 'selected' : ''}>Urutkan: Total Tenaga Terbanyak</option>
+            <option value="pk3_pct" ${st.sort === 'pk3_pct' ? 'selected' : ''}>Urutkan: % PK III Tertinggi (min. 5 org)</option>
+            <option value="pk3_desc" ${st.sort === 'pk3_desc' ? 'selected' : ''}>Urutkan: Jumlah PK III Terbanyak</option>
+            <option value="pk1_desc" ${st.sort === 'pk1_desc' ? 'selected' : ''}>Urutkan: Jumlah PK I Terbanyak</option>
+            <option value="name_asc" ${st.sort === 'name_asc' ? 'selected' : ''}>Urutkan: Nama Unit (A–Z)</option>
+          </select>
+        </div>
+      </div>
+
+      ${detailHtml}
+      ${vizHtml}
+
+      <div class="pk-infog-footer">
+        <span>Menampilkan <strong>${filtered.length}</strong> dari ${allUnits.length} unit (${visTotal} tenaga). Klik baris unit untuk rincian.</span>
+        <span>Penamaan unit serupa otomatis digabungkan · Kategori 'RSUD dr. Soedarso' disaring (${unmappedCount} arsip).</span>
+      </div>
     </div>
   `;
+
+  if (wasSearchFocused) {
+    const inp = document.getElementById('pkInfogSearchInput');
+    if (inp) {
+      inp.focus();
+      if (searchSelStart !== null && searchSelEnd !== null) {
+        inp.setSelectionRange(searchSelStart, searchSelEnd);
+      }
+    }
+  }
 }
 
 /* ==========================================================================
