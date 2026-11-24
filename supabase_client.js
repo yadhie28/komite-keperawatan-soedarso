@@ -16,12 +16,13 @@
   const SALT_PEPPER = 'rsds_soedarso_salt_2026';
   // SHA-256('soedarso2026' + 'rsds_soedarso_salt_2026')
   const DEFAULT_PASS_HASH = 'b3b21041d6775add44aa44c10820f6623254e5192e485bd4cb9614428a2bac59';
-  const SIMULATION_ELECTION_ID = 'e1ec7100-2026-1123-0000-000000000001';
+  const SIMULATION_ELECTION_ID = 'e1ec7100-2026-1124-0000-000000000002';
 
   const SCHEDULE = {
-    START_ISO: '2026-11-23T10:00:00+07:00',
-    END_ISO: '2026-11-24T10:00:00+07:00',
-    DISCLAIMER: 'SIMULASI PEMILIHAN DIBATALKAN SEMENTARA'
+    START_ISO: '2026-11-24T09:00:00+07:00',
+    END_ISO: '2026-11-25T09:00:00+07:00',
+    STAGE_LABEL: 'SIMULASI PEMILIHAN TAHAP 2',
+    DISCLAIMER: 'SIMULASI PEMILIHAN TAHAP 2 (24 Nov 2026 09.00 WIB s.d. 25 Nov 2026 09.00 WIB) — HASIL TIDAK MENGIKAT'
   };
 
   function escapeHtml(str) {
@@ -336,73 +337,224 @@
   }
 
   /* ==========================================================================
-     3. E-VOTING: SIMULASI DIBATALKAN SEMENTARA
+     3. E-VOTING: SIMULASI PEMILIHAN TAHAP 2 (24–25 NOV 2026, 09.00–09.00 WIB)
      ========================================================================== */
+  const KEY_VOTERS = 'komkep_sim2_voters';
+  const KEY_BALLOTS = 'komkep_sim2_ballots';
+  const KEY_BOOTH_LOGS = 'komkep_sim2_booth_logs';
+  const KEY_OVERRIDE = 'komkep_sim2_manual_state';
+
+  function readJson(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function writeJson(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
+  }
+
+  function formatCountdown(ms) {
+    const totalSec = Math.max(0, Math.floor(ms / 1000));
+    const hrs = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
+    const secs = totalSec % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+  }
+
+  function generateReceiptCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'SIM2-';
+    for (let i = 0; i < 8; i++) {
+      if (i === 4) code += '-';
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
+  }
+
   function checkElectionSchedule() {
     const now = new Date();
     const start = new Date(SCHEDULE.START_ISO);
     const end = new Date(SCHEDULE.END_ISO);
+    const override = localStorage.getItem(KEY_OVERRIDE) || '';
+
+    const isBefore = now < start && override !== 'OPEN';
+    const isAfter = (now >= end && override !== 'OPEN') || override === 'CLOSED';
+    const isOpen = !isBefore && !isAfter;
+
+    let countdownStr = '00:00:00';
+    let statusText = 'Simulasi Tahap 2 Sedang Berlangsung';
+    let remainingMs = 0;
+
+    if (isBefore) {
+      remainingMs = Math.max(0, start.getTime() - now.getTime());
+      countdownStr = formatCountdown(remainingMs);
+      statusText = 'Segera Dibuka (Selasa, 24 Nov 2026 pukul 09.00 WIB)';
+    } else if (isOpen) {
+      remainingMs = Math.max(0, end.getTime() - now.getTime());
+      countdownStr = formatCountdown(remainingMs);
+      statusText = 'Bilik Suara Simulasi Tahap 2 AKTIF';
+    } else {
+      remainingMs = 0;
+      countdownStr = 'Selesai';
+      statusText = 'Simulasi Tahap 2 Ditutup (Rabu, 25 Nov 2026 pukul 09.00 WIB)';
+    }
 
     return {
-      isOpen: false,
-      isCancelled: true,
-      isPaused: true,
-      isMaintenance: true,
-      isBefore: false,
-      isAfter: false,
+      isOpen,
+      isCancelled: false,
+      isPaused: false,
+      isMaintenance: false,
+      isBefore,
+      isAfter,
       now,
       start,
       end,
-      remainingMs: 0,
-      countdownStr: 'Simulasi Dibatalkan Sementara',
-      statusText: 'Simulasi Pemilihan Dibatalkan Sementara',
+      remainingMs,
+      countdownStr,
+      statusText,
       disclaimer: SCHEDULE.DISCLAIMER
     };
   }
 
-  async function enterBooth() {
-    return {
-      success: false,
-      message: 'Simulasi Pemilihan Ketua Komite Keperawatan sedang dibatalkan/dinonaktifkan sementara.'
-    };
+  function getVoterRecord(idLogin) {
+    const clean = normalizeId(idLogin);
+    const voters = readJson(KEY_VOTERS, {});
+    return voters[clean] || null;
   }
 
-  async function castVote() {
+  async function enterBooth(idLogin) {
+    const sched = checkElectionSchedule();
+    if (!sched.isOpen) {
+      return {
+        success: false,
+        message: sched.isBefore
+          ? 'Bilik suara Simulasi Tahap 2 baru dibuka pada Selasa, 24 November 2026 pukul 09.00 WIB.'
+          : 'Waktu pemungutan suara Simulasi Tahap 2 telah ditutup pada Rabu, 25 November 2026 pukul 09.00 WIB.'
+      };
+    }
+    const clean = normalizeId(idLogin);
+    const logs = readJson(KEY_BOOTH_LOGS, []);
+    const entry = {
+      id_login: clean,
+      waktu: new Date().toISOString(),
+      waktu_wib: formatWibDate(new Date())
+    };
+    logs.push(entry);
+    writeJson(KEY_BOOTH_LOGS, logs);
+    return { success: true, entry };
+  }
+
+  async function castVote(electionId, idLogin, candidateId) {
+    const sched = checkElectionSchedule();
+    if (!sched.isOpen) {
+      return {
+        success: false,
+        code: 'SCHEDULE_CLOSED',
+        message: sched.isBefore
+          ? 'Simulasi Tahap 2 belum dimulai. Bilik suara dibuka pukul 09.00 WIB.'
+          : 'Simulasi Tahap 2 sudah ditutup pada 25 November 2026 pukul 09.00 WIB.'
+      };
+    }
+    const clean = normalizeId(idLogin);
+    if (!clean || !candidateId) {
+      return { success: false, message: 'Data pemilih atau calon tidak lengkap.' };
+    }
+    const voters = readJson(KEY_VOTERS, {});
+    if (voters[clean]) {
+      return {
+        success: false,
+        code: 'ALREADY_VOTED',
+        message: 'Akun ini sudah menggunakan hak suara pada Simulasi Tahap 2.',
+        receipt: voters[clean]
+      };
+    }
+
+    const nowIso = new Date().toISOString();
+    const receipt = {
+      kode_bukti: generateReceiptCode(),
+      waktu_iso: nowIso,
+      waktu_wib: formatWibDate(nowIso),
+      election_id: electionId || SIMULATION_ELECTION_ID
+    };
+
+    // Asas LUBER & JURDIL: daftar pemilih hanya menyimpan kode bukti (TANPA pilihan calon)
+    voters[clean] = receipt;
+    writeJson(KEY_VOTERS, voters);
+
+    // Kotak suara hanya menyimpan ID acak & kode calon (TANPA NIP pemilih)
+    const ballots = readJson(KEY_BALLOTS, []);
+    ballots.push({
+      ballot_id: 'B-' + Math.random().toString(36).slice(2, 10).toUpperCase(),
+      candidate_id: candidateId,
+      waktu_iso: nowIso
+    });
+    writeJson(KEY_BALLOTS, ballots);
+
     return {
-      success: false,
-      code: 'SIMULATION_CANCELLED',
-      message: 'Simulasi Pemilihan Ketua Komite Keperawatan sedang dibatalkan sementara.'
+      success: true,
+      message: 'Suara rahasia Anda berhasil direkam pada Simulasi Tahap 2.',
+      receipt
     };
   }
 
   async function getElectionRekap(electionId = SIMULATION_ELECTION_ID) {
     const pegawaiList = window.KOMKEP_PEGAWAI_717 || [];
     const totalDpt = pegawaiList.length || 717;
+    const voters = readJson(KEY_VOTERS, {});
+    const ballots = readJson(KEY_BALLOTS, []);
+    const sched = checkElectionSchedule();
+
+    const counts = {};
+    ballots.forEach(b => {
+      counts[b.candidate_id] = (counts[b.candidate_id] || 0) + 1;
+    });
+
+    const totalVoted = Object.keys(voters).length;
+    const rekap = Object.keys(counts).map(cid => ({
+      candidate_id: cid,
+      votes: counts[cid],
+      percentage: totalVoted > 0 ? ((counts[cid] / totalVoted) * 100).toFixed(1) : '0.0'
+    }));
+
     return {
       success: true,
-      isCancelled: true,
-      resultsAvailable: false,
-      closedMessage: 'Simulasi pemilihan Ketua Komite Keperawatan Periode 2027–2030 saat ini dibatalkan sementara.',
+      isCancelled: false,
+      resultsAvailable: sched.isAfter,
+      closedMessage: 'Hasil perolehan suara per calon dibuka resmi setelah penutupan pada Rabu, 25 November 2026 pukul 09.00 WIB.',
       election: {
         id: electionId,
-        status: 'DIBATALKAN',
+        status: sched.isOpen ? 'BERLANGSUNG' : (sched.isBefore ? 'BELUM_DIMULAI' : 'SELESAI'),
         disclaimer: SCHEDULE.DISCLAIMER
       },
       metrics: {
         total_dpt: totalDpt,
-        total_voted: 0
+        total_voted: totalVoted,
+        participation_pct: totalDpt > 0 ? ((totalVoted / totalDpt) * 100).toFixed(1) : '0.0'
       },
-      rekap_kandidat: []
+      voters_map: voters,
+      rekap_kandidat: rekap
     };
   }
 
+  function setManualScheduleOverride(mode) {
+    if (!mode) localStorage.removeItem(KEY_OVERRIDE);
+    else localStorage.setItem(KEY_OVERRIDE, mode);
+    return checkElectionSchedule();
+  }
+
   async function resetSimulation() {
-    localStorage.removeItem('komkep_sim_voters');
-    localStorage.removeItem('komkep_sim_ballots');
-    localStorage.removeItem('komkep_booth_logs');
+    localStorage.removeItem(KEY_VOTERS);
+    localStorage.removeItem(KEY_BALLOTS);
+    localStorage.removeItem(KEY_BOOTH_LOGS);
+    localStorage.removeItem(KEY_OVERRIDE);
     return {
       success: true,
-      message: 'Data simulasi berhasil dibersihkan.'
+      message: 'Data Simulasi Pemilihan Tahap 2 berhasil direset.'
     };
   }
 
@@ -427,6 +579,8 @@
     getGmail,
     setGmail,
     checkElectionSchedule,
+    getVoterRecord,
+    setManualScheduleOverride,
     enterBooth,
     castVote,
     getElectionRekap,

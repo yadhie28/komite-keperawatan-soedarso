@@ -11496,21 +11496,21 @@ function ensureElectionNotificationInCenter() {
   if (!state.workflowNotifications) {
     state.workflowNotifications = [];
   }
-  const exists = state.workflowNotifications.some(n => n.id === 'WF-ELECTION-SIM-2026');
+  const exists = state.workflowNotifications.some(n => n.id === 'WF-ELECTION-SIM2-2026');
   if (!exists) {
     state.workflowNotifications.unshift({
-      id: 'WF-ELECTION-SIM-2026',
+      id: 'WF-ELECTION-SIM2-2026',
       category: 'pemilihan',
-      title: 'Simulasi Pemilihan Ketua Komite Keperawatan',
-      message: 'Simulasi Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso (2027–2030) sedang berlangsung. Batas akhir: Selasa, 24 Nov 2026 pukul 10.00 WIB.',
+      title: 'Simulasi Pemilihan Tahap 2 Ketua Komite Keperawatan',
+      message: 'Simulasi Tahap 2 Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso (2027–2030): Selasa, 24 Nov 2026 pukul 09.00 WIB s.d. Rabu, 25 Nov 2026 pukul 09.00 WIB.',
       sourceUnit: 'Panitia Pemilihan',
-      sourceId: 'SIMULASI-2026',
-      actionTab: 'pemilihan',
-      date: '23 November 2026',
-      time: '10:00 WIB',
-      timestamp: '2026-11-23T10:00:00+07:00',
-      badgeColor: '#b45309',
-      badgeBg: '#fef3c7',
+      sourceId: 'SIMULASI-TAHAP2-2026',
+      actionTab: 'evoting',
+      date: '24 November 2026',
+      time: '09:00 WIB',
+      timestamp: '2026-11-24T09:00:00+07:00',
+      badgeColor: '#047857',
+      badgeBg: '#ecfdf5',
       iconClass: 'fa-check-to-slot',
       readBy: []
     });
@@ -12037,7 +12037,7 @@ window.canAccess = canAccess;
 
 
 /**
- * Update dynamic status banner pemilihan di tab Beranda
+ * Update dynamic status banner pemilihan di tab Beranda (Simulasi Tahap 2)
  */
 function updateBerandaElectionBanner() {
   const banner = document.getElementById('bannerPemilihanBeranda');
@@ -12046,17 +12046,55 @@ function updateBerandaElectionBanner() {
   const subEl = document.getElementById('bannerStatusSub');
   const actionBtn = document.getElementById('bannerActionBtn');
 
-  if (tagEl) {
-    tagEl.innerHTML = '<i class="fa-solid fa-circle-pause" style="color: #fca5a5;"></i> Simulasi Dibatalkan Sementara';
-    tagEl.style.background = 'rgba(248, 113, 113, 0.2)';
-    tagEl.style.color = '#fca5a5';
-  }
-  if (subEl) {
-    subEl.textContent = 'Simulasi pemungutan suara elektronik (E-Voting) dibatalkan sementara selama penataan sistem akses masuk akun pegawai.';
-  }
-  if (actionBtn) {
-    actionBtn.innerHTML = '<i class="fa-solid fa-circle-info"></i> Lihat Informasi';
-    actionBtn.onclick = () => switchTab('evoting');
+  const sched = (window.SupabaseKomkep && typeof window.SupabaseKomkep.checkElectionSchedule === 'function')
+    ? window.SupabaseKomkep.checkElectionSchedule()
+    : { isOpen: true, isBefore: false, isAfter: false, countdownStr: '' };
+
+  if (sched.isOpen) {
+    banner.style.background = 'linear-gradient(135deg, #064e3b 0%, #0d5f5b 100%)';
+    banner.style.borderColor = '#10b981';
+    if (tagEl) {
+      tagEl.innerHTML = `<i class="fa-solid fa-circle-dot" style="color: #6ee7b7;"></i> Simulasi Tahap 2 AKTIF &bull; Sisa ${sched.countdownStr}`;
+      tagEl.style.background = 'rgba(16, 185, 129, 0.25)';
+      tagEl.style.color = '#6ee7b7';
+    }
+    if (subEl) {
+      subEl.textContent = 'Simulasi Pemilihan Tahap 2 berlangsung Selasa, 24 Nov 2026 pukul 09.00 WIB s.d. Rabu, 25 Nov 2026 pukul 09.00 WIB. Gunakan hak suara Anda sekarang.';
+    }
+    if (actionBtn) {
+      actionBtn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Masuk Bilik Suara';
+      actionBtn.onclick = () => switchTab('evoting');
+    }
+  } else if (sched.isBefore) {
+    banner.style.background = 'linear-gradient(135deg, #78350f 0%, #b45309 100%)';
+    banner.style.borderColor = '#fbbf24';
+    if (tagEl) {
+      tagEl.innerHTML = `<i class="fa-solid fa-hourglass-half" style="color: #fde68a;"></i> Simulasi Tahap 2 Dibuka dalam ${sched.countdownStr}`;
+      tagEl.style.background = 'rgba(251, 191, 36, 0.25)';
+      tagEl.style.color = '#fde68a';
+    }
+    if (subEl) {
+      subEl.textContent = 'Simulasi Pemilihan Tahap 2 dimulai Selasa, 24 Nov 2026 pukul 09.00 WIB hingga Rabu, 25 Nov 2026 pukul 09.00 WIB.';
+    }
+    if (actionBtn) {
+      actionBtn.innerHTML = '<i class="fa-solid fa-clock"></i> Lihat Bilik Suara';
+      actionBtn.onclick = () => switchTab('evoting');
+    }
+  } else {
+    banner.style.background = 'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
+    banner.style.borderColor = '#94a3b8';
+    if (tagEl) {
+      tagEl.innerHTML = '<i class="fa-solid fa-flag-checkered" style="color: #cbd5e1;"></i> Simulasi Tahap 2 Selesai';
+      tagEl.style.background = 'rgba(148, 163, 184, 0.25)';
+      tagEl.style.color = '#e2e8f0';
+    }
+    if (subEl) {
+      subEl.textContent = 'Simulasi Pemilihan Tahap 2 telah ditutup pada Rabu, 25 Nov 2026 pukul 09.00 WIB. Lihat hasil rekapitulasi & Berita Acara.';
+    }
+    if (actionBtn) {
+      actionBtn.innerHTML = '<i class="fa-solid fa-chart-column"></i> Lihat Rekapitulasi';
+      actionBtn.onclick = () => switchTab('evoting');
+    }
   }
 }
 window.updateBerandaElectionBanner = updateBerandaElectionBanner;
