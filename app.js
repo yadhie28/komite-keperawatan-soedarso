@@ -3075,7 +3075,8 @@ function renderUnitDistributionChart() {
 
   const unitCounts = {};
   state.nurses.forEach(n => {
-    const shortUnit = n.unit.split('(')[0].trim();
+    const shortUnit = String(n.unit || '').split('(')[0].trim();
+    if (!shortUnit || /^rsud\s+(dr\.?|dokter)\s*soedarso$/i.test(shortUnit) || shortUnit === '-') return;
     unitCounts[shortUnit] = (unitCounts[shortUnit] || 0) + 1;
   });
 
