@@ -298,6 +298,10 @@
     const mustChange = !customHash;      // masih memakai sandi awal
     const mustGmail = !gmail;            // belum mengisi Gmail pribadi
     const skNo = (window.KOMITE_DATA && window.KOMITE_DATA.skKomiteNo) || 'SK/ 280801 /RSUD/2026';
+    const panitiaList = (window.KOMITE_DATA && window.KOMITE_DATA.panitiaAdHocSK && Array.isArray(window.KOMITE_DATA.panitiaAdHocSK.anggota))
+      ? window.KOMITE_DATA.panitiaAdHocSK.anggota
+      : [];
+    const matchedPanitia = panitiaList.find(p => normalizeId(p.nip) === finalNip) || null;
 
     const userObj = {
       username: finalNip,
@@ -316,6 +320,8 @@
       badge: matchedAdmin ? matchedAdmin.badge : `Tenaga ${finalKat} • ${finalUnit}`,
       group: matchedAdmin ? matchedAdmin.group : '',
       sk_komite: matchedAdmin ? skNo : '',
+      isPanitiaAdHoc: Boolean(matchedPanitia),
+      jabatanPanitia: matchedPanitia ? matchedPanitia.kedudukan : '',
       access: matchedAdmin
         ? Array.from(new Set([...(matchedAdmin.access || []), 'pengusul', 'kredensial', 'pemilihan']))
         : ['pengusul', 'kredensial', 'pemilihan'],

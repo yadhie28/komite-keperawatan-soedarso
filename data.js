@@ -1079,6 +1079,39 @@ window.KOMITE_DATA = {
     { no: 24, name: "Odi Pratama Setiadi, S.Kep., Ns", role: "Anggota Sub Komite Mutu Keperawatan", group: "Sub Komite Mutu Keperawatan", badge: "Admin Mutu", nip: "199310022015021001", username: "odi.pratama" }
   ],
 
+  // Susunan Resmi Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan Periode 2027–2030
+  // Keputusan Direktur RSUD dr. Soedarso Provinsi Kalimantan Barat Nomor SK/[ ]/RSUD/2026
+  panitiaAdHocSK: {
+    judul: "Pembentukan Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan Periode 2027–2030",
+    nomorSK: "SK/[ ]/RSUD/2026",
+    notaDinas: "044/K.Kep.RSDS/ND/XI/2026",
+    peraturanDirektur: "Peraturan Direktur Nomor 01/II/05 Tahun 2026 tentang Peraturan Internal Staf Keperawatan (Nursing Staff By Laws)",
+    akhirMasaJabatanSebelumnya: "02 Januari 2027",
+    masaKerjaBulan: 4,
+    direktur: {
+      name: "drg. Hary Agung Tjahyadi, M.Kes",
+      pangkat: "Pembina Utama Muda",
+      nip: "196905201998031008"
+    },
+    anggota: [
+      { no: 1, kedudukan: "Ketua merangkap anggota", bidang: "Pimpinan Panitia", name: "M. Mushlihuddin, S.Kep., Ners", nip: "198911022014021002", unit: "Unit ICVCU", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 2, kedudukan: "Sekretaris merangkap anggota", bidang: "Administrasi & Kesekretariatan", name: "Ns. Rusmulyadi, S.Kep., MARS", nip: "198212282003121005", unit: "Ruang Kakap", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 3, kedudukan: "Anggota (verifikasi persyaratan calon)", bidang: "Verifikasi Persyaratan Calon", name: "Ns. Noveriansyah Akbar, S.Kep.", nip: "199311132020121012", unit: "Ruang Camar", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 4, kedudukan: "Anggota (verifikasi persyaratan calon)", bidang: "Verifikasi Persyaratan Calon", name: "Herkulanus Yunus, A.Md.Kep", nip: "198606052022211002", unit: "Ruang Singkut Buluh", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 5, kedudukan: "Anggota (pemungutan dan penghitungan suara)", bidang: "Pemungutan dan Penghitungan Suara", name: "Stevanus Darmo, A.Md.Kep., SKM", nip: "198806092023211004", unit: "Ruang Kerapu", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 6, kedudukan: "Anggota (pemungutan dan penghitungan suara)", bidang: "Pemungutan dan Penghitungan Suara", name: "Diana Rachmawati, S.ST", nip: "198205292006042012", unit: "Ruang Cendana", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 7, kedudukan: "Anggota (data pemilih dan sistem informasi)", bidang: "Data Pemilih dan Sistem Informasi", name: "Munazzil, A.Md.Kep.", nip: "199704212022041001", unit: "Cathlab", unsur: "Staf Keperawatan Rumah Sakit" }
+    ],
+    tugasWewenang: [
+      "Ketua: memimpin dan bertanggung jawab atas seluruh tahapan Pemilihan, serta mewakili Panitia kepada Direktur dan Komite Keperawatan.",
+      "Sekretaris: mengelola administrasi, risalah rapat, pengumuman, dan arsip.",
+      "Anggota verifikasi persyaratan calon: menerima dan memeriksa berkas Calon, termasuk keabsahan STR, SIP/SIB, dan surat penugasan klinis.",
+      "Anggota pemungutan dan penghitungan suara: menyiapkan tempat pemungutan suara atau sistem elektronik, surat suara, saksi, dan berita acara penghitungan.",
+      "Anggota data pemilih dan sistem informasi: menyusun DPT dan menjaga keamanan data.",
+      "Seluruh anggota: menjaga kerahasiaan dan netralitas, serta tidak menerima pemberian dalam bentuk apa pun dari Calon atau pihak yang berkepentingan."
+    ]
+  },
+
   // 24 Akun Admin Pengurus Resmi Komite Keperawatan Sesuai SK Direktur
   adminUsers: [
     // 1. Pimpinan Komite (Super Admin)

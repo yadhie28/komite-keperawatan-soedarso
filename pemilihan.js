@@ -49,9 +49,9 @@
     {
       id: 'cand-3',
       number: 3,
-      name: 'Ns. Rusmulyadi, S.Kep.Ners., M.A.R.S (SIMULASI)',
+      name: 'Ns. Rusmulyadi, S.Kep., MARS (SIMULASI)',
       nip: '198212282003121005',
-      unit: 'Enggang Gading',
+      unit: 'Ruang Kakap',
       badgeColor: '#7c3aed',
       badgeBg: '#f5f3ff',
       photoGradient: 'linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)',
@@ -118,8 +118,29 @@
     return null;
   }
 
+  const PANITIA_ADHOC_NIPS = [
+    '198911022014021002', // M. Mushlihuddin, S.Kep., Ners (Ketua)
+    '198212282003121005', // Ns. Rusmulyadi, S.Kep., MARS (Sekretaris)
+    '199311132020121012', // Ns. Noveriansyah Akbar, S.Kep. (Verifikasi)
+    '198606052022211002', // Herkulanus Yunus, A.Md.Kep (Verifikasi)
+    '198806092023211004', // Stevanus Darmo, A.Md.Kep., SKM (Pemungutan & Penghitungan)
+    '198205292006042012', // Diana Rachmawati, S.ST (Pemungutan & Penghitungan)
+    '199704212022041001'  // Munazzil, A.Md.Kep. (Data Pemilih & Sistem Informasi)
+  ];
+
+  function getPanitiaAdHocMember(user) {
+    if (!user) return null;
+    const cleanId = String(user.nip || user.id_login || user.username || '').replace(/\s+/g, '');
+    const list = (window.KOMITE_DATA && window.KOMITE_DATA.panitiaAdHocSK && Array.isArray(window.KOMITE_DATA.panitiaAdHocSK.anggota))
+      ? window.KOMITE_DATA.panitiaAdHocSK.anggota
+      : [];
+    return list.find(p => String(p.nip || '').replace(/\s+/g, '') === cleanId) || null;
+  }
+
   function isPengurusKomite(user) {
-    return Boolean(user && (user.isPengurus === true || user.isAdmin === true));
+    if (!user) return false;
+    const cleanId = String(user.nip || user.id_login || user.username || '').replace(/\s+/g, '');
+    return Boolean(user.isPanitiaAdHoc === true || PANITIA_ADHOC_NIPS.includes(cleanId));
   }
 
   function getSchedule() {
@@ -574,6 +595,63 @@
     const container = document.getElementById('pemilihanProfilContainer');
     if (!container) return;
 
+    const sk = window.KOMITE_DATA && window.KOMITE_DATA.panitiaAdHocSK;
+    const panitiaRows = sk && Array.isArray(sk.anggota)
+      ? sk.anggota.map(p => `
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 0.55rem 0.65rem; text-align: center; color: #64748b;">${p.no}</td>
+            <td style="padding: 0.55rem 0.65rem; font-weight: 700; color: #0f172a;">${escapeHtml(p.kedudukan)}</td>
+            <td style="padding: 0.55rem 0.65rem;">
+              <div style="font-weight: 800; color: #0f172a;">${escapeHtml(p.name)}</div>
+              <div style="font-size: 0.76rem; color: #475569; font-family: monospace;">NIP. ${escapeHtml(p.nip)} &bull; ${escapeHtml(p.unit)}</div>
+            </td>
+            <td style="padding: 0.55rem 0.65rem; font-size: 0.8rem; color: #334155;">${escapeHtml(p.unsur)}</td>
+          </tr>
+        `).join('')
+      : '';
+
+    const tugasItems = sk && Array.isArray(sk.tugasWewenang)
+      ? sk.tugasWewenang.map(t => `<li style="margin-bottom: 0.35rem;">${escapeHtml(t)}</li>`).join('')
+      : '';
+
+    const panitiaCard = sk ? `
+      <div style="background: var(--bg-surface); border: 1.5px solid #0d9488; border-radius: 14px; padding: 1.4rem; margin-top: 1.5rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.9rem;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: #0d5f5b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+            <i class="fa-solid fa-gavel"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 1.02rem; font-weight: 800; margin: 0; color: var(--text-main);">Susunan Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan (2027–2030)</h3>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">
+              SK Direktur RSUD dr. Soedarso Nomor ${escapeHtml(sk.nomorSK)} &bull; Nota Dinas ${escapeHtml(sk.notaDinas)} &bull; Perdir No. 01/II/05 Tahun 2026
+            </div>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.83rem;">
+            <thead>
+              <tr style="background: #f0fdfa; border-bottom: 2px solid #99f6e4; text-align: left;">
+                <th style="padding: 0.6rem; text-align: center; width: 42px;">No</th>
+                <th style="padding: 0.6rem;">Kedudukan dalam Panitia</th>
+                <th style="padding: 0.6rem;">Nama, NIP &amp; Unit Kerja</th>
+                <th style="padding: 0.6rem;">Unsur</th>
+              </tr>
+            </thead>
+            <tbody>${panitiaRows}</tbody>
+          </table>
+        </div>
+        <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px dashed #cbd5e1;">
+          <div style="font-size: 0.82rem; font-weight: 800; color: #0f172a; margin-bottom: 0.4rem;">Tugas &amp; Wewenang Panitia Ad Hoc (Lampiran II SK):</div>
+          <ol style="font-size: 0.8rem; color: #334155; padding-left: 1.25rem; margin: 0; line-height: 1.5;">
+            ${tugasItems}
+          </ol>
+          <div style="font-size: 0.76rem; color: #64748b; margin-top: 0.6rem;">
+            Ditetapkan oleh Direktur RSUD dr. Soedarso: <strong>${escapeHtml(sk.direktur.name)}</strong> (${escapeHtml(sk.direktur.pangkat)}, NIP. ${escapeHtml(sk.direktur.nip)}).
+          </div>
+        </div>
+      </div>
+    ` : '';
+
     container.innerHTML = state.candidates.map(c => `
       <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm);">
         <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.75rem;">
@@ -588,7 +666,7 @@
         <p style="font-size: 0.84rem; color: #334155; margin: 0 0 0.5rem 0;"><strong>Visi:</strong> ${escapeHtml(c.visi)}</p>
         <p style="font-size: 0.84rem; color: #475569; margin: 0;"><strong>Misi:</strong> ${escapeHtml(c.misi)}</p>
       </div>
-    `).join('');
+    `).join('') + panitiaCard;
   }
 
   async function renderAdminPanel(sched) {
@@ -611,10 +689,13 @@
         : `<div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.85rem;color:#92400e;font-size:0.83rem;">
              <i class="fa-solid fa-triangle-exclamation"></i> <strong>Mode Lokal (Perangkat Ini Saja):</strong> URL Server Pusat Google Apps Script (<code>GAS_EXEC_URL</code> di <code>config.js</code>) belum diisi, sehingga suara dari HP/device lain belum tergabung. Pasang <code>apps-script/SimulasiTahap2.gs</code> lalu isi <code>GAS_EXEC_URL</code> untuk mengaktifkan voting lintas-perangkat.
            </div>`;
+      const member = getPanitiaAdHocMember(getActivePortalUser());
+      const roleInfo = member ? `${member.kedudukan} (${member.unit})` : 'Panitia Ad Hoc SK Direktur';
       container.innerHTML = `
         ${syncBanner}
         <div style="background: #f0fdfa; border: 1.5px solid #14b8a6; border-radius: 12px; padding: 1.15rem; margin-bottom: 1.25rem; color: #115e59; font-weight: 700; font-size: 0.86rem;">
-          <i class="fa-solid fa-user-shield"></i> Panel Panitia Simulasi Tahap 2 (Khusus Pengurus Komite SK Direktur) &bull;
+          <i class="fa-solid fa-user-shield"></i> Panel Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan 2027–2030 &bull;
+          Akses: <strong>${escapeHtml(roleInfo)}</strong> &bull;
           Partisipasi: <strong>${rekap.metrics?.total_voted || 0} / ${rekap.metrics?.total_dpt || 717}</strong> pemilih.
         </div>
       `;
@@ -665,13 +746,17 @@
       tbody.innerHTML = state.candidates.map(c => {
         const v = voteMap[c.id] || 0;
         if (!c.isAbstain && v > maxVotes) { maxVotes = v; winner = c; }
-        const p = totalVoted > 0 ? ((v / totalVoted) * 100).toFixed(1) : '0.0';
+        const p = totalVoted > 0 ? ((v / totalVoted) * 100).toFixed(2) : '0.00';
+        const ket = c.isAbstain ? 'Abstain Sah' : 'Sah';
         return `
           <tr>
             <td style="border:1px solid #334155;padding:8px;text-align:center;">0${c.number}</td>
             <td style="border:1px solid #334155;padding:8px;">${escapeHtml(c.name)}</td>
+            <td style="border:1px solid #334155;padding:8px;font-family:monospace;">${escapeHtml(String(c.nip || '-').replace(/\s+/g, ''))}</td>
+            <td style="border:1px solid #334155;padding:8px;">${escapeHtml(c.unit)}</td>
             <td style="border:1px solid #334155;padding:8px;text-align:center;font-weight:bold;">${v}</td>
             <td style="border:1px solid #334155;padding:8px;text-align:center;">${p}%</td>
+            <td style="border:1px solid #334155;padding:8px;text-align:center;">${ket}</td>
           </tr>
         `;
       }).join('');
@@ -696,18 +781,18 @@
 
   async function toggleElection() {
     if (!isPengurusKomite(getActivePortalUser())) {
-      notify('Hanya Pengurus Komite sesuai SK yang dapat mengubah status bilik suara.', 'warning');
+      notify('Hanya 7 Anggota Panitia Ad Hoc sesuai SK Direktur yang dapat mengubah status bilik suara.', 'warning');
       return;
     }
     const sched = getSchedule();
     window.SupabaseKomkep.setManualScheduleOverride(sched.isOpen ? 'CLOSED' : 'OPEN');
-    notify(sched.isOpen ? 'Bilik suara ditutup sementara oleh Panitia.' : 'Bilik suara dibuka oleh Panitia.', 'info');
+    notify(sched.isOpen ? 'Bilik suara ditutup sementara oleh Panitia Ad Hoc.' : 'Bilik suara dibuka oleh Panitia Ad Hoc.', 'info');
     await renderAll();
   }
 
   async function resetSimulationData() {
     if (!isPengurusKomite(getActivePortalUser())) {
-      notify('Hanya Pengurus Komite sesuai SK yang dapat mereset simulasi.', 'warning');
+      notify('Hanya 7 Anggota Panitia Ad Hoc sesuai SK Direktur yang dapat mereset simulasi.', 'warning');
       return;
     }
     if (!confirm('Reset seluruh data suara Simulasi Tahap 2 pada browser ini?')) return;
@@ -734,7 +819,7 @@
     init: renderAll,
     switchSubTab: function (tabId) {
       if (tabId === 'admin' && !isPengurusKomite(getActivePortalUser())) {
-        notify('Panel Panitia/Admin hanya dapat diakses oleh Pengurus Komite Keperawatan sesuai SK Direktur.', 'warning');
+        notify('Panel Panitia/Admin hanya dapat diakses oleh 7 Anggota Panitia Ad Hoc sesuai SK Direktur.', 'warning');
         return;
       }
       state.activeSubTab = tabId;
