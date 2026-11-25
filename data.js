@@ -1386,6 +1386,18 @@ window.KOMITE_DATA = {
   // Regulasi Resmi Komite Keperawatan RSUD Dr. Soedarso
   regulations: [
     {
+      id: "REG-00E",
+      category: "Kebijakan Direktur",
+      title: "Peraturan Internal Staf Keperawatan (Nursing Staff By Laws / NSBL) RSUD dr. Soedarso Tahun 2026",
+      number: "PERDIR 011105 / 2026",
+      year: "2026",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Peraturan Direktur RSUD dr. Soedarso Tahun 2026 tentang Peraturan Internal Staf Keperawatan (NSBL) sebagai pedoman tata kelola profesi, kredensialing, mutu, dan etika keperawatan.",
+      viewUrl: "https://drive.google.com/file/d/1mUHAOMX1xlbns8iSeJ8aWxpLizHnVnrK/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1mUHAOMX1xlbns8iSeJ8aWxpLizHnVnrK"
+    },
+    {
       id: "REG-00D",
       category: "Kebijakan Direktur",
       title: "SK Direktur RSUD dr. Soedarso tentang Komite Keperawatan Tahun 2026 (260828_SK_KomKep_RSDS)",
