@@ -1386,6 +1386,18 @@ window.KOMITE_DATA = {
   // Regulasi Resmi Komite Keperawatan RSUD Dr. Soedarso
   regulations: [
     {
+      id: "REG-00C",
+      category: "Kebijakan Direktur",
+      title: "SK Direktur RSUD dr. Soedarso tentang Komite Keperawatan (250505_SK_KomKep)",
+      number: "SK-KOMKEP/2025",
+      year: "2025",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Surat Keputusan Direktur RSUD dr. Soedarso Pontianak terkait penetapan dan susunan Komite Keperawatan (berkas resmi 250505_SK_KomKep.pdf).",
+      viewUrl: "https://drive.google.com/file/d/1EXOR4c-y5Ue_Z6JAO4z-v8hNAvKs7Boq/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1EXOR4c-y5Ue_Z6JAO4z-v8hNAvKs7Boq"
+    },
+    {
       id: "REG-00B",
       category: "Laporan & Arsip Komite",
       title: "Program Kerja Komite Keperawatan RSUD dr. Soedarso Tahun 2026",
