@@ -1386,6 +1386,18 @@ window.KOMITE_DATA = {
   // Regulasi Resmi Komite Keperawatan RSUD Dr. Soedarso
   regulations: [
     {
+      id: "REG-00F",
+      category: "Etika & Disiplin",
+      title: "SK Direktur RSUD dr. Soedarso tentang Pemberlakuan Buku Kode Etik Keperawatan",
+      number: "SK 160802 / RSUD / 2024",
+      year: "2024",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Surat Keputusan Direktur RSUD dr. Soedarso Tahun 2024 tentang pemberlakuan resmi Buku Kode Etik Keperawatan sebagai pedoman perilaku dan etika profesi perawat.",
+      viewUrl: "https://drive.google.com/file/d/1DAZolTvSqaJ6397RKVNh5eRO-AnF0FHm/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1DAZolTvSqaJ6397RKVNh5eRO-AnF0FHm"
+    },
+    {
       id: "REG-00E",
       category: "Kebijakan Direktur",
       title: "Peraturan Internal Staf Keperawatan (Nursing Staff By Laws / NSBL) RSUD dr. Soedarso Tahun 2026",
