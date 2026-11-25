@@ -4462,117 +4462,12 @@
   ];
 
   // =========================================================================
-  // 2. DATA PROGRAM CPD (3.1) & INDIKATOR OPPE (3.3)
+  // 2. DATA PROGRAM CPD (3.2) & INDIKATOR OPPE (3.3)
   // =========================================================================
-  const CPD_PROGRAMS = [
-    {
-      id: "CPD-01",
-      title: "Pelatihan Basic Trauma Cardiac Life Support (BTCLS) & Code Blue Intervensi Cepat",
-      category: "Pelatihan Bersertifikat",
-      skpPoints: 4,
-      organizer: "Diklat RSUD dr. Soedarso bekerjasama dengan HIPGABI Kalbar",
-      dateRange: "24 - 27 Oktober 2026",
-      quota: 40,
-      registeredCount: 38,
-      location: "Auditorium Gedung Diklat Lt. 2 RSUD dr. Soedarso",
-      status: "Pendaftaran Dibuka"
-    },
-    {
-      id: "CPD-02",
-      title: "Workshop Implementasi Dokumentasi Asuhan Keperawatan 3S (SDKI, SIKI, SLKI) di SIMRS",
-      category: "Workshop",
-      skpPoints: 2,
-      organizer: "Subkomite Mutu Profesi Komite Keperawatan",
-      dateRange: "08 November 2026",
-      quota: 100,
-      registeredCount: 65,
-      location: "Ruang Pertemuan Komite Medis & Keperawatan (Hybrid via Zoom)",
-      status: "Pendaftaran Dibuka"
-    },
-    {
-      id: "CPD-03",
-      title: "Simposium & Hands-On Perawatan Luka Modern (Modern Wound Care Management)",
-      category: "Seminar",
-      skpPoints: 3,
-      organizer: "InWCCA Kalimantan Barat & RSUD dr. Soedarso",
-      dateRange: "20 - 21 November 2026",
-      quota: 60,
-      registeredCount: 42,
-      location: "Ballroom RSUD dr. Soedarso Pontianak",
-      status: "Pendaftaran Dibuka"
-    },
-    {
-      id: "CPD-04",
-      title: "In-House Training: Tatalaksana Resusitasi Neonatus & Stabilisasi Bayi Berat Lahir Rendah",
-      category: "In-House Training",
-      skpPoints: 2,
-      organizer: "Instalasi Maternal Neonatal (NICU/Perina) & Subkomite Mutu",
-      dateRange: "04 Desember 2026",
-      quota: 35,
-      registeredCount: 35,
-      location: "Ruang Skill Lab Perinatologi Lt. 2",
-      status: "Pendaftaran Dibuka"
-    }
-  ];
+  // Dikosongkan hingga data resmi/real dari Diklat & Subkomite Mutu Profesi tersedia
+  const CPD_PROGRAMS = [];
 
-  const OPPE_INDICATORS = [
-    {
-      domain: "1. Asuhan Pasien (Patient Care)",
-      indicator: "Kepatuhan Pelaksanaan Asuhan Keperawatan sesuai SPO & 3S (SDKI/SIKI/SLKI)",
-      targetPercent: 95,
-      achievedPercent: 96.8,
-      period: "Kuartal II - 2026",
-      status: "Tercapai"
-    },
-    {
-      domain: "1. Asuhan Pasien (Patient Care)",
-      indicator: "Kelengkapan Penilaian Risiko Jatuh & Implementasi Intervensi Pencegahan",
-      targetPercent: 100,
-      achievedPercent: 98.4,
-      period: "Kuartal II - 2026",
-      status: "Mendekati Target"
-    },
-    {
-      domain: "2. Pengetahuan Klinis (Medical/Clinical Knowledge)",
-      indicator: "Keikutsertaan Uji Kompetensi & Refreshment Prosedur Tindakan Emergensi Tahunan",
-      targetPercent: 90,
-      achievedPercent: 92.5,
-      period: "Kuartal II - 2026",
-      status: "Tercapai"
-    },
-    {
-      domain: "3. Pembelajaran Berbasis Praktik (Practice-based Learning)",
-      indicator: "Pemenuhan Jam Pelatihan CPD Mandiri (Minimal 20 SKP PPNI/IBI per siklus)",
-      targetPercent: 85,
-      achievedPercent: 88,
-      period: "Kuartal II - 2026",
-      status: "Tercapai"
-    },
-    {
-      domain: "4. Keterampilan Interpersonal & Komunikasi",
-      indicator: "Kepatuhan Teknik Komunikasi Efektif SBAR saat Timbang Terima (Handover)",
-      targetPercent: 95,
-      achievedPercent: 94.2,
-      period: "Kuartal II - 2026",
-      status: "Mendekati Target"
-    },
-    {
-      domain: "5. Profesionalisme & Perilaku Etik",
-      indicator: "Kepatuhan Disiplin Kehadiran & Tidak Ada Pelanggaran Kode Etik Kategori Sedang/Berat",
-      targetPercent: 98,
-      achievedPercent: 99.1,
-      period: "Kuartal II - 2026",
-      status: "Tercapai"
-    },
-    {
-      domain: "6. Praktik Berbasis Sistem (System-based Practice)",
-      indicator: "Kepatuhan Pelaporan Insiden Keselamatan Pasien (IKP) tepat waktu <2x24 jam",
-      targetPercent: 90,
-      achievedPercent: 86.5,
-      period: "Kuartal II - 2026",
-      status: "Perlu Perhatian"
-    }
-  ];
+  const OPPE_INDICATORS = [];
 
   const INITIAL_SEED_LOGBOOK = [];
 
@@ -5659,6 +5554,16 @@
     const container = document.getElementById('cpdCardsContainer');
     if (!container) return;
 
+    if (!CPD_PROGRAMS || CPD_PROGRAMS.length === 0) {
+      container.innerHTML =
+        '<div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1.5rem; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; color: #64748b;">' +
+          '<i class="fa-solid fa-graduation-cap" style="font-size: 2rem; color: #94a3b8; margin-bottom: 0.6rem; display: block;"></i>' +
+          '<div style="font-size: 0.95rem; font-weight: 700; color: #334155;">Belum ada data</div>' +
+          '<p style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Data jadwal Program Pengembangan Keprofesian Berkelanjutan (CPD) &amp; Diklat resmi belum tersedia.</p>' +
+        '</div>';
+      return;
+    }
+
     const registeredIds = getRegisteredCpdIds();
 
     container.innerHTML = CPD_PROGRAMS.map(prog => {
@@ -5714,6 +5619,16 @@
   function renderOppeSection() {
     const container = document.getElementById('oppeIndicatorsContainer');
     if (!container) return;
+
+    if (!OPPE_INDICATORS || OPPE_INDICATORS.length === 0) {
+      container.innerHTML =
+        '<div style="text-align: center; padding: 2.25rem 1.5rem; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; color: #64748b;">' +
+          '<i class="fa-solid fa-chart-pie" style="font-size: 2rem; color: #94a3b8; margin-bottom: 0.6rem; display: block;"></i>' +
+          '<div style="font-size: 0.95rem; font-weight: 700; color: #334155;">Belum ada data</div>' +
+          '<p style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">Data indikator OPPE (Ongoing Professional Practice Evaluation) 6 domain kompetensi STARKES KKS 11 belum tersedia.</p>' +
+        '</div>';
+      return;
+    }
 
     container.innerHTML = OPPE_INDICATORS.map(item => {
       const pct = Math.min(item.achievedPercent, 100);

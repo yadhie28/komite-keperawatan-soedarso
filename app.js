@@ -2674,9 +2674,10 @@ function renderAuditsTable() {
   if (!state.clinicalAudits || state.clinicalAudits.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+        <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
           <i class="fa-solid fa-clipboard-list fa-2x" style="margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
-          Belum ada catatan audit mutu klinis. Silakan tambahkan laporan audit ruangan baru.
+          <strong>Belum ada data</strong><br>
+          <span style="font-size: 0.8rem;">Belum ada catatan audit mutu klinis per ruang perawatan.</span>
         </td>
       </tr>
     `;
