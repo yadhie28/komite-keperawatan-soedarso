@@ -37,7 +37,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Main CSS -->
-  <link rel="stylesheet" href="index.css?v=20261124n">
+  <link rel="stylesheet" href="index.css?v=20261125a">
 </head>
 <body>
 
@@ -127,6 +127,28 @@
         </form>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Sticky Bar Penegakan Wajib Isi Suara (Tampil saat berada di Bilik Suara sebelum memilih) -->
+  <div id="wajibVotingStickyBar" class="wajib-voting-sticky-bar" style="display: none;">
+    <div class="wajib-sticky-inner">
+      <div class="wajib-sticky-left">
+        <span class="wajib-sticky-pulse-dot"></span>
+        <i class="fa-solid fa-check-to-slot"></i>
+        <span>
+          <strong>WAJIB ISI SUARA:</strong> Silakan pilih calon dan kirim suara Anda di Bilik Suara di bawah ini. Meninggalkan Bilik Suara tanpa memilih akan mengeluarkan Anda dari portal.
+          <span class="wajib-sticky-timer">(<i class="fa-regular fa-clock"></i> Sisa <strong id="wajibStickyCountdown">--:--:--</strong>)</span>
+        </span>
+      </div>
+      <div class="wajib-sticky-actions">
+        <button type="button" class="wajib-sticky-btn-vote" onclick="acceptWajibVotingToBooth()">
+          <i class="fa-solid fa-arrow-down"></i> Ke Daftar Calon
+        </button>
+        <button type="button" class="wajib-sticky-btn-exit" onclick="enforceLogoutNoVote('Anda memilih keluar dari Portal Komite Keperawatan sebelum mengisi suara di Bilik Suara.')">
+          <i class="fa-solid fa-right-from-bracket"></i> Keluar Portal
+        </button>
+      </div>
     </div>
   </div>
 
@@ -3515,10 +3537,10 @@
           </button>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <button type="button" class="btn-secondary" onclick="closeModal('modalAccountSettings')" style="font-size: 0.82rem;">
+          <button type="button" class="btn-secondary" id="btnCloseAccountSettingsFooter" onclick="closeModal('modalAccountSettings')" style="font-size: 0.82rem;">
             Tutup
           </button>
-          <button type="button" class="btn-secondary" style="color: #ef4444; border-color: #fca5a5; font-size: 0.82rem;" onclick="closeModal('modalAccountSettings'); logoutToPortal();">
+          <button type="button" class="btn-secondary" style="color: #ef4444; border-color: #fca5a5; font-size: 0.82rem;" onclick="logoutToPortal();">
             <i class="fa-solid fa-right-from-bracket"></i> Keluar / Ganti Akun
           </button>
         </div>
@@ -6927,14 +6949,113 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       MODAL NOTIFIKASI BESAR WAJIB VOTING (MENGARAHKAN LANGSUNG KE BILIK SUARA)
+       Wajib diklik & wajib isi suara; jika tidak, pengguna dikeluarkan dari portal.
+       ======================================================================== -->
+  <div class="modal-overlay wajib-voting-overlay" id="modalWajibVoting" style="display: none; z-index: 100010;">
+    <div class="wajib-voting-card" role="dialog" aria-modal="true" aria-labelledby="wajibVotingTitle">
+      <div class="wajib-voting-header">
+        <div class="wajib-voting-badge-row">
+          <span class="wajib-voting-live-pill">
+            <span class="wajib-live-dot"></span> PANGGILAN WAJIB MEMILIH
+          </span>
+          <span class="wajib-voting-countdown-pill">
+            <i class="fa-regular fa-clock"></i> Sisa Waktu: <strong id="wajibVoteCountdown">--:--:--</strong>
+          </span>
+        </div>
+
+        <div class="wajib-voting-icon-ring">
+          <i class="fa-solid fa-check-to-slot"></i>
+        </div>
+
+        <h2 id="wajibVotingTitle" class="wajib-voting-title">
+          Saatnya Menggunakan Hak Suara Anda!
+        </h2>
+        <p class="wajib-voting-subtitle">
+          Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso Pontianak (Periode 2027–2030)
+        </p>
+      </div>
+
+      <div class="wajib-voting-body">
+        <!-- Progress 3 Langkah Wajib -->
+        <div class="wajib-voting-steps">
+          <div class="wajib-step done">
+            <span class="wajib-step-circle"><i class="fa-solid fa-check"></i></span>
+            <span class="wajib-step-label">1. Login Portal</span>
+          </div>
+          <div class="wajib-step-line done"></div>
+          <div class="wajib-step done">
+            <span class="wajib-step-circle"><i class="fa-solid fa-check"></i></span>
+            <span class="wajib-step-label">2. Gmail &amp; Sandi</span>
+          </div>
+          <div class="wajib-step-line active"></div>
+          <div class="wajib-step active">
+            <span class="wajib-step-circle">3</span>
+            <span class="wajib-step-label">3. Isi Suara (Wajib)</span>
+          </div>
+        </div>
+
+        <!-- Identitas Pemilih -->
+        <div class="wajib-voting-voter-card">
+          <div class="wajib-voter-avatar"><i class="fa-solid fa-user-nurse"></i></div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #0f766e;">
+              Pemilih Terverifikasi
+            </div>
+            <div id="wajibVoteUserName" style="font-size: 1rem; font-weight: 800; color: #0f172a; line-height: 1.25;">-</div>
+            <div id="wajibVoteUserUnit" style="font-size: 0.8rem; color: #475569;">-</div>
+          </div>
+          <span class="wajib-status-pill">BELUM MEMILIH</span>
+        </div>
+
+        <!-- Peringatan Khusus Jika Mencoba Meninggalkan Bilik Suara -->
+        <div id="wajibVoteEscapeAlert" class="wajib-voting-escape-alert" style="display: none;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>PERINGATAN TERAKHIR!</strong> Anda mencoba meninggalkan Bilik Suara sebelum mengisi suara.
+            Silakan kembali ke Bilik Suara sekarang. Jika Anda meninggalkan Bilik Suara lagi tanpa memilih, akun Anda akan <strong>langsung dikeluarkan dari Portal Komite Keperawatan</strong>.
+          </div>
+        </div>
+
+        <!-- Penjelasan Wajib -->
+        <div class="wajib-voting-notice">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <strong>Ketentuan Wajib Portal Komite Keperawatan:</strong>
+            Notifikasi ini <strong>wajib diklik</strong> untuk langsung menuju <strong>Bilik Suara</strong> dan menyalurkan hak suara Anda (bersifat LUBER &amp; JURDIL).
+            Apabila Anda <strong>tidak mengklik</strong> atau <strong>tidak mengisi suara</strong>, sistem akan otomatis mengeluarkan Anda dari Portal Komite Keperawatan.
+          </div>
+        </div>
+
+        <!-- Tombol CTA Utama Besar & Menarik -->
+        <button type="button" id="btnWajibMasukBilikSuara" class="wajib-voting-cta" onclick="acceptWajibVotingToBooth()">
+          <span class="wajib-cta-icon"><i class="fa-solid fa-box-archive"></i></span>
+          <span class="wajib-cta-text">
+            <strong id="wajibVoteCtaLabel">KLIK DI SINI — MASUK BILIK SUARA SEKARANG</strong>
+            <small>Langsung diarahkan ke daftar calon untuk mengisi suara</small>
+          </span>
+          <i class="fa-solid fa-arrow-right wajib-cta-arrow"></i>
+        </button>
+
+        <!-- Tombol Tolak / Keluar Portal -->
+        <div class="wajib-voting-footer-action">
+          <button type="button" class="wajib-voting-btn-logout" onclick="enforceLogoutNoVote('Anda dikeluarkan dari Portal Komite Keperawatan karena tidak mengisi suara di Bilik Suara.')">
+            <i class="fa-solid fa-right-from-bracket"></i> Tidak Memilih &amp; Keluar dari Portal Komite Keperawatan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="config.js?v=20261124n"></script>
   <script src="data_pegawai_manifest.js?v=20261124n"></script>
   <script src="supabase_client.js?v=20261124n"></script>
   <script src="logo_asset.js?v=20261124n"></script>
   <script src="data.js?v=20261124n"></script>
-  <script src="app.js?v=20261124n"></script>
-  <script src="pemilihan.js?v=20261124n"></script>
+  <script src="app.js?v=20261125a"></script>
+  <script src="pemilihan.js?v=20261125a"></script>
   <script src="elogbook.js?v=20261124n"></script>
 </body>
 </html>

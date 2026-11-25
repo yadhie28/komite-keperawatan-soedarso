@@ -37,7 +37,11 @@ const state = {
   // Sistem Pengamanan Data Kredensial Rahasia (UU PDP No. 27/2022)
   privacyModeRevealed: false,
   lastActivityTime: Date.now(),
-  isSessionLocked: false
+  isSessionLocked: false,
+  // Penegakan Wajib Isi Suara di Bilik Suara setelah Login -> Gmail -> Ganti Password
+  wajibVotingPending: false,
+  wajibVotingInBooth: false,
+  wajibVotingEscapeAttempts: 0
 };
 
 // Initialize Application
@@ -129,6 +133,10 @@ function initAuth() {
     setTimeout(() => {
       openAccountSettingsModal(true);
     }, 150);
+  } else if (state.currentUser) {
+    setTimeout(() => {
+      checkAndTriggerMandatoryVoting({ fromAccountSetup: false });
+    }, 250);
   }
 }
 
@@ -402,6 +410,7 @@ async function handlePengusulLogin(e) {
         } else {
           const roleNote = state.currentUser.isPengurus ? ` (${state.currentUser.role})` : '';
           showToast(`Selamat datang, ${state.currentUser.name}${roleNote}!`, 'success');
+          await checkAndTriggerMandatoryVoting({ fromAccountSetup: false });
         }
         return;
       } else {
@@ -661,6 +670,11 @@ function handleUserPillClick() {
     showPortalGateway();
     return;
   }
+  if (isMandatoryVoteActiveSync()) {
+    openWajibVotingModal({ fromAccountSetup: false, isEscapeWarning: state.wajibVotingInBooth });
+    showToast('Selesaikan pengisian suara di Bilik Suara terlebih dahulu, atau klik Log Out.', 'warning');
+    return;
+  }
   openAccountSettingsModal();
 }
 
@@ -680,6 +694,8 @@ function openAccountSettingsModal(isMandatory = false) {
   if (wajibNotice) wajibNotice.style.display = forceLock ? 'block' : 'none';
   const btnCloseAcc = document.getElementById('btnCloseAccountSettings');
   if (btnCloseAcc) btnCloseAcc.style.display = forceLock ? 'none' : 'flex';
+  const btnCloseAccFooter = document.getElementById('btnCloseAccountSettingsFooter');
+  if (btnCloseAccFooter) btnCloseAccFooter.style.display = forceLock ? 'none' : 'inline-flex';
 
   const savedGmail = u.gmail || u.email || (window.SupabaseKomkep && typeof window.SupabaseKomkep.getGmail === 'function'
     ? window.SupabaseKomkep.getGmail(u.id_login || u.nip || '')
@@ -912,10 +928,15 @@ async function simpanPengaturanPassword() {
   if (wajibNotice) wajibNotice.style.display = 'none';
   const btnCloseAcc = document.getElementById('btnCloseAccountSettings');
   if (btnCloseAcc) btnCloseAcc.style.display = 'flex';
+  const btnCloseAccFooter = document.getElementById('btnCloseAccountSettingsFooter');
+  if (btnCloseAccFooter) btnCloseAccFooter.style.display = 'inline-flex';
 
   updateAuthUI();
   closeModal('modalAccountSettings');
   showToast('Akun Gmail pribadi & kata sandi berhasil diperbarui!', 'success');
+
+  // Setelah daftar Gmail & ganti password selesai, tampilkan notifikasi besar wajib menuju Bilik Suara
+  await checkAndTriggerMandatoryVoting({ fromAccountSetup: true });
 }
 
 function simpanPengaturanProfil() {
@@ -1465,6 +1486,25 @@ function switchTab(tabId) {
 
   // Normalisasi alias: 'pemilihan' <-> 'evoting'
   const canonicalId = (tabId === 'pemilihan') ? 'evoting' : tabId;
+
+  // Penegakan Wajib Isi Suara di Bilik Suara: Tidak boleh meninggalkan Bilik Suara sebelum memilih
+  if (canonicalId !== 'evoting' && isMandatoryVoteActiveSync()) {
+    if (!state.wajibVotingInBooth) {
+      openWajibVotingModal({ fromAccountSetup: false, isEscapeWarning: false });
+      showToast('Anda wajib mengklik notifikasi dan mengisi suara di Bilik Suara terlebih dahulu!', 'warning');
+      return;
+    }
+    state.wajibVotingEscapeAttempts = (state.wajibVotingEscapeAttempts || 0) + 1;
+    if (state.wajibVotingEscapeAttempts >= 2) {
+      enforceLogoutNoVote('Anda dikeluarkan dari Portal Komite Keperawatan karena meninggalkan Bilik Suara tanpa mengisi suara.');
+      return;
+    }
+    window.location.hash = 'evoting';
+    openWajibVotingModal({ fromAccountSetup: false, isEscapeWarning: true });
+    showToast('PERINGATAN TERAKHIR: Isi suara di Bilik Suara sekarang atau Anda akan dikeluarkan dari portal!', 'error');
+    return;
+  }
+
   state.activeTab = canonicalId;
   window.location.hash = canonicalId;
 
@@ -3004,6 +3044,10 @@ function renderCareerLadderChart() {
     `;
   }).join('');
 
+  const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
+
   container.innerHTML = `
     <svg width="100%" height="100%" viewBox="0 0 ${totalW + 60} 220" preserveAspectRatio="xMidYMid meet">
       <defs>
@@ -3060,6 +3104,10 @@ function renderCredentialStatusChart() {
       </div>
     `;
   }).join('');
+
+  const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
 
   container.innerHTML = `
     <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 0.5rem 1rem;">
@@ -7089,7 +7137,11 @@ function renderWhiteBookCatalog(cat = 'all', query = '') {
   }
 
   if (matches.length === 0) {
-    container.innerHTML = `
+    const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
+
+  container.innerHTML = `
       <div style="grid-column: 1 / -1; padding: 2.5rem 1rem; text-align: center; color: var(--text-muted);">
         <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; color: #cbd5e1; margin-bottom: 0.75rem; display: block;"></i>
         <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Tidak ada tindakan yang sesuai dengan kriteria</div>
@@ -8904,7 +8956,11 @@ function renderKredensialTrackerVisual(query) {
 
   // 1. Jika Belum Login atau Mode Guest / Publik
   if (!state.currentUser || state.currentUser.role === 'guest') {
-    container.innerHTML = `
+    const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
+
+  container.innerHTML = `
       <div style="background: var(--bg-card); border: 1.5px dashed #cbd5e1; border-radius: var(--radius-lg); padding: 2.25rem 1.5rem; text-align: center; margin-top: 1rem;">
         <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(220, 38, 38, 0.1); color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 0.75rem;">
           <i class="fa-solid fa-user-lock"></i>
@@ -8997,6 +9053,10 @@ function renderKredensialTrackerVisual(query) {
   const nUnit = nurse ? nurse.unit : 'Ruang Kakap';
   const nStr = nurse ? nurse.strNumber : '140152123-2893812';
   const isApproved = nurse && nurse.credentialStatus === 'Disetujui';
+
+  const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
 
   container.innerHTML = `
     <!-- 5-Stage Timeline Bar -->
@@ -9308,7 +9368,18 @@ function openModal(modalId) {
   }
 }
 
-function closeModal(modalId) {
+function closeModal(modalId, force = false) {
+  if (!force && modalId === 'modalWajibVoting' && state.wajibVotingPending) {
+    showToast('Notifikasi wajib diklik! Masuk ke Bilik Suara untuk mengisi suara, atau klik Keluar dari Portal.', 'warning');
+    return;
+  }
+  if (!force && modalId === 'modalAccountSettings') {
+    const mustSetup = Boolean(state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail));
+    if (mustSetup) {
+      showToast('Anda wajib mengisi Gmail pribadi & mengganti kata sandi awal terlebih dahulu.', 'warning');
+      return;
+    }
+  }
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.remove('active');
@@ -9321,6 +9392,10 @@ function closeModal(modalId) {
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
     if (e.target.id === 'modalSessionLock') return;
+    if (e.target.id === 'modalWajibVoting' && state.wajibVotingPending) {
+      showToast('Notifikasi ini wajib diklik untuk masuk ke Bilik Suara, atau klik Keluar dari Portal.', 'warning');
+      return;
+    }
     const mustSetup = Boolean(state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail));
     if ((e.target.id === 'modalGantiPassword' || e.target.id === 'modalAccountSettings') && mustSetup) {
       showToast('Anda wajib mengisi Gmail pribadi & mengganti kata sandi awal terlebih dahulu.', 'warning');
@@ -9339,6 +9414,10 @@ document.addEventListener('keydown', (e) => {
     const mustSetup = Boolean(state.currentUser && (state.currentUser.wajib_ganti_password || state.currentUser.mustChangePassword || state.currentUser.wajib_isi_gmail));
     activeModals.forEach(m => {
       if (m.id === 'modalSessionLock') return;
+      if (m.id === 'modalWajibVoting' && state.wajibVotingPending) {
+        showToast('Notifikasi ini wajib diklik! Masuk ke Bilik Suara untuk mengisi suara, atau klik Keluar dari Portal.', 'warning');
+        return;
+      }
       if ((m.id === 'modalGantiPassword' || m.id === 'modalAccountSettings') && mustSetup) {
         return;
       }
@@ -9993,7 +10072,11 @@ function renderWorkflowNotifList(filterCategory = 'all', unreadOnly = false) {
   }
 
   if (displayList.length === 0) {
-    container.innerHTML = `
+    const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
+  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
+  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
+
+  container.innerHTML = `
       <div class="wf-empty-state">
         <i class="fa-regular fa-bell-slash wf-empty-icon"></i>
         <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px;">Tidak Ada Notifikasi Alur Kerja</div>
@@ -11195,54 +11278,6 @@ function generatePsvHVS(mode) {
         FORMULIR VERIFIKASI SUMBER ASLI / UTAMA<br>
         (PRIMARY SOURCE VERIFICATION - PSV) DOKUMEN KLINIS
       </div>
-      <div style="text-align: center; font-size: 7.5pt; font-style: italic; color: #444; margin-bottom: 12px;">
-        Standar Kualifikasi dan Pendidikan Staf (KPS 10 &amp; 11) KARS STARKES &bull; Permenkes RI No. 49 Tahun 2013 &bull; UU Kesehatan No. 17 Tahun 2023
-      </div>
-
-      <!-- I. IDENTITAS TENAGA KEPERAWATAN -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 8pt; border: 1.5px solid #000;">
-        <tr style="background: #f1f5f9; color: #000;">
-          <td colspan="2" style="padding: 5px 8px; font-weight: bold; font-size: 8.8pt; border-bottom: 1.5px solid #000; letter-spacing: 0.2px;">
-            I. IDENTITAS TENAGA KEPERAWATAN
-          </td>
-        </tr>
-        <tr>
-          <td style="border: 1px solid #000; padding: 5px 8px; width: 34%; font-weight: bold;">Nama Lengkap Staf Keperawatan:</td>
-          <td style="border: 1px solid #000; padding: 5px 8px; width: 66%; font-weight: ${isBlank ? 'normal' : 'bold'};">${nama}</td>
-        </tr>
-        <tr>
-          <td style="border: 1px solid #000; padding: 5px 8px; font-weight: bold;">NIP / NIPPPK / NIK:</td>
-          <td style="border: 1px solid #000; padding: 5px 8px;">${nip}</td>
-        </tr>
-        <tr>
-          <td style="border: 1px solid #000; padding: 5px 8px; font-weight: bold;">Pendidikan Terakhir / Lulusan:</td>
-          <td style="border: 1px solid #000; padding: 5px 8px;">${pendidikan}</td>
-        </tr>
-        <tr>
-          <td style="border: 1px solid #000; padding: 5px 8px; font-weight: bold;">Unit Kerja / Ruang Penempatan:</td>
-          <td style="border: 1px solid #000; padding: 5px 8px;">${unit}</td>
-        </tr>
-      </table>
-
-      <!-- II. MATRIKS VERIFIKASI DOKUMEN (KREDENSIAL UTAMA) -->
-      <div style="border: 1.5px solid #000; border-bottom: none; background: #f1f5f9; color: #000; padding: 5px 8px; font-weight: bold; font-size: 8.8pt; letter-spacing: 0.2px;">
-        II. MATRIKS PENELUSURAN SUMBER ASLI / UTAMA (PRIMARY SOURCE VERIFICATION)
-      </div>
-      <table style="width: 100%; border-collapse: collapse; font-size: 7.6pt; border: 1.5px solid #000;">
-        <thead>
-          <tr style="background: #0e3860; color: #ffffff; text-align: center; font-weight: bold;">
-            <th style="border: 1px solid #000; padding: 6px 3px; width: 4%;">No</th>
-            <th style="border: 1px solid #000; padding: 6px 4px; width: 20%;">Dokumen Kredensial<br>&amp; Legalitas</th>
-            <th style="border: 1px solid #000; padding: 6px 4px; width: 22%;">Institusi Sumber Penerbit<br>(Primary Source)</th>
-            <th style="border: 1px solid #000; padding: 6px 4px; width: 20%;">Metode Verifikasi<br>(Direkomendasikan Kemenkes/KARS)</th>
-            <th style="border: 1px solid #000; padding: 6px 4px; width: 17%;">Hasil<br>Verifikasi</th>
-            <th style="border: 1px solid #000; padding: 6px 4px; width: 17%;">Keterangan &amp;<br>Nomor Dokumen</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Baris 1: Ijazah -->
-          <tr>
-            <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: bold;">1</td>
             <td style="border: 1px solid #000; padding: 6px 5px; vertical-align: top;">
               <strong>Ijazah Keperawatan</strong><br>
               <span style="font-size: 7pt; color: #444;">(D-III/S1/Ners/Spesialis)</span>
@@ -12192,6 +12227,7 @@ async function handleUnifiedPortalLogin(e) {
         } else {
           const roleNote = state.currentUser.isPengurus ? ` (${state.currentUser.role})` : '';
           showToast(`Selamat datang, ${state.currentUser.name}${roleNote}!`, 'success');
+          await checkAndTriggerMandatoryVoting({ fromAccountSetup: false });
         }
         return;
       }
@@ -12266,7 +12302,9 @@ function loginAsGuest() {
   showToast('Silakan masuk menggunakan NIP / NIPPPK / NIK (tanpa spasi) & kata sandi Anda.', 'info');
 }
 
-async function logoutToPortal() {
+async function logoutToPortal(customMessage = '') {
+  clearMandatoryVotingState();
+  closeModal('modalAccountSettings', true);
   state.currentUser = null;
   if (window.SupabaseKomkep && typeof window.SupabaseKomkep.logout === 'function') {
     await window.SupabaseKomkep.logout();
@@ -12275,8 +12313,159 @@ async function logoutToPortal() {
   updateAuthUI();
   showPortalGateway();
   try { renderAllViews(); } catch (_) {}
-  showToast('Anda telah keluar dan kembali ke halaman masuk Portal.', 'info');
+  if (customMessage) {
+    showToast(customMessage, 'error');
+  } else {
+    showToast('Anda telah keluar dan kembali ke halaman masuk Portal.', 'info');
+  }
 }
+
+/* ==========================================================================
+   SISTEM PENEGAKAN WAJIB ISI SUARA DI BILIK SUARA
+   Alur: Login Portal -> Daftar Gmail -> Ganti Password -> Notifikasi Wajib -> Bilik Suara
+   Jika tidak klik / tidak mengisi suara, pengguna dikeluarkan dari Portal.
+   ========================================================================== */
+function isUserSetupComplete(user) {
+  if (!user || user.role === 'guest') return false;
+  return !(user.wajib_ganti_password || user.mustChangePassword || user.wajib_isi_gmail);
+}
+
+function isMandatoryVoteActiveSync() {
+  const user = state.currentUser;
+  if (!isUserSetupComplete(user)) return false;
+  if (!window.SupabaseKomkep || typeof window.SupabaseKomkep.checkElectionSchedule !== 'function') return false;
+  const sched = window.SupabaseKomkep.checkElectionSchedule();
+  if (!sched || !sched.isOpen) return false;
+  const idLogin = user.id_login || user.nip || user.username;
+  const receipt = typeof window.SupabaseKomkep.getVoterRecord === 'function'
+    ? window.SupabaseKomkep.getVoterRecord(idLogin)
+    : null;
+  return !receipt;
+}
+
+function openWajibVotingModal({ fromAccountSetup = false, isEscapeWarning = false } = {}) {
+  const user = state.currentUser;
+  if (!user) return;
+  const sched = (window.SupabaseKomkep && typeof window.SupabaseKomkep.checkElectionSchedule === 'function')
+    ? window.SupabaseKomkep.checkElectionSchedule()
+    : { countdownStr: '--:--:--' };
+
+  const nameEl = document.getElementById('wajibVoteUserName');
+  const unitEl = document.getElementById('wajibVoteUserUnit');
+  const cdEl = document.getElementById('wajibVoteCountdown');
+  const escapeBox = document.getElementById('wajibVoteEscapeAlert');
+  const ctaLabel = document.getElementById('wajibVoteCtaLabel');
+
+  if (nameEl) nameEl.textContent = user.name || 'Pemilih Terverifikasi';
+  if (unitEl) {
+    const cleanId = String(user.nip || user.id_login || '-').replace(/\s+/g, '');
+    unitEl.textContent = `ID: ${cleanId} • ${user.unit || 'RSUD dr. Soedarso'}`;
+  }
+  if (cdEl) cdEl.textContent = sched.countdownStr || '--:--:--';
+  if (escapeBox) escapeBox.style.display = isEscapeWarning ? 'flex' : 'none';
+  if (ctaLabel) {
+    ctaLabel.textContent = isEscapeWarning
+      ? 'KEMBALI KE BILIK SUARA & ISI SUARA SEKARANG'
+      : 'KLIK DI SINI — MASUK BILIK SUARA SEKARANG';
+  }
+
+  state.wajibVotingPending = true;
+  openModal('modalWajibVoting');
+}
+
+async function checkAndTriggerMandatoryVoting({ fromAccountSetup = false, isEscapeWarning = false } = {}) {
+  const user = state.currentUser;
+  if (!isUserSetupComplete(user)) return false;
+  if (!window.SupabaseKomkep || typeof window.SupabaseKomkep.checkElectionSchedule !== 'function') return false;
+
+  const sched = window.SupabaseKomkep.checkElectionSchedule();
+  if (!sched || !sched.isOpen) {
+    clearMandatoryVotingState();
+    return false;
+  }
+
+  const idLogin = user.id_login || user.nip || user.username;
+  let receipt = null;
+  if (typeof window.SupabaseKomkep.getVoterRecordAsync === 'function') {
+    try {
+      receipt = await window.SupabaseKomkep.getVoterRecordAsync(idLogin);
+    } catch (_) {
+      receipt = typeof window.SupabaseKomkep.getVoterRecord === 'function'
+        ? window.SupabaseKomkep.getVoterRecord(idLogin)
+        : null;
+    }
+  } else if (typeof window.SupabaseKomkep.getVoterRecord === 'function') {
+    receipt = window.SupabaseKomkep.getVoterRecord(idLogin);
+  }
+
+  if (receipt) {
+    clearMandatoryVotingState();
+    return false;
+  }
+
+  // Belum memilih saat bilik suara aktif -> wajib tampilkan notifikasi besar
+  state.wajibVotingPending = true;
+  openWajibVotingModal({ fromAccountSetup, isEscapeWarning });
+  return true;
+}
+
+function acceptWajibVotingToBooth() {
+  state.wajibVotingInBooth = true;
+  closeModal('modalWajibVoting', true);
+
+  const stickyBar = document.getElementById('wajibVotingStickyBar');
+  if (stickyBar) stickyBar.style.display = 'block';
+
+  const sched = (window.SupabaseKomkep && typeof window.SupabaseKomkep.checkElectionSchedule === 'function')
+    ? window.SupabaseKomkep.checkElectionSchedule()
+    : { countdownStr: '--:--:--' };
+  const stickyCd = document.getElementById('wajibStickyCountdown');
+  if (stickyCd) stickyCd.textContent = sched.countdownStr || '--:--:--';
+
+  switchTab('evoting');
+  if (window.PemilihanKomkep && typeof window.PemilihanKomkep.enterBoothFlow === 'function') {
+    window.PemilihanKomkep.enterBoothFlow();
+  }
+
+  setTimeout(() => {
+    const target = document.getElementById('pemilihanVoterStatusBox') || document.getElementById('pemilihanVotingGrid');
+    if (target && typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 220);
+
+  showToast('Anda berada di Bilik Suara. Pilih calon dan kirim suara Anda untuk membuka seluruh fitur Portal.', 'info');
+}
+
+function enforceLogoutNoVote(reasonMsg) {
+  const msg = reasonMsg || 'Anda dikeluarkan dari Portal Komite Keperawatan karena belum mengisi suara di Bilik Suara.';
+  logoutToPortal(msg);
+}
+
+function clearMandatoryVotingState() {
+  state.wajibVotingPending = false;
+  state.wajibVotingInBooth = false;
+  state.wajibVotingEscapeAttempts = 0;
+
+  const stickyBar = document.getElementById('wajibVotingStickyBar');
+  if (stickyBar) stickyBar.style.display = 'none';
+
+  const modal = document.getElementById('modalWajibVoting');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+function onMandatoryVoteCompleted() {
+  clearMandatoryVotingState();
+}
+
+window.acceptWajibVotingToBooth = acceptWajibVotingToBooth;
+window.enforceLogoutNoVote = enforceLogoutNoVote;
+window.onMandatoryVoteCompleted = onMandatoryVoteCompleted;
+window.checkAndTriggerMandatoryVoting = checkAndTriggerMandatoryVoting;
 
 window.handleUnifiedPortalLogin = handleUnifiedPortalLogin;
 window.togglePortalMainPassword = togglePortalMainPassword;

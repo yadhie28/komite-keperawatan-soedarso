@@ -171,8 +171,15 @@
       const sched = getSchedule();
       const cdEl = document.getElementById('pemilihanCountdownLive');
       const statusBadgeEl = document.getElementById('pemilihanScheduleBadgeLive');
+      const wajibCdEl = document.getElementById('wajibVoteCountdown');
+      const wajibStickyCdEl = document.getElementById('wajibStickyCountdown');
       if (cdEl) cdEl.textContent = sched.countdownStr;
       if (statusBadgeEl) statusBadgeEl.textContent = sched.statusText;
+      if (wajibCdEl) wajibCdEl.textContent = sched.countdownStr;
+      if (wajibStickyCdEl) wajibStickyCdEl.textContent = sched.countdownStr;
+      if (!sched.isOpen && typeof window.onMandatoryVoteCompleted === 'function') {
+        window.onMandatoryVoteCompleted();
+      }
       if (typeof window.updateBerandaElectionBanner === 'function') {
         window.updateBerandaElectionBanner();
       }
@@ -485,7 +492,10 @@
       return;
     }
 
-    notify('Suara rahasia Anda berhasil direkam!', 'success');
+    notify('Suara rahasia Anda berhasil direkam! Akses penuh Portal Komite Keperawatan kini terbuka.', 'success');
+    if (typeof window.onMandatoryVoteCompleted === 'function') {
+      window.onMandatoryVoteCompleted();
+    }
     await renderAll();
     openSlipBuktiModal(res.receipt);
   }

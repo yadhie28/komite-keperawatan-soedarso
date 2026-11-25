@@ -5660,3 +5660,476 @@ body.portal-gateway-active {
 
 
 
+
+
+/* ==========================================================================
+   NOTIFIKASI BESAR WAJIB VOTING (MENGARAHKAN LANGSUNG KE BILIK SUARA)
+   ========================================================================== */
+.wajib-voting-overlay {
+  background: rgba(4, 24, 30, 0.84) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.wajib-voting-card {
+  width: 100%;
+  max-width: 640px;
+  max-height: 94vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 3px solid #f59e0b;
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.55), 0 0 0 6px rgba(245, 158, 11, 0.22);
+  animation: wajibCardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-x: hidden;
+}
+
+@keyframes wajibCardPop {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.wajib-voting-header {
+  background: linear-gradient(135deg, #042f2e 0%, #0d5f5b 52%, #b45309 100%);
+  color: #ffffff;
+  padding: 1.75rem 1.75rem 1.5rem 1.75rem;
+  text-align: center;
+  position: relative;
+}
+
+.wajib-voting-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.wajib-voting-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(251, 191, 36, 0.22);
+  border: 1.5px solid #fbbf24;
+  color: #fef3c7;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.wajib-live-dot,
+.wajib-sticky-pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fbbf24;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.8);
+  animation: wajibDotPulse 1.4s infinite;
+}
+
+@keyframes wajibDotPulse {
+  0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.85); }
+  70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+}
+
+.wajib-voting-countdown-pill {
+  background: rgba(15, 23, 42, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #f8fafc;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+}
+
+.wajib-voting-icon-ring {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #451a03;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  margin: 0 auto 0.9rem auto;
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.48), 0 0 0 8px rgba(251, 191, 36, 0.2);
+  animation: wajibFloatIcon 2.2s ease-in-out infinite;
+}
+
+@keyframes wajibFloatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.wajib-voting-title {
+  font-family: var(--font-heading);
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.2;
+}
+
+.wajib-voting-subtitle {
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.wajib-voting-body {
+  padding: 1.4rem 1.75rem 1.6rem 1.75rem;
+  color: #0f172a;
+}
+
+.wajib-voting-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 1.15rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0.7rem 0.9rem;
+}
+
+.wajib-step {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.wajib-step.done {
+  color: #047857;
+}
+
+.wajib-step.active {
+  color: #b45309;
+  font-weight: 800;
+}
+
+.wajib-step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.wajib-step.done .wajib-step-circle {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.wajib-step.active .wajib-step-circle {
+  background: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+}
+
+.wajib-step-line {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  min-width: 14px;
+}
+
+.wajib-step-line.done {
+  background: #10b981;
+}
+
+.wajib-step-line.active {
+  background: linear-gradient(90deg, #10b981, #f59e0b);
+}
+
+.wajib-voting-voter-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: #f0fdfa;
+  border: 1.5px solid #5eead4;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.wajib-voter-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0d5f5b, #14b8a6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.wajib-status-pill {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.wajib-voting-escape-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #fef2f2;
+  border: 2px solid #dc2626;
+  color: #991b1b;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  animation: wajibCardPop 0.25s ease;
+}
+
+.wajib-voting-escape-alert i {
+  font-size: 1.25rem;
+  color: #dc2626;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.wajib-voting-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #fffbeb;
+  border: 1.5px solid #f59e0b;
+  color: #78350f;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.wajib-voting-notice i {
+  font-size: 1.2rem;
+  color: #d97706;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.wajib-voting-cta {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 1.1rem 1.35rem;
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 48%, #059669 100%);
+  background-size: 180% 180%;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  box-shadow: 0 12px 28px rgba(217, 119, 6, 0.42);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: wajibCtaPulse 2s infinite;
+}
+
+.wajib-voting-cta:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 18px 36px rgba(217, 119, 6, 0.55);
+}
+
+@keyframes wajibCtaPulse {
+  0%, 100% { box-shadow: 0 12px 28px rgba(217, 119, 6, 0.42), 0 0 0 0 rgba(245, 158, 11, 0.55); }
+  50% { box-shadow: 0 14px 32px rgba(217, 119, 6, 0.52), 0 0 0 10px rgba(245, 158, 11, 0); }
+}
+
+.wajib-cta-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  flex-shrink: 0;
+}
+
+.wajib-cta-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wajib-cta-text strong {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+}
+
+.wajib-cta-text small {
+  font-size: 0.78rem;
+  opacity: 0.94;
+  font-weight: 500;
+}
+
+.wajib-cta-arrow {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.wajib-voting-footer-action {
+  margin-top: 0.95rem;
+  text-align: center;
+}
+
+.wajib-voting-btn-logout {
+  background: transparent;
+  border: 1.5px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: all 0.15s ease;
+}
+
+.wajib-voting-btn-logout:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+/* Sticky Enforcement Bar saat berada di Bilik Suara */
+.wajib-voting-sticky-bar {
+  position: sticky;
+  top: 0;
+  z-index: 9990;
+  background: linear-gradient(90deg, #7c2d12 0%, #b45309 50%, #065f46 100%);
+  color: #ffffff;
+  border-bottom: 2px solid #fbbf24;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.wajib-sticky-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.65rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.wajib-sticky-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 260px;
+}
+
+.wajib-sticky-timer {
+  display: inline-block;
+  margin-left: 0.35rem;
+  color: #fef08a;
+  font-family: var(--font-mono);
+}
+
+.wajib-sticky-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.wajib-sticky-btn-vote {
+  background: #fbbf24;
+  color: #451a03;
+  border: none;
+  border-radius: 8px;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.wajib-sticky-btn-exit {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.wajib-sticky-btn-exit:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .wajib-voting-header {
+    padding: 1.35rem 1.15rem 1.15rem 1.15rem;
+  }
+  .wajib-voting-title {
+    font-size: 1.3rem;
+  }
+  .wajib-voting-body {
+    padding: 1.1rem 1.1rem 1.3rem 1.1rem;
+  }
+  .wajib-voting-steps {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+  .wajib-step-line {
+    display: none;
+  }
+  .wajib-cta-text strong {
+    font-size: 0.92rem;
+  }
+}
