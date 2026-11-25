@@ -3042,6 +3042,7 @@ function renderRegulationsTable() {
 function renderAnalyticsCharts() {
   renderCareerLadderChart();
   renderCredentialStatusChart();
+  renderUnrecordedSpkList();
   renderUnitDistributionChart();
   renderEducationDistributionChart();
   renderStatusPangkatChart();
@@ -3191,6 +3192,253 @@ function renderCredentialStatusChart() {
       </div>
     </div>
   `;
+}
+
+// 2b. Daftar Namelist & Asal Unit Tenaga Belum Tercatat SPK/RKK
+window._unrecSpkState = window._unrecSpkState || {
+  search: '',
+  unit: 'ALL',
+  prof: 'ALL',
+  status: 'ALL',
+  sort: 'unit_asc'
+};
+
+function getUnrecordedSpkEntries() {
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const validStatuses = new Set(['Disetujui', 'Proses Review', 'Menunggu Mitra Bestari', 'Mendekati Kadaluarsa']);
+  const nurseByNip = new Map();
+  (state.nurses || []).forEach(n => {
+    const k = String(n.nip || '').replace(/\s+/g, '');
+    if (k && k !== '-') nurseByNip.set(k, n);
+  });
+
+  const list = [];
+  roster.forEach(p => {
+    const k = String(p.id || '').replace(/\s+/g, '');
+    const rec = nurseByNip.get(k);
+    if (rec && validStatuses.has(rec.credentialStatus)) return;
+
+    const norm = normalizeAnalyticsUnit(p.unit);
+    const unitName = norm ? norm[0] : (String(p.unit || '').trim() || 'Belum Terpetakan');
+    const cluster = norm ? norm[1] : 'Lainnya';
+    const prof = String(p.kat || '').toLowerCase() === 'bidan' ? 'Bidan' : 'Perawat';
+    const stRaw = String(p.status || 'BLUD').trim();
+    const stGroup = stRaw.toUpperCase() === 'PNS' ? 'PNS' : (stRaw.toUpperCase().includes('PPPK') ? 'PPPK' : 'BLUD');
+
+    list.push({
+      nama: String(p.nama || '-').trim(),
+      prof,
+      unit: unitName,
+      rawUnit: String(p.unit || '-').trim(),
+      cluster,
+      status: stRaw,
+      statusGroup: stGroup,
+      pend: String(p.pend || '-').trim()
+    });
+  });
+  return list;
+}
+
+window.unrecSpkSetSearch = function(val) {
+  window._unrecSpkState.search = val;
+  renderUnrecordedSpkList();
+};
+window.unrecSpkSetUnit = function(val) {
+  window._unrecSpkState.unit = val;
+  renderUnrecordedSpkList();
+};
+window.unrecSpkSetProf = function(val) {
+  window._unrecSpkState.prof = val;
+  renderUnrecordedSpkList();
+};
+window.unrecSpkSetStatus = function(val) {
+  window._unrecSpkState.status = val;
+  renderUnrecordedSpkList();
+};
+window.unrecSpkSetSort = function(val) {
+  window._unrecSpkState.sort = val;
+  renderUnrecordedSpkList();
+};
+
+window.exportUnrecordedSpkCsv = function() {
+  const all = getUnrecordedSpkEntries();
+  const st = window._unrecSpkState;
+  const q = String(st.search || '').trim().toLowerCase();
+  const filtered = all.filter(item => {
+    if (st.unit !== 'ALL' && item.unit !== st.unit) return false;
+    if (st.prof !== 'ALL' && item.prof !== st.prof) return false;
+    if (st.status !== 'ALL' && item.statusGroup !== st.status) return false;
+    if (q && !item.nama.toLowerCase().includes(q) && !item.unit.toLowerCase().includes(q) && !item.cluster.toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => a.unit.localeCompare(b.unit, 'id') || a.nama.localeCompare(b.nama, 'id'));
+
+  const esc = v => `"${String(v || '').replace(/"/g, '""')}"`;
+  let csv = 'No,Nama Tenaga,Profesi,Asal Unit / Ruangan,Klaster Layanan,Status Kepegawaian,Pendidikan\n';
+  filtered.forEach((it, idx) => {
+    csv += [idx + 1, esc(it.nama), esc(it.prof), esc(it.unit), esc(it.cluster), esc(it.status), esc(it.pend)].join(',') + '\n';
+  });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Namelist_Belum_Tercatat_SPK_RKK_RSUD_Soedarso.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  if (typeof showToast === 'function') showToast(`Berhasil mengunduh ${filtered.length} nama tenaga Belum Tercatat SPK/RKK (CSV)`, 'success');
+};
+
+function renderUnrecordedSpkList() {
+  const container = document.getElementById('chartUnrecordedSpkList');
+  if (!container) return;
+
+  const all = getUnrecordedSpkEntries();
+  const badgeEl = document.getElementById('unrecordedSpkBadge');
+  const perawatTotal = all.filter(x => x.prof === 'Perawat').length;
+  const bidanTotal = all.filter(x => x.prof === 'Bidan').length;
+  if (badgeEl) {
+    badgeEl.textContent = `${all.length} Tenaga (${perawatTotal} Perawat · ${bidanTotal} Bidan)`;
+  }
+
+  if (all.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+        <i class="fa-solid fa-circle-check" style="color:#10b981; margin-right:6px;"></i>
+        Seluruh tenaga keperawatan &amp; kebidanan telah tercatat SPK/RKK.
+      </div>
+    `;
+    return;
+  }
+
+  // Hitung jumlah per unit
+  const unitMap = new Map();
+  all.forEach(item => {
+    unitMap.set(item.unit, (unitMap.get(item.unit) || 0) + 1);
+  });
+  const unitOptions = [...unitMap.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'id'));
+
+  const st = window._unrecSpkState;
+  const q = String(st.search || '').trim().toLowerCase();
+  const filtered = all.filter(item => {
+    if (st.unit !== 'ALL' && item.unit !== st.unit) return false;
+    if (st.prof !== 'ALL' && item.prof !== st.prof) return false;
+    if (st.status !== 'ALL' && item.statusGroup !== st.status) return false;
+    if (q && !item.nama.toLowerCase().includes(q) && !item.unit.toLowerCase().includes(q) && !item.cluster.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (st.sort === 'name_asc') {
+    filtered.sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+  } else if (st.sort === 'prof_asc') {
+    filtered.sort((a, b) => a.prof.localeCompare(b.prof, 'id') || a.unit.localeCompare(b.unit, 'id') || a.nama.localeCompare(b.nama, 'id'));
+  } else {
+    filtered.sort((a, b) => a.unit.localeCompare(b.unit, 'id') || a.nama.localeCompare(b.nama, 'id'));
+  }
+
+  const isDark = state.theme === 'dark';
+  const borderCol = isDark ? '#334155' : '#e2e8f0';
+  const headBg = isDark ? '#1e293b' : '#f8fafc';
+  const rowAltBg = isDark ? 'rgba(30,41,59,0.45)' : '#f8fafc';
+
+  const topUnitsPills = unitOptions.slice(0, 8).map(([u, cnt]) => {
+    const isSel = st.unit === u;
+    return `<button type="button" class="pk-chip${isSel ? ' active' : ''}" onclick="unrecSpkSetUnit('${escapeInfogHtml(u).replace(/'/g, "\\'") === escapeInfogHtml(st.unit).replace(/'/g, "\\'") ? 'ALL' : escapeInfogHtml(u).replace(/'/g, "\\'")}')" style="font-size: 0.74rem; padding: 0.25rem 0.6rem;">${escapeInfogHtml(u)} <strong>(${cnt})</strong></button>`;
+  }).join('');
+
+  const rowsHtml = filtered.length === 0
+    ? `<tr><td colspan="6" style="text-align:center; padding: 1.75rem; color: var(--text-muted);">Tidak ada tenaga yang cocok dengan filter pencarian.</td></tr>`
+    : filtered.map((it, idx) => {
+        const profBadge = it.prof === 'Bidan'
+          ? '<span style="background:#fdf2f8; color:#be185d; border:1px solid #fbcfe8; padding:2px 7px; border-radius:999px; font-size:0.72rem; font-weight:700;">Bidan</span>'
+          : '<span style="background:#f0fdfa; color:#0f766e; border:1px solid #99f6e4; padding:2px 7px; border-radius:999px; font-size:0.72rem; font-weight:700;">Perawat</span>';
+        const stBadgeBg = it.statusGroup === 'PNS' ? '#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe'
+          : (it.statusGroup === 'PPPK' ? '#f0fdf4; color:#15803d; border:1px solid #bbf7d0'
+          : '#fffbeb; color:#b45309; border:1px solid #fde68a');
+        return `
+          <tr style="background: ${idx % 2 === 1 ? rowAltBg : 'transparent'};">
+            <td style="padding: 0.5rem 0.65rem; text-align:center; font-weight:700; color:var(--text-muted); font-size:0.78rem;">${idx + 1}</td>
+            <td style="padding: 0.5rem 0.65rem; font-weight:700; color:var(--text-main); font-size:0.83rem;">${escapeInfogHtml(it.nama)}</td>
+            <td style="padding: 0.5rem 0.65rem; white-space:nowrap;">${profBadge}</td>
+            <td style="padding: 0.5rem 0.65rem;">
+              <div style="font-weight:600; color:var(--text-main); font-size:0.82rem;">${escapeInfogHtml(it.unit)}</div>
+              <div style="font-size:0.71rem; color:var(--text-muted);">${escapeInfogHtml(it.cluster)}</div>
+            </td>
+            <td style="padding: 0.5rem 0.65rem; white-space:nowrap;">
+              <span style="background:${stBadgeBg}; padding:2px 7px; border-radius:6px; font-size:0.72rem; font-weight:700;">${escapeInfogHtml(it.status)}</span>
+            </td>
+            <td style="padding: 0.5rem 0.65rem; font-size:0.78rem; color:var(--text-muted);">${escapeInfogHtml(it.pend)}</td>
+          </tr>
+        `;
+      }).join('');
+
+  // Preserve search focus if user is typing
+  const activeEl = document.activeElement;
+  const wasSearching = activeEl && activeEl.id === 'unrecSpkSearchInput';
+  const selStart = wasSearching ? activeEl.selectionStart : null;
+
+  container.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:0.45rem; align-items:center; margin-bottom:0.85rem;">
+      <span style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-right:2px;">Unit Terbanyak:</span>
+      <button type="button" class="pk-chip${st.unit === 'ALL' ? ' active' : ''}" onclick="unrecSpkSetUnit('ALL')" style="font-size:0.74rem; padding:0.25rem 0.6rem;">Semua Unit (${unitOptions.length})</button>
+      ${topUnitsPills}
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:0.55rem; align-items:center; margin-bottom:0.85rem;">
+      <input id="unrecSpkSearchInput" type="text" value="${escapeInfogHtml(st.search)}" oninput="unrecSpkSetSearch(this.value)" placeholder="Cari nama tenaga atau asal unit..." class="form-control-search" style="flex:1 1 210px; min-width:180px; padding:0.45rem 0.75rem; font-size:0.82rem; border:1px solid ${borderCol}; border-radius:8px;">
+      <select onchange="unrecSpkSetUnit(this.value)" class="select-filter" style="font-size:0.8rem; padding:0.45rem 0.65rem;">
+        <option value="ALL"${st.unit === 'ALL' ? ' selected' : ''}>Semua Asal Unit (${unitOptions.length} unit)</option>
+        ${unitOptions.map(([u, cnt]) => `<option value="${escapeInfogHtml(u)}"${st.unit === u ? ' selected' : ''}>${escapeInfogHtml(u)} (${cnt})</option>`).join('')}
+      </select>
+      <select onchange="unrecSpkSetProf(this.value)" class="select-filter" style="font-size:0.8rem; padding:0.45rem 0.65rem;">
+        <option value="ALL"${st.prof === 'ALL' ? ' selected' : ''}>Semua Profesi</option>
+        <option value="Perawat"${st.prof === 'Perawat' ? ' selected' : ''}>Perawat (${perawatTotal})</option>
+        <option value="Bidan"${st.prof === 'Bidan' ? ' selected' : ''}>Bidan (${bidanTotal})</option>
+      </select>
+      <select onchange="unrecSpkSetStatus(this.value)" class="select-filter" style="font-size:0.8rem; padding:0.45rem 0.65rem;">
+        <option value="ALL"${st.status === 'ALL' ? ' selected' : ''}>Semua Status</option>
+        <option value="PNS"${st.status === 'PNS' ? ' selected' : ''}>PNS</option>
+        <option value="PPPK"${st.status === 'PPPK' ? ' selected' : ''}>PPPK</option>
+        <option value="BLUD"${st.status === 'BLUD' ? ' selected' : ''}>BLUD</option>
+      </select>
+      <select onchange="unrecSpkSetSort(this.value)" class="select-filter" style="font-size:0.8rem; padding:0.45rem 0.65rem;">
+        <option value="unit_asc"${st.sort === 'unit_asc' ? ' selected' : ''}>Urut: Asal Unit (A–Z)</option>
+        <option value="name_asc"${st.sort === 'name_asc' ? ' selected' : ''}>Urut: Nama (A–Z)</option>
+        <option value="prof_asc"${st.sort === 'prof_asc' ? ' selected' : ''}>Urut: Profesi &amp; Unit</option>
+      </select>
+    </div>
+
+    <div style="border:1px solid ${borderCol}; border-radius:10px; overflow:hidden;">
+      <div style="max-height: 430px; overflow-y: auto;">
+        <table class="data-table" style="width:100%; border-collapse:collapse; margin:0;">
+          <thead style="position:sticky; top:0; z-index:2; background:${headBg}; box-shadow: 0 1px 0 ${borderCol};">
+            <tr>
+              <th style="width:46px; text-align:center; padding:0.6rem 0.5rem; font-size:0.75rem;">No</th>
+              <th style="padding:0.6rem 0.65rem; font-size:0.75rem;">Nama Tenaga</th>
+              <th style="padding:0.6rem 0.65rem; font-size:0.75rem;">Profesi</th>
+              <th style="padding:0.6rem 0.65rem; font-size:0.75rem;">Asal Unit / Ruangan</th>
+              <th style="padding:0.6rem 0.65rem; font-size:0.75rem;">Status</th>
+              <th style="padding:0.6rem 0.65rem; font-size:0.75rem;">Pendidikan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="margin-top:0.55rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; font-size:0.75rem; color:var(--text-muted);">
+      <span>Menampilkan <strong>${filtered.length}</strong> dari <strong>${all.length}</strong> tenaga yang belum tercatat SPK/RKK (tersebar di <strong>${unitOptions.length}</strong> unit/ruangan).</span>
+      <span>Sumber: Sinkronisasi data kepegawaian 717 tenaga vs basis data SPK/RKK Komite Keperawatan.</span>
+    </div>
+  `;
+
+  if (wasSearching) {
+    const inp = document.getElementById('unrecSpkSearchInput');
+    if (inp) {
+      inp.focus();
+      if (typeof selStart === 'number') inp.setSelectionRange(selStart, selStart);
+    }
+  }
 }
 
 // 3. Infografis Interaktif Sebaran Perawat, Bidan & Jenjang PK per Unit / Ruangan

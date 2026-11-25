@@ -1416,6 +1416,25 @@
         </div>
       </div>
 
+      <!-- Panel Daftar Tenaga Belum Tercatat SPK/RKK (Namelist & Asal Unit) -->
+      <div class="chart-box" id="boxUnrecordedSpkList" style="margin-bottom: 2rem;">
+        <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <span class="chart-title"><i class="fa-solid fa-user-clock" style="color: #d97706; margin-right: 0.45rem;"></i>Daftar Tenaga Belum Tercatat SPK / RKK (Namelist &amp; Asal Unit)</span>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Daftar tenaga perawat &amp; bidan aktif yang belum memiliki catatan SPK/RKK pada sistem kredensial, disusun berdasarkan asal unit/ruangan</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span id="unrecordedSpkBadge" class="badge-official" style="font-size: 0.78rem;">Memuat data...</span>
+            <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 0.35rem 0.75rem;" onclick="exportUnrecordedSpkCsv()">
+              <i class="fa-solid fa-file-csv"></i> Unduh CSV
+            </button>
+          </div>
+        </div>
+        <div id="chartUnrecordedSpkList" style="width: 100%; height: auto;">
+          <!-- Rendered interactively in JS -->
+        </div>
+      </div>
+
       <!-- Chart 3: Infografis Distribusi PK per Unit & Ruang Rawat -->
       <div class="chart-box" style="margin-bottom: 2rem;">
         <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
