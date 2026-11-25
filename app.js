@@ -12385,27 +12385,32 @@ async function checkAndTriggerMandatoryVoting({ fromAccountSetup = false, isEsca
   }
 
   const idLogin = user.id_login || user.nip || user.username;
-  let receipt = null;
-  if (typeof window.SupabaseKomkep.getVoterRecordAsync === 'function') {
-    try {
-      receipt = await window.SupabaseKomkep.getVoterRecordAsync(idLogin);
-    } catch (_) {
-      receipt = typeof window.SupabaseKomkep.getVoterRecord === 'function'
-        ? window.SupabaseKomkep.getVoterRecord(idLogin)
-        : null;
-    }
-  } else if (typeof window.SupabaseKomkep.getVoterRecord === 'function') {
-    receipt = window.SupabaseKomkep.getVoterRecord(idLogin);
-  }
+  const localReceipt = typeof window.SupabaseKomkep.getVoterRecord === 'function'
+    ? window.SupabaseKomkep.getVoterRecord(idLogin)
+    : null;
 
-  if (receipt) {
+  if (localReceipt) {
     clearMandatoryVotingState();
     return false;
   }
 
-  // Belum memilih saat bilik suara aktif -> wajib tampilkan notifikasi besar
+  // Tampilkan notifikasi besar SEGERA tanpa menunggu latensi jaringan server pusat
   state.wajibVotingPending = true;
   openWajibVotingModal({ fromAccountSetup, isEscapeWarning });
+
+  // Verifikasi sinkronisasi server pusat di latar belakang: jika ternyata sudah memilih di perangkat lain, buka kunci otomatis
+  if (typeof window.SupabaseKomkep.getVoterRecordAsync === 'function') {
+    try {
+      const remoteReceipt = await window.SupabaseKomkep.getVoterRecordAsync(idLogin);
+      if (remoteReceipt) {
+        clearMandatoryVotingState();
+        return false;
+      }
+    } catch (_) {
+      // Tetap pertahankan notifikasi wajib voting bila jaringan lambat/gagal
+    }
+  }
+
   return true;
 }
 
@@ -12645,7 +12650,7 @@ function updateBerandaElectionBanner() {
       tagEl.style.color = '#6ee7b7';
     }
     if (subEl) {
-      subEl.textContent = 'Simulasi Pemilihan Tahap 2 berlangsung Selasa, 24 Nov 2026 pukul 09.00 WIB s.d. Rabu, 25 Nov 2026 pukul 09.00 WIB. Gunakan hak suara Anda sekarang.';
+      subEl.textContent = 'Simulasi Pemilihan Tahap 2 berlangsung Selasa, 24 Nov 2026 pukul 09.00 WIB s.d. Kamis, 26 Nov 2026 pukul 23.59 WIB. Gunakan hak suara Anda sekarang.';
     }
     if (actionBtn) {
       actionBtn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Masuk Bilik Suara';
@@ -12660,7 +12665,7 @@ function updateBerandaElectionBanner() {
       tagEl.style.color = '#fde68a';
     }
     if (subEl) {
-      subEl.textContent = 'Simulasi Pemilihan Tahap 2 dimulai Selasa, 24 Nov 2026 pukul 09.00 WIB hingga Rabu, 25 Nov 2026 pukul 09.00 WIB.';
+      subEl.textContent = 'Simulasi Pemilihan Tahap 2 dimulai Selasa, 24 Nov 2026 pukul 09.00 WIB hingga Kamis, 26 Nov 2026 pukul 23.59 WIB.';
     }
     if (actionBtn) {
       actionBtn.innerHTML = '<i class="fa-solid fa-clock"></i> Lihat Bilik Suara';
@@ -12675,7 +12680,7 @@ function updateBerandaElectionBanner() {
       tagEl.style.color = '#e2e8f0';
     }
     if (subEl) {
-      subEl.textContent = 'Simulasi Pemilihan Tahap 2 telah ditutup pada Rabu, 25 Nov 2026 pukul 09.00 WIB. Lihat hasil rekapitulasi & Berita Acara.';
+      subEl.textContent = 'Simulasi Pemilihan Tahap 2 telah ditutup pada Kamis, 26 Nov 2026 pukul 23.59 WIB. Lihat hasil rekapitulasi & Berita Acara.';
     }
     if (actionBtn) {
       actionBtn.innerHTML = '<i class="fa-solid fa-chart-column"></i> Lihat Rekapitulasi';

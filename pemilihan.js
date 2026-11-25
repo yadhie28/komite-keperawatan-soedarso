@@ -241,7 +241,7 @@
             ${escapeHtml(sched.statusText)}
           </div>
           <div style="font-size: 0.78rem; color: #475569; margin-top: 2px;">
-            Jadwal: <strong>Selasa, 24 Nov 2026 pukul 09.00 WIB</strong> s.d. <strong>Rabu, 25 Nov 2026 pukul 09.00 WIB</strong>
+            Jadwal: <strong>Selasa, 24 Nov 2026 pukul 09.00 WIB</strong> s.d. <strong>Kamis, 26 Nov 2026 pukul 23.59 WIB</strong>
           </div>
         </div>
       </div>
@@ -364,7 +364,7 @@
             <i class="fa-solid fa-clock" style="font-size: 2rem; color: #d97706; margin-bottom: 0.5rem;"></i>
             <div style="font-size: 1.08rem; font-weight: 900; color: #92400e;">Bilik Suara Simulasi Tahap 2 Segera Dibuka</div>
             <div style="font-size: 0.85rem; color: #78350f; margin-top: 0.35rem;">
-              Pemungutan suara dibuka otomatis pada <strong>Selasa, 24 November 2026 pukul 09.00 WIB</strong> hingga <strong>Rabu, 25 November 2026 pukul 09.00 WIB</strong>.
+              Pemungutan suara dibuka otomatis pada <strong>Selasa, 24 November 2026 pukul 09.00 WIB</strong> hingga <strong>Kamis, 26 November 2026 pukul 23.59 WIB</strong>.
             </div>
           </div>
         `;
@@ -574,7 +574,7 @@
           <i class="fa-solid fa-lock" style="font-size: 2rem; color: #0d9488; margin-bottom: 0.75rem;"></i>
           <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">Perolehan Suara Per Calon Masih Disegel</div>
           <div style="font-size: 0.85rem; margin-top: 0.35rem;">
-            Hasil lengkap dibuka otomatis setelah Simulasi Tahap 2 ditutup pada <strong>Rabu, 25 November 2026 pukul 09.00 WIB</strong>.
+            Hasil lengkap dibuka otomatis setelah Simulasi Tahap 2 ditutup pada <strong>Kamis, 26 November 2026 pukul 23.59 WIB</strong>.
           </div>
         </div>
       `;

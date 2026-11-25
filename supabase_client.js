@@ -19,10 +19,10 @@
   const SIMULATION_ELECTION_ID = 'e1ec7100-2026-1124-0000-000000000002';
 
   const SCHEDULE = {
-    START_ISO: '2026-11-24T09:00:00+07:00',
-    END_ISO: '2026-11-25T09:00:00+07:00',
+    START_ISO: (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.WAKTU_BUKA_DEFAULT) || '2026-11-24T09:00:00+07:00',
+    END_ISO: (window.KOMKEP_CONFIG && window.KOMKEP_CONFIG.WAKTU_TUTUP_DEFAULT) || '2026-11-26T23:59:59+07:00',
     STAGE_LABEL: 'SIMULASI PEMILIHAN TAHAP 2',
-    DISCLAIMER: 'SIMULASI PEMILIHAN TAHAP 2 (24 Nov 2026 09.00 WIB s.d. 25 Nov 2026 09.00 WIB) — HASIL TIDAK MENGIKAT'
+    DISCLAIMER: 'SIMULASI PEMILIHAN TAHAP 2 (24 Nov 2026 09.00 WIB s.d. 26 Nov 2026 23.59 WIB) — HASIL TIDAK MENGIKAT'
   };
 
   function escapeHtml(str) {
@@ -506,7 +506,7 @@
     } else {
       remainingMs = 0;
       countdownStr = 'Selesai';
-      statusText = 'Simulasi Tahap 2 Ditutup (Rabu, 25 Nov 2026 pukul 09.00 WIB)';
+      statusText = 'Simulasi Tahap 2 Ditutup (Kamis, 26 Nov 2026 pukul 23.59 WIB)';
     }
 
     return {
@@ -566,7 +566,7 @@
         success: false,
         message: sched.isBefore
           ? 'Bilik suara Simulasi Tahap 2 baru dibuka pada Selasa, 24 November 2026 pukul 09.00 WIB.'
-          : 'Waktu pemungutan suara Simulasi Tahap 2 telah ditutup pada Rabu, 25 November 2026 pukul 09.00 WIB.'
+          : 'Waktu pemungutan suara Simulasi Tahap 2 telah ditutup pada Kamis, 26 November 2026 pukul 23.59 WIB.'
       };
     }
     const clean = normalizeId(idLogin);
@@ -589,7 +589,7 @@
         code: 'SCHEDULE_CLOSED',
         message: sched.isBefore
           ? 'Simulasi Tahap 2 belum dimulai. Bilik suara dibuka pukul 09.00 WIB.'
-          : 'Simulasi Tahap 2 sudah ditutup pada 25 November 2026 pukul 09.00 WIB.'
+          : 'Simulasi Tahap 2 sudah ditutup pada 26 November 2026 pukul 23.59 WIB.'
       };
     }
     const clean = normalizeId(idLogin);
@@ -691,7 +691,7 @@
             isCentral: true,
             isCancelled: false,
             resultsAvailable: sched.isAfter,
-            closedMessage: 'Hasil perolehan suara per calon dibuka resmi setelah penutupan pada Rabu, 25 November 2026 pukul 09.00 WIB.',
+            closedMessage: 'Hasil perolehan suara per calon dibuka resmi setelah penutupan pada Kamis, 26 November 2026 pukul 23.59 WIB.',
             election: {
               id: electionId,
               status: sched.isOpen ? 'BERLANGSUNG' : (sched.isBefore ? 'BELUM_DIMULAI' : 'SELESAI'),
@@ -730,7 +730,7 @@
       success: true,
       isCancelled: false,
       resultsAvailable: sched.isAfter,
-      closedMessage: 'Hasil perolehan suara per calon dibuka resmi setelah penutupan pada Rabu, 25 November 2026 pukul 09.00 WIB.',
+      closedMessage: 'Hasil perolehan suara per calon dibuka resmi setelah penutupan pada Kamis, 26 November 2026 pukul 23.59 WIB.',
       election: {
         id: electionId,
         status: sched.isOpen ? 'BERLANGSUNG' : (sched.isBefore ? 'BELUM_DIMULAI' : 'SELESAI'),

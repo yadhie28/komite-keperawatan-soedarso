@@ -19,7 +19,7 @@ var TAB_PEMILIH = 'PEMILIH';
 var TAB_SUARA   = 'SUARA';
 var TAB_AKUN    = 'AKUN';
 var WAKTU_BUKA  = '2026-11-24T09:00:00+07:00';
-var WAKTU_TUTUP = '2026-11-25T09:00:00+07:00';
+var WAKTU_TUTUP = '2026-11-26T23:59:59+07:00';
 var CALON_SAH   = ['cand-1', 'cand-2', 'cand-3', 'cand-abstain'];
 
 function getOrCreateSheets_() {
@@ -134,7 +134,7 @@ function handlePilih_(body) {
       return jsonOut_({ ok: false, kode: 'SCHEDULE_CLOSED', pesan: 'Bilik suara Simulasi Tahap 2 baru dibuka pukul 09.00 WIB.' });
     }
     if (now >= end) {
-      return jsonOut_({ ok: false, kode: 'SCHEDULE_CLOSED', pesan: 'Simulasi Tahap 2 telah ditutup pada 25 November 2026 pukul 09.00 WIB.' });
+      return jsonOut_({ ok: false, kode: 'SCHEDULE_CLOSED', pesan: 'Simulasi Tahap 2 telah ditutup pada 26 November 2026 pukul 23.59 WIB.' });
     }
 
     var nip = normalizeId_(body.nip);
