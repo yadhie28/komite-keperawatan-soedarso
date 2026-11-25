@@ -1559,12 +1559,12 @@ function switchTab(tabId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Trigger chart re-draw when navigating to analytics (now under Subkomite Mutu Profesi)
+  // Trigger chart re-draw when navigating to analytics (now 3.1 default under Subkomite Mutu Profesi)
   if ((canonicalId === 'mutu' || canonicalId === 'elogbook') && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
     window.ELogbookKomkep.init();
   }
-  if (isAnalitikShortcut) {
-    if (window.ELogbookKomkep && typeof window.ELogbookKomkep.switchMutuSubtab === 'function') {
+  if (canonicalId === 'mutu') {
+    if (isAnalitikShortcut && window.ELogbookKomkep && typeof window.ELogbookKomkep.switchMutuSubtab === 'function') {
       window.ELogbookKomkep.switchMutuSubtab('analitik');
     }
     setTimeout(renderAnalyticsCharts, 100);

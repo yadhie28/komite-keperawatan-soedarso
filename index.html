@@ -1336,13 +1336,13 @@
         </button>
       </div>
 
-      <!-- ========== SUB-TAB NAVIGATION SUBKOMITE MUTU PROFESI (3.1 CPD, 3.2 Analitik SDM, 3.3 OPPE, 3.4 Katalog 3S) ========== -->
+      <!-- ========== SUB-TAB NAVIGATION SUBKOMITE MUTU PROFESI (3.1 Analitik SDM, 3.2 CPD, 3.3 OPPE, 3.4 Katalog 3S) ========== -->
       <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">
-        <button id="subtab-btn-cpd" class="btn-secondary active" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--primary-600, #0d9488); color: #ffffff; border-color: var(--primary-600, #0d9488);" onclick="ELogbookKomkep.switchMutuSubtab('cpd')">
-          <i class="fa-solid fa-graduation-cap"></i> 3.1 Program CPD &amp; Diklat
+        <button id="subtab-btn-analitik" class="btn-secondary active" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--primary-600, #0d9488); color: #ffffff; border-color: var(--primary-600, #0d9488);" onclick="ELogbookKomkep.switchMutuSubtab('analitik')">
+          <i class="fa-solid fa-chart-column"></i> 3.1 Analitik &amp; Distribusi SDM
         </button>
-        <button id="subtab-btn-analitik" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('analitik')">
-          <i class="fa-solid fa-chart-column"></i> 3.2 Analitik &amp; Distribusi SDM
+        <button id="subtab-btn-cpd" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('cpd')">
+          <i class="fa-solid fa-graduation-cap"></i> 3.2 Program CPD &amp; Diklat
         </button>
         <button id="subtab-btn-oppe" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('oppe')">
           <i class="fa-solid fa-chart-pie"></i> 3.3 Dashboard OPPE &amp; Audit
@@ -1352,8 +1352,8 @@
         </button>
       </div>
 
-      <!-- ========== 3.1 SUB-PANE: PROGRAM CPD & DIKLAT TERPADU ========== -->
-      <div id="subpane-mutu-cpd" style="display: block;">
+      <!-- ========== 3.2 SUB-PANE: PROGRAM CPD & DIKLAT TERPADU ========== -->
+      <div id="subpane-mutu-cpd" style="display: none;">
         <div style="background: #ffffff; border: 1px solid var(--border-color, #e2e8f0); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.25rem;">
             <div>
@@ -1377,8 +1377,8 @@
       </div>
       <!-- END SUB-PANE 3.1 CPD -->
 
-      <!-- ========== 3.2 SUB-PANE: DASHBOARD ANALITIK & DISTRIBUSI TENAGA KEPERAWATAN ========== -->
-      <div id="subpane-mutu-analitik" style="display: none;">
+      <!-- ========== 3.1 SUB-PANE: DASHBOARD ANALITIK & DISTRIBUSI TENAGA KEPERAWATAN (ACTIVE DEFAULT) ========== -->
+      <div id="subpane-mutu-analitik" style="display: block;">
       <div class="section-header">
         <div>
           <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>

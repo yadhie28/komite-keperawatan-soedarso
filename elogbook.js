@@ -4583,7 +4583,7 @@
   // 3. STATE & DATA REPOSITORY
   // =========================================================================
   const state = {
-    activeSubtab: 'cpd',
+    activeSubtab: 'analitik',
     isFormOpen: true,
     selectedSdkiCode: 'D.0077',
     selectedEtiology: '',
