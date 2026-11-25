@@ -2981,11 +2981,18 @@ function renderRegulationsTable() {
         </span>
         <span style="font-size: 0.75rem; color: var(--text-muted);">(${item.size})</span>
       </td>
-      <td style="text-align: right;">
+      <td style="text-align: right; white-space: nowrap;">
         ${item.url ? `
-          <a href="${item.url}" target="_blank" rel="noopener noreferrer" download class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-            <i class="fa-solid fa-download"></i> Unduh
-          </a>
+          <div style="display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+            ${item.viewUrl ? `
+              <a href="${item.viewUrl}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                <i class="fa-solid fa-eye"></i> Lihat
+              </a>
+            ` : ''}
+            <a href="${item.url}" target="_blank" rel="noopener noreferrer" download class="btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+              <i class="fa-solid fa-download"></i> Unduh
+            </a>
+          </div>
         ` : `
           <button class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; opacity: 0.6; cursor: not-allowed;" disabled title="Dokumen fisik dalam proses arsip">
             <i class="fa-solid fa-clock"></i> Berkas Belum Tersedia

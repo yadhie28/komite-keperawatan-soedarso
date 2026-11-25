@@ -1386,6 +1386,18 @@ window.KOMITE_DATA = {
   // Regulasi Resmi Komite Keperawatan RSUD Dr. Soedarso
   regulations: [
     {
+      id: "REG-00",
+      category: "Laporan & Arsip Komite",
+      title: "Laporan Komite Keperawatan RSUD dr. Soedarso Tahun 2025",
+      number: "LAP-KOMKEP/2025",
+      year: "2025",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Laporan resmi pelaksanaan program kerja, kredensialing, peningkatan mutu profesi, serta pembinaan etik & disiplin Komite Keperawatan RSUD dr. Soedarso Tahun 2025.",
+      viewUrl: "https://drive.google.com/file/d/1vBEEr4Tosm5yYaQe1PmPY8kP5zIu5-Gu/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1vBEEr4Tosm5yYaQe1PmPY8kP5zIu5-Gu"
+    },
+    {
       id: "REG-01",
       category: "Regulasi Nasional",
       title: "Permenkes RI No. 49 Tahun 2013 tentang Komite Keperawatan Rumah Sakit",
