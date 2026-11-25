@@ -15,7 +15,7 @@ window.KOMITE_DATA = {
     adminNotificationEmails: ["komitekeperawatanrsds2023@gmail.com"],
     website: "https://yadhie28.github.io/komite-keperawatan-soedarso/",
     director: "drg. Hary Agung Tjahyadi, M.Kes",
-    directorRank: "Pembina Utama Muda",
+    directorRank: "Pembina Utama Madya",
     directorNIP: "196905201998031008",
     nursingChief: "M. Separia Russanto, S.Kep., Ns",
     nursingSecretary: "Ns. Rusmulyadi, S.Kep., MARS",
@@ -30,7 +30,7 @@ window.KOMITE_DATA = {
     date: "28 Agustus 2026",
     place: "Pontianak",
     director: "drg. Hary Agung Tjahyadi, M.Kes",
-    directorRank: "Pembina Utama Muda",
+    directorRank: "Pembina Utama Madya",
     directorNIP: "196905201998031008",
     period: "2024 - 2027",
     totalMembers: 24
@@ -1731,7 +1731,7 @@ window.KOMITE_DATA = {
     judul: "Penetapan Jumlah Tempat Tidur Pada RSUD Dokter Soedarso Provinsi Kalimantan Barat Tahun 2026",
     tanggalSK: "3 November 2025",
     direktur: "drg. Hary Agung Tjahyadi, M.Kes",
-    direkturPangkat: "Pembina Utama Muda",
+    direkturPangkat: "Pembina Utama Madya",
     direkturNIP: "196905201998031008",
     wadirMedikDanKeperawatan: "dr. Batara Hendra Putra Sianipar",
     totalTempatTidur: 749,
@@ -1849,7 +1849,7 @@ window.KOMITE_DATA = {
     { no: 6, name: "Ns. Ika Yusniarti, S.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198102122005022006", username: "ika.yusniarti" },
     { no: 7, name: "F. Surayniwaty, S.ST", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "197805052003122011", username: "surayniwaty" },
     { no: 8, name: "Noveriansyah Akbar, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "199311132020121012", username: "noveriansyah" },
-    { no: 9, name: "Mushlihuddin, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198911022014021002", username: "mushlihuddin" },
+    { no: 9, name: "M. Mushlihuddin, S.Kep., Ns", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198911022014021002", username: "mushlihuddin" },
     { no: 10, name: "Herkulanus Yunus, A.Md.Kep", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "198606052022211002", username: "herkulanus" },
     { no: 11, name: "Bdn. Evilita Ratnawati, S.ST", role: "Anggota Sub Komite Kredensial", group: "Sub Komite Kredensial", badge: "Admin Kredensial", nip: "197005021989112001", username: "evilita" },
 
@@ -1882,11 +1882,11 @@ window.KOMITE_DATA = {
     masaKerjaBulan: 4,
     direktur: {
       name: "drg. Hary Agung Tjahyadi, M.Kes",
-      pangkat: "Pembina Utama Muda",
+      pangkat: "Pembina Utama Madya",
       nip: "196905201998031008"
     },
     anggota: [
-      { no: 1, kedudukan: "Ketua merangkap anggota", bidang: "Pimpinan Panitia", name: "M. Mushlihuddin, S.Kep., Ners", nip: "198911022014021002", unit: "Unit ICVCU", unsur: "Staf Keperawatan Rumah Sakit" },
+      { no: 1, kedudukan: "Ketua merangkap anggota", bidang: "Pimpinan Panitia", name: "M. Mushlihuddin, S.Kep., Ns", nip: "198911022014021002", unit: "Unit ICVCU", unsur: "Staf Keperawatan Rumah Sakit" },
       { no: 2, kedudukan: "Sekretaris merangkap anggota", bidang: "Administrasi & Kesekretariatan", name: "Ns. Rusmulyadi, S.Kep., MARS", nip: "198212282003121005", unit: "Ruang Kakap", unsur: "Staf Keperawatan Rumah Sakit" },
       { no: 3, kedudukan: "Anggota (verifikasi persyaratan calon)", bidang: "Verifikasi Persyaratan Calon", name: "Ns. Noveriansyah Akbar, S.Kep.", nip: "199311132020121012", unit: "Ruang Camar", unsur: "Staf Keperawatan Rumah Sakit" },
       { no: 4, kedudukan: "Anggota (verifikasi persyaratan calon)", bidang: "Verifikasi Persyaratan Calon", name: "Herkulanus Yunus, A.Md.Kep", nip: "198606052022211002", unit: "Ruang Singkut Buluh", unsur: "Staf Keperawatan Rumah Sakit" },
@@ -1991,7 +1991,7 @@ window.KOMITE_DATA = {
     {
       username: "mushlihuddin",
       nip: "198911022014021002",
-      name: "Mushlihuddin, S.Kep., Ns",
+      name: "M. Mushlihuddin, S.Kep., Ns",
       role: "Anggota Sub Komite Kredensial",
       badge: "Admin Kredensial",
       group: "Sub Komite Kredensial",

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Terpadu Komite Keperawatan | RSUD dr. Soedarso Pontianak</title>
   <meta name="description" content="Portal Resmi Komite Keperawatan RSUD dr. Soedarso Pontianak - Pelayanan E-Kredensialing, Rincian Kewenangan Klinis (RKK), Surat Penugasan Klinis (SPK), Audit Mutu Profesi, Penegakan Etika & Disiplin.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#074744">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -37,9 +39,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Main CSS -->
-  <link rel="stylesheet" href="index.css?v=20261125c">
+  <link rel="stylesheet" href="index.css?v=20261125d">
 </head>
 <body>
+  <a href="#mainContent" class="skip-to-main">Lewati ke isi utama</a>
 
   <!-- ========================================================================
        PORTAL PINTU MASUK AKSES KOMITE KEPERAWATAN (GATEWAY ACCESS PORTAL)
@@ -71,7 +74,7 @@
       <div class="portal-login-right">
         <div class="portal-login-header">
           <h3>LOGIN PORTAL</h3>
-          <p>Masuk dengan NIP / NIPPPK / NIK (tanpa spasi) &amp; password awal <code>soedarso2026</code></p>
+          <p>Masuk dengan NIP / NIPPPK / NIK (tanpa spasi). Kata sandi awal diberikan oleh Sekretariat Komite.</p>
         </div>
 
         <form id="formPortalMain" onsubmit="handleUnifiedPortalLogin(event)" style="max-width: 380px; width: 100%; margin: 0 auto;">
@@ -97,7 +100,7 @@
             <input type="password"
                    class="portal-form-control"
                    id="portalMainPass"
-                   placeholder="Password (awal: soedarso2026)"
+                   placeholder="Kata sandi"
                    required
                    autocomplete="current-password"
                    autocapitalize="none"
@@ -120,9 +123,10 @@
             <span>Masuk Sistem</span>
           </button>
 
-          <!-- Versi Kecil -->
-          <div style="text-align: center; margin-top: 14px; color: #94a3b8; font-size: 0.8rem;">
-            v2.4 &bull; RSUD Dr. Soedarso Pontianak
+          <div style="text-align: center; margin-top: 14px; color: #64748b; font-size: 0.78rem; line-height: 1.6;">
+            Belum punya kata sandi? Hubungi Sekretariat Komite.<br>
+            <a href="javascript:void(0)" onclick="openModal('modalKebijakanPrivasi')" style="color: #0d5f5b; font-weight: 700; text-decoration: underline;">Kebijakan Privasi &amp; Perlindungan Data</a>
+            &bull; RSUD dr. Soedarso Pontianak
           </div>
         </form>
       </div>
@@ -137,16 +141,16 @@
         <span class="wajib-sticky-pulse-dot"></span>
         <i class="fa-solid fa-check-to-slot"></i>
         <span>
-          <strong>WAJIB ISI SUARA:</strong> Silakan pilih calon dan kirim suara Anda di Bilik Suara di bawah ini. Meninggalkan Bilik Suara tanpa memilih akan mengeluarkan Anda dari portal.
+          <strong>Pengingat Pemilihan:</strong> Anda belum menyalurkan suara pada simulasi pemilihan. Mau memilih sekarang?
           <span class="wajib-sticky-timer">(<i class="fa-regular fa-clock"></i> Sisa <strong id="wajibStickyCountdown">--:--:--</strong>)</span>
         </span>
       </div>
       <div class="wajib-sticky-actions">
         <button type="button" class="wajib-sticky-btn-vote" onclick="acceptWajibVotingToBooth()">
-          <i class="fa-solid fa-arrow-down"></i> Ke Daftar Calon
+          <i class="fa-solid fa-check-to-slot"></i> Pilih Sekarang
         </button>
-        <button type="button" class="wajib-sticky-btn-exit" onclick="enforceLogoutNoVote('Anda memilih keluar dari Portal Komite Keperawatan sebelum mengisi suara di Bilik Suara.')">
-          <i class="fa-solid fa-right-from-bracket"></i> Keluar Portal
+        <button type="button" class="wajib-sticky-btn-exit" onclick="document.getElementById('wajibVotingStickyBar').style.display='none'; if(window.state){window.state.wajibVotingDismissed=true;}">
+          <i class="fa-solid fa-xmark"></i> Nanti Saja
         </button>
       </div>
     </div>
@@ -331,20 +335,16 @@
           <!-- Hero Right Metrics Panel -->
           <div class="hero-stats-panel">
             <div class="stat-box">
-              <div class="stat-num" id="heroStatTotal">717</div>
-              <div class="stat-label">Tenaga Perawat & Bidan Terdaftar</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-num" id="heroStatValid">100%</div>
-              <div class="stat-label">Kredensial SPK & RKK Aktif</div>
+              <div class="stat-num" id="heroStatTotal">-</div>
+              <div class="stat-label">Tenaga Perawat &amp; Bidan Terdaftar</div>
             </div>
             <div class="stat-box">
               <div class="stat-num">3</div>
-              <div class="stat-label">Subkomite Fungsional Berdaya</div>
+              <div class="stat-label">Subkomite</div>
             </div>
             <div class="stat-box">
-              <div class="stat-num">100%</div>
-              <div class="stat-label">Kepatuhan Rekomendasi Direktur</div>
+              <div class="stat-num">24</div>
+              <div class="stat-label">Pengurus Komite (SK Direktur)</div>
             </div>
           </div>
         </div>
@@ -359,7 +359,7 @@
           <div>
             <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
               <span style="background: #fbbf24; color: #451a03; font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">
-                Simulasi Tahap 2
+                SIMULASI TAHAP 2 — HASIL TIDAK MENGIKAT
               </span>
               <span id="bannerStatusTag" style="font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.25); color: #6ee7b7;">
                 <i class="fa-solid fa-clock"></i> 24 Nov 2026 09.00 WIB – 26 Nov 2026 23.59 WIB
@@ -500,9 +500,9 @@
                     <span class="org-badge-pill slate" style="font-size: 0.65rem;">Direksi RSUD</span>
                   </div>
                   <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-top: 2px;">drg. Hary Agung Tjahyadi, M.Kes</div>
-                  <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-700);">Direktur RSUD Dokter Soedarso Pontianak &bull; Pembina Utama Muda</div>
+                  <div style="font-size: 0.8rem; font-weight: 700; color: var(--primary-700);">Direktur RSUD Dokter Soedarso Pontianak &bull; Pembina Utama Madya</div>
                   <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 3px;">
-                    <i class="fa-solid fa-id-badge" style="color: var(--gold-600);"></i> NIP. 196905201998031008 &bull; Penerbit Resmi SK Penugasan Klinis (SPK & RKK)
+                    <i class="fa-solid fa-file-signature" style="color: var(--gold-600);"></i> Penerbit Resmi SK Penugasan Klinis (SPK &amp; RKK)
                   </div>
                 </div>
               </div>
@@ -524,7 +524,7 @@
                   <div style="flex: 1; min-width: 0;">
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 2px;">
                       <span class="org-badge-pill teal"><i class="fa-solid fa-star"></i> Ketua Komite</span>
-                      <span class="badge-role super-admin" style="font-size: 0.65rem;">Super Admin</span>
+                      
                     </div>
                     <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">M. Separia Russanto, S.Kep., Ns</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Koordinator Utama Tiga Subkomite & Rekomendasi Klinis</div>
@@ -546,7 +546,7 @@
                   <div style="flex: 1; min-width: 0;">
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 2px;">
                       <span class="org-badge-pill" style="background: #ccfbf1; color: #0f766e; border: 1px solid #5eead4;"><i class="fa-solid fa-file-pen"></i> Sekretaris Komite</span>
-                      <span class="badge-role super-admin" style="font-size: 0.65rem;">Super Admin</span>
+                      
                     </div>
                     <div style="font-weight: 800; font-size: 0.96rem; color: var(--text-main); margin-top: 2px;">Ns. Rusmulyadi, S.Kep., MARS</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Tata Kelola Administrasi, Regulasi & Sistem IT Digital</div>
@@ -616,35 +616,27 @@
                     <div id="collapseMembersKredensial" class="org-members-collapse">
                       <div class="org-member-item">
                         <span>1. Tri Herda Permana Sari, A.Md.Kep</span>
-                        <code style="font-size: 0.68rem;">tri.herda</code>
                       </div>
                       <div class="org-member-item">
                         <span>2. Ns. Dwinita Wulan Purnamasari, S.Kep</span>
-                        <code style="font-size: 0.68rem;">dwinita</code>
                       </div>
                       <div class="org-member-item">
                         <span>3. Ns. Ika Yusniarti, S.Kep</span>
-                        <code style="font-size: 0.68rem;">ika.yusniarti</code>
                       </div>
                       <div class="org-member-item">
                         <span>4. F. Surayniwaty, S.ST</span>
-                        <code style="font-size: 0.68rem;">surayniwaty</code>
                       </div>
                       <div class="org-member-item">
                         <span>5. Noveriansyah Akbar, S.Kep., Ns</span>
-                        <code style="font-size: 0.68rem;">noveriansyah</code>
                       </div>
                       <div class="org-member-item">
-                        <span>6. Mushlihuddin, S.Kep., Ns</span>
-                        <code style="font-size: 0.68rem;">mushlihuddin</code>
+                        <span>6. M. Mushlihuddin, S.Kep., Ns</span>
                       </div>
                       <div class="org-member-item">
                         <span>7. Herkulanus Yunus, A.Md.Kep</span>
-                        <code style="font-size: 0.68rem;">herkulanus</code>
                       </div>
                       <div class="org-member-item">
                         <span>8. Bdn. Evilita Ratnawati, S.ST</span>
-                        <code style="font-size: 0.68rem;">evilita</code>
                       </div>
                       <div style="margin-top: 8px; text-align: right;">
                         <button type="button" class="btn-table-action" onclick="filterStructureSKFromOrg('Sub Komite Kredensial')" style="font-size: 0.68rem; padding: 2px 8px;">
@@ -699,27 +691,21 @@
                     <div id="collapseMembersMutu" class="org-members-collapse">
                       <div class="org-member-item">
                         <span>1. Bdn. Ely Lidiawati, S.Tr.Keb</span>
-                        <code style="font-size: 0.68rem;">ely.lidiawati</code>
                       </div>
                       <div class="org-member-item">
                         <span>2. Rudy Hartono, S.Kep., Ns</span>
-                        <code style="font-size: 0.68rem;">rudy.hartono</code>
                       </div>
                       <div class="org-member-item">
                         <span>3. Stevanus Darmo, A.Md.Kep., SKM</span>
-                        <code style="font-size: 0.68rem;">stevanus</code>
                       </div>
                       <div class="org-member-item">
                         <span>4. Ernia Wati, S.Kep., Ns</span>
-                        <code style="font-size: 0.68rem;">ernia.wati</code>
                       </div>
                       <div class="org-member-item">
                         <span>5. Munazzil, A.Md.Kep</span>
-                        <code style="font-size: 0.68rem;">munazzil</code>
                       </div>
                       <div class="org-member-item">
                         <span>6. Odi Pratama Setiadi, S.Kep., Ns</span>
-                        <code style="font-size: 0.68rem;">odi.pratama</code>
                       </div>
                       <div style="margin-top: 8px; text-align: right;">
                         <button type="button" class="btn-table-action" onclick="filterStructureSKFromOrg('Sub Komite Mutu Keperawatan')" style="font-size: 0.68rem; padding: 2px 8px;">
@@ -774,23 +760,18 @@
                     <div id="collapseMembersEtik" class="org-members-collapse">
                       <div class="org-member-item">
                         <span>1. Ns. Gunawan, S.Tr.Kep., SKM</span>
-                        <code style="font-size: 0.68rem;">gunawan</code>
                       </div>
                       <div class="org-member-item">
                         <span>2. Ns. Marianto, S.Kep</span>
-                        <code style="font-size: 0.68rem;">marianto</code>
                       </div>
                       <div class="org-member-item">
                         <span>3. Andri Muzayyin, S.Kep., Ns</span>
-                        <code style="font-size: 0.68rem;">andri.muzayyin</code>
                       </div>
                       <div class="org-member-item">
                         <span>4. Diana Rachmawati, S.ST</span>
-                        <code style="font-size: 0.68rem;">diana</code>
                       </div>
                       <div class="org-member-item">
                         <span>5. Nur'aini Ratnasari, S.T.Keb</span>
-                        <code style="font-size: 0.68rem;">nuraini</code>
                       </div>
                       <div style="margin-top: 8px; text-align: right;">
                         <button type="button" class="btn-table-action" onclick="filterStructureSKFromOrg('Sub Komite Etika dan Disiplin')" style="font-size: 0.68rem; padding: 2px 8px;">
@@ -1397,7 +1378,6 @@
         <div class="chart-box">
           <div class="chart-header">
             <span class="chart-title">Distribusi Jenjang Karir Klinis (Pra PK, PK I–V &amp; BP/PMB)</span>
-            <span class="badge-official">DATA AKTIF</span>
           </div>
           <div class="chart-svg-container" id="chartCareerLadder">
             <!-- Rendered via SVG in JS -->
@@ -1408,7 +1388,6 @@
         <div class="chart-box">
           <div class="chart-header">
             <span class="chart-title">Proporsi Status Kredensial SPK & RKK</span>
-            <span class="badge-official">VALIDASI KARS</span>
           </div>
           <div class="chart-svg-container" id="chartCredentialStatus">
             <!-- Rendered via SVG in JS -->
@@ -1692,7 +1671,7 @@
             <div class="form-group">
               <label class="form-label">Uraian Kronologis Singkat <span class="req">*</span></label>
               <textarea class="form-textarea" id="ethicsDescription" rows="4" placeholder="Jelaskan fakta kejadian, waktu, dan kronologi tanpa mencantumkan identitas pribadi yang tidak perlu..." required></textarea>
-              <span class="form-hint">Data ini terenkripsi dan hanya dapat diakses oleh Ketua Subkomite Etik & Disiplin.</span>
+              <span class="form-hint">Laporan diteruskan ke email resmi Komite Keperawatan untuk ditelaah oleh Subkomite Etika &amp; Disiplin.</span>
             </div>
 
             <div class="form-group">
@@ -1783,10 +1762,7 @@
               <span style="font-size: 0.72rem; color: #1e40af; font-weight: 700; text-transform: uppercase;">Tindakan Kolaboratif</span>
               <div id="metricLogbookKolaboratif" style="font-size: 1.25rem; font-weight: 800; color: #1e3a8a; margin-top: 2px;">0 Terverifikasi</div>
             </div>
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.75rem 1rem;">
-              <span style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Kepatuhan Preseptor</span>
-              <div id="metricLogbookPreseptor" style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-top: 2px;">100% Valid</div>
-            </div>
+
           </div>
         </div>
 
@@ -1797,7 +1773,7 @@
               <i class="fa-solid fa-notes-medical" style="color: #0d9488;"></i>
               Formulir Entri Logbook Klinis Baru (Berbasis SDKI, SIKI, SLKI)
             </h4>
-            <span id="logNurseNameLabel" style="font-size: 0.8rem; font-weight: 700; color: #0f766e;">Oleh: Ns. Siti Rahmah, S.Kep.</span>
+            <span id="logNurseNameLabel" style="font-size: 0.8rem; font-weight: 700; color: #0f766e;">Oleh: Belum masuk akun</span>
           </div>
 
           <div id="logSubmitSuccessAlert" style="display: none; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
@@ -1822,7 +1798,8 @@
               </div>
               <div>
                 <label class="form-label" style="font-size: 0.78rem; font-weight: 700;">No. Rekam Medis (RM) Pasien*</label>
-                <input type="text" id="logMrn" class="form-input font-mono" placeholder="contoh: RM-59821" required>
+                <input type="text" id="logMrn" class="form-input font-mono" placeholder="4 digit terakhir RM (contoh: 9821)" required>
+                <div style="font-size: 0.7rem; color: #b45309; margin-top: 3px;"><i class="fa-solid fa-shield-halved"></i> Jangan menulis nama pasien. Hanya 4 digit terakhir No. RM yang disimpan.</div>
               </div>
             </div>
 
@@ -2085,7 +2062,7 @@
                                 <select id="logWorkUnit" class="form-input" style="font-size: 0.8rem;" required>
                   <option value="">-- Pilih Unit Kerja / Ruangan (SK Tempat Tidur 2025 No. SK/031103/RSUD/2025) --</option>
                   
-                  <optgroup label="── A. INSTALASI RAWAT INAP A (SK TT 2025: 545 TT) ──">
+                  <optgroup label="── A. INSTALASI RAWAT INAP A (SK/031103/RSUD/2025: 574 TT) ──">
                     <option value="Ruang Singkut Buluh">Ruang Singkut Buluh (13 TT)</option>
                     <option value="Ruang PPT">Ruang PPT (43 TT)</option>
                     <option value="Ruang A - Anak">Ruang A - Anak (95 TT)</option>
@@ -2097,8 +2074,7 @@
                     <option value="Ruang Mahoni">Ruang Mahoni (41 TT)</option>
                     <option value="Ruang Ramin">Ruang Ramin (25 TT)</option>
                     <option value="Ruang Arwana">Ruang Arwana (10 TT)</option>
-                    <option value="Ruang Kakap" selected>Ruang Kakap (48 TT)</option>
-                    <option value="Ruang Kakap - Bedah">Ruang Rawat Inap Bedah (Kakap)</option>
+                    <option value="Ruang Kakap" selected>Ruang Kakap (Penyakit Dalam, 41 TT)</option>
                     <option value="Ruang Rawat Inap Isolasi Paru">Ruang Rawat Inap Isolasi Paru (38 TT)</option>
                   </optgroup>
 
@@ -2455,7 +2431,7 @@
           </div>
           <h2 class="section-title">Pemilihan Ketua Komite Keperawatan Periode 2027–2030</h2>
           <p class="section-subtitle">
-            Sistem e-voting langsung, bebas, rahasia, jujur, dan transparan bagi seluruh tenaga keperawatan dan kebidanan
+            Simulasi pemilihan Ketua Komite Keperawatan secara daring. Pilihan Anda tercatat bersama akun Gmail yang terpasang dan hanya dapat dilihat panitia untuk pemeriksaan keabsahan.
           </p>
         </div>
       </div>
@@ -2542,14 +2518,14 @@
             <div style="text-align: center; padding: 2rem 1rem; color: #475569;">
               <i class="fa-solid fa-lock" style="font-size: 2rem; color: #b45309; margin-bottom: 0.75rem;"></i>
               <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">
-                Hasil rekapitulasi dibuka setelah pemilihan ditutup pada Rabu, 25 November 2026 pukul 09.00 WIB.
+                Hasil rekapitulasi dibuka setelah pemilihan ditutup pada Kamis, 26 November 2026 pukul 23.59 WIB.
               </div>
             </div>
           </div>
         </div>
 
         <div style="background: #f8fafc; border: 1px dashed var(--border-strong); border-radius: 12px; padding: 1rem 1.25rem; font-size: 0.8rem; color: #64748b; line-height: 1.5;">
-          <i class="fa-solid fa-shield-halved" style="color: #0d5f5b;"></i> <strong>Kerahasiaan &amp; Pemisahan Data:</strong> Pilihan dicatat terpisah dari identitas pemilih dan antarmuka panitia tidak menampilkan pilihan individu.
+          <i class="fa-solid fa-shield-halved" style="color: #0d5f5b;"></i> <strong>Transparansi Penggunaan Data:</strong> Pilihan Anda tercatat bersama akun Gmail yang terpasang dan hanya dapat diakses panitia pemilihan untuk keperluan pemeriksaan keabsahan suara.
         </div>
       </div>
 
@@ -2570,13 +2546,13 @@
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
             <div>
               <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(45, 212, 191, 0.2); border: 1px solid #2dd4bf; color: #5eead4; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
-                <i class="fa-solid fa-server"></i> Server Backend Terpusat (Google Apps Script)
+                <i class="fa-solid fa-database"></i> Penyimpanan Suara Terpusat
               </div>
               <h3 style="font-size: 1.1rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 0.25rem;">
                 Penyimpanan Suara &amp; Status Partisipasi Terpusat
               </h3>
               <p style="font-size: 0.82rem; color: #ccfbf1; line-height: 1.5; max-width: 680px;">
-                Pilihan dicatat terpisah dari identitas pemilih dan antarmuka panitia tidak menampilkan pilihan individu. Konfigurasi alamat server diambil dari berkas publik <code>config.js</code> sehingga berlaku sama bagi seluruh pemilih.
+                Seluruh partisipasi dan hasil rekapitulasi tersimpan terpusat di server panitia sehingga berlaku sama bagi seluruh pemilih.
               </p>
             </div>
 
@@ -2621,7 +2597,7 @@
             </div>
             <ul style="font-size: 0.82rem; color: #475569; line-height: 1.7; padding-left: 1.25rem;">
               <li><strong>Buka Pemungutan Suara (Tahap 2):</strong> Selasa, 24 November 2026, 09.00 WIB</li>
-              <li><strong>Tutup Pemungutan Suara (Tahap 2):</strong> Rabu, 25 November 2026, 09.00 WIB</li>
+              <li><strong>Tutup Pemungutan Suara (Tahap 2):</strong> Kamis, 26 November 2026, 23.59 WIB</li>
               <li><strong>Zona Waktu Sistem:</strong> Waktu Indonesia Barat (WIB / Asia/Jakarta, UTC+7)</li>
               <li><strong>Daftar Pemilih Tetap (DPT):</strong> 717 Pegawai Keperawatan &amp; Kebidanan</li>
             </ul>
@@ -2692,11 +2668,11 @@
             </div>
             <div>
               <div style="font-size: 1rem; font-weight: 800; color: var(--text-main);" id="rkkHeaderNama">
-                Ns. Contoh Perawat, S.Kep
+                -
               </div>
               <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; gap: 0.65rem; flex-wrap: wrap; margin-top: 2px;">
-                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="rkkHeaderNip">000000000000000001</strong></span>
-                <span><i class="fa-solid fa-certificate"></i> STR: <strong id="rkkHeaderStr">140152123-2893812</strong></span>
+                <span><i class="fa-solid fa-id-card"></i> NIP: <strong id="rkkHeaderNip">-</strong></span>
+                <span><i class="fa-solid fa-certificate"></i> STR: <strong id="rkkHeaderStr">-</strong></span>
                 <span><i class="fa-solid fa-hospital"></i> Unit: <strong id="rkkHeaderUnit">Kakap</strong></span>
                 <span><i class="fa-solid fa-layer-group"></i> Jenjang: <strong id="rkkHeaderJenjang">PK III</strong></span>
               </div>
@@ -2719,8 +2695,8 @@
           <!-- Preserved Hidden Elements for 100% Backwards Compatibility -->
           <div style="display: none !important;">
             <input type="text" id="formNama" value="" placeholder="Nama dan Gelar Lengkap">
-            <input type="text" id="formNip" value="000000000000000001">
-            <input type="text" id="formStr" value="140152123-2893812">
+            <input type="text" id="formNip" value="-">
+            <input type="text" id="formStr" value="-">
             <input type="date" id="formStrExpiry" value="2028-08-17">
             <input type="text" id="formKontak" value="081234567890">
             <input type="email" id="formEmail" value="hendra.kurniawan@rsudsoedarso.kalbarprov.go.id">
@@ -2983,7 +2959,7 @@
           <!-- Judul Dokumen -->
           <div class="doc-heading-title">
             <h3>SURAT PENUGASAN KLINIS (CLINICAL APPOINTMENT)</h3>
-            <p id="docSpkNumberText">NOMOR: 800/1422/RSUD-DS/KOM-KEP/2024</p>
+            <p id="docSpkNumberText">NOMOR: -</p>
           </div>
 
           <!-- Metadata Staf -->
@@ -2998,11 +2974,11 @@
             </tr>
             <tr>
               <td class="label">NIP / Identitas Pegawai</td>
-              <td>: <span id="docStaffNip">000000000000000002</span></td>
+              <td>: <span id="docStaffNip">-</span></td>
             </tr>
             <tr>
               <td class="label">Nomor STR Kemenkes</td>
-              <td>: <span id="docStaffStr">140152123-3891021</span> (Berlaku s/d <span id="docStaffStrExpiry">15 April 2028</span>)</td>
+              <td>: <span id="docStaffStr">-</span> (Berlaku s/d <span id="docStaffStrExpiry">15 April 2028</span>)</td>
             </tr>
             <tr>
               <td class="label">Jenjang Karir Klinis</td>
@@ -3053,14 +3029,14 @@
               <div style="font-weight: 700;">Direktur RSUD Dokter Soedarso</div>
               <div class="doc-signature-space"></div>
               <div class="doc-signer-name">drg. Hary Agung Tjahyadi, M.Kes</div>
-              <div>Pembina Utama Muda / NIP. 196905201998031008</div>
+              <div>Pembina Utama Madya / NIP. 196905201998031008</div>
             </div>
           </div>
 
           <!-- Digital Security Audit Footer -->
           <div class="doc-security-audit-footer" id="docSecurityAuditFooter">
             <span><i class="fa-solid fa-shield-halved" style="color: #059669;"></i> Dokumen Sah &bull; Rahasia Kredensial RSUD dr. Soedarso &bull; UU PDP No. 27/2022</span>
-            <span id="docSecurityAuditMeta">Status Akses: Terotentikasi &bull; ID: SEC-2026-AUT</span>
+            <span id="docSecurityAuditMeta">Status Akses: Terotentikasi &bull; ID: -</span>
           </div>
         </div>
       </div>
@@ -3402,7 +3378,7 @@
               <i class="fa-solid fa-circle-info" style="color: #0284c7; font-size: 1.2rem; margin-top: 2px;"></i>
               <div style="font-size: 0.85rem; color: var(--text-main); line-height: 1.5;">
                 <strong>Anda saat ini masuk dalam Mode Tamu Publik (Guest)</strong>.<br>
-                Mode Tamu bersifat akses terbuka tanpa password sesuai UU PDP No. 27/2022. Untuk mengubah kata sandi dan mengakses fitur kredensial, silakan login dengan akun Super Admin, Admin Komite, atau Perawat.
+                Mode Tamu bersifat akses terbuka tanpa password sesuai UU PDP No. 27/2022. Untuk mengubah kata sandi dan mengakses fitur kredensial, silakan login dengan akun Pengurus Komite atau Perawat/Bidan.
               </div>
             </div>
           </div>
@@ -3414,7 +3390,7 @@
                 <i class="fa-solid fa-triangle-exclamation" style="color: #d97706; font-size: 1.2rem; margin-top: 2px;"></i>
                 <div style="font-size: 0.84rem; color: #78350f; line-height: 1.5;">
                   <strong>Langkah wajib saat pertama kali masuk.</strong><br>
-                  Silakan (1) isi <strong>akun Gmail pribadi</strong> Anda dan (2) ganti kata sandi awal <code>soedarso2026</code> dengan kata sandi baru. Menu lain akan terbuka setelah langkah ini selesai.
+                  Silakan (1) isi <strong>akun Gmail pribadi</strong> Anda, (2) ganti kata sandi awal Anda dengan kata sandi baru, dan (3) centang persetujuan Kebijakan Privasi. Menu lain akan terbuka setelah langkah ini selesai.
                 </div>
               </div>
             </div>
@@ -3479,6 +3455,12 @@
                 </div>
               </div>
 
+              <div style="margin-top: 0.85rem; padding: 0.75rem 0.9rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;">
+                <label style="display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.8rem; color: var(--text-main); cursor: pointer;">
+                  <input type="checkbox" id="settingsPrivacyConsent" style="margin-top: 3px; width: 16px; height: 16px; accent-color: #0d5f5b;">
+                  <span>Saya sudah membaca dan menyetujui <a href="javascript:void(0)" onclick="openModal('modalKebijakanPrivasi')" style="color: #0d5f5b; font-weight: 700; text-decoration: underline;">Kebijakan Privasi &amp; Perlindungan Data</a> Komite Keperawatan RSUD dr. Soedarso.</span>
+                </label>
+              </div>
               <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
                 <button type="button" class="btn-primary" onclick="simpanPengaturanPassword()" style="font-size: 0.85rem; padding: 0.55rem 1.25rem;">
                   <i class="fa-solid fa-floppy-disk"></i> Simpan Gmail &amp; Kata Sandi
@@ -3492,7 +3474,7 @@
                 <i class="fa-solid fa-lock"></i> Otentikasi &amp; Enkripsi Sesi Aktif
               </div>
               <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
-                Perubahan kata sandi disimpan terenkripsi di penyimpanan lokal peramban (browser) dan langsung berlaku saat login berikutnya melalui Portal Gerbang Akses Komite Keperawatan.
+                Perubahan kata sandi disinkronkan ke server akun Komite Keperawatan agar berlaku di semua perangkat. Jangan bagikan kata sandi Anda kepada siapa pun.
               </div>
             </div>
           </div>
@@ -3746,8 +3728,8 @@
                 <i class="fa-solid fa-user-nurse"></i> <span id="verifNamaPemohon">Belum ada pemohon dipilih</span>
               </div>
               <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
-                <span id="verifPendidikan">S1 Keperawatan &amp; Profesi Ners (Universitas Tanjungpura)</span> &bull; 
-                No. Registrasi: <strong id="verifNomorReg" style="color: var(--primary-700);">KRED/RSUD-DS/2026/0104</strong>
+                <span id="verifPendidikan">S1 Keperawatan &amp; Profesi Ners (-)</span> &bull; 
+                No. Registrasi: <strong id="verifNomorReg" style="color: var(--primary-700);">-</strong>
               </div>
             </div>
             <div>
@@ -3760,7 +3742,7 @@
           <div class="verif-meta-grid">
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-id-badge"></i> NIP / NIK</span>
-              <span class="verif-meta-value" id="verifNip">000000000000000001</span>
+              <span class="verif-meta-value" id="verifNip">-</span>
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-hospital-user"></i> Unit Penempatan</span>
@@ -3776,15 +3758,15 @@
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-certificate"></i> STR Perawat (BSrE)</span>
-              <span class="verif-meta-value" id="verifStr">140152123-2893812 (Berlaku s.d. 17-08-2028)</span>
+              <span class="verif-meta-value" id="verifStr">- (Berlaku s.d. 17-08-2028)</span>
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-file-shield"></i> SIPP SiCantik Cloud</span>
-              <span class="verif-meta-value" id="verifSipp">503/412/Dinkes-PP/SIPP/2023</span>
+              <span class="verif-meta-value" id="verifSipp">-</span>
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-regular fa-calendar-check"></i> Waktu Pengajuan</span>
-              <span class="verif-meta-value" id="verifTglPengajuan">21 Oktober 2026, 09:15 WIB</span>
+              <span class="verif-meta-value" id="verifTglPengajuan">-</span>
             </div>
             <div class="verif-meta-item">
               <span class="verif-meta-label"><i class="fa-solid fa-list-check"></i> Total Rincian RKK</span>
@@ -3905,7 +3887,7 @@
             <label for="verifCatatanTelaah" style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">
               Catatan Telaah / Rekomendasi Verifikator Subkomite:
             </label>
-            <textarea id="verifCatatanTelaah" class="form-input" rows="3" style="font-size: 0.84rem; line-height: 1.45;" placeholder="Masukkan catatan telaah verifikasi...">Berkas permohonan kredensialing, dokumen RKK asesmen mandiri (40 tindakan), dan verifikasi sumber primer (PSV) dinyatakan LENGKAP, SAH, dan MEMENUHI SYARAT. Berkas direkomendasikan untuk segera dijadwalkan asesmen kompetensi klinis oleh Tim Mitra Bestari Keperawatan Bedah.</textarea>
+            <textarea id="verifCatatanTelaah" class="form-input" rows="3" style="font-size: 0.84rem; line-height: 1.45;" placeholder="Masukkan catatan telaah verifikasi...">Berkas permohonan kredensialing, dokumen RKK asesmen mandiri (40 tindakan), dan verifikasi sumber primer (PSV) dinyatakan . Berkas direkomendasikan untuk segera dijadwalkan asesmen kompetensi klinis oleh Tim Mitra Bestari Keperawatan Bedah.</textarea>
           </div>
         </div>
       </div>
@@ -4005,7 +3987,7 @@
           <input type="hidden" id="actionTicketCode">
           <div style="background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
             <div style="font-size: 0.8rem; color: var(--text-muted);">Nomor Tiket:</div>
-            <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--primary-700);" id="actionTicketDisplay">ETIK-2026-0001</div>
+            <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--primary-700);" id="actionTicketDisplay">-</div>
             <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-top: 4px;" id="actionTicketCategory">Kategori</div>
           </div>
 
@@ -4079,7 +4061,7 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">NIP / NIPPPK / NIK <span class="req">*</span></label>
-                  <input type="text" class="form-input" id="cvNip" value="000000000000000001" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
+                  <input type="text" class="form-input" id="cvNip" value="-" placeholder="18 digit NIP/NIPPPK atau 16 digit NIK" required>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label">Tempat / Tanggal Lahir <span class="req">*</span></label>
@@ -4328,7 +4310,7 @@
                     </tr>
                     <tr>
                       <td style="font-weight: 700;">Profesi Ners</td>
-                      <td><input type="text" class="form-input" id="cvEduInst_2" value="Fakultas Kedokteran Universitas Tanjungpura" placeholder="Tulis Nama Institusi Penyelenggara Ners" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
+                      <td><input type="text" class="form-input" id="cvEduInst_2" value="Fakultas Kedokteran -" placeholder="Tulis Nama Institusi Penyelenggara Ners" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
                       <td><input type="text" class="form-input" id="cvEduTahun_2" value="2018" placeholder="YYYY" style="padding: 0.35rem 0.5rem; font-size: 0.82rem; text-align: center;"></td>
                       <td><input type="text" class="form-input" id="cvEduIjazah_2" value="180901/NERS-UNTAN/2018" placeholder="No. Ijazah Tertera" style="padding: 0.35rem 0.5rem; font-size: 0.82rem;"></td>
                     </tr>
@@ -4662,7 +4644,7 @@
 
                     <optgroup label="D. RUMPUN KEKHUSUSAN &amp; SPESIALISTIK">
                       <option value="onkologi">&#9877; 10. Onkologi &amp; Kemoterapi (Ruang Camar / Kanker)</option>
-                      <option value="neurosains">&#9877; 11. Neurologi / Neurosains &amp; Stroke Unit (Ruang Ruai)</option>
+                      <option value="neurosains">&#9877; 11. Neurologi / Neurosains &amp; Stroke Unit (ULS / Unit Layanan Stroke)</option>
                       <option value="nefrologi_hd">&#9877; 12. Nefrologi &amp; Hemodialisa (Unit Dialisis / Ginjal)</option>
                       <option value="respirologi">&#9877; 13. Respirologi / Paru &amp; Saluran Pernapasan (TB / Paru)</option>
                       <option value="jiwa">&#9877; 14. Psikiatri &amp; Kesehatan Jiwa (Ruang Jiwa / Akut)</option>
@@ -4977,7 +4959,7 @@
                       <option value="NIPPPK">NIPPPK</option>
                       <option value="NIK">NIK (Non-ASN)</option>
                     </select>
-                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="000000000000000001" value="000000000000000001" readonly required>
+                    <input type="text" class="form-input input-locked" id="suratNip" placeholder="-" value="-" readonly required>
                   </div>
                 </div>
               </div>
@@ -5170,7 +5152,7 @@
                     <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                   </label>
                   <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" class="form-input input-locked" id="suratInstitusi" placeholder="Universitas Tanjungpura" value="Universitas Tanjungpura" readonly required>
+                    <input type="text" class="form-input input-locked" id="suratInstitusi" placeholder="-" value="-" readonly required>
                     <input type="number" class="form-input input-locked" id="suratTahunLulus" placeholder="2018" value="2018" style="width: 100px;" readonly required>
                   </div>
                 </div>
@@ -5183,7 +5165,7 @@
                     4. Nomor Surat Tanda Registrasi (STR) <span class="req">*</span>
                     <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                   </label>
-                  <input type="text" class="form-input input-locked" id="suratStr" placeholder="140152123-2893812" value="140152123-2893812" readonly required>
+                  <input type="text" class="form-input input-locked" id="suratStr" placeholder="-" value="-" readonly required>
                 </div>
                 <div class="form-group">
                   <label class="form-label">
@@ -5201,7 +5183,7 @@
                     6. Nomor Surat Izin Praktik Perawat (SIPP) / SIPB <span class="req">*</span>
                     <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                   </label>
-                  <input type="text" class="form-input input-locked" id="suratSipp" placeholder="503/412/Dinkes-PP/SIPP/2023" value="503/412/Dinkes-PP/SIPP/2023" readonly required>
+                  <input type="text" class="form-input input-locked" id="suratSipp" placeholder="-" value="-" readonly required>
                 </div>
                 <div class="form-group">
                   <label class="form-label">
@@ -5671,7 +5653,7 @@
                   Pendidikan Terakhir / Lulusan <span class="req">*</span>
                   <span class="locked-badge" title="Data ini diambil dari Langkah 1 (CV)"><i class="fa-solid fa-lock"></i> Langkah 1</span>
                 </label>
-                <input type="text" class="form-input input-locked" id="psvPendidikan" placeholder="Misal: S1 Keperawatan &amp; Profesi Ners / Universitas Tanjungpura" readonly required>
+                <input type="text" class="form-input input-locked" id="psvPendidikan" placeholder="Misal: S1 Keperawatan &amp; Profesi Ners / -" readonly required>
               </div>
               <div class="form-group">
                 <label class="form-label">
@@ -5681,7 +5663,7 @@
                 <select class="form-select input-locked" id="psvUnit" tabindex="-1" required>
                   <option value="">-- Terisi Otomatis Sesuai Langkah 1 --</option>
                   
-                  <optgroup label="A. INSTALASI RAWAT INAP A (545 TT)">
+                  <optgroup label="A. INSTALASI RAWAT INAP (SK/031103/RSUD/2025: 574 TT)">
                     <option value="Singkut Buluh">Singkut Buluh</option>
                     <option value="PPT">PPT</option>
                     <option value="A (Anak)">A (Anak)</option>
@@ -6034,11 +6016,7 @@
             <strong>Instruksi Langkah 6 (Tahap Akhir):</strong> Unggah scan seluruh 8 berkas persyaratan wajib kredensialing tenaga keperawatan sesuai standar akreditasi KARS STARKES dan ketentuan RSUD dr. Soedarso, beserta dokumen permohonan yang telah Anda tanda tangani mandiri.<br>
             <span style="font-weight: 700; color: #92400e;"><i class="fa-solid fa-circle-check"></i> Tahap Pengesahan:</span> Setelah mengunggah berkas lengkap ini, pengajuan Anda resmi masuk ke antrean verifikasi Subkomite Kredensial dan disposisi Mitra Bestari.
           </div>
-          <div>
-            <button type="button" class="btn-secondary" onclick="demoSimulasiUploadBerkas()" style="font-size: 0.78rem; padding: 0.4rem 0.8rem; border-color: #d97706; color: #92400e; background: #fff; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-              <i class="fa-solid fa-wand-magic-sparkles" style="color: #d97706;"></i> Isi File Contoh (Simulasi Demo)
-            </button>
-          </div>
+
         </div>
 
         <form id="formUploadBerkas" onsubmit="simpanUploadSurat(event)">
@@ -6450,10 +6428,7 @@
         <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 1.25rem;">
           Wadah non-struktural rumah sakit yang bertugas menegakkan profesionalisme, etika, dan keselamatan asuhan keperawatan dan kebidanan di Rumah Sakit Umum Daerah dr. Soedarso Pontianak, Kalimantan Barat.
         </p>
-        <div style="display: flex; gap: 0.5rem; align-items: center; font-size: 0.82rem; flex-wrap: wrap;">
-          <span class="badge-official"><i class="fa-solid fa-award"></i> Akreditasi Paripurna KARS</span>
-          <span class="badge-official"><i class="fa-solid fa-hospital"></i> RS Kelas A Rujukan Utama</span>
-        </div>
+
       </div>
 
       <div>
@@ -6476,29 +6451,25 @@
           <li><a href="#regulasi" onclick="switchTab('regulasi')">Unduh Buku Putih RKK</a></li>
           <li><a href="#evoting" onclick="switchTab('evoting')"><i class="fa-solid fa-check-to-slot"></i> E-Voting Ketua Komite 2027–2030</a></li>
           <li><a href="javascript:void(0)" onclick="openLoginModal()"><i class="fa-solid fa-lock"></i> Masuk Akun Portal</a></li>
+          <li><a href="javascript:void(0)" onclick="openModal('modalKebijakanPrivasi')"><i class="fa-solid fa-shield-halved"></i> Kebijakan Privasi &amp; Perlindungan Data</a></li>
         </ul>
       </div>
 
       <div>
         <div class="footer-col-title">Sekretariat &amp; Administrasi</div>
         <p style="font-size: 0.82rem; line-height: 1.6; margin-bottom: 0.75rem;">
-          Gedung Manajemen Lantai 2, RSUD dr. Soedarso<br>
+          RSUD dr. Soedarso<br>
           Jl. DR. Soedarso No. 1 Pontianak 78124<br>
           Kalimantan Barat, Indonesia
         </p>
         <div style="font-size: 0.82rem; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem;">
           <div>
             <i class="fa-solid fa-envelope" style="color: var(--primary-400); margin-right: 6px;"></i>
-            <strong>Komite:</strong> 
+            <strong>Email Resmi Komite:</strong> 
             <a href="mailto:komitekeperawatanrsds2023@gmail.com" style="color: #cbd5e1; text-decoration: none; word-break: break-all;">komitekeperawatanrsds2023@gmail.com</a>
           </div>
-          <div>
-            <i class="fa-solid fa-user-pen" style="color: #fbbf24; margin-right: 6px;"></i>
-            <strong>Sekretaris:</strong> 
-            <a href="mailto:komitekeperawatanrsds2023@gmail.com" style="color: #cbd5e1; text-decoration: none;">komitekeperawatanrsds2023@gmail.com</a>
-          </div>
           <div style="color: var(--gold-600); font-weight: 700;">
-            <i class="fa-solid fa-phone" style="margin-right: 6px;"></i> (0561) 737701 / Ext. 214
+            <i class="fa-solid fa-phone" style="margin-right: 6px;"></i> (0561) 737701
           </div>
         </div>
         <button type="button" class="btn-secondary" onclick="openAdminEmailCenter()" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.4); font-weight: 700;">
@@ -6610,15 +6581,13 @@
         <!-- Filter & Actions Bar -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
           <div style="font-size: 0.85rem; color: var(--text-muted);">
-            <i class="fa-solid fa-clock-rotate-left"></i> Menampilkan 100 catatan aktivitas akses terbaru (disimpan secara lokal & terenkripsi hash).
+            <i class="fa-solid fa-clock-rotate-left"></i> Menampilkan catatan aktivitas akses terbaru pada sesi perangkat ini.
           </div>
           <div style="display: flex; gap: 0.5rem;">
             <button class="btn-secondary" onclick="renderSecurityAuditTable()" style="padding: 0.4rem 0.75rem; font-size: 0.8rem;">
               <i class="fa-solid fa-arrows-rotate"></i> Segarkan Log
             </button>
-            <button class="btn-secondary" onclick="clearSecurityAuditLogs()" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #dc2626;">
-              <i class="fa-solid fa-trash-can"></i> Bersihkan Log
-            </button>
+
           </div>
         </div>
 
@@ -6644,7 +6613,7 @@
 
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 0.78rem; color: var(--text-muted);">
-          <i class="fa-solid fa-shield-halved"></i> Kepatuhan ISO 27001 & Permenkes RI No. 49/2013 RSUD dr. Soedarso.
+          <i class="fa-solid fa-shield-halved"></i> Tata Kelola Data sesuai UU PDP No. 27/2022 &amp; Permenkes RI No. 49/2013.
         </span>
         <button class="btn-secondary" onclick="closeModal('modalSecurityAudit')">Tutup</button>
       </div>
@@ -6792,7 +6761,7 @@
             BERITA ACARA REKAPITULASI HASIL PEMILIHAN KETUA KOMITE KEPERAWATAN
           </h3>
           <p style="margin: 3px 0 0 0; font-size: 11pt;">
-            Nomor: <span id="baNomorSurat">400.7.2/ 1428 /KOMKEP-RSDS/2026</span>
+            Nomor: <span id="baNomorSurat">Belum diterbitkan</span>
           </p>
           <p style="margin: 1px 0 0 0; font-size: 11pt; font-weight: bold;">
             PERIODE MASA BAKTI 2027 – 2030
@@ -6800,7 +6769,7 @@
         </div>
 
         <p style="font-size: 11.5pt; text-align: justify; text-indent: 2rem; margin-bottom: 12px;">
-          Pada hari ini, <strong id="baTanggalLengkap">Rabu, 25 November 2026</strong>, bertempat di RSUD dr. Soedarso Pontianak, berdasarkan <strong>Keputusan Direktur RSUD Dokter Soedarso tentang Pembentukan Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan Periode 2027–2030</strong> dan <strong>Peraturan Direktur Nomor 01/II/05 Tahun 2026 tentang Peraturan Internal Staf Keperawatan (Nursing Staff By Laws)</strong>, telah dilaksanakan pemungutan dan perhitungan suara secara elektronik (E-Voting) dalam rangka <strong>Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso Periode 2027–2030</strong> (menggantikan masa jabatan periode 2024–2027 yang berakhir pada 02 Januari 2027). Pemilihan diselenggarakan secara langsung, umum, bebas, rahasia, jujur, dan adil oleh Panitia Ad Hoc bersama seluruh tenaga keperawatan dan kebidanan rumah sakit yang terdaftar.
+          Pada hari ini, <strong id="baTanggalLengkap">-</strong>, bertempat di RSUD dr. Soedarso Pontianak, berdasarkan <strong>Keputusan Direktur RSUD Dokter Soedarso tentang Pembentukan Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan Periode 2027–2030</strong> dan <strong>Peraturan Direktur Nomor 01/II/05 Tahun 2026 tentang Peraturan Internal Staf Keperawatan (Nursing Staff By Laws)</strong>, telah dilaksanakan pemungutan dan perhitungan suara secara elektronik (E-Voting) dalam rangka <strong>Pemilihan Ketua Komite Keperawatan RSUD dr. Soedarso Periode 2027–2030</strong> (menggantikan masa jabatan periode 2024–2027 yang berakhir pada 02 Januari 2027). Pemilihan diselenggarakan secara langsung, umum, bebas, jujur, dan adil oleh Panitia Ad Hoc bersama seluruh tenaga keperawatan dan kebidanan rumah sakit yang terdaftar.
         </p>
 
         <p style="font-size: 11.5pt; margin-bottom: 10px;">
@@ -6859,7 +6828,7 @@
           <div style="width: 45%; text-align: center;">
             <div>Ketua Panitia Ad Hoc,</div>
             <div style="height: 65px;"></div>
-            <div style="font-weight: bold; text-decoration: underline;">M. Mushlihuddin, S.Kep., Ners</div>
+            <div style="font-weight: bold; text-decoration: underline;">M. Mushlihuddin, S.Kep., Ns</div>
             <div>NIP. 198911022014021002</div>
           </div>
         </div>
@@ -6869,7 +6838,7 @@
           <div><strong>Direktur RSUD dr. Soedarso Pontianak</strong></div>
           <div style="height: 70px;"></div>
           <div style="font-weight: bold; text-decoration: underline;">drg. Hary Agung Tjahyadi, M.Kes</div>
-          <div>Pembina Utama Muda / NIP. 196905201998031008</div>
+          <div>Pembina Utama Madya / NIP. 196905201998031008</div>
         </div>
       </div>
     </div>
@@ -6899,7 +6868,7 @@
               Nomor Token Bukti Sah:
             </div>
             <div id="slipTokenBukti" style="font-size: 1.35rem; font-family: monospace; font-weight: 900; color: #042f2e; letter-spacing: 1px; margin-top: 2px;">
-              VOTE-2026-RSDS-0000
+              -
             </div>
             <div style="display: inline-flex; align-items: center; gap: 4px; background: #dcfce7; color: #166534; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px; margin-top: 4px;">
               <i class="fa-solid fa-circle-check"></i> Terverifikasi &amp; Sah Masuk Database
@@ -7152,5 +7121,45 @@
   <script src="app.js?v=20261125g"></script>
   <script src="pemilihan.js?v=20261125c"></script>
   <script src="elogbook.js?v=20261124n"></script>
+
+  <!-- MODAL: KEBIJAKAN PRIVASI & PERLINDUNGAN DATA (UU PDP NO. 27/2022) -->
+  <div class="modal-overlay" id="modalKebijakanPrivasi" style="display: none; z-index: 10050;">
+    <div class="modal-container" style="max-width: 680px; max-height: 88vh; overflow-y: auto; border-radius: 16px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #074744 0%, #0d5f5b 100%); color: #ffffff;">
+        <div class="modal-title" style="color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-shield-halved"></i> Kebijakan Privasi &amp; Perlindungan Data
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalKebijakanPrivasi')" style="color: #ffffff;">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem; font-size: 0.88rem; line-height: 1.65; color: var(--text-main);">
+        <p style="margin-bottom: 1rem;">
+          Portal Komite Keperawatan RSUD dr. Soedarso Pontianak menghormati dan melindungi data pribadi seluruh tenaga keperawatan dan kebidanan sesuai <strong>Undang-Undang No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)</strong> dan <strong>Permenkes RI No. 49 Tahun 2013</strong>.
+        </p>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-700); margin: 1rem 0 0.35rem;">1. Data yang Dikumpulkan</h4>
+        <ul style="padding-left: 1.25rem; margin-bottom: 0.75rem;">
+          <li>Identitas kepegawaian: Nama, gelar, NIP/NIPPPK/NIK, unit kerja, status kepegawaian, pendidikan, dan alamat Gmail pribadi yang Anda daftarkan.</li>
+          <li>Dokumen kredensialing: Data riwayat klinis (CV), logbook tindakan (hanya 4 digit terakhir nomor rekam medis pasien, tanpa nama pasien), serta berkas persyaratan SPK/RKK.</li>
+          <li>Data partisipasi pemilihan: NIP/NIPPPK/NIK, alamat Gmail terpasang, waktu memilih, dan pilihan pada formulir pemilihan.</li>
+        </ul>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-700); margin: 1rem 0 0.35rem;">2. Tujuan Penggunaan Data</h4>
+        <p style="margin-bottom: 0.75rem;">Data hanya digunakan untuk pelayanan kredensialing/rekredensialing (SPK &amp; RKK), pembinaan mutu profesi, penanganan etik/disiplin, serta penyelenggaraan pemilihan Ketua Komite Keperawatan.</p>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-700); margin: 1rem 0 0.35rem;">3. Siapa yang Dapat Melihat Data</h4>
+        <ul style="padding-left: 1.25rem; margin-bottom: 0.75rem;">
+          <li>Data pribadi dan dokumen kredensial hanya dapat diakses oleh pemilik akun serta pengurus Komite Keperawatan yang berwenang.</li>
+          <li>Pada pemilihan Ketua Komite, pilihan tercatat bersama akun Gmail yang terpasang dan hanya dapat diakses oleh Panitia Pemilihan untuk pemeriksaan keabsahan suara.</li>
+        </ul>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-700); margin: 1rem 0 0.35rem;">4. Masa Penyimpanan &amp; Hak Anda</h4>
+        <p style="margin-bottom: 0.75rem;">Data disimpan selama masa tugas aktif kepegawaian atau masa arsip dinas sesuai ketentuan rumah sakit. Anda berhak melihat, memeriksa, dan mengajukan perbaikan atas data pribadi Anda yang tidak tepat.</p>
+        <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-700); margin: 1rem 0 0.35rem;">5. Kontak Sekretariat Komite</h4>
+        <p style="margin-bottom: 0;">Untuk pertanyaan privasi atau perbaikan data, hubungi Sekretariat Komite Keperawatan RSUD dr. Soedarso melalui email resmi <a href="mailto:komitekeperawatanrsds2023@gmail.com" style="color: #0d5f5b; font-weight: 700;">komitekeperawatanrsds2023@gmail.com</a> atau telepon RSUD (0561) 737701.</p>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 1rem 1.5rem;">
+        <button type="button" class="btn-primary" onclick="closeModal('modalKebijakanPrivasi')">Saya Mengerti</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

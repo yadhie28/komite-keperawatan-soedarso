@@ -4533,7 +4533,7 @@
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return {
-      name: "Ns. Siti Rahmah, S.Kep.",
+      name: "Belum masuk akun",
       nip: "000000000000001033",
       role: "perawat",
       badge: "Perawat Klinis II (PK II)",
@@ -4955,7 +4955,8 @@
     const user = getActiveUser();
     const date = document.getElementById('logDate')?.value || new Date().toISOString().slice(0, 10);
     const shift = document.getElementById('logShift')?.value || 'Pagi';
-    const mrn = document.getElementById('logMrn')?.value || 'RM-59821';
+    const rawMrn = String(document.getElementById('logMrn')?.value || '').replace(/[^0-9A-Za-z]/g, '');
+    const mrn = rawMrn ? ('RM-****' + rawMrn.slice(-4)) : 'RM-****';
     const workUnit = document.getElementById('logWorkUnit')?.value || user.unit || 'Rawat Inap RSUD dr. Soedarso';
     const category = document.getElementById('logCategoryAction')?.value || 'Mandiri';
 
@@ -4972,7 +4973,7 @@
       shift: shift,
       patientMrn: mrn,
       workUnit: workUnit,
-      nurseName: user.name || "Ns. Siti Rahmah, S.Kep.",
+      nurseName: user.name || "Belum masuk akun",
       sdkiDiagnosis: sdkiDiagnosis,
       sikiIntervention: sikiIntervention,
       slkiOutcome: slkiOutcome,
@@ -5491,7 +5492,7 @@
             '<div>Pontianak, ' + today + '</div>' +
             '<div style="font-weight: bold;">Perawat Pelaksana</div>' +
             '<div style="height: 55px;"></div>' +
-            '<div style="font-weight: bold; text-decoration: underline;">' + (user.name || 'Ns. Siti Rahmah, S.Kep.') + '</div>' +
+            '<div style="font-weight: bold; text-decoration: underline;">' + (user.name || 'Belum masuk akun') + '</div>' +
             '<div>NIP. ' + (user.nip || '000000000000001033') + '</div>' +
           '</div>' +
         '</div>' +

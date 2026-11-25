@@ -4,7 +4,7 @@
  * PEMILIHAN KETUA KOMITE KEPERAWATAN (2027–2030) RSUD dr. SOEDARSO PONTIANAK
  * ============================================================================
  * Jadwal: Selasa, 24 November 2026 pukul 09.00 WIB s.d.
- *         Rabu, 25 November 2026 pukul 09.00 WIB
+ *         Kamis, 26 November 2026 pukul 23.59 WIB
  * Catatan:
  * 1. Tidak menggunakan modal "Portal Sistem Kredensialing" di halaman ini.
  * 2. Seluruh penulisan NIP/NIPPPK/NIK tanpa spasi.
@@ -81,7 +81,7 @@
       id: SIMULATION_ELECTION_ID,
       title: 'Pemilihan Ketua Komite Keperawatan (Simulasi Tahap 2)',
       period: '2027–2030',
-      nomorBeritaAcara: '400.7.2/ 1428 /KOMKEP-RSDS/2026'
+      nomorBeritaAcara: 'Belum diterbitkan'
     },
     candidates: CANDIDATES_SIMULASI,
     activeSubTab: 'voting',
@@ -119,7 +119,7 @@
   }
 
   const PANITIA_ADHOC_NIPS = [
-    '198911022014021002', // M. Mushlihuddin, S.Kep., Ners (Ketua)
+    '198911022014021002', // M. Mushlihuddin, S.Kep., Ns (Ketua)
     '198212282003121005', // Ns. Rusmulyadi, S.Kep., MARS (Sekretaris)
     '199311132020121012', // Ns. Noveriansyah Akbar, S.Kep. (Verifikasi)
     '198606052022211002', // Herkulanus Yunus, A.Md.Kep (Verifikasi)

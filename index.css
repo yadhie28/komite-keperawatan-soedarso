@@ -6310,3 +6310,74 @@ body.portal-gateway-active {
     font-size: 0.92rem;
   }
 }
+
+
+/* === INSTITUTIONAL POLISH & ACCESSIBILITY (2026-11-25) === */
+:root {
+  --bg-ivory: #F7F8F6;
+  --accent-gold-soft: #C9A24B;
+  --surface-teal-soft: #E8F3F1;
+  --ink-pine: #12302E;
+}
+
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100000;
+  background: #074744;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border-radius: 0 0 10px 0;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(7, 71, 68, 0.35);
+}
+.skip-to-main:focus {
+  left: 0;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2.5px solid #C9A24B;
+  outline-offset: 2px;
+}
+
+.hero-stats-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 0.85rem;
+}
+
+.subkomite-card {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+}
+.subkomite-card:hover {
+  transform: translateY(-3px);
+}
+
+@media (max-width: 640px) {
+  .analytics-sdm-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hero-title {
+    font-size: 1.55rem !important;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

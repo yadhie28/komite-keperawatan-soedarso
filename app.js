@@ -871,6 +871,17 @@ async function simpanPengaturanPassword() {
     return;
   }
 
+  const consentEl = document.getElementById('settingsPrivacyConsent');
+  if (consentEl && !consentEl.checked) {
+    showToast('Silakan centang persetujuan Kebijakan Privasi & Perlindungan Data terlebih dahulu.', 'warning');
+    consentEl.focus();
+    return;
+  }
+  try {
+    localStorage.setItem('komite_privacy_consent_' + idLogin, new Date().toISOString());
+    if (curUser) curUser.privacy_consent_at = new Date().toISOString();
+  } catch (_) {}
+
   if (window.SupabaseKomkep && typeof window.SupabaseKomkep.setGmail === 'function') {
     const gRes = window.SupabaseKomkep.setGmail(idLogin, gmailVal);
     if (!gRes.success) {
@@ -1514,22 +1525,10 @@ function switchTab(tabId) {
   const isAnalitikShortcut = (tabId === 'analitik');
   const canonicalId = (tabId === 'pemilihan') ? 'evoting' : ((tabId === 'logbook') ? 'elogbook' : (isAnalitikShortcut ? 'mutu' : tabId));
 
-  // Penegakan Wajib Isi Suara di Bilik Suara: Tidak boleh meninggalkan Bilik Suara sebelum memilih
-  if (canonicalId !== 'evoting' && isMandatoryVoteActiveSync()) {
-    if (!state.wajibVotingInBooth) {
-      openWajibVotingModal({ fromAccountSetup: false, isEscapeWarning: false });
-      showToast('Anda wajib mengklik notifikasi dan mengisi suara di Bilik Suara terlebih dahulu!', 'warning');
-      return;
-    }
-    state.wajibVotingEscapeAttempts = (state.wajibVotingEscapeAttempts || 0) + 1;
-    if (state.wajibVotingEscapeAttempts >= 2) {
-      enforceLogoutNoVote('Anda dikeluarkan dari Portal Komite Keperawatan karena meninggalkan Bilik Suara tanpa mengisi suara.');
-      return;
-    }
-    window.location.hash = 'evoting';
-    openWajibVotingModal({ fromAccountSetup: false, isEscapeWarning: true });
-    showToast('PERINGATAN TERAKHIR: Isi suara di Bilik Suara sekarang atau Anda akan dikeluarkan dari portal!', 'error');
-    return;
+  // Pengingat ramah pemilihan (tanpa paksa keluar, menghormati asas kebebasan memilih)
+  if (canonicalId !== 'evoting' && isMandatoryVoteActiveSync() && !state.wajibVotingDismissed) {
+    const bar = document.getElementById('wajibVotingStickyBar');
+    if (bar) bar.style.display = 'block';
   }
 
   state.activeTab = canonicalId;
@@ -2075,7 +2074,7 @@ function secureOpenPrintSpkModal(nurseId) {
   openPrintSpkModal(nurseId);
 }
 
-// 5. Digital Security Audit Trail Logger (ISO 27001 & Permenkes RI No. 49/2013)
+// 5. Digital Security Audit Trail Logger (UU PDP No. 27/2022 & Permenkes RI No. 49/2013)
 function getSecurityAuditLogs() {
   const saved = localStorage.getItem('komite_security_audit_logs');
   if (saved) {
@@ -6988,7 +6987,7 @@ function generateCvHVS(mode) {
   const nip = v(cv?.nip, '[ NIP / NIPPPK / NIK ]');
   const ttl = v(cv?.ttl, '[ Pontianak, DD / MM / YYYY ]');
   const jabatan = v(cv?.jabatan, '[ Perawat Pelaksana / Ketua Tim / Kepala Ruangan ]');
-  const unit = v(cv?.unit, '[ Sesuai SK Tempat Tidur: Enggang Gading 2 ]');
+  const unit = v(cv?.unit, '[ Sesuai SK/031103/RSUD/2025 (749 TT) ]');
   const pkSaatIni = v(formatJenjangLabel(cv?.pkSaatIni), '[ Perawat Klinis I / II / III / IV / V ]');
   const pkDiusulkan = v(formatJenjangLabel(cv?.pkDiusulkan), '[ PK II / PK III / PK IV - Sesuaikan White Paper ]');
 
@@ -10559,7 +10558,7 @@ function exportOfficialWord() {
             Ditetapkan di Pontianak,<br><b>Direktur RSUD Dokter Soedarso</b>
             <div class="sig-space"></div>
             <b><u>drg. Hary Agung Tjahyadi, M.Kes</u></b><br>
-            Pembina Utama Muda<br>
+            Pembina Utama Madya<br>
             NIP. 196905201998031008
           </td>
         </tr>
