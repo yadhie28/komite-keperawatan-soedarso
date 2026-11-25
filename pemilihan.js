@@ -553,18 +553,26 @@
     if (mTotal) mTotal.textContent = `${totalVoted} Pemilih (${pct}%)`;
 
     const user = getActivePortalUser();
-    const canSeeBreakdown = Boolean(rekap.resultsAvailable || isPengurusKomite(user));
+    const isPanitia = isPengurusKomite(user);
+    const canSeeBreakdown = Boolean(rekap.resultsAvailable || isPanitia);
 
+    // Tombol 'Cetak Berita Acara Resmi (A4)' & 'Kirim ke Email Komite' HANYA ditampilkan untuk Panitia Ad Hoc
+    const panitiaActionsWrap = document.getElementById('pemilihanPanitiaHasilActions');
+    if (panitiaActionsWrap) {
+      panitiaActionsWrap.style.display = isPanitia ? 'flex' : 'none';
+    }
     if (btnBA) {
-      btnBA.disabled = !canSeeBreakdown;
-      btnBA.style.cursor = canSeeBreakdown ? 'pointer' : 'not-allowed';
-      btnBA.style.opacity = canSeeBreakdown ? '1' : '0.65';
-      btnBA.style.background = canSeeBreakdown ? '#0d5f5b' : '#94a3b8';
+      btnBA.style.display = isPanitia ? 'flex' : 'none';
+      btnBA.disabled = !isPanitia;
+      btnBA.style.cursor = isPanitia ? 'pointer' : 'not-allowed';
+      btnBA.style.opacity = isPanitia ? '1' : '0.65';
+      btnBA.style.background = isPanitia ? '#0d5f5b' : '#94a3b8';
     }
     if (btnEmail) {
-      btnEmail.disabled = !canSeeBreakdown;
-      btnEmail.style.cursor = canSeeBreakdown ? 'pointer' : 'not-allowed';
-      btnEmail.style.opacity = canSeeBreakdown ? '1' : '0.65';
+      btnEmail.style.display = isPanitia ? 'flex' : 'none';
+      btnEmail.disabled = !isPanitia;
+      btnEmail.style.cursor = isPanitia ? 'pointer' : 'not-allowed';
+      btnEmail.style.opacity = isPanitia ? '1' : '0.65';
     }
 
     if (!barsBox) return;
@@ -741,6 +749,10 @@
   }
 
   async function openBeritaAcaraModal() {
+    if (!isPengurusKomite(getActivePortalUser())) {
+      notify('Fungsi Cetak Berita Acara Resmi (A4) hanya tersedia untuk Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan.', 'warning');
+      return;
+    }
     const rekap = await window.SupabaseKomkep.getElectionRekap(state.election.id);
     const voteMap = {};
     (rekap.rekap_kandidat || []).forEach(r => { voteMap[r.candidate_id] = r.votes; });
@@ -853,6 +865,10 @@
     exportResultsCsv,
     resetSimulationData,
     sendEmailLaporan: function () {
+      if (!isPengurusKomite(getActivePortalUser())) {
+        notify('Fungsi Kirim ke Email Komite hanya tersedia untuk Panitia Ad Hoc Pemilihan Ketua Komite Keperawatan.', 'warning');
+        return;
+      }
       const subj = encodeURIComponent('Laporan Rekap Simulasi Pemilihan Tahap 2 Ketua Komite Keperawatan 2027-2030');
       window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=komitekeperawatanrsds2023@gmail.com&su=${subj}`, '_blank', 'noopener');
     },
