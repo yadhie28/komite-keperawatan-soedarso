@@ -1435,12 +1435,11 @@ function saveWorkflowNotifications() {
    NAVIGATION & TAB SYSTEM
    ========================================================================== */
 function setupNavigation() {
-  const validTabs = ['beranda', 'kredensial', 'mutu', 'etik', 'analitik', 'regulasi', 'evoting', 'pemilihan'];
+  const validTabs = ['beranda', 'kredensial', 'mutu', 'etik', 'elogbook', 'logbook', 'analitik', 'regulasi', 'evoting', 'pemilihan'];
   const rawHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
 
-  if (rawHash === 'logbook') {
-    switchTab('mutu');
-    setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 250);
+  if (rawHash === 'logbook' || rawHash === 'elogbook') {
+    switchTab('elogbook');
   } else if (rawHash === 'evoting' || rawHash === 'pemilihan') {
     switchTab('evoting');
   } else if (rawHash && validTabs.includes(rawHash) && document.getElementById(`pane-${rawHash}`)) {
@@ -1451,9 +1450,8 @@ function setupNavigation() {
 
   window.addEventListener('hashchange', () => {
     const newHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
-    if (newHash === 'logbook') {
-      switchTab('mutu');
-      setTimeout(() => { if (typeof openLogbookModal === 'function') openLogbookModal(); }, 150);
+    if (newHash === 'logbook' || newHash === 'elogbook') {
+      switchTab('elogbook');
     } else if (newHash === 'evoting' || newHash === 'pemilihan') {
       switchTab('evoting');
     } else if (newHash && validTabs.includes(newHash) && (document.getElementById(`pane-${newHash}`) || newHash === 'evoting' || newHash === 'pemilihan')) {
@@ -1508,8 +1506,8 @@ function switchTab(tabId) {
     return;
   }
 
-  // Normalisasi alias: 'pemilihan' <-> 'evoting'
-  const canonicalId = (tabId === 'pemilihan') ? 'evoting' : tabId;
+  // Normalisasi alias: 'pemilihan' <-> 'evoting', 'logbook' <-> 'elogbook'
+  const canonicalId = (tabId === 'pemilihan') ? 'evoting' : ((tabId === 'logbook') ? 'elogbook' : tabId);
 
   // Penegakan Wajib Isi Suara di Bilik Suara: Tidak boleh meninggalkan Bilik Suara sebelum memilih
   if (canonicalId !== 'evoting' && isMandatoryVoteActiveSync()) {
@@ -1563,7 +1561,7 @@ function switchTab(tabId) {
   if ((canonicalId === 'pemilihan' || canonicalId === 'evoting') && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
     window.PemilihanKomkep.init();
   }
-  if (canonicalId === 'mutu' && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
+  if ((canonicalId === 'mutu' || canonicalId === 'elogbook') && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
     window.ELogbookKomkep.init();
   }
 }
