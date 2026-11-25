@@ -3040,25 +3040,27 @@ function renderAnalyticsCharts() {
   renderStatusPangkatChart();
   renderGenderDistributionChart();
   renderRetirementProjectionChart();
-  renderEducationDistributionChart();
-  renderStatusPangkatChart();
-  renderRetirementProjectionChart();
 }
 
-// 1. Chart Jenjang Karir (PK I - PK V, BP/PMB)
+// 1. Chart Jenjang Karir (Pra PK, PK I - PK V, BP/PMB)
 function renderCareerLadderChart() {
   const container = document.getElementById('chartCareerLadder');
   if (!container) return;
 
   const counts = {
-    'PK I': 0, 'PK II': 0, 'PK III': 0, 'PK IV': 0, 'PK V': 0, 'BP/PMB': 0
+    'Pra PK': 0, 'PK I': 0, 'PK II': 0, 'PK III': 0, 'PK IV': 0, 'PK V': 0, 'BP/PMB': 0
   };
+  let pendingRkkCount = 0;
 
   state.nurses.forEach(n => {
     const pk = String(n.pkLevel || '').trim().toUpperCase();
-    if (counts[pk] !== undefined) counts[pk]++;
+    if (pk === 'PRA PK') counts['Pra PK']++;
+    else if (counts[pk] !== undefined) counts[pk]++;
     else if (pk.startsWith('BP') || pk.startsWith('PMB') || pk.startsWith('BK')) counts['BP/PMB']++;
+    else pendingRkkCount++;
   });
+
+  const mappedTotal = Object.values(counts).reduce((a, b) => a + b, 0);
 
   const maxVal = Math.max(...Object.values(counts), 1);
   const keys = Object.keys(counts);
@@ -3087,16 +3089,21 @@ function renderCareerLadderChart() {
   }).join('');
 
   container.innerHTML = `
-    <svg width="100%" height="100%" viewBox="0 0 ${totalW + 60} 220" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#2dd4bf" />
-          <stop offset="100%" stop-color="#0d5f5b" />
-        </linearGradient>
-      </defs>
-      <line x1="20" y1="${chartHeight}" x2="${totalW + 40}" y2="${chartHeight}" stroke="${isDark ? '#334155' : '#e2e8f0'}" stroke-width="1.5" />
-      ${barsSvg}
-    </svg>
+    <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
+      <svg width="100%" height="100%" viewBox="0 0 ${totalW + 60} 220" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2dd4bf" />
+            <stop offset="100%" stop-color="#0d5f5b" />
+          </linearGradient>
+        </defs>
+        <line x1="20" y1="${chartHeight}" x2="${totalW + 40}" y2="${chartHeight}" stroke="${isDark ? '#334155' : '#e2e8f0'}" stroke-width="1.5" />
+        ${barsSvg}
+      </svg>
+      <div style="margin-top: 4px; font-size: 0.74rem; color: var(--text-muted); text-align: right;">
+        Terpetakan: <strong>${mappedTotal}</strong>${pendingRkkCount > 0 ? ` · Menunggu RKK: <strong>${pendingRkkCount}</strong>` : ''} (Total <strong>${state.nurses.length}</strong> catatan SPK/RKK)
+      </div>
+    </div>
   `;
 }
 
@@ -3357,7 +3364,7 @@ function renderUnitDistributionChart() {
       if (pk === 'PK III') g.pk3++;
       else if (pk === 'PK II') g.pk2++;
       else if (pk === 'PK I') g.pk1++;
-      else if (pk) g.other++;
+      else if (pk && pk !== 'BELUM TERCANTUM') g.other++;
       else g.unmappedPk++;
     });
   } else {
@@ -3471,7 +3478,7 @@ function renderUnitDistributionChart() {
         <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk3-color);"></span>PK III: <strong>${selectedObj.pk3}</strong> (${pct(selectedObj.pk3, selectedObj.total)}%)</span>
         <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk2-color);"></span>PK II: <strong>${selectedObj.pk2}</strong> (${pct(selectedObj.pk2, selectedObj.total)}%)</span>
         <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk1-color);"></span>PK I: <strong>${selectedObj.pk1}</strong> (${pct(selectedObj.pk1, selectedObj.total)}%)</span>
-        ${selectedObj.other ? `<span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>BP II/Lain: <strong>${selectedObj.other}</strong> (${pct(selectedObj.other, selectedObj.total)}%)</span>` : ''}
+        ${selectedObj.other ? `<span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>Pra PK / BP: <strong>${selectedObj.other}</strong> (${pct(selectedObj.other, selectedObj.total)}%)</span>` : ''}
         ${selectedObj.unmappedPk ? `<span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pkunmapped-color);"></span>Belum Terpetakan PK: <strong>${selectedObj.unmappedPk}</strong> (${pct(selectedObj.unmappedPk, selectedObj.total)}%)</span>` : ''}
         <button type="button" class="pk-chip" onclick="pkInfogToggleDetail('${escapeInfogHtml(selectedObj.name).replace(/'/g, "\\'")}')">Tutup</button>
       </div>
@@ -3497,7 +3504,7 @@ function renderUnitDistributionChart() {
             ${c.pk3 ? `<div class="pk-bar-seg" style="width:${p3}%; background:var(--pk3-color);" title="PK III: ${c.pk3}"></div>` : ''}
             ${c.pk2 ? `<div class="pk-bar-seg" style="width:${p2}%; background:var(--pk2-color);" title="PK II: ${c.pk2}"></div>` : ''}
             ${c.pk1 ? `<div class="pk-bar-seg" style="width:${p1}%; background:var(--pk1-color);" title="PK I: ${c.pk1}"></div>` : ''}
-            ${c.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="BP II/Lain: ${c.other}"></div>` : ''}
+            ${c.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="Pra PK / BP: ${c.other}"></div>` : ''}
             ${c.unmappedPk ? `<div class="pk-bar-seg" style="width:${pu}%; background:var(--pkunmapped-color);" title="Belum Terpetakan PK: ${c.unmappedPk}"></div>` : ''}
           </div>
         </div>
@@ -3542,7 +3549,7 @@ function renderUnitDistributionChart() {
               ${u.pk3 ? `<div class="pk-bar-seg" style="width:${p3}%; background:var(--pk3-color);" title="PK III: ${u.pk3} (${pct(u.pk3, u.total)}%)">${(u.pk3 / maxUnitVal) >= 0.08 ? u.pk3 : ''}</div>` : ''}
               ${u.pk2 ? `<div class="pk-bar-seg" style="width:${p2}%; background:var(--pk2-color);" title="PK II: ${u.pk2} (${pct(u.pk2, u.total)}%)">${(u.pk2 / maxUnitVal) >= 0.08 ? u.pk2 : ''}</div>` : ''}
               ${u.pk1 ? `<div class="pk-bar-seg" style="width:${p1}%; background:var(--pk1-color);" title="PK I: ${u.pk1} (${pct(u.pk1, u.total)}%)">${(u.pk1 / maxUnitVal) >= 0.08 ? u.pk1 : ''}</div>` : ''}
-              ${u.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="BP II/Lain: ${u.other} (${pct(u.other, u.total)}%)">${(u.other / maxUnitVal) >= 0.08 ? u.other : ''}</div>` : ''}
+              ${u.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="Pra PK / BP: ${u.other} (${pct(u.other, u.total)}%)">${(u.other / maxUnitVal) >= 0.08 ? u.other : ''}</div>` : ''}
               ${u.unmappedPk ? `<div class="pk-bar-seg" style="width:${pu}%; background:var(--pkunmapped-color);" title="Belum Terpetakan PK: ${u.unmappedPk} (${pct(u.unmappedPk, u.total)}%)">${(u.unmappedPk / maxUnitVal) >= 0.08 ? u.unmappedPk : ''}</div>` : ''}
             </div>
           </div>
@@ -3607,7 +3614,7 @@ function renderUnitDistributionChart() {
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk3-color);"></span>PK III <span class="muted">(Mandiri / Senior)</span></span>
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk2-color);"></span>PK II <span class="muted">(Madya)</span></span>
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk1-color);"></span>PK I <span class="muted">(Dasar / Pemula)</span></span>
-        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>BP II / Lainnya</span>
+        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>Pra PK / BP I–III</span>
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pkunmapped-color);"></span>Belum Terpetakan PK</span>
       </div>
 
@@ -3840,22 +3847,20 @@ function renderStatusPangkatChart() {
   `;
 }
 
-// 5b. Chart Distribusi Jenis Kelamin (Perawat & Bidan)
+// 5b. Chart Distribusi Jenis Kelamin (Khusus Perawat — Bidan tidak diikutsertakan)
 function renderGenderDistributionChart() {
   const container = document.getElementById('chartGenderDist');
   if (!container) return;
 
-  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const allRoster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const roster = allRoster.filter(r => String(r.kat || '').toLowerCase() !== 'bidan');
+  const bidanCount = allRoster.length - roster.length;
   const total = roster.length || 1;
   const pct = (v, d = total) => (d ? ((v / d) * 100).toFixed(1) : '0.0');
 
   let totalP = 0;
   let totalL = 0;
 
-  const byProf = {
-    'Perawat': { p: 0, l: 0 },
-    'Bidan': { p: 0, l: 0 }
-  };
   const byStatus = {
     'PNS': { p: 0, l: 0 },
     'PPPK': { p: 0, l: 0 },
@@ -3866,9 +3871,6 @@ function renderGenderDistributionChart() {
   roster.forEach(r => {
     const isL = r.jk === 'Laki-laki';
     if (isL) totalL++; else totalP++;
-
-    const prof = String(r.kat || '').toLowerCase() === 'bidan' ? 'Bidan' : 'Perawat';
-    if (isL) byProf[prof].l++; else byProf[prof].p++;
 
     const stRaw = String(r.status || 'BLUD').toUpperCase();
     const stKey = stRaw === 'PNS' ? 'PNS' : (stRaw.includes('PPPK') ? 'PPPK' : 'BLUD');
@@ -3882,7 +3884,7 @@ function renderGenderDistributionChart() {
 
   const badgeEl = document.getElementById('genderTotalBadge');
   if (badgeEl) {
-    badgeEl.textContent = `P: ${totalP} (${pct(totalP)}%) · L: ${totalL} (${pct(totalL)}%)`;
+    badgeEl.textContent = `Perawat: P ${totalP} (${pct(totalP)}%) · L ${totalL} (${pct(totalL)}%)`;
   }
 
   // SVG Donut ring
@@ -3930,7 +3932,7 @@ function renderGenderDistributionChart() {
           <circle cx="80" cy="80" r="${r}" fill="none" stroke="#0284c7" stroke-width="20"
             stroke-dasharray="${lArc.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-pArc).toFixed(2)}" transform="rotate(-90 80 80)" />
           <text x="80" y="76" text-anchor="middle" font-size="22" font-weight="800" fill="${txtCol}">${roster.length}</text>
-          <text x="80" y="95" text-anchor="middle" font-size="10.5" font-weight="600" fill="${mutCol}">Total Tenaga</text>
+          <text x="80" y="95" text-anchor="middle" font-size="10.5" font-weight="600" fill="${mutCol}">Total Perawat</text>
         </svg>
         <div style="display:flex; gap:0.85rem; margin-top:0.4rem; font-size:0.8rem; font-weight:700;">
           <span style="display:inline-flex; align-items:center; gap:5px; color:${txtCol};"><span class="pk-infog-dot" style="background:#ec4899;"></span>Perempuan: ${totalP} (${pct(totalP)}%)</span>
@@ -3938,21 +3940,22 @@ function renderGenderDistributionChart() {
         </div>
       </div>
 
-      <!-- Profesi & Status -->
+      <!-- Status Kepegawaian (Perawat) -->
       <div class="pk-infog-panel" style="padding:0.9rem 1rem;">
-        <div class="pk-infog-panel-title" style="margin-bottom:0.55rem;">Menurut Profesi &amp; Status Kepegawaian</div>
+        <div class="pk-infog-panel-title" style="margin-bottom:0.55rem;">Menurut Status Kepegawaian (Perawat)</div>
         <div class="sdm-bar-list">
-          ${makeSplitRow('Profesi: Perawat', byProf['Perawat'].p, byProf['Perawat'].l)}
-          ${makeSplitRow('Profesi: Bidan', byProf['Bidan'].p, byProf['Bidan'].l)}
           ${makeSplitRow('Status: PNS', byStatus['PNS'].p, byStatus['PNS'].l)}
           ${makeSplitRow('Status: PPPK (termasuk Paruh Waktu)', byStatus['PPPK'].p, byStatus['PPPK'].l)}
           ${makeSplitRow('Status: BLUD', byStatus['BLUD'].p, byStatus['BLUD'].l)}
         </div>
+        <div style="margin-top:0.7rem; font-size:0.73rem; color:var(--text-muted);">
+          <strong>Catatan:</strong> ${bidanCount} tenaga bidan tidak diikutsertakan dalam distribusi jenis kelamin karena seluruh profesi bidan di Indonesia adalah perempuan.
+        </div>
       </div>
 
-      <!-- Klaster Layanan -->
+      <!-- Klaster Layanan (Perawat) -->
       <div class="pk-infog-panel" style="padding:0.9rem 1rem;">
-        <div class="pk-infog-panel-title" style="margin-bottom:0.55rem;">Menurut Klaster Layanan</div>
+        <div class="pk-infog-panel-title" style="margin-bottom:0.55rem;">Menurut Klaster Layanan (Perawat)</div>
         <div class="sdm-bar-list">${clusterRows}</div>
       </div>
     </div>

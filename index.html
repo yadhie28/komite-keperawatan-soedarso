@@ -1218,12 +1218,17 @@
             <!-- Filter Jenjang Karir -->
             <select id="filterPkLevel" class="select-filter">
               <option value="">Semua Jenjang Karir</option>
+              <option value="Pra PK">Pra PK (BLUD)</option>
               <option value="PK I">PK I (Novice)</option>
               <option value="PK II">PK II (Adv. Beginner)</option>
               <option value="PK III">PK III (Competent)</option>
               <option value="PK IV">PK IV (Proficient)</option>
               <option value="PK V">PK V (Expert)</option>
+              <option value="BP I">BP I (Bidan)</option>
+              <option value="BP II">BP II (Bidan)</option>
+              <option value="BP III">BP III (Bidan)</option>
               <option value="PMB">PMB (Bidan)</option>
+              <option value="Belum Tercantum">Belum Tercantum (Menunggu RKK)</option>
             </select>
 
             <!-- Filter Status -->
@@ -2250,7 +2255,7 @@
         <div>
           <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>
           <p class="section-subtitle">
-            Visualisasi data jenjang karir klinis (PK I - PK V), kepatuhan kredensialing, dan profil tenaga perawat & bidan RSUD dr. Soedarso
+            Visualisasi data jenjang karir klinis (Pra PK, PK I–V &amp; BP I–III), kepatuhan kredensialing, dan profil tenaga perawat &amp; bidan RSUD dr. Soedarso
           </p>
         </div>
         <button class="btn-secondary" onclick="renderAnalyticsCharts(); showToast('Grafik analitik diperbarui!', 'info');">
@@ -2263,7 +2268,7 @@
         <!-- Chart 1: Jenjang Karir PK -->
         <div class="chart-box">
           <div class="chart-header">
-            <span class="chart-title">Distribusi Jenjang Karir Klinis (PK I - PK V & PMB)</span>
+            <span class="chart-title">Distribusi Jenjang Karir Klinis (Pra PK, PK I–V &amp; BP/PMB)</span>
             <span class="badge-official">DATA AKTIF</span>
           </div>
           <div class="chart-svg-container" id="chartCareerLadder">
@@ -2288,7 +2293,7 @@
         <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
           <div>
             <span class="chart-title"><i class="fa-solid fa-layer-group" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Infografis Sebaran Perawat, Bidan &amp; Jenjang PK per Unit / Ruangan</span>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Pemetaan interaktif seluruh 717 tenaga perawat &amp; bidan di 65 unit/ruangan beserta komposisi PK III, PK II, PK I, dan BP II</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Pemetaan interaktif seluruh 717 tenaga perawat &amp; bidan di 65 unit/ruangan beserta komposisi PK III, PK II, PK I, Pra PK, dan BP I–III</p>
           </div>
           <span id="unitDistTotalBadge" class="badge-official" style="font-size: 0.78rem;">Memuat data...</span>
         </div>
@@ -2328,14 +2333,14 @@
         </div>
       </div>
 
-      <!-- Chart 5b: Distribusi Jenis Kelamin (Perawat & Bidan) -->
+      <!-- Chart 5b: Distribusi Jenis Kelamin (Khusus Perawat) -->
       <div class="chart-box" style="margin-bottom: 2rem;">
         <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
           <div>
-            <span class="chart-title"><i class="fa-solid fa-venus-mars" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Distribusi Jenis Kelamin Perawat &amp; Bidan</span>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Proporsi Perempuan &amp; Laki-laki berdasarkan profesi, status kepegawaian, dan klaster layanan (717 tenaga)</p>
+            <span class="chart-title"><i class="fa-solid fa-venus-mars" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Distribusi Jenis Kelamin Tenaga Perawat</span>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Proporsi Perempuan &amp; Laki-laki tenaga perawat berdasarkan status kepegawaian dan klaster layanan (tidak termasuk bidan)</p>
           </div>
-          <span id="genderTotalBadge" class="badge-official" style="font-size: 0.78rem;">717 Tenaga</span>
+          <span id="genderTotalBadge" class="badge-official" style="font-size: 0.78rem;">646 Perawat</span>
         </div>
         <div id="chartGenderDist" style="width: 100%; height: auto;">
           <!-- Rendered via JS -->
