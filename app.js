@@ -1440,6 +1440,8 @@ function setupNavigation() {
 
   if (rawHash === 'logbook' || rawHash === 'elogbook') {
     switchTab('elogbook');
+  } else if (rawHash === 'analitik') {
+    switchTab('analitik');
   } else if (rawHash === 'evoting' || rawHash === 'pemilihan') {
     switchTab('evoting');
   } else if (rawHash && validTabs.includes(rawHash) && document.getElementById(`pane-${rawHash}`)) {
@@ -1452,6 +1454,8 @@ function setupNavigation() {
     const newHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
     if (newHash === 'logbook' || newHash === 'elogbook') {
       switchTab('elogbook');
+    } else if (newHash === 'analitik') {
+      switchTab('analitik');
     } else if (newHash === 'evoting' || newHash === 'pemilihan') {
       switchTab('evoting');
     } else if (newHash && validTabs.includes(newHash) && (document.getElementById(`pane-${newHash}`) || newHash === 'evoting' || newHash === 'pemilihan')) {
@@ -1506,8 +1510,9 @@ function switchTab(tabId) {
     return;
   }
 
-  // Normalisasi alias: 'pemilihan' <-> 'evoting', 'logbook' <-> 'elogbook'
-  const canonicalId = (tabId === 'pemilihan') ? 'evoting' : ((tabId === 'logbook') ? 'elogbook' : tabId);
+  // Normalisasi alias: 'pemilihan' <-> 'evoting', 'logbook' <-> 'elogbook', 'analitik' -> sub-tab 'mutu'
+  const isAnalitikShortcut = (tabId === 'analitik');
+  const canonicalId = (tabId === 'pemilihan') ? 'evoting' : ((tabId === 'logbook') ? 'elogbook' : (isAnalitikShortcut ? 'mutu' : tabId));
 
   // Penegakan Wajib Isi Suara di Bilik Suara: Tidak boleh meninggalkan Bilik Suara sebelum memilih
   if (canonicalId !== 'evoting' && isMandatoryVoteActiveSync()) {
@@ -1528,7 +1533,7 @@ function switchTab(tabId) {
   }
 
   state.activeTab = canonicalId;
-  window.location.hash = canonicalId;
+  window.location.hash = isAnalitikShortcut ? 'analitik' : canonicalId;
 
   // Update Navigation Tab Buttons
   document.querySelectorAll('.nav-tab-btn').forEach(btn => {
@@ -1554,15 +1559,18 @@ function switchTab(tabId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Trigger chart re-draw when navigating to analytics
-  if (canonicalId === 'analitik') {
+  // Trigger chart re-draw when navigating to analytics (now under Subkomite Mutu Profesi)
+  if ((canonicalId === 'mutu' || canonicalId === 'elogbook') && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
+    window.ELogbookKomkep.init();
+  }
+  if (isAnalitikShortcut) {
+    if (window.ELogbookKomkep && typeof window.ELogbookKomkep.switchMutuSubtab === 'function') {
+      window.ELogbookKomkep.switchMutuSubtab('analitik');
+    }
     setTimeout(renderAnalyticsCharts, 100);
   }
   if ((canonicalId === 'pemilihan' || canonicalId === 'evoting') && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
     window.PemilihanKomkep.init();
-  }
-  if ((canonicalId === 'mutu' || canonicalId === 'elogbook') && window.ELogbookKomkep && typeof window.ELogbookKomkep.init === 'function') {
-    window.ELogbookKomkep.init();
   }
 }
 

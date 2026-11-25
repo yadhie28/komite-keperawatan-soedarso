@@ -249,11 +249,6 @@
           </button>
         </li>
         <li>
-          <button class="nav-tab-btn" data-tab="analitik">
-            <i class="fa-solid fa-chart-pie"></i> Analitik Data
-          </button>
-        </li>
-        <li>
           <button class="nav-tab-btn" data-tab="regulasi">
             <i class="fa-solid fa-book-bookmark"></i> Pusat Regulasi
           </button>
@@ -1341,10 +1336,13 @@
         </button>
       </div>
 
-      <!-- ========== SUB-TAB NAVIGATION SUBKOMITE MUTU PROFESI (3.1 CPD, 3.2 OPPE, 3.3 Katalog 3S) ========== -->
+      <!-- ========== SUB-TAB NAVIGATION SUBKOMITE MUTU PROFESI (3.1 CPD, 3.2 Analitik SDM, 3.3 OPPE, 3.4 Katalog 3S) ========== -->
       <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">
         <button id="subtab-btn-cpd" class="btn-secondary active" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--primary-600, #0d9488); color: #ffffff; border-color: var(--primary-600, #0d9488);" onclick="ELogbookKomkep.switchMutuSubtab('cpd')">
           <i class="fa-solid fa-graduation-cap"></i> 3.1 Program CPD &amp; Diklat
+        </button>
+        <button id="subtab-btn-analitik" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('analitik')">
+          <i class="fa-solid fa-chart-column"></i> 3.2 Analitik &amp; Distribusi SDM
         </button>
         <button id="subtab-btn-oppe" class="btn-secondary" style="padding: 0.55rem 1.1rem; font-size: 0.88rem; font-weight: 700; border-radius: 8px 8px 0 0; background: var(--card-bg, #ffffff); color: var(--text-muted, #64748b); border-color: var(--border-color, #e2e8f0);" onclick="ELogbookKomkep.switchMutuSubtab('oppe')">
           <i class="fa-solid fa-chart-pie"></i> 3.3 Dashboard OPPE &amp; Audit
@@ -1378,6 +1376,120 @@
         </div>
       </div>
       <!-- END SUB-PANE 3.1 CPD -->
+
+      <!-- ========== 3.2 SUB-PANE: DASHBOARD ANALITIK & DISTRIBUSI TENAGA KEPERAWATAN ========== -->
+      <div id="subpane-mutu-analitik" style="display: none;">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>
+          <p class="section-subtitle">
+            Visualisasi data jenjang karir klinis (Pra PK, PK I–V &amp; BP I–III), kepatuhan kredensialing, dan profil tenaga perawat &amp; bidan RSUD dr. Soedarso
+          </p>
+        </div>
+        <button class="btn-secondary" onclick="renderAnalyticsCharts(); showToast('Grafik analitik diperbarui!', 'info');">
+          <i class="fa-solid fa-rotate"></i> Segarkan Grafik
+        </button>
+      </div>
+
+      <!-- Grid of SVG Analytics Charts -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Chart 1: Jenjang Karir PK -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">Distribusi Jenjang Karir Klinis (Pra PK, PK I–V &amp; BP/PMB)</span>
+            <span class="badge-official">DATA AKTIF</span>
+          </div>
+          <div class="chart-svg-container" id="chartCareerLadder">
+            <!-- Rendered via SVG in JS -->
+          </div>
+        </div>
+
+        <!-- Chart 2: Status Kredensial SPK/RKK -->
+        <div class="chart-box">
+          <div class="chart-header">
+            <span class="chart-title">Proporsi Status Kredensial SPK & RKK</span>
+            <span class="badge-official">VALIDASI KARS</span>
+          </div>
+          <div class="chart-svg-container" id="chartCredentialStatus">
+            <!-- Rendered via SVG in JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 3: Infografis Distribusi PK per Unit & Ruang Rawat -->
+      <div class="chart-box" style="margin-bottom: 2rem;">
+        <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <span class="chart-title"><i class="fa-solid fa-layer-group" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Infografis Sebaran Perawat, Bidan &amp; Jenjang PK per Unit / Ruangan</span>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Pemetaan interaktif seluruh 717 tenaga perawat &amp; bidan di 65 unit/ruangan beserta komposisi PK III, PK II, PK I, Pra PK, dan BP I–III</p>
+          </div>
+          <span id="unitDistTotalBadge" class="badge-official" style="font-size: 0.78rem;">Memuat data...</span>
+        </div>
+        <div id="chartUnitDistribution" style="width: 100%; height: auto;">
+          <!-- Rendered interactively in JS -->
+        </div>
+      </div>
+
+      <!-- Grid Analitik SDM: Pendidikan & Status/Pangkat -->
+      <div class="analytics-sdm-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Chart 4: Distribusi Pendidikan Terakhir -->
+        <div class="chart-box">
+          <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <span class="chart-title"><i class="fa-solid fa-graduation-cap" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Distribusi Pendidikan Terakhir</span>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Klasifikasi kualifikasi pendidikan perawat &amp; bidan (717 tenaga)</p>
+            </div>
+            <span class="badge-official">DATA KEPEGAWAIAN</span>
+          </div>
+          <div id="chartEducationDist" style="width: 100%; height: auto;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Chart 5: Status Kepegawaian, Gender & Estimasi Pangkat/Golongan -->
+        <div class="chart-box">
+          <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <span class="chart-title"><i class="fa-solid fa-id-badge" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Status Kepegawaian &amp; Estimasi Golongan</span>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Komposisi PNS, PPPK, BLUD, gender &amp; estimasi golongan (TMT &amp; BUP)</p>
+            </div>
+            <span class="badge-official">717 AKTIF</span>
+          </div>
+          <div id="chartStatusPangkatDist" style="width: 100%; height: auto;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 5b: Distribusi Jenis Kelamin (Khusus Perawat) -->
+      <div class="chart-box" style="margin-bottom: 2rem;">
+        <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <span class="chart-title"><i class="fa-solid fa-venus-mars" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Distribusi Jenis Kelamin Tenaga Perawat</span>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Proporsi Perempuan &amp; Laki-laki tenaga perawat berdasarkan status kepegawaian dan klaster layanan (tidak termasuk bidan)</p>
+          </div>
+          <span id="genderTotalBadge" class="badge-official" style="font-size: 0.78rem;">646 Perawat</span>
+        </div>
+        <div id="chartGenderDist" style="width: 100%; height: auto;">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Chart 6: Proyeksi Pensiun & Masa Kerja Berdasarkan TMT ASN & BUP -->
+      <div class="chart-box" style="margin-bottom: 2rem;">
+        <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <span class="chart-title"><i class="fa-solid fa-calendar-check" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Proyeksi Pensiun &amp; Masa Kerja Tenaga Keperawatan (TMT ASN &amp; BUP 58/60 Thn)</span>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Analisis kebutuhan regenerasi SDM keperawatan &amp; kebidanan berdasarkan TMT ASN, batas usia pensiun (BUP), dan tanggal pensiun resmi</p>
+          </div>
+          <span id="retirementTotalBadge" class="badge-official" style="font-size: 0.78rem;">Memuat proyeksi...</span>
+        </div>
+        <div id="chartRetirementProjection" style="width: 100%; height: auto;">
+          <!-- Rendered interactively in JS -->
+        </div>
+      </div>
+      </div>
+      <!-- END SUB-PANE 3.2 ANALITIK -->
 
       <!-- ========== 3.3 SUB-PANE: DASHBOARD OPPE & AUDIT ========== -->
       <div id="subpane-mutu-oppe" style="display: none;">
@@ -2261,121 +2373,6 @@
         </div>
       </div>
       <!-- END SUB-PANE 3.2 E-LOGBOOK -->
-    </section>
-
-    <!-- ----------------------------------------------------------------------
-         TAB 5: DASHBOARD ANALITIK DATA KEPERAWATAN
-         ---------------------------------------------------------------------- -->
-    <section class="tab-pane" id="pane-analitik">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Dashboard Analitik & Distribusi Tenaga Keperawatan</h2>
-          <p class="section-subtitle">
-            Visualisasi data jenjang karir klinis (Pra PK, PK I–V &amp; BP I–III), kepatuhan kredensialing, dan profil tenaga perawat &amp; bidan RSUD dr. Soedarso
-          </p>
-        </div>
-        <button class="btn-secondary" onclick="renderAnalyticsCharts(); showToast('Grafik analitik diperbarui!', 'info');">
-          <i class="fa-solid fa-rotate"></i> Segarkan Grafik
-        </button>
-      </div>
-
-      <!-- Grid of SVG Analytics Charts -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- Chart 1: Jenjang Karir PK -->
-        <div class="chart-box">
-          <div class="chart-header">
-            <span class="chart-title">Distribusi Jenjang Karir Klinis (Pra PK, PK I–V &amp; BP/PMB)</span>
-            <span class="badge-official">DATA AKTIF</span>
-          </div>
-          <div class="chart-svg-container" id="chartCareerLadder">
-            <!-- Rendered via SVG in JS -->
-          </div>
-        </div>
-
-        <!-- Chart 2: Status Kredensial SPK/RKK -->
-        <div class="chart-box">
-          <div class="chart-header">
-            <span class="chart-title">Proporsi Status Kredensial SPK & RKK</span>
-            <span class="badge-official">VALIDASI KARS</span>
-          </div>
-          <div class="chart-svg-container" id="chartCredentialStatus">
-            <!-- Rendered via SVG in JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Chart 3: Infografis Distribusi PK per Unit & Ruang Rawat -->
-      <div class="chart-box" style="margin-bottom: 2rem;">
-        <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
-          <div>
-            <span class="chart-title"><i class="fa-solid fa-layer-group" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Infografis Sebaran Perawat, Bidan &amp; Jenjang PK per Unit / Ruangan</span>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Pemetaan interaktif seluruh 717 tenaga perawat &amp; bidan di 65 unit/ruangan beserta komposisi PK III, PK II, PK I, Pra PK, dan BP I–III</p>
-          </div>
-          <span id="unitDistTotalBadge" class="badge-official" style="font-size: 0.78rem;">Memuat data...</span>
-        </div>
-        <div id="chartUnitDistribution" style="width: 100%; height: auto;">
-          <!-- Rendered interactively in JS -->
-        </div>
-      </div>
-
-      <!-- Grid Analitik SDM: Pendidikan & Status/Pangkat -->
-      <div class="analytics-sdm-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- Chart 4: Distribusi Pendidikan Terakhir -->
-        <div class="chart-box">
-          <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
-            <div>
-              <span class="chart-title"><i class="fa-solid fa-graduation-cap" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Distribusi Pendidikan Terakhir</span>
-              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Klasifikasi kualifikasi pendidikan perawat &amp; bidan (717 tenaga)</p>
-            </div>
-            <span class="badge-official">DATA KEPEGAWAIAN</span>
-          </div>
-          <div id="chartEducationDist" style="width: 100%; height: auto;">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
-
-        <!-- Chart 5: Status Kepegawaian, Gender & Estimasi Pangkat/Golongan -->
-        <div class="chart-box">
-          <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
-            <div>
-              <span class="chart-title"><i class="fa-solid fa-id-badge" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Status Kepegawaian &amp; Estimasi Golongan</span>
-              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Komposisi PNS, PPPK, BLUD, gender &amp; estimasi golongan (TMT &amp; BUP)</p>
-            </div>
-            <span class="badge-official">717 AKTIF</span>
-          </div>
-          <div id="chartStatusPangkatDist" style="width: 100%; height: auto;">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Chart 5b: Distribusi Jenis Kelamin (Khusus Perawat) -->
-      <div class="chart-box" style="margin-bottom: 2rem;">
-        <div class="chart-header" style="flex-wrap: wrap; gap: 0.5rem;">
-          <div>
-            <span class="chart-title"><i class="fa-solid fa-venus-mars" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Distribusi Jenis Kelamin Tenaga Perawat</span>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;">Proporsi Perempuan &amp; Laki-laki tenaga perawat berdasarkan status kepegawaian dan klaster layanan (tidak termasuk bidan)</p>
-          </div>
-          <span id="genderTotalBadge" class="badge-official" style="font-size: 0.78rem;">646 Perawat</span>
-        </div>
-        <div id="chartGenderDist" style="width: 100%; height: auto;">
-          <!-- Rendered via JS -->
-        </div>
-      </div>
-
-      <!-- Chart 6: Proyeksi Pensiun & Masa Kerja Berdasarkan TMT ASN & BUP -->
-      <div class="chart-box" style="margin-bottom: 2rem;">
-        <div class="chart-header" style="flex-wrap: wrap; gap: 0.75rem;">
-          <div>
-            <span class="chart-title"><i class="fa-solid fa-calendar-check" style="color: var(--primary-600); margin-right: 0.45rem;"></i>Proyeksi Pensiun &amp; Masa Kerja Tenaga Keperawatan (TMT ASN &amp; BUP 58/60 Thn)</span>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Analisis kebutuhan regenerasi SDM keperawatan &amp; kebidanan berdasarkan TMT ASN, batas usia pensiun (BUP), dan tanggal pensiun resmi</p>
-          </div>
-          <span id="retirementTotalBadge" class="badge-official" style="font-size: 0.78rem;">Memuat proyeksi...</span>
-        </div>
-        <div id="chartRetirementProjection" style="width: 100%; height: auto;">
-          <!-- Rendered interactively in JS -->
-        </div>
-      </div>
     </section>
 
     <!-- ----------------------------------------------------------------------

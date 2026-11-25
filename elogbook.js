@@ -4663,7 +4663,7 @@
   }
 
   // =========================================================================
-  // 4. SUB-TAB CONTROLLER MUTU PROFESI (3.1 CPD, 3.3 OPPE, 3.4 Katalog 3S)
+  // 4. SUB-TAB CONTROLLER MUTU PROFESI (3.1 CPD, 3.2 Analitik, 3.3 OPPE, 3.4 Katalog 3S)
   // =========================================================================
   function switchMutuSubtab(tabName) {
     if (tabName === 'logbook' || tabName === 'elogbook') {
@@ -4675,7 +4675,7 @@
       return;
     }
     state.activeSubtab = tabName;
-    const subtabs = ['cpd', 'oppe', 'katalog3s'];
+    const subtabs = ['cpd', 'analitik', 'oppe', 'katalog3s'];
     subtabs.forEach(t => {
       const btn = document.getElementById('subtab-btn-' + t);
       const pane = document.getElementById('subpane-mutu-' + t);
@@ -4699,6 +4699,10 @@
 
     if (tabName === 'cpd') {
       renderCpdSection();
+    } else if (tabName === 'analitik') {
+      if (typeof window.renderAnalyticsCharts === 'function') {
+        setTimeout(window.renderAnalyticsCharts, 60);
+      }
     } else if (tabName === 'oppe') {
       renderOppeSection();
     } else if (tabName === 'katalog3s') {
