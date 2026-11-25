@@ -1386,6 +1386,18 @@ window.KOMITE_DATA = {
   // Regulasi Resmi Komite Keperawatan RSUD Dr. Soedarso
   regulations: [
     {
+      id: "REG-00H",
+      category: "Formulir & Template",
+      title: "Instrumen Orientasi Komprehensif 3 Ruangan (PDF Fillable)",
+      number: "FORM-ORI-3R/KOMKEP",
+      year: "2026",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Formulir instrumen orientasi komprehensif perawat baru/rotasi untuk 3 ruangan dalam format PDF yang dapat langsung diisi (fillable).",
+      viewUrl: "https://drive.google.com/file/d/1gXoMRxIAW7X6kcX-rRJwXs0jys2ELiyF/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1gXoMRxIAW7X6kcX-rRJwXs0jys2ELiyF"
+    },
+    {
       id: "REG-00G",
       category: "Etika & Disiplin",
       title: "Alur dan Prinsip Etika dalam Penanganan dan Pelanggaran Etik dan Hukum",
