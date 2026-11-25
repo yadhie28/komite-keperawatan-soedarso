@@ -1386,6 +1386,18 @@ window.KOMITE_DATA = {
   // Regulasi Resmi Komite Keperawatan RSUD Dr. Soedarso
   regulations: [
     {
+      id: "REG-00G",
+      category: "Etika & Disiplin",
+      title: "Alur dan Prinsip Etika dalam Penanganan dan Pelanggaran Etik dan Hukum",
+      number: "ALUR-ETIK/KOMKEP",
+      year: "2025",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Panduan resmi alur dan prinsip etika dalam penanganan dugaan pelanggaran etik dan hukum profesi keperawatan di RSUD dr. Soedarso.",
+      viewUrl: "https://drive.google.com/file/d/1Xk_tx4ieg-sQI0U5x29_S2zzCy7aH6Gt/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1Xk_tx4ieg-sQI0U5x29_S2zzCy7aH6Gt"
+    },
+    {
       id: "REG-00F",
       category: "Etika & Disiplin",
       title: "SK Direktur RSUD dr. Soedarso tentang Pemberlakuan Buku Kode Etik Keperawatan",
