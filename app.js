@@ -1229,14 +1229,37 @@ function loadData() {
   
   // Load Nurses from localStorage or Master Data
   const masterNurses = master.nurses || [];
+  const NURSE_SYNC_VER = '20261125-dpt717';
   const savedNurses = localStorage.getItem('komite_nurses');
+  const savedSyncVer = localStorage.getItem('komite_nurses_sync_ver');
   if (savedNurses) {
     try {
       const parsed = JSON.parse(savedNurses);
-      const existingNips = new Set(parsed.map(n => (n.nip || '').replace(/\s+/g, '')));
+      const masterById = new Map(masterNurses.map(mn => [mn.id, mn]));
+      const masterByNip = new Map(
+        masterNurses
+          .map(mn => [(mn.nip || '').replace(/\s+/g, ''), mn])
+          .filter(([k]) => k && k !== '-')
+      );
+      if (savedSyncVer !== NURSE_SYNC_VER) {
+        parsed.forEach(n => {
+          const cleanNip = (n.nip || '').replace(/\s+/g, '');
+          const ref = masterById.get(n.id) || (cleanNip && cleanNip !== '-' ? masterByNip.get(cleanNip) : null);
+          if (ref) {
+            n.unit = ref.unit;
+            if ((!n.nip || n.nip === '-') && ref.nip && ref.nip !== '-') {
+              n.nip = ref.nip;
+              n.jenisId = ref.jenisId || n.jenisId;
+            }
+          }
+        });
+        localStorage.setItem('komite_nurses_sync_ver', NURSE_SYNC_VER);
+      }
+      const existingIds = new Set(parsed.map(n => n.id));
+      const existingNips = new Set(parsed.map(n => (n.nip || '').replace(/\s+/g, '')).filter(k => k && k !== '-'));
       masterNurses.forEach(mn => {
         const cleanMnNip = (mn.nip || '').replace(/\s+/g, '');
-        if (cleanMnNip && !existingNips.has(cleanMnNip)) {
+        if (!existingIds.has(mn.id) && (!cleanMnNip || cleanMnNip === '-' || !existingNips.has(cleanMnNip))) {
           parsed.push(mn);
         }
       });
@@ -1246,6 +1269,7 @@ function loadData() {
     }
   } else {
     state.nurses = masterNurses;
+    localStorage.setItem('komite_nurses_sync_ver', NURSE_SYNC_VER);
   }
   saveNurses();
 
@@ -1705,14 +1729,16 @@ function filterStructureSKFromOrg(groupName) {
 }
 
 function updateHeroStats() {
-  const total = state.nurses.length;
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const totalRoster = roster.length || state.nurses.length;
+  const totalNurses = state.nurses.length;
   const approved = state.nurses.filter(n => n.credentialStatus === 'Disetujui').length;
-  const pct = total > 0 ? ((approved / total) * 100).toFixed(1) : 0;
+  const pct = totalNurses > 0 ? ((approved / totalNurses) * 100).toFixed(1) : 0;
 
   const statTotal = document.getElementById('heroStatTotal');
   const statValid = document.getElementById('heroStatValid');
 
-  if (statTotal) statTotal.textContent = `${total}+`;
+  if (statTotal) statTotal.textContent = `${totalRoster}`;
   if (statValid) statValid.textContent = `${pct}%`;
 }
 
@@ -3010,19 +3036,28 @@ function renderAnalyticsCharts() {
   renderCareerLadderChart();
   renderCredentialStatusChart();
   renderUnitDistributionChart();
+  renderEducationDistributionChart();
+  renderStatusPangkatChart();
+  renderGenderDistributionChart();
+  renderRetirementProjectionChart();
+  renderEducationDistributionChart();
+  renderStatusPangkatChart();
+  renderRetirementProjectionChart();
 }
 
-// 1. Chart Jenjang Karir (PK I - PK V, PMB)
+// 1. Chart Jenjang Karir (PK I - PK V, BP/PMB)
 function renderCareerLadderChart() {
   const container = document.getElementById('chartCareerLadder');
   if (!container) return;
 
   const counts = {
-    'PK I': 0, 'PK II': 0, 'PK III': 0, 'PK IV': 0, 'PK V': 0, 'PMB': 0
+    'PK I': 0, 'PK II': 0, 'PK III': 0, 'PK IV': 0, 'PK V': 0, 'BP/PMB': 0
   };
 
   state.nurses.forEach(n => {
-    if (counts[n.pkLevel] !== undefined) counts[n.pkLevel]++;
+    const pk = String(n.pkLevel || '').trim().toUpperCase();
+    if (counts[pk] !== undefined) counts[pk]++;
+    else if (pk.startsWith('BP') || pk.startsWith('PMB') || pk.startsWith('BK')) counts['BP/PMB']++;
   });
 
   const maxVal = Math.max(...Object.values(counts), 1);
@@ -3051,10 +3086,6 @@ function renderCareerLadderChart() {
     `;
   }).join('');
 
-  const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
-  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
-  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
-
   container.innerHTML = `
     <svg width="100%" height="100%" viewBox="0 0 ${totalW + 60} 220" preserveAspectRatio="xMidYMid meet">
       <defs>
@@ -3069,36 +3100,62 @@ function renderCareerLadderChart() {
   `;
 }
 
-// 2. Chart Proporsi Status Kredensial
+// 2. Chart Proporsi Status Kredensial (Terhadap Total 717 Tenaga Perawat & Bidan)
 function renderCredentialStatusChart() {
   const container = document.getElementById('chartCredentialStatus');
   if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) && window.KOMKEP_PEGAWAI_717.length
+    ? window.KOMKEP_PEGAWAI_717
+    : null;
 
   const statusCounts = {
     'Disetujui': 0,
     'Proses Review': 0,
     'Menunggu Mitra Bestari': 0,
-    'Mendekati Kadaluarsa': 0
+    'Mendekati Kadaluarsa': 0,
+    'Belum Tercatat SPK/RKK': 0
   };
 
-  state.nurses.forEach(n => {
-    if (statusCounts[n.credentialStatus] !== undefined) statusCounts[n.credentialStatus]++;
-  });
+  let total = 0;
+  if (roster) {
+    const nurseByNip = new Map();
+    (state.nurses || []).forEach(n => {
+      const k = String(n.nip || '').replace(/\s+/g, '');
+      if (k && k !== '-') nurseByNip.set(k, n);
+    });
+    roster.forEach(p => {
+      total++;
+      const k = String(p.id || '').replace(/\s+/g, '');
+      const rec = nurseByNip.get(k);
+      if (rec && statusCounts[rec.credentialStatus] !== undefined) {
+        statusCounts[rec.credentialStatus]++;
+      } else {
+        statusCounts['Belum Tercatat SPK/RKK']++;
+      }
+    });
+  } else {
+    (state.nurses || []).forEach(n => {
+      total++;
+      if (statusCounts[n.credentialStatus] !== undefined) statusCounts[n.credentialStatus]++;
+    });
+  }
 
-  const total = state.nurses.length || 1;
+  const denom = total || 1;
   const colors = {
     'Disetujui': '#10b981',
     'Proses Review': '#f59e0b',
     'Menunggu Mitra Bestari': '#0284c7',
-    'Mendekati Kadaluarsa': '#ef4444'
+    'Mendekati Kadaluarsa': '#ef4444',
+    'Belum Tercatat SPK/RKK': '#94a3b8'
   };
 
   const isDark = state.theme === 'dark';
   const textColor = isDark ? '#f1f5f9' : '#0f172a';
 
-  let legendHtml = Object.keys(statusCounts).map(status => {
+  const legendHtml = Object.keys(statusCounts).map(status => {
     const count = statusCounts[status];
-    const pct = ((count / total) * 100).toFixed(1);
+    const pct = ((count / denom) * 100).toFixed(1);
     return `
       <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed ${isDark ? '#334155' : '#e2e8f0'};">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -3112,18 +3169,17 @@ function renderCredentialStatusChart() {
     `;
   }).join('');
 
-  const wasSearchFocused = document.activeElement && document.activeElement.id === 'pkInfogSearchInput';
-  const searchSelStart = wasSearchFocused ? document.activeElement.selectionStart : null;
-  const searchSelEnd = wasSearchFocused ? document.activeElement.selectionEnd : null;
-
   container.innerHTML = `
     <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 0.5rem 1rem;">
       ${legendHtml}
+      <div style="margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); text-align: right;">
+        Basis populasi: <strong>${total} tenaga</strong> perawat &amp; bidan RSUD dr. Soedarso
+      </div>
     </div>
   `;
 }
 
-// 3. Infografis Interaktif Distribusi Jenjang PK per Unit & Ruang Rawat
+// 3. Infografis Interaktif Sebaran Perawat, Bidan & Jenjang PK per Unit / Ruangan
 window._pkInfogState = window._pkInfogState || {
   cluster: 'Semua Klaster',
   pk: 'ALL',
@@ -3134,8 +3190,23 @@ window._pkInfogState = window._pkInfogState || {
 };
 
 function normalizeAnalyticsUnit(rawUnit) {
-  const cleaned = String(rawUnit || '').split('(')[0].trim();
-  if (!cleaned || /^rsud\s+(dr\.?|dokter)\s*soedarso$/i.test(cleaned) || cleaned === '-') return null;
+  const full = String(rawUnit || '').trim();
+  if (!full || /^rsud\s+(dr\.?|dokter)\s*soedarso/i.test(full) || full === '-') return null;
+  const fullLow = full.toLowerCase();
+  const fullMap = {
+    'a (anak)': ['Ruang A (Anak)', 'Rawat Inap'],
+    'b (perinatologi)': ['Ruang B (Perinatologi)', 'Rawat Inap'],
+    'camar (kemoterapi)': ['Ruang Camar (Kemoterapi)', 'Rawat Inap'],
+    'hemodialisa (hd)': ['Hemodialisa (HD)', 'Unit Khusus & Penunjang'],
+    'instalasi gawat darurat (igd)': ['Instalasi Gawat Darurat (IGD)', 'IGD & Kamar Operasi'],
+    'kemoterapi (odc)': ['Kemoterapi (ODC)', 'Unit Khusus & Penunjang'],
+    'komite pencegahan dan pengendalian infeksi (ppi)': ['Komite PPI', 'Manajemen & Komite'],
+    'manajer pelayanan pasien (mpp)/instalasi rawat inap': ['MPP / Instalasi Rawat Inap', 'Manajemen & Komite'],
+    'unit medik sentral (ums)': ['Unit Medik Sentral (UMS)', 'Unit Khusus & Penunjang']
+  };
+  if (fullMap[fullLow]) return fullMap[fullLow];
+
+  const cleaned = full.split('(')[0].trim();
   const low = cleaned.toLowerCase().replace(/^r\.\s*/, '').trim();
   const map = {
     'icu': ['ICU', 'Kritis & Intensif'],
@@ -3143,35 +3214,44 @@ function normalizeAnalyticsUnit(rawUnit) {
     'nicu': ['NICU', 'Kritis & Intensif'],
     'icvcu': ['ICVCU', 'Kritis & Intensif'],
     'hcu umum': ['HCU Umum', 'Kritis & Intensif'],
-    'unit stroke': ['Unit Stroke', 'Kritis & Intensif'],
-    'instalasi gawat darurat': ['IGD', 'IGD & Kamar Operasi'],
-    'ok igd': ['OK IGD', 'IGD & Kamar Operasi'],
     'ok bedah sentral': ['OK Bedah Sentral', 'IGD & Kamar Operasi'],
-    'ibs': ['IBS (Bedah Sentral)', 'IGD & Kamar Operasi'],
+    'ibs': ['OK Bedah Sentral', 'IGD & Kamar Operasi'],
+    'instalasi gawat darurat': ['Instalasi Gawat Darurat (IGD)', 'IGD & Kamar Operasi'],
+    'ok igd': ['OK IGD', 'IGD & Kamar Operasi'],
+    'igd transit': ['IGD Transit', 'IGD & Kamar Operasi'],
     'rawat inap isolasi paru': ['Rawat Inap Isolasi Paru', 'Rawat Inap'],
-    'isolasi': ['Ruang Isolasi', 'Rawat Inap'],
-    'a': ['Ruang A', 'Rawat Inap'],
-    'b': ['Ruang B', 'Rawat Inap'],
+    'isolasi': ['Rawat Inap Isolasi Paru', 'Rawat Inap'],
+    'a': ['Ruang A (Anak)', 'Rawat Inap'],
+    'anak': ['Ruang A (Anak)', 'Rawat Inap'],
+    'b': ['Ruang B (Perinatologi)', 'Rawat Inap'],
+    'arwana': ['Ruang Arwana', 'Rawat Inap'],
+    'kakap': ['Ruang Kakap', 'Rawat Inap'],
+    'cendana': ['Ruang Cendana', 'Rawat Inap'],
     'pjt': ['Ruang PJT', 'Rawat Inap'],
-    'enggang gading': ['Enggang Gading', 'Rawat Inap'],
-    'eg': ['Enggang Gading', 'Rawat Inap'],
-    'eg 2': ['Enggang Gading', 'Rawat Inap'],
-    'camar': ['Ruang Camar', 'Rawat Inap'],
+    'camar': ['Ruang Camar (Kemoterapi)', 'Rawat Inap'],
     'ppt': ['Ruang PPT', 'Rawat Inap'],
     'kerapu': ['Ruang Kerapu', 'Rawat Inap'],
     'meranti': ['Ruang Meranti', 'Rawat Inap'],
-    'singkut buluh': ['Singkut Buluh', 'Rawat Inap'],
+    'singkut buluh': ['Ruang Singkut Buluh', 'Rawat Inap'],
     'mahoni': ['Ruang Mahoni', 'Rawat Inap'],
-    'uls': ['Ruang ULS', 'Rawat Inap'],
-    'anak': ['Ruang Anak', 'Rawat Inap'],
+    'uls': ['Ruang ULS (Unit Stroke)', 'Rawat Inap'],
+    'unit stroke': ['Ruang ULS (Unit Stroke)', 'Rawat Inap'],
     'ramin': ['Ruang Ramin', 'Rawat Inap'],
-    'hemodialisa': ['Hemodialisa', 'Unit Khusus & Penunjang'],
+    'hemodialisa': ['Hemodialisa (HD)', 'Unit Khusus & Penunjang'],
     'cathlab': ['Cathlab', 'Unit Khusus & Penunjang'],
-    'instalasi kedokteran nuklir dan terapi molekuler': ['Kedokteran Nuklir', 'Unit Khusus & Penunjang'],
+    'instalasi kedokteran nuklir dan terapi molekuler': ['Kedokteran Nuklir & Terapi Molekuler', 'Unit Khusus & Penunjang'],
     'thalasemia': ['Thalasemia', 'Unit Khusus & Penunjang'],
+    'radiologi': ['Radiologi', 'Unit Khusus & Penunjang'],
     'radioterapi': ['Radioterapi', 'Unit Khusus & Penunjang'],
-    'kemoterapi': ['Kemoterapi', 'Unit Khusus & Penunjang'],
-    'unit medik sentral': ['Unit Medik Sentral', 'Unit Khusus & Penunjang']
+    'kemoterapi': ['Kemoterapi (ODC)', 'Unit Khusus & Penunjang'],
+    'instalasi sterilisasi dan binatu': ['Instalasi Sterilisasi & Binatu', 'Unit Khusus & Penunjang'],
+    'unit medik sentral': ['Unit Medik Sentral (UMS)', 'Unit Khusus & Penunjang'],
+    'instalasi rawat jalan': ['Instalasi Rawat Jalan', 'Poliklinik / Rawat Jalan'],
+    'bidang keperawatan dan kebidanan': ['Bidang Keperawatan & Kebidanan', 'Manajemen & Komite'],
+    'bidang pengembangan profesi': ['Bidang Pengembangan Profesi', 'Manajemen & Komite'],
+    'hukum, humas, pemasaran dan organisasi': ['Hukum, Humas, Pemasaran & Organisasi', 'Manajemen & Komite'],
+    'komite pencegahan dan pengendalian infeksi': ['Komite PPI', 'Manajemen & Komite'],
+    'manajer pelayanan pasien': ['MPP / Instalasi Rawat Inap', 'Manajemen & Komite']
   };
   if (map[low]) return map[low];
   if (low.startsWith('poli ')) {
@@ -3184,6 +3264,7 @@ function normalizeAnalyticsUnit(rawUnit) {
       .replace(/\bTb\b/g, 'TB')
       .replace(/\bMdr\b/g, 'MDR')
       .replace(/\bDots\b/g, 'DOTS')
+      .replace(/\bVct\b/g, 'VCT')
       .replace(/\bDan\b/g, '&');
     return [title, 'Poliklinik / Rawat Jalan'];
   }
@@ -3225,25 +3306,78 @@ function renderUnitDistributionChart() {
 
   const st = window._pkInfogState;
   const grouped = {};
-  let unmappedCount = 0;
+  let unmappedUnitCount = 0;
 
+  // Map SPK/RKK (PK level) by clean NIP
+  const nurseByNip = new Map();
   (state.nurses || []).forEach(n => {
-    const res = normalizeAnalyticsUnit(n.unit);
-    const pk = String(n.pkLevel || '').trim().toUpperCase();
-    if (!res) {
-      unmappedCount++;
-      return;
-    }
-    const [unitName, cat] = res;
-    if (!grouped[unitName]) {
-      grouped[unitName] = { name: unitName, cat, pk3: 0, pk2: 0, pk1: 0, other: 0, total: 0 };
-    }
-    grouped[unitName].total++;
-    if (pk === 'PK III') grouped[unitName].pk3++;
-    else if (pk === 'PK II') grouped[unitName].pk2++;
-    else if (pk === 'PK I') grouped[unitName].pk1++;
-    else grouped[unitName].other++;
+    const k = String(n.nip || '').replace(/\s+/g, '');
+    if (k && k !== '-') nurseByNip.set(k, n);
   });
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) && window.KOMKEP_PEGAWAI_717.length
+    ? window.KOMKEP_PEGAWAI_717
+    : null;
+
+  const ensureGroup = (unitName, cat) => {
+    if (!grouped[unitName]) {
+      grouped[unitName] = {
+        name: unitName, cat,
+        pk3: 0, pk2: 0, pk1: 0, other: 0, unmappedPk: 0,
+        perawat: 0, bidan: 0, pns: 0, pppk: 0, blud: 0,
+        perempuan: 0, laki: 0,
+        total: 0
+      };
+    }
+    return grouped[unitName];
+  };
+
+  if (roster) {
+    roster.forEach(p => {
+      const res = normalizeAnalyticsUnit(p.unit);
+      if (!res) {
+        unmappedUnitCount++;
+        return;
+      }
+      const [unitName, cat] = res;
+      const g = ensureGroup(unitName, cat);
+      g.total++;
+      if (String(p.kat || '').toLowerCase() === 'bidan') g.bidan++;
+      else g.perawat++;
+      if (p.jk === 'Laki-laki') g.laki++;
+      else g.perempuan++;
+      const statusStr = String(p.status || '').toUpperCase();
+      if (statusStr === 'PNS') g.pns++;
+      else if (statusStr.includes('PPPK')) g.pppk++;
+      else g.blud++;
+
+      const cleanId = String(p.id || '').replace(/\s+/g, '');
+      const spkRec = nurseByNip.get(cleanId);
+      const pk = spkRec ? String(spkRec.pkLevel || '').trim().toUpperCase() : '';
+      if (pk === 'PK III') g.pk3++;
+      else if (pk === 'PK II') g.pk2++;
+      else if (pk === 'PK I') g.pk1++;
+      else if (pk) g.other++;
+      else g.unmappedPk++;
+    });
+  } else {
+    (state.nurses || []).forEach(n => {
+      const res = normalizeAnalyticsUnit(n.unit);
+      const pk = String(n.pkLevel || '').trim().toUpperCase();
+      if (!res) {
+        unmappedUnitCount++;
+        return;
+      }
+      const [unitName, cat] = res;
+      const g = ensureGroup(unitName, cat);
+      g.total++;
+      g.perawat++;
+      if (pk === 'PK III') g.pk3++;
+      else if (pk === 'PK II') g.pk2++;
+      else if (pk === 'PK I') g.pk1++;
+      else g.other++;
+    });
+  }
 
   const allUnits = Object.values(grouped).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
   const totals = allUnits.reduce((acc, u) => {
@@ -3252,35 +3386,47 @@ function renderUnitDistributionChart() {
     acc.pk2 += u.pk2;
     acc.pk1 += u.pk1;
     acc.other += u.other;
+    acc.unmappedPk += u.unmappedPk;
+    acc.perawat += u.perawat;
+    acc.bidan += u.bidan;
+    acc.pns += u.pns;
+    acc.pppk += u.pppk;
+    acc.blud += u.blud;
     return acc;
-  }, { total: 0, pk3: 0, pk2: 0, pk1: 0, other: 0 });
+  }, { total: 0, pk3: 0, pk2: 0, pk1: 0, other: 0, unmappedPk: 0, perawat: 0, bidan: 0, pns: 0, pppk: 0, blud: 0 });
 
   const pct = (v, d) => d ? ((v / d) * 100).toFixed(1) : '0.0';
+  const mappedPkTotal = totals.pk3 + totals.pk2 + totals.pk1 + totals.other;
 
   const badgeEl = document.getElementById('unitDistTotalBadge');
   if (badgeEl) {
-    badgeEl.textContent = `${totals.total} Terpetakan · ${allUnits.length} Unit`;
+    badgeEl.textContent = `${totals.total} Tenaga · ${allUnits.length} Unit`;
   }
 
   // Klaster summary
-  const clusterOrder = ['Rawat Inap', 'Kritis & Intensif', 'IGD & Kamar Operasi', 'Unit Khusus & Penunjang', 'Poliklinik / Rawat Jalan', 'Lainnya'];
+  const clusterOrder = ['Rawat Inap', 'Kritis & Intensif', 'IGD & Kamar Operasi', 'Unit Khusus & Penunjang', 'Poliklinik / Rawat Jalan', 'Manajemen & Komite', 'Lainnya'];
   const byCluster = {};
   allUnits.forEach(u => {
-    if (!byCluster[u.cat]) byCluster[u.cat] = { cat: u.cat, units: 0, total: 0, pk3: 0, pk2: 0, pk1: 0, other: 0 };
+    if (!byCluster[u.cat]) {
+      byCluster[u.cat] = { cat: u.cat, units: 0, total: 0, pk3: 0, pk2: 0, pk1: 0, other: 0, unmappedPk: 0, perawat: 0, bidan: 0 };
+    }
     byCluster[u.cat].units++;
     byCluster[u.cat].total += u.total;
     byCluster[u.cat].pk3 += u.pk3;
     byCluster[u.cat].pk2 += u.pk2;
     byCluster[u.cat].pk1 += u.pk1;
     byCluster[u.cat].other += u.other;
+    byCluster[u.cat].unmappedPk += u.unmappedPk;
+    byCluster[u.cat].perawat += u.perawat;
+    byCluster[u.cat].bidan += u.bidan;
   });
   const clusterList = Object.values(byCluster).sort((a, b) => b.total - a.total);
   const maxCluster = Math.max(...clusterList.map(c => c.total), 1);
 
   // Insights
   const top3 = allUnits.slice(0, 3);
-  const topPk3 = [...allUnits].filter(u => u.total >= 8).sort((a, b) => (b.pk3 / b.total) - (a.pk3 / a.total)).slice(0, 3);
-  const topJunior = [...allUnits].filter(u => u.total >= 10).sort((a, b) => ((b.pk1 + b.pk2) / b.total) - ((a.pk1 + a.pk2) / a.total)).slice(0, 3);
+  const topPk3 = [...allUnits].filter(u => u.total >= 10 && u.pk3 > 0).sort((a, b) => (b.pk3 / b.total) - (a.pk3 / a.total)).slice(0, 3);
+  const topNeedKred = [...allUnits].filter(u => u.total >= 10 && u.unmappedPk > 0).sort((a, b) => b.unmappedPk - a.unmappedPk).slice(0, 3);
 
   // Filtered units
   const q = String(st.search || '').trim().toLowerCase();
@@ -3300,6 +3446,7 @@ function renderUnitDistributionChart() {
   });
   else if (st.sort === 'pk3_desc') filtered.sort((a, b) => b.pk3 - a.pk3 || b.total - a.total);
   else if (st.sort === 'pk1_desc') filtered.sort((a, b) => b.pk1 - a.pk1 || b.total - a.total);
+  else if (st.sort === 'unmapped_desc') filtered.sort((a, b) => b.unmappedPk - a.unmappedPk || b.total - a.total);
   else if (st.sort === 'name_asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
 
   const visTotal = filtered.reduce((s, u) => s + u.total, 0);
@@ -3314,7 +3461,10 @@ function renderUnitDistributionChart() {
           <span style="font-weight: 600; font-size: 0.74rem; color: var(--text-muted); margin-left: 0.4rem;">· ${escapeInfogHtml(selectedObj.cat)}</span>
         </div>
         <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
-          Total <strong style="color: var(--text-main);">${selectedObj.total} tenaga</strong> (${pct(selectedObj.total, totals.total)}% dari seluruh unit terpetakan)
+          Total <strong style="color: var(--text-main);">${selectedObj.total} tenaga</strong> (${pct(selectedObj.total, totals.total)}%)
+          · Perawat: <strong>${selectedObj.perawat}</strong>, Bidan: <strong>${selectedObj.bidan}</strong>
+          · P: <strong>${selectedObj.perempuan}</strong>, L: <strong>${selectedObj.laki}</strong>
+          · PNS: <strong>${selectedObj.pns}</strong>, PPPK: <strong>${selectedObj.pppk}</strong>, BLUD: <strong>${selectedObj.blud}</strong>
         </div>
       </div>
       <div class="pk-detail-pills">
@@ -3322,6 +3472,7 @@ function renderUnitDistributionChart() {
         <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk2-color);"></span>PK II: <strong>${selectedObj.pk2}</strong> (${pct(selectedObj.pk2, selectedObj.total)}%)</span>
         <span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pk1-color);"></span>PK I: <strong>${selectedObj.pk1}</strong> (${pct(selectedObj.pk1, selectedObj.total)}%)</span>
         ${selectedObj.other ? `<span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>BP II/Lain: <strong>${selectedObj.other}</strong> (${pct(selectedObj.other, selectedObj.total)}%)</span>` : ''}
+        ${selectedObj.unmappedPk ? `<span class="pk-detail-pill"><span class="pk-infog-dot" style="background: var(--pkunmapped-color);"></span>Belum Terpetakan PK: <strong>${selectedObj.unmappedPk}</strong> (${pct(selectedObj.unmappedPk, selectedObj.total)}%)</span>` : ''}
         <button type="button" class="pk-chip" onclick="pkInfogToggleDetail('${escapeInfogHtml(selectedObj.name).replace(/'/g, "\\'")}')">Tutup</button>
       </div>
     </div>
@@ -3333,6 +3484,7 @@ function renderUnitDistributionChart() {
     const p2 = (c.pk2 / c.total) * 100;
     const p1 = (c.pk1 / c.total) * 100;
     const po = (c.other / c.total) * 100;
+    const pu = (c.unmappedPk / c.total) * 100;
     const isAct = st.cluster === c.cat;
     return `
       <div class="pk-cluster-row ${isAct ? 'active' : ''}" onclick="pkInfogSetCluster('${escapeInfogHtml(c.cat)}')">
@@ -3346,13 +3498,15 @@ function renderUnitDistributionChart() {
             ${c.pk2 ? `<div class="pk-bar-seg" style="width:${p2}%; background:var(--pk2-color);" title="PK II: ${c.pk2}"></div>` : ''}
             ${c.pk1 ? `<div class="pk-bar-seg" style="width:${p1}%; background:var(--pk1-color);" title="PK I: ${c.pk1}"></div>` : ''}
             ${c.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="BP II/Lain: ${c.other}"></div>` : ''}
+            ${c.unmappedPk ? `<div class="pk-bar-seg" style="width:${pu}%; background:var(--pkunmapped-color);" title="Belum Terpetakan PK: ${c.unmappedPk}"></div>` : ''}
           </div>
         </div>
         <div class="pk-cluster-meta">
-          <span>PK III: <strong style="color:var(--text-main);">${c.pk3}</strong> (${pct(c.pk3, c.total)}%)</span>
+          <span>PK III: <strong style="color:var(--text-main);">${c.pk3}</strong></span>
           <span>PK II: <strong style="color:var(--text-main);">${c.pk2}</strong></span>
           <span>PK I: <strong style="color:var(--text-main);">${c.pk1}</strong></span>
-          ${c.other ? `<span>BP II/Lain: <strong style="color:var(--text-main);">${c.other}</strong></span>` : ''}
+          ${c.unmappedPk ? `<span>Belum PK: <strong style="color:var(--text-main);">${c.unmappedPk}</strong></span>` : ''}
+          ${c.bidan ? `<span>Bidan: <strong style="color:var(--text-main);">${c.bidan}</strong></span>` : ''}
         </div>
       </div>
     `;
@@ -3374,13 +3528,14 @@ function renderUnitDistributionChart() {
       const p2 = (u.pk2 / u.total) * 100;
       const p1 = (u.pk1 / u.total) * 100;
       const po = (u.other / u.total) * 100;
+      const pu = (u.unmappedPk / u.total) * 100;
       const safeName = escapeInfogHtml(u.name).replace(/'/g, "\\'");
       return `
-        <div class="pk-unit-row" onclick="pkInfogToggleDetail('${safeName}')" title="Klik untuk melihat rincian komposisi PK ${escapeInfogHtml(u.name)}">
+        <div class="pk-unit-row" onclick="pkInfogToggleDetail('${safeName}')" title="Klik untuk melihat rincian ${escapeInfogHtml(u.name)}">
           <div class="pk-unit-rank">${idx + 1}</div>
           <div style="min-width:0;">
             <div class="pk-unit-name">${escapeInfogHtml(u.name)}</div>
-            <div class="pk-unit-cat">${escapeInfogHtml(u.cat)}</div>
+            <div class="pk-unit-cat">${escapeInfogHtml(u.cat)}${u.bidan ? ` · ${u.bidan} Bidan` : ''}</div>
           </div>
           <div class="pk-bar-track">
             <div class="pk-bar-inner" style="width:${totalW.toFixed(1)}%;">
@@ -3388,6 +3543,7 @@ function renderUnitDistributionChart() {
               ${u.pk2 ? `<div class="pk-bar-seg" style="width:${p2}%; background:var(--pk2-color);" title="PK II: ${u.pk2} (${pct(u.pk2, u.total)}%)">${(u.pk2 / maxUnitVal) >= 0.08 ? u.pk2 : ''}</div>` : ''}
               ${u.pk1 ? `<div class="pk-bar-seg" style="width:${p1}%; background:var(--pk1-color);" title="PK I: ${u.pk1} (${pct(u.pk1, u.total)}%)">${(u.pk1 / maxUnitVal) >= 0.08 ? u.pk1 : ''}</div>` : ''}
               ${u.other ? `<div class="pk-bar-seg" style="width:${po}%; background:var(--pkother-color);" title="BP II/Lain: ${u.other} (${pct(u.other, u.total)}%)">${(u.other / maxUnitVal) >= 0.08 ? u.other : ''}</div>` : ''}
+              ${u.unmappedPk ? `<div class="pk-bar-seg" style="width:${pu}%; background:var(--pkunmapped-color);" title="Belum Terpetakan PK: ${u.unmappedPk} (${pct(u.unmappedPk, u.total)}%)">${(u.unmappedPk / maxUnitVal) >= 0.08 ? u.unmappedPk : ''}</div>` : ''}
             </div>
           </div>
           <div class="pk-unit-total">${u.total} org</div>
@@ -3395,7 +3551,7 @@ function renderUnitDistributionChart() {
       `;
     }).join('') + `</div>`;
   } else {
-    const maxCell = Math.max(...filtered.flatMap(u => [u.pk3, u.pk2, u.pk1, u.other]), 1);
+    const maxCell = Math.max(...filtered.flatMap(u => [u.pk3, u.pk2, u.pk1, u.other, u.unmappedPk]), 1);
     const cellStyle = (val, rgb) => {
       if (!val) return 'background: transparent; color: var(--text-muted); opacity: 0.45;';
       const alpha = (0.16 + 0.68 * (val / maxCell)).toFixed(2);
@@ -3413,7 +3569,7 @@ function renderUnitDistributionChart() {
               <th class="center">PK III</th>
               <th class="center">PK II</th>
               <th class="center">PK I</th>
-              <th class="center">BP II / Lain</th>
+              <th class="center">Belum PK</th>
               <th class="right">Total</th>
             </tr>
           </thead>
@@ -3428,7 +3584,7 @@ function renderUnitDistributionChart() {
                   <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.pk3, '13,148,136')}">${u.pk3 || '-'}</span></td>
                   <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.pk2, '217,119,6')}">${u.pk2 || '-'}</span></td>
                   <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.pk1, '2,132,199')}">${u.pk1 || '-'}</span></td>
-                  <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.other, '124,58,237')}">${u.other || '-'}</span></td>
+                  <td class="center"><span class="pk-heat-cell" style="${cellStyle(u.unmappedPk, '100,116,139')}">${u.unmappedPk || '-'}</span></td>
                   <td class="right" style="font-family:var(--font-mono); font-weight:800;">${u.total}</td>
                 </tr>
               `;
@@ -3452,58 +3608,59 @@ function renderUnitDistributionChart() {
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk2-color);"></span>PK II <span class="muted">(Madya)</span></span>
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pk1-color);"></span>PK I <span class="muted">(Dasar / Pemula)</span></span>
         <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pkother-color);"></span>BP II / Lainnya</span>
+        <span class="pk-infog-legend-item"><span class="pk-infog-dot" style="background: var(--pkunmapped-color);"></span>Belum Terpetakan PK</span>
       </div>
 
       <!-- KPI Strip -->
       <div class="pk-infog-kpi-grid">
         <div class="pk-infog-kpi">
-          <div class="pk-infog-kpi-top"><span>Terpetakan di Unit</span><span class="pk-infog-dot" style="background: var(--primary-600);"></span></div>
+          <div class="pk-infog-kpi-top"><span>Total Perawat &amp; Bidan</span><span class="pk-infog-dot" style="background: var(--primary-600);"></span></div>
           <div class="pk-infog-kpi-val">${totals.total}</div>
           <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:100%; background: var(--primary-600);"></div></div>
-          <div class="pk-infog-kpi-sub">${allUnits.length} unit aktif · ${unmappedCount} arsip tanpa unit</div>
+          <div class="pk-infog-kpi-sub">${allUnits.length} unit/ruangan · ${totals.perawat} Perawat · ${totals.bidan} Bidan</div>
         </div>
         <div class="pk-infog-kpi">
-          <div class="pk-infog-kpi-top"><span>PK III (Dominan)</span><span class="pk-infog-dot" style="background: var(--pk3-color);"></span></div>
+          <div class="pk-infog-kpi-top"><span>PK III (Mandiri / Senior)</span><span class="pk-infog-dot" style="background: var(--pk3-color);"></span></div>
           <div class="pk-infog-kpi-val">${totals.pk3}</div>
           <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk3, totals.total)}%; background: var(--pk3-color);"></div></div>
-          <div class="pk-infog-kpi-sub">${pct(totals.pk3, totals.total)}% dari tenaga terpetakan</div>
+          <div class="pk-infog-kpi-sub">${pct(totals.pk3, totals.total)}% dari 717 · ${pct(totals.pk3, mappedPkTotal)}% dari terpetakan PK</div>
         </div>
         <div class="pk-infog-kpi">
-          <div class="pk-infog-kpi-top"><span>PK II (Madya)</span><span class="pk-infog-dot" style="background: var(--pk2-color);"></span></div>
-          <div class="pk-infog-kpi-val">${totals.pk2}</div>
-          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk2, totals.total)}%; background: var(--pk2-color);"></div></div>
-          <div class="pk-infog-kpi-sub">${pct(totals.pk2, totals.total)}% dari tenaga terpetakan</div>
+          <div class="pk-infog-kpi-top"><span>PK II &amp; PK I</span><span class="pk-infog-dot" style="background: var(--pk2-color);"></span></div>
+          <div class="pk-infog-kpi-val">${totals.pk2 + totals.pk1 + totals.other}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk2 + totals.pk1 + totals.other, totals.total)}%; background: var(--pk2-color);"></div></div>
+          <div class="pk-infog-kpi-sub">PK II: ${totals.pk2} · PK I: ${totals.pk1}${totals.other ? ` · BP/Lain: ${totals.other}` : ''}</div>
         </div>
         <div class="pk-infog-kpi">
-          <div class="pk-infog-kpi-top"><span>PK I &amp; BP II</span><span class="pk-infog-dot" style="background: var(--pk1-color);"></span></div>
-          <div class="pk-infog-kpi-val">${totals.pk1 + totals.other}</div>
-          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.pk1 + totals.other, totals.total)}%; background: var(--pk1-color);"></div></div>
-          <div class="pk-infog-kpi-sub">PK I: ${totals.pk1} (${pct(totals.pk1, totals.total)}%) · BP II/Lain: ${totals.other}</div>
+          <div class="pk-infog-kpi-top"><span>Belum Terpetakan PK</span><span class="pk-infog-dot" style="background: var(--pkunmapped-color);"></span></div>
+          <div class="pk-infog-kpi-val">${totals.unmappedPk}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${pct(totals.unmappedPk, totals.total)}%; background: var(--pkunmapped-color);"></div></div>
+          <div class="pk-infog-kpi-sub">${pct(totals.unmappedPk, totals.total)}% (PNS ${totals.pns} · PPPK ${totals.pppk} · BLUD ${totals.blud})</div>
         </div>
       </div>
 
       <!-- Overview: Klaster + Insights -->
       <div class="pk-infog-overview">
         <div class="pk-infog-panel">
-          <div class="pk-infog-panel-title">Komposisi PK Berdasarkan Klaster Layanan</div>
+          <div class="pk-infog-panel-title">Sebaran Tenaga &amp; Komposisi PK Berdasarkan Klaster Layanan</div>
           <div class="pk-infog-panel-sub">Klik salah satu klaster untuk menyaring daftar unit di bawah</div>
           ${clusterRowsHtml}
         </div>
         <div class="pk-infog-panel">
           <div class="pk-infog-panel-title">Sorotan Analitik Utama</div>
-          <div class="pk-infog-panel-sub">Ringkasan otomatis dari database SPK &amp; RKK aktif</div>
+          <div class="pk-infog-panel-sub">Ringkasan otomatis dari data sebaran 717 tenaga (65 unit) &amp; database SPK/RKK</div>
           <div class="pk-insight-stack">
             <div class="pk-insight-card" style="border-left-color: var(--pk3-color);">
               <div class="pk-insight-badge">3 Unit Terbesar</div>
-              <div class="pk-insight-body">${top3.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${u.total} org)`).join(', ')} menempati posisi teratas jumlah tenaga keperawatan.</div>
+              <div class="pk-insight-body">${top3.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${u.total} org)`).join(', ')} menempati posisi teratas jumlah tenaga keperawatan &amp; kebidanan.</div>
             </div>
             <div class="pk-insight-card" style="border-left-color: var(--pk2-color);">
-              <div class="pk-insight-badge">Dominasi PK III Tertinggi (&ge; 8 org)</div>
-              <div class="pk-insight-body">${topPk3.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${pct(u.pk3, u.total)}%)`).join(', ')} memiliki konsentrasi perawat mandiri tertinggi.</div>
+              <div class="pk-insight-badge">Dominasi PK III Tertinggi (&ge; 10 org)</div>
+              <div class="pk-insight-body">${topPk3.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${pct(u.pk3, u.total)}%)`).join(', ')} memiliki konsentrasi perawat mandiri (PK III) tertinggi.</div>
             </div>
-            <div class="pk-insight-card" style="border-left-color: var(--pk1-color);">
-              <div class="pk-insight-badge">Fokus Pembinaan PK I &amp; II (&ge; 10 org)</div>
-              <div class="pk-insight-body">${topJunior.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${pct(u.pk1 + u.pk2, u.total)}%)`).join(', ')} menjadi prioritas pendampingan &amp; kenaikan jenjang.</div>
+            <div class="pk-insight-card" style="border-left-color: var(--pkunmapped-color);">
+              <div class="pk-insight-badge">Prioritas Pemetaan Kredensial (&ge; 10 org)</div>
+              <div class="pk-insight-body">${topNeedKred.map(u => `<strong>${escapeInfogHtml(u.name)}</strong> (${u.unmappedPk}/${u.total} org)`).join(', ')} memiliki jumlah tenaga terbanyak yang belum tercatat di arsip SPK/RKK digital.</div>
             </div>
           </div>
         </div>
@@ -3519,19 +3676,20 @@ function renderUnitDistributionChart() {
           </div>
         </div>
         <div class="pk-infog-filters">
-          <input type="text" id="pkInfogSearchInput" class="pk-infog-input" placeholder="Cari unit atau ruang rawat (mis. ICU, Enggang, Poli)..." value="${escapeInfogHtml(st.search)}" oninput="pkInfogSetSearch(this.value)" />
+          <input type="text" id="pkInfogSearchInput" class="pk-infog-input" placeholder="Cari unit atau ruang rawat (mis. ICU, Kakap, Arwana, Cendana, Poli)..." value="${escapeInfogHtml(st.search)}" oninput="pkInfogSetSearch(this.value)" />
           <select class="pk-infog-select" onchange="pkInfogSetPk(this.value)">
             <option value="ALL" ${st.pk === 'ALL' ? 'selected' : ''}>Semua Jenjang PK</option>
             <option value="pk3" ${st.pk === 'pk3' ? 'selected' : ''}>Fokus PK III (&gt; 0)</option>
             <option value="pk2" ${st.pk === 'pk2' ? 'selected' : ''}>Fokus PK II (&gt; 0)</option>
             <option value="pk1" ${st.pk === 'pk1' ? 'selected' : ''}>Fokus PK I (&gt; 0)</option>
-            <option value="other" ${st.pk === 'other' ? 'selected' : ''}>Fokus BP II / Lainnya</option>
+            <option value="unmappedPk" ${st.pk === 'unmappedPk' ? 'selected' : ''}>Belum Terpetakan PK (&gt; 0)</option>
           </select>
           <select class="pk-infog-select" onchange="pkInfogSetSort(this.value)">
             <option value="total_desc" ${st.sort === 'total_desc' ? 'selected' : ''}>Urutkan: Total Tenaga Terbanyak</option>
             <option value="pk3_pct" ${st.sort === 'pk3_pct' ? 'selected' : ''}>Urutkan: % PK III Tertinggi (min. 5 org)</option>
             <option value="pk3_desc" ${st.sort === 'pk3_desc' ? 'selected' : ''}>Urutkan: Jumlah PK III Terbanyak</option>
             <option value="pk1_desc" ${st.sort === 'pk1_desc' ? 'selected' : ''}>Urutkan: Jumlah PK I Terbanyak</option>
+            <option value="unmapped_desc" ${st.sort === 'unmapped_desc' ? 'selected' : ''}>Urutkan: Belum Terpetakan PK Terbanyak</option>
             <option value="name_asc" ${st.sort === 'name_asc' ? 'selected' : ''}>Urutkan: Nama Unit (A–Z)</option>
           </select>
         </div>
@@ -3541,8 +3699,8 @@ function renderUnitDistributionChart() {
       ${vizHtml}
 
       <div class="pk-infog-footer">
-        <span>Menampilkan <strong>${filtered.length}</strong> dari ${allUnits.length} unit (${visTotal} tenaga). Klik baris unit untuk rincian.</span>
-        <span>Penamaan unit serupa otomatis digabungkan · Kategori 'RSUD dr. Soedarso' disaring (${unmappedCount} arsip).</span>
+        <span>Menampilkan <strong>${filtered.length}</strong> dari ${allUnits.length} unit (${visTotal} tenaga). Klik baris unit untuk rincian profesi, kepegawaian &amp; PK.</span>
+        <span>Sumber: Data Sebaran Perawat &amp; Bidan RSUD dr. Soedarso (717 orang, 65 unit) &amp; Database SPK/RKK Komite Keperawatan.</span>
       </div>
     </div>
   `;
@@ -3553,6 +3711,877 @@ function renderUnitDistributionChart() {
       inp.focus();
       if (searchSelStart !== null && searchSelEnd !== null) {
         inp.setSelectionRange(searchSelStart, searchSelEnd);
+      }
+    }
+  }
+}
+
+// 4. Chart Distribusi Pendidikan Terakhir (717 Tenaga)
+function renderEducationDistributionChart() {
+  const container = document.getElementById('chartEducationDist');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const total = roster.length || 1;
+  const order = [
+    { key: 'S2 / Magister', color: '#7c3aed' },
+    { key: 'Profesi Ners', color: '#0d9488' },
+    { key: 'Profesi Bidan', color: '#0891b2' },
+    { key: 'S1 / D-IV Keperawatan', color: '#0284c7' },
+    { key: 'S1 / D-IV Kebidanan', color: '#2563eb' },
+    { key: 'D-III Keperawatan', color: '#d97706' },
+    { key: 'D-III Kebidanan', color: '#ea580c' },
+    { key: 'Belum Tercatat', color: '#94a3b8' }
+  ];
+  const counts = {};
+  order.forEach(o => { counts[o.key] = 0; });
+  roster.forEach(p => {
+    const k = p.pend || 'Belum Tercatat';
+    counts[k] = (counts[k] || 0) + 1;
+  });
+
+  const maxVal = Math.max(...Object.values(counts), 1);
+  const sarjanaUp = (counts['S2 / Magister'] || 0) + (counts['Profesi Ners'] || 0) + (counts['Profesi Bidan'] || 0) +
+                    (counts['S1 / D-IV Keperawatan'] || 0) + (counts['S1 / D-IV Kebidanan'] || 0);
+  const vokasi = (counts['D-III Keperawatan'] || 0) + (counts['D-III Kebidanan'] || 0);
+  const pct = (v) => ((v / total) * 100).toFixed(1);
+
+  const rowsHtml = order.map(o => {
+    const val = counts[o.key] || 0;
+    const w = (val / maxVal) * 100;
+    return `
+      <div class="sdm-bar-row">
+        <div class="sdm-bar-head">
+          <span class="sdm-bar-label">${escapeInfogHtml(o.key)}</span>
+          <span class="sdm-bar-val">${val} org <span>(${pct(val)}%)</span></span>
+        </div>
+        <div class="sdm-bar-track">
+          <div class="sdm-bar-fill" style="width:${w.toFixed(1)}%; background:${o.color};"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.85rem;">
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#0d9488;"></span>S1/D-IV/Profesi/S2: <strong>${sarjanaUp}</strong> (${pct(sarjanaUp)}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#d97706;"></span>Vokasi D-III: <strong>${vokasi}</strong> (${pct(vokasi)}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#7c3aed;"></span>Magister (S2): <strong>${counts['S2 / Magister']}</strong></span>
+    </div>
+    <div class="sdm-bar-list">${rowsHtml}</div>
+    <div style="margin-top:0.65rem; font-size:0.73rem; color:var(--text-muted);">
+      Kualifikasi pendidikan diekstrak dari gelar resmi pada data kepegawaian RSUD dr. Soedarso (23 Nov 2026).
+    </div>
+  `;
+}
+
+// 5. Chart Status Kepegawaian, Jenis Kelamin & Estimasi Pangkat/Golongan
+function renderStatusPangkatChart() {
+  const container = document.getElementById('chartStatusPangkatDist');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const total = roster.length || 1;
+  const pct = (v) => ((v / total) * 100).toFixed(1);
+
+  const stCounts = { 'PNS': 0, 'PPPK': 0, 'PPPK PARUH WAKTU': 0, 'BLUD': 0 };
+  const jkCounts = { 'Perempuan': 0, 'Laki-laki': 0 };
+  const golGroups = [
+    { key: 'Gol. IV (Pembina / Ahli Madya · BUP 60)', color: '#7c3aed', count: 0 },
+    { key: 'Gol. III/c–III/d (Penata / Penyelia)', color: '#0d9488', count: 0 },
+    { key: 'Gol. III/a–III/b (Penata Muda / Mahir)', color: '#0284c7', count: 0 },
+    { key: 'Gol. II/c–II/d (Pengatur / Terampil)', color: '#38bdf8', count: 0 },
+    { key: 'PPPK Gol. IX–X (Ahli Pertama)', color: '#d97706', count: 0 },
+    { key: 'PPPK Gol. VII & Paruh Waktu', color: '#f59e0b', count: 0 },
+    { key: 'Non-ASN (BLUD)', color: '#64748b', count: 0 }
+  ];
+
+  roster.forEach(p => {
+    const st = String(p.status || 'BLUD').toUpperCase();
+    if (stCounts[st] !== undefined) stCounts[st]++;
+    if (p.jk === 'Laki-laki') jkCounts['Laki-laki']++;
+    else jkCounts['Perempuan']++;
+
+    const pe = String(p.pangkatEst || '');
+    if (pe.startsWith('Gol. IV')) golGroups[0].count++;
+    else if (pe.startsWith('Gol. III/c')) golGroups[1].count++;
+    else if (pe.startsWith('Gol. III/a')) golGroups[2].count++;
+    else if (pe.startsWith('Gol. II')) golGroups[3].count++;
+    else if (pe.startsWith('PPPK Gol. X') || pe.startsWith('PPPK Gol. IX')) golGroups[4].count++;
+    else if (pe.startsWith('PPPK')) golGroups[5].count++;
+    else golGroups[6].count++;
+  });
+
+  const maxGol = Math.max(...golGroups.map(g => g.count), 1);
+
+  const golRowsHtml = golGroups.map(g => `
+    <div class="sdm-bar-row">
+      <div class="sdm-bar-head">
+        <span class="sdm-bar-label">${escapeInfogHtml(g.key)}</span>
+        <span class="sdm-bar-val">${g.count} org <span>(${pct(g.count)}%)</span></span>
+      </div>
+      <div class="sdm-bar-track">
+        <div class="sdm-bar-fill" style="width:${((g.count / maxGol) * 100).toFixed(1)}%; background:${g.color};"></div>
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.65rem;">
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#0d9488;"></span>PNS: <strong>${stCounts['PNS']}</strong> (${pct(stCounts['PNS'])}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#d97706;"></span>PPPK: <strong>${stCounts['PPPK'] + stCounts['PPPK PARUH WAKTU']}</strong> (${pct(stCounts['PPPK'] + stCounts['PPPK PARUH WAKTU'])}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#64748b;"></span>BLUD: <strong>${stCounts['BLUD']}</strong> (${pct(stCounts['BLUD'])}%)</span>
+      <span class="pk-detail-pill"><i class="fa-solid fa-venus" style="color:#ec4899;"></i> P: <strong>${jkCounts['Perempuan']}</strong> · <i class="fa-solid fa-mars" style="color:#0284c7;"></i> L: <strong>${jkCounts['Laki-laki']}</strong></span>
+    </div>
+    <div class="sdm-bar-list">${golRowsHtml}</div>
+    <div style="margin-top:0.65rem; font-size:0.73rem; color:var(--text-muted);">
+      <strong>Catatan:</strong> Kelompok pangkat/golongan PNS &amp; PPPK dihitung sebagai estimasi berbasis BUP (58/60 thn), masa kerja TMT ASN, dan pendidikan (siap disinkronkan jika kolom pangkat SIMPEG tersedia).
+    </div>
+  `;
+}
+
+// 5b. Chart Distribusi Jenis Kelamin (Perawat & Bidan)
+function renderGenderDistributionChart() {
+  const container = document.getElementById('chartGenderDist');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const total = roster.length || 1;
+  const pct = (v, d = total) => (d ? ((v / d) * 100).toFixed(1) : '0.0');
+
+  let totalP = 0;
+  let totalL = 0;
+
+  const byProf = {
+    'Perawat': { p: 0, l: 0 },
+    'Bidan': { p: 0, l: 0 }
+  };
+  const byStatus = {
+    'PNS': { p: 0, l: 0 },
+    'PPPK': { p: 0, l: 0 },
+    'BLUD': { p: 0, l: 0 }
+  };
+  const byCluster = {};
+
+  roster.forEach(r => {
+    const isL = r.jk === 'Laki-laki';
+    if (isL) totalL++; else totalP++;
+
+    const prof = String(r.kat || '').toLowerCase() === 'bidan' ? 'Bidan' : 'Perawat';
+    if (isL) byProf[prof].l++; else byProf[prof].p++;
+
+    const stRaw = String(r.status || 'BLUD').toUpperCase();
+    const stKey = stRaw === 'PNS' ? 'PNS' : (stRaw.includes('PPPK') ? 'PPPK' : 'BLUD');
+    if (isL) byStatus[stKey].l++; else byStatus[stKey].p++;
+
+    const uRes = normalizeAnalyticsUnit(r.unit);
+    const cat = uRes ? uRes[1] : 'Lainnya';
+    if (!byCluster[cat]) byCluster[cat] = { cat, p: 0, l: 0 };
+    if (isL) byCluster[cat].l++; else byCluster[cat].p++;
+  });
+
+  const badgeEl = document.getElementById('genderTotalBadge');
+  if (badgeEl) {
+    badgeEl.textContent = `P: ${totalP} (${pct(totalP)}%) · L: ${totalL} (${pct(totalL)}%)`;
+  }
+
+  // SVG Donut ring
+  const r = 56;
+  const circ = 2 * Math.PI * r;
+  const pArc = (totalP / total) * circ;
+  const lArc = circ - pArc;
+  const isDark = state.theme === 'dark';
+  const txtCol = isDark ? '#f1f5f9' : '#0f172a';
+  const mutCol = isDark ? '#94a3b8' : '#64748b';
+
+  const makeSplitRow = (label, pCnt, lCnt) => {
+    const sub = (pCnt + lCnt) || 1;
+    const pW = (pCnt / sub) * 100;
+    const lW = (lCnt / sub) * 100;
+    return `
+      <div class="sdm-bar-row">
+        <div class="sdm-bar-head">
+          <span class="sdm-bar-label">${escapeInfogHtml(label)}</span>
+          <span class="sdm-bar-val">P: ${pCnt} <span>(${pct(pCnt, sub)}%)</span> · L: ${lCnt} <span>(${pct(lCnt, sub)}%)</span></span>
+        </div>
+        <div class="pk-bar-track" style="height:12px;">
+          <div class="pk-bar-inner" style="width:100%;">
+            ${pCnt ? `<div class="pk-bar-seg" style="width:${pW.toFixed(1)}%; background:#ec4899;" title="Perempuan: ${pCnt} (${pct(pCnt, sub)}%)"></div>` : ''}
+            ${lCnt ? `<div class="pk-bar-seg" style="width:${lW.toFixed(1)}%; background:#0284c7;" title="Laki-laki: ${lCnt} (${pct(lCnt, sub)}%)"></div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  const clusterRows = Object.values(byCluster)
+    .sort((a, b) => (b.p + b.l) - (a.p + a.l))
+    .map(c => makeSplitRow(c.cat, c.p, c.l))
+    .join('');
+
+  container.innerHTML = `
+    <div style="display:grid; grid-template-columns: minmax(220px, 280px) 1fr 1fr; gap:1.25rem; align-items:center;" class="analytics-sdm-grid">
+      <!-- Donut Ring -->
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0.5rem;">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="${r}" fill="none" stroke="${isDark ? '#1e293b' : '#f1f5f9'}" stroke-width="20" />
+          <circle cx="80" cy="80" r="${r}" fill="none" stroke="#ec4899" stroke-width="20"
+            stroke-dasharray="${pArc.toFixed(2)} ${circ.toFixed(2)}" transform="rotate(-90 80 80)" />
+          <circle cx="80" cy="80" r="${r}" fill="none" stroke="#0284c7" stroke-width="20"
+            stroke-dasharray="${lArc.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-pArc).toFixed(2)}" transform="rotate(-90 80 80)" />
+          <text x="80" y="76" text-anchor="middle" font-size="22" font-weight="800" fill="${txtCol}">${roster.length}</text>
+          <text x="80" y="95" text-anchor="middle" font-size="10.5" font-weight="600" fill="${mutCol}">Total Tenaga</text>
+        </svg>
+        <div style="display:flex; gap:0.85rem; margin-top:0.4rem; font-size:0.8rem; font-weight:700;">
+          <span style="display:inline-flex; align-items:center; gap:5px; color:${txtCol};"><span class="pk-infog-dot" style="background:#ec4899;"></span>Perempuan: ${totalP} (${pct(totalP)}%)</span>
+          <span style="display:inline-flex; align-items:center; gap:5px; color:${txtCol};"><span class="pk-infog-dot" style="background:#0284c7;"></span>Laki-laki: ${totalL} (${pct(totalL)}%)</span>
+        </div>
+      </div>
+
+      <!-- Profesi & Status -->
+      <div class="pk-infog-panel" style="padding:0.9rem 1rem;">
+        <div class="pk-infog-panel-title" style="margin-bottom:0.55rem;">Menurut Profesi &amp; Status Kepegawaian</div>
+        <div class="sdm-bar-list">
+          ${makeSplitRow('Profesi: Perawat', byProf['Perawat'].p, byProf['Perawat'].l)}
+          ${makeSplitRow('Profesi: Bidan', byProf['Bidan'].p, byProf['Bidan'].l)}
+          ${makeSplitRow('Status: PNS', byStatus['PNS'].p, byStatus['PNS'].l)}
+          ${makeSplitRow('Status: PPPK (termasuk Paruh Waktu)', byStatus['PPPK'].p, byStatus['PPPK'].l)}
+          ${makeSplitRow('Status: BLUD', byStatus['BLUD'].p, byStatus['BLUD'].l)}
+        </div>
+      </div>
+
+      <!-- Klaster Layanan -->
+      <div class="pk-infog-panel" style="padding:0.9rem 1rem;">
+        <div class="pk-infog-panel-title" style="margin-bottom:0.55rem;">Menurut Klaster Layanan</div>
+        <div class="sdm-bar-list">${clusterRows}</div>
+      </div>
+    </div>
+  `;
+}
+
+// 6. Proyeksi Pensiun & Masa Kerja (TMT ASN & BUP 58/60 Thn)
+window._retState = window._retState || {
+  horizon: '5',
+  selectedYear: null,
+  search: ''
+};
+
+window.retSetHorizon = function(h) {
+  window._retState.horizon = h;
+  window._retState.selectedYear = null;
+  renderRetirementProjectionChart();
+};
+window.retToggleYear = function(yr) {
+  window._retState.selectedYear = (window._retState.selectedYear === yr) ? null : yr;
+  renderRetirementProjectionChart();
+};
+window.retSetSearch = function(q) {
+  window._retState.search = q;
+  renderRetirementProjectionChart();
+};
+
+function renderRetirementProjectionChart() {
+  const container = document.getElementById('chartRetirementProjection');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const st = window._retState;
+  const now = new Date();
+  const baseYear = Math.max(2026, now.getFullYear());
+
+  // Compute masa kerja (from tmtIso) and sisa waktu pensiun (from pensiunIso)
+  let asnCount = 0;
+  let totalMasaKerjaYrs = 0;
+  let bup60Count = 0;
+  const byYear = {};
+
+  const enriched = roster.map(p => {
+    const pIso = p.pensiunIso || '';
+    const pYear = pIso ? parseInt(pIso.slice(0, 4), 10) : 9999;
+    const pMonth = pIso ? parseInt(pIso.slice(5, 7), 10) : 1;
+    if (pYear < 9999) {
+      byYear[pYear] = (byYear[pYear] || 0) + 1;
+    }
+    if (p.bup === 60) bup60Count++;
+
+    let masaKerjaStr = '-';
+    if (p.tmtIso) {
+      const ty = parseInt(p.tmtIso.slice(0, 4), 10);
+      const tm = parseInt(p.tmtIso.slice(5, 7), 10);
+      const diffM = Math.max(0, (now.getFullYear() - ty) * 12 + (now.getMonth() + 1 - tm));
+      const y = Math.floor(diffM / 12);
+      const m = diffM % 12;
+      masaKerjaStr = `${y} thn ${m} bln`;
+      asnCount++;
+      totalMasaKerjaYrs += diffM / 12;
+    }
+
+    const remMonths = (pYear - now.getFullYear()) * 12 + (pMonth - (now.getMonth() + 1));
+    const remY = Math.floor(Math.max(0, remMonths) / 12);
+    const remM = Math.max(0, remMonths) % 12;
+    const sisaStr = remMonths <= 0 ? 'Jatuh Tempo' : (remY > 0 ? `${remY} thn ${remM} bln` : `${remM} bln`);
+
+    return { ...p, pYear, remMonths, masaKerjaStr, sisaStr };
+  });
+
+  const avgMasaKerja = asnCount ? (totalMasaKerjaYrs / asnCount).toFixed(1) : '0.0';
+  const ret2026_2027 = enriched.filter(x => x.pYear >= 2026 && x.pYear <= 2027).length;
+  const ret5Yr = enriched.filter(x => x.pYear >= 2026 && x.pYear <= 2031).length;
+  const ret10Yr = enriched.filter(x => x.pYear >= 2026 && x.pYear <= 2035).length;
+
+  const badgeEl = document.getElementById('retirementTotalBadge');
+  if (badgeEl) {
+    badgeEl.textContent = `${ret5Yr} Pensiun (2026–2031) · ${bup60Count} BUP 60 Thn`;
+  }
+
+  // Build SVG bar chart for years 2026..2037
+  const chartYears = [];
+  for (let y = 2026; y <= 2037; y++) chartYears.push(y);
+  const maxYrCount = Math.max(...chartYears.map(y => byYear[y] || 0), 1);
+  const isDark = state.theme === 'dark';
+  const txtCol = isDark ? '#cbd5e1' : '#334155';
+  const mutCol = isDark ? '#94a3b8' : '#64748b';
+
+  const barW = 42;
+  const gap = 16;
+  const svgW = chartYears.length * (barW + gap) + 40;
+  const chartH = 145;
+
+  const barsSvg = chartYears.map((y, idx) => {
+    const val = byYear[y] || 0;
+    const h = Math.max((val / maxYrCount) * (chartH - 32), val > 0 ? 8 : 2);
+    const x = 24 + idx * (barW + gap);
+    const yPos = chartH - h;
+    const isSel = st.selectedYear === y;
+    const fill = isSel ? '#0f766e' : (y <= 2027 ? '#ef4444' : (y <= 2031 ? '#f59e0b' : '#0d9488'));
+    return `
+      <g class="ret-year-bar" onclick="retToggleYear(${y})">
+        <title>Tahun ${y}: ${val} pegawai pensiun (klik untuk filter)</title>
+        <rect x="${x}" y="${yPos}" width="${barW}" height="${h}" rx="5" fill="${fill}" opacity="${st.selectedYear && !isSel ? '0.4' : '1'}" />
+        <text x="${x + barW / 2}" y="${yPos - 5}" text-anchor="middle" font-size="11" font-weight="800" fill="${txtCol}">${val}</text>
+        <text x="${x + barW / 2}" y="${chartH + 16}" text-anchor="middle" font-size="10.5" font-weight="${isSel ? '800' : '600'}" fill="${isSel ? '#0d9488' : mutCol}">${y}</text>
+      </g>
+    `;
+  }).join('');
+
+  // Filter table rows
+  const q = String(st.search || '').trim().toLowerCase();
+  let list = enriched.filter(x => {
+    if (st.selectedYear) {
+      if (x.pYear !== st.selectedYear) return false;
+    } else if (st.horizon !== 'all') {
+      const maxY = 2026 + parseInt(st.horizon, 10);
+      if (x.pYear > maxY) return false;
+    }
+    if (q) {
+      const hay = `${x.nama} ${x.unit} ${x.pend} ${x.status} ${x.pensiun}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => (a.pensiunIso || '9999').localeCompare(b.pensiunIso || '9999') || a.nama.localeCompare(b.nama));
+
+  const displayLimit = 60;
+  const shown = list.slice(0, displayLimit);
+
+  const wasFocused = document.activeElement && document.activeElement.id === 'retSearchInput';
+  const selStart = wasFocused ? document.activeElement.selectionStart : null;
+  const selEnd = wasFocused ? document.activeElement.selectionEnd : null;
+
+  container.innerHTML = `
+    <div class="pk-infog-wrap">
+      <!-- KPI Strip Pensiun -->
+      <div class="pk-infog-kpi-grid">
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Pensiun 2026–2027</span><span class="pk-infog-dot" style="background:#ef4444;"></span></div>
+          <div class="pk-infog-kpi-val">${ret2026_2027}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${Math.min(100, (ret2026_2027 / (roster.length || 1)) * 100 * 10)}%; background:#ef4444;"></div></div>
+          <div class="pk-infog-kpi-sub">Prioritas segera suksesi &amp; regenerasi</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Pensiun 5 Tahun (2026–2031)</span><span class="pk-infog-dot" style="background:#f59e0b;"></span></div>
+          <div class="pk-infog-kpi-val">${ret5Yr}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${((ret5Yr / (roster.length || 1)) * 100).toFixed(1)}%; background:#f59e0b;"></div></div>
+          <div class="pk-infog-kpi-sub">${((ret5Yr / (roster.length || 1)) * 100).toFixed(1)}% dari total 717 tenaga</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Pensiun 10 Tahun (2026–2035)</span><span class="pk-infog-dot" style="background:#0d9488;"></span></div>
+          <div class="pk-infog-kpi-val">${ret10Yr}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${((ret10Yr / (roster.length || 1)) * 100).toFixed(1)}%; background:#0d9488;"></div></div>
+          <div class="pk-infog-kpi-sub">${((ret10Yr / (roster.length || 1)) * 100).toFixed(1)}% proyeksi 1 dekade ke depan</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Rata-rata Masa Kerja ASN</span><span class="pk-infog-dot" style="background:#0284c7;"></span></div>
+          <div class="pk-infog-kpi-val">${avgMasaKerja} <span style="font-size:0.85rem; font-weight:600;">thn</span></div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:100%; background:#0284c7;"></div></div>
+          <div class="pk-infog-kpi-sub">${asnCount} ASN bertMT · ${bup60Count} BUP 60 thn (Madya)</div>
+        </div>
+      </div>
+
+      <!-- Grafik Proyeksi per Tahun (2026-2037) -->
+      <div class="pk-infog-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+          <div>
+            <div class="pk-infog-panel-title">Grafik Jumlah Pegawai Pensiun per Tahun (2026–2037)</div>
+            <div class="pk-infog-panel-sub">Klik salah satu batang tahun untuk menyaring daftar pegawai di bawah · Merah: 2026–2027, Kuning: 2028–2031, Hijau: 2032–2037</div>
+          </div>
+          ${st.selectedYear ? `<button type="button" class="pk-chip active" onclick="retToggleYear(${st.selectedYear})">Filter Tahun ${st.selectedYear} ×</button>` : ''}
+        </div>
+        <div style="width:100%; overflow-x:auto;">
+          <svg width="100%" height="180" viewBox="0 0 ${svgW} 175" preserveAspectRatio="xMidYMid meet" style="min-width:560px;">
+            <line x1="16" y1="${chartH}" x2="${svgW - 16}" y2="${chartH}" stroke="${isDark ? '#334155' : '#e2e8f0'}" stroke-width="1.5" />
+            ${barsSvg}
+          </svg>
+        </div>
+      </div>
+
+      <!-- Filter & Tabel Daftar Pegawai Pensiun -->
+      <div class="pk-infog-controls">
+        <div class="pk-infog-chips-row">
+          <div class="pk-infog-chips">
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '1' ? 'active' : ''}" onclick="retSetHorizon('1')">2026–2027 (${ret2026_2027})</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '3' ? 'active' : ''}" onclick="retSetHorizon('3')">≤ 3 Tahun (2026–2029)</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '5' ? 'active' : ''}" onclick="retSetHorizon('5')">≤ 5 Tahun (2026–2031 · ${ret5Yr})</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '10' ? 'active' : ''}" onclick="retSetHorizon('10')">≤ 10 Tahun (2026–2036)</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === 'all' ? 'active' : ''}" onclick="retSetHorizon('all')">Semua (${roster.length})</button>
+          </div>
+          <input type="text" id="retSearchInput" class="pk-infog-input" style="max-width:280px;" placeholder="Cari nama, unit, pendidikan..." value="${escapeInfogHtml(st.search)}" oninput="retSetSearch(this.value)" />
+        </div>
+      </div>
+
+      <div class="pk-heat-wrap">
+        <table class="pk-heat-table">
+          <thead>
+            <tr>
+              <th style="width:36px;">#</th>
+              <th>Nama &amp; Profesi</th>
+              <th>Unit Kerja</th>
+              <th>Pendidikan</th>
+              <th>Status &amp; Est. Golongan</th>
+              <th>TMT ASN (Masa Kerja)</th>
+              <th class="center">BUP</th>
+              <th class="right">Tgl Pensiun &amp; Sisa</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${shown.length ? shown.map((p, idx) => {
+              const badgeCls = p.remMonths <= 18 ? 'ret-badge-soon' : (p.remMonths <= 60 ? 'ret-badge-mid' : 'ret-badge-ok');
+              return `
+                <tr>
+                  <td style="font-family:var(--font-mono); color:var(--text-muted);">${idx + 1}</td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-main);">${escapeInfogHtml(p.nama)}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${escapeInfogHtml(p.kat)} · ${escapeInfogHtml(p.jk || '-')}</div>
+                  </td>
+                  <td style="font-size:0.78rem; font-weight:600;">${escapeInfogHtml(p.unit)}</td>
+                  <td style="font-size:0.77rem;">${escapeInfogHtml(p.pend || '-')}</td>
+                  <td>
+                    <div style="font-size:0.77rem; font-weight:700;">${escapeInfogHtml(p.status)}</div>
+                    <div style="font-size:0.71rem; color:var(--text-muted);">${escapeInfogHtml(p.pangkatEst || '-')}</div>
+                  </td>
+                  <td style="font-size:0.76rem; font-family:var(--font-mono);">
+                    ${p.tmt ? `${escapeInfogHtml(p.tmt)}<div style="font-family:var(--font-sans); font-size:0.71rem; color:var(--text-muted);">${escapeInfogHtml(p.masaKerjaStr)}</div>` : '<span style="color:var(--text-muted);">- (BLUD)</span>'}
+                  </td>
+                  <td class="center" style="font-family:var(--font-mono); font-weight:700;">${p.bup || 58} thn</td>
+                  <td class="right">
+                    <div style="font-weight:700; font-size:0.78rem;">${escapeInfogHtml(p.pensiun || '-')}</div>
+                    <span class="${badgeCls}">${escapeInfogHtml(p.sisaStr)}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('') : `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Tidak ada pegawai yang cocok dengan filter saat ini.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pk-infog-footer">
+        <span>Menampilkan <strong>${shown.length}</strong>${list.length > displayLimit ? ` dari ${list.length}` : ''} pegawai${st.selectedYear ? ` pensiun tahun ${st.selectedYear}` : ''}.</span>
+        <span>BUP 58 tahun (Terampil/Ahli Pertama–Muda/BLUD) &amp; BUP 60 tahun (Ahli Madya / Gol. IV · 32 PNS) sesuai data kepegawaian 23 Nov 2026.</span>
+      </div>
+    </div>
+  `;
+
+  if (wasFocused) {
+    const inp = document.getElementById('retSearchInput');
+    if (inp) {
+      inp.focus();
+      if (selStart !== null && selEnd !== null) {
+        inp.setSelectionRange(selStart, selEnd);
+      }
+    }
+  }
+}
+
+// 4. Chart Distribusi Pendidikan Terakhir (717 Tenaga)
+function renderEducationDistributionChart() {
+  const container = document.getElementById('chartEducationDist');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const total = roster.length || 1;
+  const order = [
+    { key: 'S2 / Magister', color: '#7c3aed' },
+    { key: 'Profesi Ners', color: '#0d9488' },
+    { key: 'Profesi Bidan', color: '#0891b2' },
+    { key: 'S1 / D-IV Keperawatan', color: '#0284c7' },
+    { key: 'S1 / D-IV Kebidanan', color: '#2563eb' },
+    { key: 'D-III Keperawatan', color: '#d97706' },
+    { key: 'D-III Kebidanan', color: '#ea580c' },
+    { key: 'Belum Tercatat', color: '#94a3b8' }
+  ];
+  const counts = {};
+  order.forEach(o => { counts[o.key] = 0; });
+  roster.forEach(p => {
+    const k = p.pend || 'Belum Tercatat';
+    counts[k] = (counts[k] || 0) + 1;
+  });
+
+  const maxVal = Math.max(...Object.values(counts), 1);
+  const sarjanaUp = (counts['S2 / Magister'] || 0) + (counts['Profesi Ners'] || 0) + (counts['Profesi Bidan'] || 0) +
+                    (counts['S1 / D-IV Keperawatan'] || 0) + (counts['S1 / D-IV Kebidanan'] || 0);
+  const vokasi = (counts['D-III Keperawatan'] || 0) + (counts['D-III Kebidanan'] || 0);
+  const pct = (v) => ((v / total) * 100).toFixed(1);
+
+  const rowsHtml = order.map(o => {
+    const val = counts[o.key] || 0;
+    const w = (val / maxVal) * 100;
+    return `
+      <div class="sdm-bar-row">
+        <div class="sdm-bar-head">
+          <span class="sdm-bar-label">${escapeInfogHtml(o.key)}</span>
+          <span class="sdm-bar-val">${val} org <span>(${pct(val)}%)</span></span>
+        </div>
+        <div class="sdm-bar-track">
+          <div class="sdm-bar-fill" style="width:${w.toFixed(1)}%; background:${o.color};"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.85rem;">
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#0d9488;"></span>S1/D-IV/Profesi/S2: <strong>${sarjanaUp}</strong> (${pct(sarjanaUp)}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#d97706;"></span>Vokasi D-III: <strong>${vokasi}</strong> (${pct(vokasi)}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#7c3aed;"></span>Magister (S2): <strong>${counts['S2 / Magister']}</strong></span>
+    </div>
+    <div class="sdm-bar-list">${rowsHtml}</div>
+    <div style="margin-top:0.65rem; font-size:0.73rem; color:var(--text-muted);">
+      Kualifikasi pendidikan diekstrak dari gelar resmi pada data kepegawaian RSUD dr. Soedarso (23 Nov 2026).
+    </div>
+  `;
+}
+
+// 5. Chart Status Kepegawaian, Jenis Kelamin & Estimasi Pangkat/Golongan
+function renderStatusPangkatChart() {
+  const container = document.getElementById('chartStatusPangkatDist');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const total = roster.length || 1;
+  const pct = (v) => ((v / total) * 100).toFixed(1);
+
+  const stCounts = { 'PNS': 0, 'PPPK': 0, 'PPPK PARUH WAKTU': 0, 'BLUD': 0 };
+  const jkCounts = { 'Perempuan': 0, 'Laki-laki': 0 };
+  const golGroups = [
+    { key: 'Gol. IV (Pembina / Ahli Madya · BUP 60)', color: '#7c3aed', count: 0 },
+    { key: 'Gol. III/c–III/d (Penata / Penyelia)', color: '#0d9488', count: 0 },
+    { key: 'Gol. III/a–III/b (Penata Muda / Mahir)', color: '#0284c7', count: 0 },
+    { key: 'Gol. II/c–II/d (Pengatur / Terampil)', color: '#38bdf8', count: 0 },
+    { key: 'PPPK Gol. IX–X (Ahli Pertama)', color: '#d97706', count: 0 },
+    { key: 'PPPK Gol. VII & Paruh Waktu', color: '#f59e0b', count: 0 },
+    { key: 'Non-ASN (BLUD)', color: '#64748b', count: 0 }
+  ];
+
+  roster.forEach(p => {
+    const st = String(p.status || 'BLUD').toUpperCase();
+    if (stCounts[st] !== undefined) stCounts[st]++;
+    if (p.jk === 'Laki-laki') jkCounts['Laki-laki']++;
+    else jkCounts['Perempuan']++;
+
+    const pe = String(p.pangkatEst || '');
+    if (pe.startsWith('Gol. IV')) golGroups[0].count++;
+    else if (pe.startsWith('Gol. III/c')) golGroups[1].count++;
+    else if (pe.startsWith('Gol. III/a')) golGroups[2].count++;
+    else if (pe.startsWith('Gol. II')) golGroups[3].count++;
+    else if (pe.startsWith('PPPK Gol. X') || pe.startsWith('PPPK Gol. IX')) golGroups[4].count++;
+    else if (pe.startsWith('PPPK')) golGroups[5].count++;
+    else golGroups[6].count++;
+  });
+
+  const maxGol = Math.max(...golGroups.map(g => g.count), 1);
+
+  const golRowsHtml = golGroups.map(g => `
+    <div class="sdm-bar-row">
+      <div class="sdm-bar-head">
+        <span class="sdm-bar-label">${escapeInfogHtml(g.key)}</span>
+        <span class="sdm-bar-val">${g.count} org <span>(${pct(g.count)}%)</span></span>
+      </div>
+      <div class="sdm-bar-track">
+        <div class="sdm-bar-fill" style="width:${((g.count / maxGol) * 100).toFixed(1)}%; background:${g.color};"></div>
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.65rem;">
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#0d9488;"></span>PNS: <strong>${stCounts['PNS']}</strong> (${pct(stCounts['PNS'])}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#d97706;"></span>PPPK: <strong>${stCounts['PPPK'] + stCounts['PPPK PARUH WAKTU']}</strong> (${pct(stCounts['PPPK'] + stCounts['PPPK PARUH WAKTU'])}%)</span>
+      <span class="pk-detail-pill"><span class="pk-infog-dot" style="background:#64748b;"></span>BLUD: <strong>${stCounts['BLUD']}</strong> (${pct(stCounts['BLUD'])}%)</span>
+      <span class="pk-detail-pill"><i class="fa-solid fa-venus" style="color:#ec4899;"></i> P: <strong>${jkCounts['Perempuan']}</strong> · <i class="fa-solid fa-mars" style="color:#0284c7;"></i> L: <strong>${jkCounts['Laki-laki']}</strong></span>
+    </div>
+    <div class="sdm-bar-list">${golRowsHtml}</div>
+    <div style="margin-top:0.65rem; font-size:0.73rem; color:var(--text-muted);">
+      <strong>Catatan:</strong> Kelompok pangkat/golongan PNS &amp; PPPK dihitung sebagai estimasi berbasis BUP (58/60 thn), masa kerja TMT ASN, dan pendidikan (siap disinkronkan jika kolom pangkat SIMPEG tersedia).
+    </div>
+  `;
+}
+
+// 6. Proyeksi Pensiun & Masa Kerja (TMT ASN & BUP 58/60 Thn)
+window._retState = window._retState || {
+  horizon: '5',
+  selectedYear: null,
+  search: ''
+};
+
+window.retSetHorizon = function(h) {
+  window._retState.horizon = h;
+  window._retState.selectedYear = null;
+  renderRetirementProjectionChart();
+};
+window.retToggleYear = function(yr) {
+  window._retState.selectedYear = (window._retState.selectedYear === yr) ? null : yr;
+  renderRetirementProjectionChart();
+};
+window.retSetSearch = function(q) {
+  window._retState.search = q;
+  renderRetirementProjectionChart();
+};
+
+function renderRetirementProjectionChart() {
+  const container = document.getElementById('chartRetirementProjection');
+  if (!container) return;
+
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const st = window._retState;
+  const now = new Date();
+  const baseYear = Math.max(2026, now.getFullYear());
+
+  // Compute masa kerja (from tmtIso) and sisa waktu pensiun (from pensiunIso)
+  let asnCount = 0;
+  let totalMasaKerjaYrs = 0;
+  let bup60Count = 0;
+  const byYear = {};
+
+  const enriched = roster.map(p => {
+    const pIso = p.pensiunIso || '';
+    const pYear = pIso ? parseInt(pIso.slice(0, 4), 10) : 9999;
+    const pMonth = pIso ? parseInt(pIso.slice(5, 7), 10) : 1;
+    if (pYear < 9999) {
+      byYear[pYear] = (byYear[pYear] || 0) + 1;
+    }
+    if (p.bup === 60) bup60Count++;
+
+    let masaKerjaStr = '-';
+    if (p.tmtIso) {
+      const ty = parseInt(p.tmtIso.slice(0, 4), 10);
+      const tm = parseInt(p.tmtIso.slice(5, 7), 10);
+      const diffM = Math.max(0, (now.getFullYear() - ty) * 12 + (now.getMonth() + 1 - tm));
+      const y = Math.floor(diffM / 12);
+      const m = diffM % 12;
+      masaKerjaStr = `${y} thn ${m} bln`;
+      asnCount++;
+      totalMasaKerjaYrs += diffM / 12;
+    }
+
+    const remMonths = (pYear - now.getFullYear()) * 12 + (pMonth - (now.getMonth() + 1));
+    const remY = Math.floor(Math.max(0, remMonths) / 12);
+    const remM = Math.max(0, remMonths) % 12;
+    const sisaStr = remMonths <= 0 ? 'Jatuh Tempo' : (remY > 0 ? `${remY} thn ${remM} bln` : `${remM} bln`);
+
+    return { ...p, pYear, remMonths, masaKerjaStr, sisaStr };
+  });
+
+  const avgMasaKerja = asnCount ? (totalMasaKerjaYrs / asnCount).toFixed(1) : '0.0';
+  const ret2026_2027 = enriched.filter(x => x.pYear >= 2026 && x.pYear <= 2027).length;
+  const ret5Yr = enriched.filter(x => x.pYear >= 2026 && x.pYear <= 2031).length;
+  const ret10Yr = enriched.filter(x => x.pYear >= 2026 && x.pYear <= 2035).length;
+
+  const badgeEl = document.getElementById('retirementTotalBadge');
+  if (badgeEl) {
+    badgeEl.textContent = `${ret5Yr} Pensiun (2026–2031) · ${bup60Count} BUP 60 Thn`;
+  }
+
+  // Build SVG bar chart for years 2026..2037
+  const chartYears = [];
+  for (let y = 2026; y <= 2037; y++) chartYears.push(y);
+  const maxYrCount = Math.max(...chartYears.map(y => byYear[y] || 0), 1);
+  const isDark = state.theme === 'dark';
+  const txtCol = isDark ? '#cbd5e1' : '#334155';
+  const mutCol = isDark ? '#94a3b8' : '#64748b';
+
+  const barW = 42;
+  const gap = 16;
+  const svgW = chartYears.length * (barW + gap) + 40;
+  const chartH = 145;
+
+  const barsSvg = chartYears.map((y, idx) => {
+    const val = byYear[y] || 0;
+    const h = Math.max((val / maxYrCount) * (chartH - 32), val > 0 ? 8 : 2);
+    const x = 24 + idx * (barW + gap);
+    const yPos = chartH - h;
+    const isSel = st.selectedYear === y;
+    const fill = isSel ? '#0f766e' : (y <= 2027 ? '#ef4444' : (y <= 2031 ? '#f59e0b' : '#0d9488'));
+    return `
+      <g class="ret-year-bar" onclick="retToggleYear(${y})">
+        <title>Tahun ${y}: ${val} pegawai pensiun (klik untuk filter)</title>
+        <rect x="${x}" y="${yPos}" width="${barW}" height="${h}" rx="5" fill="${fill}" opacity="${st.selectedYear && !isSel ? '0.4' : '1'}" />
+        <text x="${x + barW / 2}" y="${yPos - 5}" text-anchor="middle" font-size="11" font-weight="800" fill="${txtCol}">${val}</text>
+        <text x="${x + barW / 2}" y="${chartH + 16}" text-anchor="middle" font-size="10.5" font-weight="${isSel ? '800' : '600'}" fill="${isSel ? '#0d9488' : mutCol}">${y}</text>
+      </g>
+    `;
+  }).join('');
+
+  // Filter table rows
+  const q = String(st.search || '').trim().toLowerCase();
+  let list = enriched.filter(x => {
+    if (st.selectedYear) {
+      if (x.pYear !== st.selectedYear) return false;
+    } else if (st.horizon !== 'all') {
+      const maxY = 2026 + parseInt(st.horizon, 10);
+      if (x.pYear > maxY) return false;
+    }
+    if (q) {
+      const hay = `${x.nama} ${x.unit} ${x.pend} ${x.status} ${x.pensiun}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => (a.pensiunIso || '9999').localeCompare(b.pensiunIso || '9999') || a.nama.localeCompare(b.nama));
+
+  const displayLimit = 60;
+  const shown = list.slice(0, displayLimit);
+
+  const wasFocused = document.activeElement && document.activeElement.id === 'retSearchInput';
+  const selStart = wasFocused ? document.activeElement.selectionStart : null;
+  const selEnd = wasFocused ? document.activeElement.selectionEnd : null;
+
+  container.innerHTML = `
+    <div class="pk-infog-wrap">
+      <!-- KPI Strip Pensiun -->
+      <div class="pk-infog-kpi-grid">
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Pensiun 2026–2027</span><span class="pk-infog-dot" style="background:#ef4444;"></span></div>
+          <div class="pk-infog-kpi-val">${ret2026_2027}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${Math.min(100, (ret2026_2027 / (roster.length || 1)) * 100 * 10)}%; background:#ef4444;"></div></div>
+          <div class="pk-infog-kpi-sub">Prioritas segera suksesi &amp; regenerasi</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Pensiun 5 Tahun (2026–2031)</span><span class="pk-infog-dot" style="background:#f59e0b;"></span></div>
+          <div class="pk-infog-kpi-val">${ret5Yr}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${((ret5Yr / (roster.length || 1)) * 100).toFixed(1)}%; background:#f59e0b;"></div></div>
+          <div class="pk-infog-kpi-sub">${((ret5Yr / (roster.length || 1)) * 100).toFixed(1)}% dari total 717 tenaga</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Pensiun 10 Tahun (2026–2035)</span><span class="pk-infog-dot" style="background:#0d9488;"></span></div>
+          <div class="pk-infog-kpi-val">${ret10Yr}</div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:${((ret10Yr / (roster.length || 1)) * 100).toFixed(1)}%; background:#0d9488;"></div></div>
+          <div class="pk-infog-kpi-sub">${((ret10Yr / (roster.length || 1)) * 100).toFixed(1)}% proyeksi 1 dekade ke depan</div>
+        </div>
+        <div class="pk-infog-kpi">
+          <div class="pk-infog-kpi-top"><span>Rata-rata Masa Kerja ASN</span><span class="pk-infog-dot" style="background:#0284c7;"></span></div>
+          <div class="pk-infog-kpi-val">${avgMasaKerja} <span style="font-size:0.85rem; font-weight:600;">thn</span></div>
+          <div class="pk-infog-kpi-track"><div class="pk-infog-kpi-fill" style="width:100%; background:#0284c7;"></div></div>
+          <div class="pk-infog-kpi-sub">${asnCount} ASN bertMT · ${bup60Count} BUP 60 thn (Madya)</div>
+        </div>
+      </div>
+
+      <!-- Grafik Proyeksi per Tahun (2026-2037) -->
+      <div class="pk-infog-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+          <div>
+            <div class="pk-infog-panel-title">Grafik Jumlah Pegawai Pensiun per Tahun (2026–2037)</div>
+            <div class="pk-infog-panel-sub">Klik salah satu batang tahun untuk menyaring daftar pegawai di bawah · Merah: 2026–2027, Kuning: 2028–2031, Hijau: 2032–2037</div>
+          </div>
+          ${st.selectedYear ? `<button type="button" class="pk-chip active" onclick="retToggleYear(${st.selectedYear})">Filter Tahun ${st.selectedYear} ×</button>` : ''}
+        </div>
+        <div style="width:100%; overflow-x:auto;">
+          <svg width="100%" height="180" viewBox="0 0 ${svgW} 175" preserveAspectRatio="xMidYMid meet" style="min-width:560px;">
+            <line x1="16" y1="${chartH}" x2="${svgW - 16}" y2="${chartH}" stroke="${isDark ? '#334155' : '#e2e8f0'}" stroke-width="1.5" />
+            ${barsSvg}
+          </svg>
+        </div>
+      </div>
+
+      <!-- Filter & Tabel Daftar Pegawai Pensiun -->
+      <div class="pk-infog-controls">
+        <div class="pk-infog-chips-row">
+          <div class="pk-infog-chips">
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '1' ? 'active' : ''}" onclick="retSetHorizon('1')">2026–2027 (${ret2026_2027})</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '3' ? 'active' : ''}" onclick="retSetHorizon('3')">≤ 3 Tahun (2026–2029)</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '5' ? 'active' : ''}" onclick="retSetHorizon('5')">≤ 5 Tahun (2026–2031 · ${ret5Yr})</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === '10' ? 'active' : ''}" onclick="retSetHorizon('10')">≤ 10 Tahun (2026–2036)</button>
+            <button type="button" class="pk-chip ${!st.selectedYear && st.horizon === 'all' ? 'active' : ''}" onclick="retSetHorizon('all')">Semua (${roster.length})</button>
+          </div>
+          <input type="text" id="retSearchInput" class="pk-infog-input" style="max-width:280px;" placeholder="Cari nama, unit, pendidikan..." value="${escapeInfogHtml(st.search)}" oninput="retSetSearch(this.value)" />
+        </div>
+      </div>
+
+      <div class="pk-heat-wrap">
+        <table class="pk-heat-table">
+          <thead>
+            <tr>
+              <th style="width:36px;">#</th>
+              <th>Nama &amp; Profesi</th>
+              <th>Unit Kerja</th>
+              <th>Pendidikan</th>
+              <th>Status &amp; Est. Golongan</th>
+              <th>TMT ASN (Masa Kerja)</th>
+              <th class="center">BUP</th>
+              <th class="right">Tgl Pensiun &amp; Sisa</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${shown.length ? shown.map((p, idx) => {
+              const badgeCls = p.remMonths <= 18 ? 'ret-badge-soon' : (p.remMonths <= 60 ? 'ret-badge-mid' : 'ret-badge-ok');
+              return `
+                <tr>
+                  <td style="font-family:var(--font-mono); color:var(--text-muted);">${idx + 1}</td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-main);">${escapeInfogHtml(p.nama)}</div>
+                    <div style="font-size:0.72rem; color:var(--text-muted);">${escapeInfogHtml(p.kat)} · ${escapeInfogHtml(p.jk || '-')}</div>
+                  </td>
+                  <td style="font-size:0.78rem; font-weight:600;">${escapeInfogHtml(p.unit)}</td>
+                  <td style="font-size:0.77rem;">${escapeInfogHtml(p.pend || '-')}</td>
+                  <td>
+                    <div style="font-size:0.77rem; font-weight:700;">${escapeInfogHtml(p.status)}</div>
+                    <div style="font-size:0.71rem; color:var(--text-muted);">${escapeInfogHtml(p.pangkatEst || '-')}</div>
+                  </td>
+                  <td style="font-size:0.76rem; font-family:var(--font-mono);">
+                    ${p.tmt ? `${escapeInfogHtml(p.tmt)}<div style="font-family:var(--font-sans); font-size:0.71rem; color:var(--text-muted);">${escapeInfogHtml(p.masaKerjaStr)}</div>` : '<span style="color:var(--text-muted);">- (BLUD)</span>'}
+                  </td>
+                  <td class="center" style="font-family:var(--font-mono); font-weight:700;">${p.bup || 58} thn</td>
+                  <td class="right">
+                    <div style="font-weight:700; font-size:0.78rem;">${escapeInfogHtml(p.pensiun || '-')}</div>
+                    <span class="${badgeCls}">${escapeInfogHtml(p.sisaStr)}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('') : `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Tidak ada pegawai yang cocok dengan filter saat ini.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pk-infog-footer">
+        <span>Menampilkan <strong>${shown.length}</strong>${list.length > displayLimit ? ` dari ${list.length}` : ''} pegawai${st.selectedYear ? ` pensiun tahun ${st.selectedYear}` : ''}.</span>
+        <span>BUP 58 tahun (Terampil/Ahli Pertama–Muda/BLUD) &amp; BUP 60 tahun (Ahli Madya / Gol. IV · 32 PNS) sesuai data kepegawaian 23 Nov 2026.</span>
+      </div>
+    </div>
+  `;
+
+  if (wasFocused) {
+    const inp = document.getElementById('retSearchInput');
+    if (inp) {
+      inp.focus();
+      if (selStart !== null && selEnd !== null) {
+        inp.setSelectionRange(selStart, selEnd);
       }
     }
   }

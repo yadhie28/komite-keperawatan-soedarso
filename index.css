@@ -5124,6 +5124,106 @@ body.portal-gateway-active {
   }
 }
 
+@media (max-width: 960px) {
+  .analytics-sdm-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.sdm-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.35rem 0;
+}
+
+.sdm-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.sdm-bar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+  gap: 0.5rem;
+}
+
+.sdm-bar-label {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.sdm-bar-val {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.sdm-bar-val span {
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.sdm-bar-track {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-app);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.sdm-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.ret-year-bar {
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ret-year-bar:hover {
+  opacity: 0.88;
+}
+
+.ret-badge-soon {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.14);
+  color: #dc2626;
+}
+
+.ret-badge-mid {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.16);
+  color: #b45309;
+}
+
+.ret-badge-ok {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.71rem;
+  font-weight: 700;
+  background: rgba(13, 148, 136, 0.14);
+  color: #0f766e;
+}
+
 /* ==========================================================================
    INFOGRAFIS DISTRIBUSI PK PER UNIT & RUANG RAWAT (TAB ANALITIK)
    ========================================================================== */
@@ -5135,6 +5235,7 @@ body.portal-gateway-active {
   --pk2-color: #d97706;
   --pk1-color: #0284c7;
   --pkother-color: #7c3aed;
+  --pkunmapped-color: #94a3b8;
 }
 
 [data-theme="dark"] .pk-infog-wrap {
@@ -5142,6 +5243,7 @@ body.portal-gateway-active {
   --pk2-color: #f59e0b;
   --pk1-color: #38bdf8;
   --pkother-color: #a78bfa;
+  --pkunmapped-color: #64748b;
 }
 
 .pk-infog-legend {
