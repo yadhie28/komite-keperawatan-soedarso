@@ -1410,6 +1410,18 @@ window.KOMITE_DATA = {
       url: "https://drive.google.com/uc?export=download&id=1knpnAzne5pVOAKnznKH72wZt9Vk5-Ghy"
     },
     {
+      id: "REG-00B",
+      category: "Laporan & Arsip Komite",
+      title: "Program Kerja Komite Keperawatan RSUD dr. Soedarso Tahun 2026",
+      number: "PROKER-KOMKEP/2026",
+      year: "2026",
+      format: "PDF",
+      size: "Google Drive",
+      desc: "Dokumen resmi rencana dan program kerja Komite Keperawatan RSUD dr. Soedarso Tahun 2026 meliputi Subkomite Kredensial, Mutu Profesi, dan Etik & Disiplin.",
+      viewUrl: "https://drive.google.com/file/d/1knpnAzne5pVOAKnznKH72wZt9Vk5-Ghy/view?usp=sharing",
+      url: "https://drive.google.com/uc?export=download&id=1knpnAzne5pVOAKnznKH72wZt9Vk5-Ghy"
+    },
+    {
       id: "REG-00",
       category: "Laporan & Arsip Komite",
       title: "Laporan Komite Keperawatan RSUD dr. Soedarso Tahun 2025",
