@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Main CSS -->
-  <link rel="stylesheet" href="index.css?v=20261125d">
+  <link rel="stylesheet" href="index.css?v=20261126a">
 </head>
 <body>
   <a href="#mainContent" class="skip-to-main">Lewati ke isi utama</a>
@@ -260,6 +260,12 @@
         <li>
           <button class="nav-tab-btn" data-tab="evoting" id="navTabBtnEvoting">
             <i class="fa-solid fa-check-to-slot"></i> E-Voting Ketua 2027–2030
+          </button>
+        </li>
+        <li id="navItemCariPegawai" style="display: none;">
+          <button class="nav-tab-btn nav-tab-pengurus" data-tab="cari-pegawai" id="navTabBtnCariPegawai" title="Khusus Akun Pengurus Komite Keperawatan">
+            <i class="fa-solid fa-users-viewfinder"></i> Cari Perawat / Bidan
+            <span class="nav-pengurus-tag">Pengurus</span>
           </button>
         </li>
       </ul>
@@ -2629,6 +2635,105 @@
                 <!-- Diisi via JS dari server setelah autentikasi panitia -->
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------------------------------------
+         TAB 8: PENCARIAN DATA PERAWAT / BIDAN (KHUSUS PENGURUS KOMITE)
+         ---------------------------------------------------------------------- -->
+    <section class="tab-pane" id="pane-cari-pegawai">
+      <div class="section-header" style="margin-bottom: 1.25rem;">
+        <div>
+          <div style="display: inline-flex; align-items: center; gap: 0.45rem; background: rgba(245, 158, 11, 0.14); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.35); padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 0.45rem;">
+            <i class="fa-solid fa-user-shield"></i> Fasilitas Khusus Pengurus Komite Keperawatan
+          </div>
+          <h2 class="section-title">Pencarian Data Perawat &amp; Bidan</h2>
+          <p class="section-subtitle">
+            Cari profil lengkap tenaga keperawatan dan kebidanan RSUD dr. Soedarso menggunakan minimal 3 huruf nama atau 3 digit NIP / NIPPPK / NIK. Data terlindungi UU PDP No. 27/2022.
+          </p>
+        </div>
+        <div id="cariPegawaiTotalBadge" class="cari-pegawai-stat-pill">
+          <i class="fa-solid fa-database"></i> <span id="cariPegawaiTotalCount">717</span> Data Terindeks
+        </div>
+      </div>
+
+      <!-- Guard jika bukan akun pengurus -->
+      <div id="cariPegawaiDeniedBox" class="cari-pegawai-denied" style="display: none;">
+        <div class="cari-denied-icon"><i class="fa-solid fa-lock"></i></div>
+        <h3>Akses Terbatas — Khusus Pengurus Komite Keperawatan</h3>
+        <p>Fasilitas pencarian data perawat dan bidan hanya dapat diakses oleh akun Pengurus Komite Keperawatan yang terverifikasi sesuai SK Direktur RSUD dr. Soedarso.</p>
+        <button type="button" class="btn-primary" onclick="switchTab('beranda')">
+          <i class="fa-solid fa-house"></i> Kembali ke Beranda
+        </button>
+      </div>
+
+      <!-- Area Utama Pencarian Pengurus -->
+      <div id="cariPegawaiMainArea">
+        <div class="cari-pegawai-search-card">
+          <form id="formCariPegawai" onsubmit="handleCariPegawaiSubmit(event)" autocomplete="off">
+            <label for="cariPegawaiInput" class="cari-pegawai-label">
+              <i class="fa-solid fa-magnifying-glass"></i> Kata Kunci Pencarian (Minimal 3 Karakter)
+            </label>
+            <div class="cari-pegawai-input-row">
+              <div class="cari-pegawai-input-wrap">
+                <i class="fa-solid fa-id-card-clip cari-input-prefix"></i>
+                <input
+                  type="text"
+                  id="cariPegawaiInput"
+                  class="cari-pegawai-input"
+                  placeholder="Ketik minimal 3 huruf nama (mis. Rusmulyadi, Siti) atau NIP / NIPPPK / NIK..."
+                  oninput="handleCariPegawaiInput()"
+                  autocomplete="off"
+                  spellcheck="false"
+                >
+                <button type="button" id="btnCariPegawaiClear" class="cari-input-clear" onclick="resetCariPegawai()" title="Bersihkan pencarian" style="display: none;">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <button type="submit" id="btnCariPegawaiSubmit" class="btn-primary cari-submit-btn">
+                <i class="fa-solid fa-magnifying-glass"></i> Cari Data
+              </button>
+            </div>
+          </form>
+
+          <!-- Indikator minimal 3 karakter + Filter cepat -->
+          <div class="cari-pegawai-toolbar">
+            <div id="cariPegawaiCharHint" class="cari-char-hint is-idle">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Masukkan minimal <strong>3 huruf nama</strong> atau <strong>3 angka NIP/NIPPPK/NIK</strong> untuk menampilkan data.</span>
+            </div>
+
+            <div class="cari-filter-group">
+              <div class="cari-filter-pills" role="group" aria-label="Filter Profesi">
+                <button type="button" class="cari-pill active" data-kat="all" onclick="setCariPegawaiFilter('kat', 'all')">Semua</button>
+                <button type="button" class="cari-pill" data-kat="Perawat" onclick="setCariPegawaiFilter('kat', 'Perawat')">Perawat</button>
+                <button type="button" class="cari-pill" data-kat="Bidan" onclick="setCariPegawaiFilter('kat', 'Bidan')">Bidan</button>
+              </div>
+              <select id="cariPegawaiStatusFilter" class="cari-status-select" onchange="setCariPegawaiFilter('status', this.value)" aria-label="Filter Status Kepegawaian">
+                <option value="all">Semua Status</option>
+                <option value="PNS">PNS</option>
+                <option value="PPPK">PPPK</option>
+                <option value="BLUD">BLUD</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ringkasan & Hasil Pencarian -->
+        <div id="cariPegawaiResultHeader" class="cari-result-header" style="display: none;">
+          <div id="cariPegawaiSummary" class="cari-result-summary"></div>
+          <div class="cari-pdp-note">
+            <i class="fa-solid fa-shield-halved"></i> Akses Pengurus Terlog (UU PDP No. 27/2022)
+          </div>
+        </div>
+
+        <div id="cariPegawaiResults" class="cari-pegawai-results">
+          <div class="cari-empty-state">
+            <div class="cari-empty-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+            <h4>Siap Mencari Data Perawat &amp; Bidan</h4>
+            <p>Ketik minimal <strong>3 huruf nama</strong> atau <strong>3 digit NIP / NIPPPK / NIK</strong> pada kolom di atas untuk mencari data pegawai, unit tugas, status kepegawaian, serta status SPK/RKK.</p>
           </div>
         </div>
       </div>
@@ -7118,7 +7223,7 @@
   <script src="supabase_client.js?v=20261125b"></script>
   <script src="logo_asset.js?v=20261124n"></script>
   <script src="data.js?v=20261125l"></script>
-  <script src="app.js?v=20261125g"></script>
+  <script src="app.js?v=20261126a"></script>
   <script src="pemilihan.js?v=20261125c"></script>
   <script src="elogbook.js?v=20261124n"></script>
 
@@ -7157,6 +7262,30 @@
       </div>
       <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 1rem 1.5rem;">
         <button type="button" class="btn-primary" onclick="closeModal('modalKebijakanPrivasi')">Saya Mengerti</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETAIL PROFIL PERAWAT / BIDAN (KHUSUS PENGURUS KOMITE) -->
+  <div class="modal-overlay" id="modalDetailPegawaiCari" style="display: none; z-index: 10040;">
+    <div class="modal-container" style="max-width: 720px; max-height: 88vh; overflow-y: auto; border-radius: 16px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #074744 0%, #0d5f5b 100%); color: #ffffff;">
+        <div class="modal-title" style="color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+          <i class="fa-solid fa-id-card-clip"></i>
+          <span>Profil Lengkap Tenaga Keperawatan / Kebidanan</span>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('modalDetailPegawaiCari')" style="color: #ffffff;">
+          <i class="fa-solid fa-xmark fa-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalDetailPegawaiCariBody" style="padding: 1.4rem;">
+        <!-- Diisi dinamis oleh openCariPegawaiDetail() -->
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding: 0.9rem 1.4rem;">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">
+          <i class="fa-solid fa-shield-halved" style="color: var(--primary-600);"></i> Akses Pengurus Komite &bull; UU PDP No. 27/2022
+        </span>
+        <button type="button" class="btn-primary" onclick="closeModal('modalDetailPegawaiCari')">Tutup</button>
       </div>
     </div>
   </div>

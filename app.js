@@ -1211,6 +1211,9 @@ function updateAuthUI() {
   }
   updatePrivacyToggleButton();
   updateWorkflowNotificationUI();
+  if (typeof updateCariPegawaiNavAccess === 'function') {
+    updateCariPegawaiNavAccess();
+  }
   if (window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
     window.PemilihanKomkep.init();
   }
@@ -1446,7 +1449,7 @@ function saveWorkflowNotifications() {
    NAVIGATION & TAB SYSTEM
    ========================================================================== */
 function setupNavigation() {
-  const validTabs = ['beranda', 'kredensial', 'mutu', 'etik', 'elogbook', 'logbook', 'analitik', 'regulasi', 'evoting', 'pemilihan'];
+  const validTabs = ['beranda', 'kredensial', 'mutu', 'etik', 'elogbook', 'logbook', 'analitik', 'regulasi', 'evoting', 'pemilihan', 'cari-pegawai'];
   const rawHash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
 
   if (rawHash === 'logbook' || rawHash === 'elogbook') {
@@ -1525,6 +1528,17 @@ function switchTab(tabId) {
   const isAnalitikShortcut = (tabId === 'analitik');
   const canonicalId = (tabId === 'pemilihan') ? 'evoting' : ((tabId === 'logbook') ? 'elogbook' : (isAnalitikShortcut ? 'mutu' : tabId));
 
+  // Pengamanan Akses Khusus Pengurus Komite Keperawatan untuk menu Pencarian Data Perawat / Bidan
+  if (canonicalId === 'cari-pegawai' && !isKomiteAdminUser()) {
+    showToast('Akses ditolak: Menu Pencarian Data Perawat / Bidan hanya untuk akun Pengurus Komite Keperawatan.', 'warning');
+    if (state.activeTab !== 'beranda') {
+      switchTab('beranda');
+    } else {
+      window.location.hash = 'beranda';
+    }
+    return;
+  }
+
   // Pengingat ramah pemilihan (tanpa paksa keluar, menghormati asas kebebasan memilih)
   if (canonicalId !== 'evoting' && isMandatoryVoteActiveSync() && !state.wajibVotingDismissed) {
     const bar = document.getElementById('wajibVotingStickyBar');
@@ -1570,6 +1584,9 @@ function switchTab(tabId) {
   }
   if ((canonicalId === 'pemilihan' || canonicalId === 'evoting') && window.PemilihanKomkep && typeof window.PemilihanKomkep.init === 'function') {
     window.PemilihanKomkep.init();
+  }
+  if (canonicalId === 'cari-pegawai' && typeof initCariPegawaiView === 'function') {
+    initCariPegawaiView();
   }
 }
 
@@ -11240,22 +11257,6 @@ function openWorkflowNotifModal(filterCategory = 'all') {
   currentWfFilterCategory = filterCategory;
   renderWorkflowAuthorityBanner();
   renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
-  openModal('modalWorkflowNotifications');
-}
-
-function filterWorkflowNotifModal(category) {
-  currentWfFilterCategory = category;
-  document.querySelectorAll('.wf-tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-cat') === category);
-  });
-  renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
-}
-
-function toggleWfUnreadFilter() {
-  isWfUnreadOnly = !isWfUnreadOnly;
-  const btn = document.getElementById('btnToggleWfUnread');
-  const text = document.getElementById('textToggleWfUnread');
-  if (btn) btn.classList.toggle('active', isWfUnreadOnly);
   if (text) text.textContent = isWfUnreadOnly ? 'Semua Status' : 'Belum Dibaca';
   renderWorkflowNotifList(currentWfFilterCategory, isWfUnreadOnly);
 }
@@ -13982,3 +13983,564 @@ function updateBerandaElectionBanner() {
   }
 }
 window.updateBerandaElectionBanner = updateBerandaElectionBanner;
+
+/* ==========================================================================
+   MENU PENCARIAN DATA PERAWAT / BIDAN (KHUSUS AKUN PENGURUS KOMITE KEPERAWATAN)
+   Aturan: Minimal 3 huruf nama atau 3 angka NIP / NIPPPK / NIK
+   ========================================================================== */
+const cariPegawaiState = {
+  kat: 'all',
+  status: 'all',
+  query: '',
+  debounceTimer: null,
+  lastResults: []
+};
+
+function normalizeCariId(raw) {
+  return String(raw === null || raw === undefined ? '' : raw)
+    .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase();
+}
+
+function normalizeCariName(raw) {
+  return String(raw === null || raw === undefined ? '' : raw)
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getMergedPegawaiDataset() {
+  const roster = Array.isArray(window.KOMKEP_PEGAWAI_717) ? window.KOMKEP_PEGAWAI_717 : [];
+  const nursesList = Array.isArray(state.nurses) && state.nurses.length
+    ? state.nurses
+    : (window.KOMITE_DATA?.nurses || []);
+  const skList = Array.isArray(window.KOMITE_DATA?.structureSK) ? window.KOMITE_DATA.structureSK : [];
+  const adminUsers = Array.isArray(window.KOMITE_DATA?.adminUsers) ? window.KOMITE_DATA.adminUsers : [];
+
+  // Index data SPK/RKK berdasarkan NIP/NIK & nama
+  const spkById = new Map();
+  const spkByName = new Map();
+  nursesList.forEach(n => {
+    const cid = normalizeCariId(n.nip);
+    if (cid && cid !== '-') spkById.set(cid, n);
+    const cname = normalizeCariName(n.name);
+    if (cname) spkByName.set(cname, n);
+  });
+
+  // Index Pengurus Komite berdasarkan NIP & nama
+  const pengurusById = new Map();
+  const pengurusByName = new Map();
+  adminUsers.forEach(a => {
+    const cid = normalizeCariId(a.nip);
+    if (cid) pengurusById.set(cid, a);
+    const cname = normalizeCariName(a.name);
+    if (cname) pengurusByName.set(cname, a);
+  });
+  skList.forEach(s => {
+    const cname = normalizeCariName(s.name);
+    if (cname && !pengurusByName.has(cname)) pengurusByName.set(cname, s);
+  });
+
+  const merged = [];
+  const seenIds = new Set();
+
+  roster.forEach(p => {
+    const cleanId = normalizeCariId(p.id);
+    if (cleanId) seenIds.add(cleanId);
+    const cname = normalizeCariName(p.nama);
+    const spk = (cleanId && spkById.get(cleanId)) || spkByName.get(cname) || null;
+    const pengurus = (cleanId && pengurusById.get(cleanId)) || pengurusByName.get(cname) || null;
+    const gmail = (window.SupabaseKomkep && typeof window.SupabaseKomkep.getGmail === 'function' && p.id)
+      ? window.SupabaseKomkep.getGmail(p.id)
+      : '';
+
+    merged.push({
+      id: String(p.id || '-'),
+      cleanId,
+      jenis: p.jenis || 'NIP',
+      nama: p.nama || '-',
+      cleanName: cname,
+      peg: p.peg || '-',
+      kat: p.kat || (String(p.jab || '').toLowerCase().includes('bidan') ? 'Bidan' : 'Perawat'),
+      status: p.status || '-',
+      jab: p.jab || p.kat || '-',
+      unit: p.unit || (spk ? spk.unit : '-'),
+      jk: p.jk || '-',
+      pend: p.pend || '-',
+      tmt: p.tmt || '-',
+      bup: p.bup || '-',
+      pensiun: p.pensiun || '-',
+      pangkatEst: p.pangkatEst || '-',
+      aktif: p.aktif || 'Aktif',
+      gmail: gmail || '',
+      pengurusRole: pengurus ? (pengurus.role || pengurus.badge || 'Pengurus Komite') : '',
+      pengurusGroup: pengurus ? (pengurus.group || '') : '',
+      spkRecord: spk
+    });
+  });
+
+  // Tambahkan tenaga yang ada di database SPK/RKK namun belum tercantum di manifest 717
+  nursesList.forEach(n => {
+    const cleanId = normalizeCariId(n.nip);
+    if (cleanId && cleanId !== '-' && seenIds.has(cleanId)) return;
+    const cname = normalizeCariName(n.name);
+    const isBidan = String(n.profession || n.jenjangKlinis || n.pkLevel || '').toLowerCase().includes('bidan') ||
+                    String(n.pkLevel || '').toUpperCase().startsWith('BP');
+    merged.push({
+      id: String(n.nip || '-'),
+      cleanId,
+      jenis: n.jenisId || 'NIP',
+      nama: n.name || '-',
+      cleanName: cname,
+      peg: n.id || '-',
+      kat: isBidan ? 'Bidan' : 'Perawat',
+      status: '-',
+      jab: n.profession || (isBidan ? 'Bidan' : 'Perawat'),
+      unit: n.unit || '-',
+      jk: '-',
+      pend: '-',
+      tmt: '-',
+      bup: '-',
+      pensiun: '-',
+      pangkatEst: '-',
+      aktif: 'Aktif',
+      gmail: '',
+      pengurusRole: '',
+      pengurusGroup: '',
+      spkRecord: n
+    });
+  });
+
+  return merged;
+}
+
+function updateCariPegawaiNavAccess() {
+  const navItem = document.getElementById('navItemCariPegawai');
+  const deniedBox = document.getElementById('cariPegawaiDeniedBox');
+  const mainArea = document.getElementById('cariPegawaiMainArea');
+  const allowed = isKomiteAdminUser();
+
+  if (navItem) {
+    navItem.style.display = allowed ? '' : 'none';
+  }
+  if (deniedBox) {
+    deniedBox.style.display = allowed ? 'none' : 'block';
+  }
+  if (mainArea) {
+    mainArea.style.display = allowed ? 'block' : 'none';
+  }
+
+  if (!allowed) {
+    resetCariPegawai(true);
+    closeModal('modalDetailPegawaiCari');
+    if (state.activeTab === 'cari-pegawai') {
+      switchTab('beranda');
+    }
+  } else {
+    const totalEl = document.getElementById('cariPegawaiTotalCount');
+    if (totalEl) {
+      const ds = getMergedPegawaiDataset();
+      totalEl.textContent = String(ds.length);
+    }
+  }
+}
+
+function initCariPegawaiView() {
+  updateCariPegawaiNavAccess();
+  if (!isKomiteAdminUser()) return;
+  const input = document.getElementById('cariPegawaiInput');
+  if (input) {
+    setTimeout(() => input.focus(), 80);
+  }
+}
+
+function setCariPegawaiFilter(type, value) {
+  if (!isKomiteAdminUser()) return;
+  if (type === 'kat') {
+    cariPegawaiState.kat = value;
+    document.querySelectorAll('.cari-filter-pills .cari-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-kat') === value);
+    });
+  } else if (type === 'status') {
+    cariPegawaiState.status = value;
+  }
+  runCariPegawaiSearch({ fromSubmit: false });
+}
+
+function resetCariPegawai(silent = false) {
+  cariPegawaiState.query = '';
+  cariPegawaiState.lastResults = [];
+  const input = document.getElementById('cariPegawaiInput');
+  const clearBtn = document.getElementById('btnCariPegawaiClear');
+  const resHeader = document.getElementById('cariPegawaiResultHeader');
+  const resBox = document.getElementById('cariPegawaiResults');
+  const hint = document.getElementById('cariPegawaiCharHint');
+
+  if (input) input.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (resHeader) resHeader.style.display = 'none';
+  if (hint) {
+    hint.className = 'cari-char-hint is-idle';
+    hint.innerHTML = '<i class="fa-solid fa-circle-info"></i><span>Masukkan minimal <strong>3 huruf nama</strong> atau <strong>3 angka NIP/NIPPPK/NIK</strong> untuk menampilkan data.</span>';
+  }
+  if (resBox) {
+    resBox.innerHTML = `
+      <div class="cari-empty-state">
+        <div class="cari-empty-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+        <h4>Siap Mencari Data Perawat &amp; Bidan</h4>
+        <p>Ketik minimal <strong>3 huruf nama</strong> atau <strong>3 digit NIP / NIPPPK / NIK</strong> pada kolom di atas untuk mencari data pegawai, unit tugas, status kepegawaian, serta status SPK/RKK.</p>
+      </div>
+    `;
+  }
+  if (!silent && input) input.focus();
+}
+
+function handleCariPegawaiInput() {
+  const input = document.getElementById('cariPegawaiInput');
+  const clearBtn = document.getElementById('btnCariPegawaiClear');
+  const rawVal = input ? input.value : '';
+  if (clearBtn) clearBtn.style.display = rawVal.length > 0 ? 'inline-flex' : 'none';
+
+  clearTimeout(cariPegawaiState.debounceTimer);
+  cariPegawaiState.debounceTimer = setTimeout(() => {
+    runCariPegawaiSearch({ fromSubmit: false });
+  }, 150);
+}
+
+function handleCariPegawaiSubmit(e) {
+  if (e) e.preventDefault();
+  clearTimeout(cariPegawaiState.debounceTimer);
+  runCariPegawaiSearch({ fromSubmit: true });
+}
+
+function highlightCariMatch(text, query) {
+  const safeText = escapeHtml(text || '-');
+  const cleanQ = String(query || '').trim();
+  if (cleanQ.length < 3) return safeText;
+  try {
+    const escaped = cleanQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return safeText.replace(regex, '<mark class="cari-highlight">$1</mark>');
+  } catch (_) {
+    return safeText;
+  }
+}
+
+function runCariPegawaiSearch({ fromSubmit = false } = {}) {
+  if (!isKomiteAdminUser()) {
+    updateCariPegawaiNavAccess();
+    if (fromSubmit) {
+      showToast('Akses ditolak: Fasilitas ini khusus akun Pengurus Komite Keperawatan.', 'warning');
+    }
+    return;
+  }
+
+  const input = document.getElementById('cariPegawaiInput');
+  const hint = document.getElementById('cariPegawaiCharHint');
+  const resHeader = document.getElementById('cariPegawaiResultHeader');
+  const summaryEl = document.getElementById('cariPegawaiSummary');
+  const resBox = document.getElementById('cariPegawaiResults');
+  if (!input || !resBox) return;
+
+  const rawQuery = input.value.trim();
+  const compactAlnum = rawQuery.replace(/[^a-zA-Z0-9]/g, '');
+  cariPegawaiState.query = rawQuery;
+
+  // Kondisi kosong
+  if (!rawQuery) {
+    resetCariPegawai(true);
+    return;
+  }
+
+  // Validasi ketat minimal 3 huruf nama atau 3 angka NIP/NIPPPK/NIK
+  if (compactAlnum.length < 3) {
+    if (resHeader) resHeader.style.display = 'none';
+    if (hint) {
+      hint.className = 'cari-char-hint is-warn';
+      hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>Minimal <strong>3 huruf nama</strong> atau <strong>3 angka NIP/NIPPPK/NIK</strong> diperlukan (saat ini <strong>${compactAlnum.length}/3</strong> karakter).</span>`;
+    }
+    resBox.innerHTML = `
+      <div class="cari-empty-state">
+        <div class="cari-empty-icon" style="background: #fffbeb; color: #d97706;"><i class="fa-solid fa-keyboard"></i></div>
+        <h4>Masukkan Minimal 3 Karakter</h4>
+        <p>Ketik minimal <strong>3 huruf nama</strong> atau <strong>3 digit NIP / NIPPPK / NIK</strong> agar hasil pencarian akurat dan cepat.</p>
+      </div>
+    `;
+    if (fromSubmit) {
+      showToast('Masukkan minimal 3 huruf nama atau 3 angka NIP/NIPPPK/NIK.', 'warning');
+    }
+    return;
+  }
+
+  const dataset = getMergedPegawaiDataset();
+  const qLower = normalizeCariName(rawQuery);
+  const qId = normalizeCariId(rawQuery);
+
+  const matches = dataset.filter(item => {
+    if (cariPegawaiState.kat !== 'all' && item.kat !== cariPegawaiState.kat) return false;
+    if (cariPegawaiState.status !== 'all' && item.status !== cariPegawaiState.status) return false;
+
+    const matchName = item.cleanName.includes(qLower);
+    const matchId = qId.length >= 3 && item.cleanId.includes(qId);
+    return matchName || matchId;
+  });
+
+  cariPegawaiState.lastResults = matches;
+
+  if (hint) {
+    hint.className = 'cari-char-hint is-ready';
+    hint.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Pencarian aktif untuk "<strong>${escapeHtml(rawQuery)}</strong>" (${matches.length} data cocok).</span>`;
+  }
+
+  if (resHeader && summaryEl) {
+    resHeader.style.display = 'flex';
+    const filterInfo = [];
+    if (cariPegawaiState.kat !== 'all') filterInfo.push(cariPegawaiState.kat);
+    if (cariPegawaiState.status !== 'all') filterInfo.push(cariPegawaiState.status);
+    const filterSuffix = filterInfo.length ? ` (Filter: ${filterInfo.join(', ')})` : '';
+    summaryEl.innerHTML = `Ditemukan <strong>${matches.length}</strong> data dari ${dataset.length} tenaga keperawatan &amp; kebidanan${escapeHtml(filterSuffix)}`;
+  }
+
+  if (fromSubmit && typeof recordSecurityAudit === 'function') {
+    recordSecurityAudit({
+      action: `Pencarian Data Pegawai (Pengurus): "${rawQuery}" (${matches.length} hasil)`,
+      targetNurse: matches.length === 1 ? matches[0].nama : `${matches.length} data ditemukan`,
+      targetNip: matches.length === 1 ? matches[0].id : '-',
+      status: 'DISETUJUI'
+    });
+  }
+
+  if (matches.length === 0) {
+    resBox.innerHTML = `
+      <div class="cari-empty-state">
+        <div class="cari-empty-icon" style="background: #f1f5f9; color: #64748b;"><i class="fa-solid fa-user-slash"></i></div>
+        <h4>Data Tidak Ditemukan</h4>
+        <p>Tidak ada perawat atau bidan yang cocok dengan kata kunci "<strong>${escapeHtml(rawQuery)}</strong>". Periksa ejaan nama, angka NIP/NIPPPK/NIK, atau ubah filter profesi/status.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const MAX_DISPLAY = 100;
+  const visible = matches.slice(0, MAX_DISPLAY);
+  const rowsHtml = visible.map((item, idx) => {
+    const katClass = item.kat === 'Bidan' ? 'cari-badge-bidan' : 'cari-badge-perawat';
+    const statusClass = item.status === 'PNS' ? 'cari-badge-pns' : (item.status === 'PPPK' ? 'cari-badge-pppk' : 'cari-badge-blud');
+    const spkBadge = item.spkRecord
+      ? `<span class="cari-badge cari-badge-spk-ok"><i class="fa-solid fa-certificate"></i> ${escapeHtml(item.spkRecord.pkLevel || 'SPK Aktif')}</span>`
+      : `<span class="cari-badge cari-badge-spk-none">Belum Terdata SPK</span>`;
+    const pengurusTag = item.pengurusRole
+      ? `<span class="cari-badge cari-badge-pengurus" title="${escapeHtml(item.pengurusRole)}"><i class="fa-solid fa-user-shield"></i> Pengurus</span>`
+      : '';
+    const safeIdAttr = escapeHtml(item.id).replace(/'/g, '&#39;');
+
+    return `
+      <tr>
+        <td style="text-align: center; color: var(--text-muted); font-weight: 700;">${idx + 1}</td>
+        <td>
+          <div style="font-weight: 700; color: var(--text-main); line-height: 1.35;">${highlightCariMatch(item.nama, rawQuery)}</div>
+          <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-top: 4px;">
+            <span class="cari-badge ${katClass}">${escapeHtml(item.kat)}</span>
+            <span class="cari-badge ${statusClass}">${escapeHtml(item.status)}</span>
+            ${pengurusTag}
+          </div>
+        </td>
+        <td>
+          <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem;">
+            <span class="cari-id-code">${highlightCariMatch(item.id, qId || rawQuery)}</span>
+            <button type="button" class="cari-btn-copy" onclick="copyCariPegawaiNip('${safeIdAttr}')" title="Salin ${escapeHtml(item.jenis)}">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">${escapeHtml(item.jenis)} &bull; ${escapeHtml(item.peg)}</div>
+        </td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main);">${escapeHtml(item.unit)}</div>
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">${escapeHtml(item.pend)}</div>
+        </td>
+        <td>${spkBadge}</td>
+        <td style="text-align: right; white-space: nowrap;">
+          <button type="button" class="btn-table-action" onclick="openCariPegawaiDetail(${idx})" style="font-size: 0.76rem; padding: 0.38rem 0.75rem;">
+            <i class="fa-solid fa-eye"></i> Detail
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const limitNotice = matches.length > MAX_DISPLAY
+    ? `<div style="padding: 0.75rem 1rem; background: #fffbeb; border-top: 1px solid #fde68a; font-size: 0.78rem; color: #92400e; text-align: center;">
+         Menampilkan ${MAX_DISPLAY} dari ${matches.length} hasil. Tambahkan huruf/angka pada pencarian untuk mempersempit hasil.
+       </div>`
+    : '';
+
+  resBox.innerHTML = `
+    <div class="cari-table-card">
+      <div class="table-responsive" style="overflow-x: auto;">
+        <table class="cari-table">
+          <thead>
+            <tr>
+              <th style="width: 48px; text-align: center;">No</th>
+              <th>Nama &amp; Kategori</th>
+              <th>NIP / NIPPPK / NIK</th>
+              <th>Unit / Ruangan &amp; Pendidikan</th>
+              <th>Status SPK / RKK</th>
+              <th style="text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+      ${limitNotice}
+    </div>
+  `;
+}
+
+function openCariPegawaiDetail(resultIndex) {
+  if (!isKomiteAdminUser()) {
+    showToast('Akses ditolak: Khusus akun Pengurus Komite Keperawatan.', 'warning');
+    return;
+  }
+  const item = cariPegawaiState.lastResults[resultIndex];
+  const body = document.getElementById('modalDetailPegawaiCariBody');
+  if (!item || !body) return;
+
+  if (typeof recordSecurityAudit === 'function') {
+    recordSecurityAudit({
+      action: 'Lihat Profil Lengkap Pegawai (Menu Cari Pengurus)',
+      targetNurse: item.nama,
+      targetNip: item.id,
+      status: 'DISETUJUI'
+    });
+  }
+
+  const parts = String(item.nama || '').replace(/^(Ns\.|Bdn\.|dr\.)\s+/i, '').trim().split(/\s+/);
+  const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : (item.nama || 'PG').substring(0, 2).toUpperCase();
+  const safeIdAttr = escapeHtml(item.id).replace(/'/g, '&#39;');
+  const spk = item.spkRecord;
+
+  const spkSection = spk ? `
+    <div class="cari-detail-spk-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.65rem;">
+        <div style="font-weight: 800; font-size: 0.88rem; color: #047857;">
+          <i class="fa-solid fa-certificate"></i> Data Kredensialing (SPK &amp; RKK)
+        </div>
+        <span class="cari-badge cari-badge-spk-ok">${escapeHtml(spk.credentialStatus || 'Disetujui')} &bull; ${escapeHtml(spk.pkLevel || '-')}</span>
+      </div>
+      <div class="cari-detail-grid" style="margin-bottom: 0.65rem;">
+        <div class="cari-detail-item">
+          <div class="cari-detail-item-label">Jenjang Klinis</div>
+          <div class="cari-detail-item-val">${escapeHtml(spk.jenjangKlinis || spk.pkLevel || '-')}</div>
+        </div>
+        <div class="cari-detail-item">
+          <div class="cari-detail-item-label">Nomor SPK / BA</div>
+          <div class="cari-detail-item-val">${escapeHtml(spk.spkNumber || spk.baNumber || '-')}</div>
+        </div>
+        <div class="cari-detail-item">
+          <div class="cari-detail-item-label">Masa Berlaku SPK</div>
+          <div class="cari-detail-item-val">${escapeHtml(spk.spkDate || '-')} s.d. ${escapeHtml(spk.spkExpiry || '-')}</div>
+        </div>
+        <div class="cari-detail-item">
+          <div class="cari-detail-item-label">Status STR / PSV</div>
+          <div class="cari-detail-item-val">${escapeHtml(spk.strNumber || '-')}</div>
+        </div>
+      </div>
+      ${spk.id ? `
+        <button type="button" class="btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="closeModal('modalDetailPegawaiCari'); viewNurseDetail('${escapeHtml(spk.id).replace(/'/g, '&#39;')}');">
+          <i class="fa-solid fa-file-contract"></i> Buka Berkas SPK &amp; RKK Lengkap
+        </button>
+      ` : ''}
+    </div>
+  ` : `
+    <div style="background: var(--bg-main, #f8fafc); border: 1px dashed var(--border-subtle, #cbd5e1); border-radius: 12px; padding: 0.85rem 1rem; font-size: 0.82rem; color: var(--text-muted);">
+      <i class="fa-solid fa-circle-info"></i> Belum terdapat arsip SPK/RKK yang tertaut untuk pegawai ini di database kredensialing portal.
+    </div>
+  `;
+
+  body.innerHTML = `
+    <div class="cari-detail-banner">
+      <div class="cari-detail-avatar">${escapeHtml(initials)}</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); line-height: 1.3;">${escapeHtml(item.nama)}</div>
+        <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.35rem;">
+          <span class="cari-badge ${item.kat === 'Bidan' ? 'cari-badge-bidan' : 'cari-badge-perawat'}">${escapeHtml(item.kat)}</span>
+          <span class="cari-badge ${item.status === 'PNS' ? 'cari-badge-pns' : (item.status === 'PPPK' ? 'cari-badge-pppk' : 'cari-badge-blud')}">${escapeHtml(item.status)}</span>
+          <span class="cari-badge cari-badge-spk-none">${escapeHtml(item.aktif)}</span>
+          ${item.pengurusRole ? `<span class="cari-badge cari-badge-pengurus"><i class="fa-solid fa-user-shield"></i> ${escapeHtml(item.pengurusRole)}</span>` : ''}
+        </div>
+      </div>
+      <button type="button" class="btn-secondary" style="font-size: 0.76rem; padding: 0.42rem 0.75rem;" onclick="copyCariPegawaiNip('${safeIdAttr}')">
+        <i class="fa-regular fa-copy"></i> Salin ${escapeHtml(item.jenis)}
+      </button>
+    </div>
+
+    <div class="cari-detail-grid">
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">${escapeHtml(item.jenis)}</div>
+        <div class="cari-detail-item-val cari-id-code">${escapeHtml(item.id)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">ID Pegawai RSUD</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.peg)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">Unit / Ruangan Tugas</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.unit)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">Jabatan &amp; Profesi</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.jab)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">Pendidikan Terakhir</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.pend)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">Jenis Kelamin</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.jk)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">Estimasi Pangkat / Golongan</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.pangkatEst)}</div>
+      </div>
+      <div class="cari-detail-item">
+        <div class="cari-detail-item-label">TMT ASN / Perkiraan Pensiun</div>
+        <div class="cari-detail-item-val">TMT: ${escapeHtml(item.tmt)} &bull; Pensiun: ${escapeHtml(item.pensiun)} (BUP ${escapeHtml(String(item.bup))})</div>
+      </div>
+      ${item.gmail ? `
+      <div class="cari-detail-item" style="grid-column: 1 / -1;">
+        <div class="cari-detail-item-label">Gmail Terdaftar di Portal</div>
+        <div class="cari-detail-item-val">${escapeHtml(item.gmail)}</div>
+      </div>
+      ` : ''}
+    </div>
+
+    ${spkSection}
+  `;
+
+  openModal('modalDetailPegawaiCari');
+}
+
+function copyCariPegawaiNip(nip) {
+  const clean = String(nip || '').trim();
+  if (!clean || clean === '-') return;
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    navigator.clipboard.writeText(clean)
+      .then(() => showToast(`Nomor identitas ${clean} berhasil disalin.`, 'success'))
+      .catch(() => showToast(`Nomor identitas: ${clean}`, 'info'));
+  } else {
+    showToast(`Nomor identitas: ${clean}`, 'info');
+  }
+}
+
+window.updateCariPegawaiNavAccess = updateCariPegawaiNavAccess;
+window.initCariPegawaiView = initCariPegawaiView;
+window.handleCariPegawaiInput = handleCariPegawaiInput;
+window.handleCariPegawaiSubmit = handleCariPegawaiSubmit;
+window.setCariPegawaiFilter = setCariPegawaiFilter;
+window.resetCariPegawai = resetCariPegawai;
+window.openCariPegawaiDetail = openCariPegawaiDetail;
+window.copyCariPegawaiNip = copyCariPegawaiNip;
