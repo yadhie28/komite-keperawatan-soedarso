@@ -13797,8 +13797,8 @@ window.getAllAdminAccounts = getAllAdminAccounts;
 
 // Workflow Notifications Exports (PMK 49/2013)
 window.openWorkflowNotifModal = openWorkflowNotifModal;
-window.filterWorkflowNotifModal = filterWorkflowNotifModal;
-window.toggleWfUnreadFilter = toggleWfUnreadFilter;
+if (typeof filterWorkflowNotifModal === 'function') window.filterWorkflowNotifModal = filterWorkflowNotifModal;
+if (typeof toggleWfUnreadFilter === 'function') window.toggleWfUnreadFilter = toggleWfUnreadFilter;
 window.markWorkflowNotifRead = markWorkflowNotifRead;
 window.markAllWorkflowNotifsRead = markAllWorkflowNotifsRead;
 window.navigateToWorkflowDoc = navigateToWorkflowDoc;
@@ -13988,7 +13988,7 @@ window.updateBerandaElectionBanner = updateBerandaElectionBanner;
    MENU PENCARIAN DATA PERAWAT / BIDAN (KHUSUS AKUN PENGURUS KOMITE KEPERAWATAN)
    Aturan: Minimal 3 huruf nama atau 3 angka NIP / NIPPPK / NIK
    ========================================================================== */
-const cariPegawaiState = {
+var cariPegawaiState = {
   kat: 'all',
   status: 'all',
   query: '',
